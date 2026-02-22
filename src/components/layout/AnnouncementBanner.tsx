@@ -18,6 +18,9 @@ const AnnouncementBanner: React.FC = () => {
     localStorage.setItem('hiddenAnnouncementId', announcementData.id);
   };
 
+  // Hidden for now
+  if (true) return null;
+
   if (!isVisible) return null;
 
   return (
