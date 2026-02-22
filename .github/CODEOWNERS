@@ -1,0 +1,9 @@
+# Default ownership
+* @Arudchayan
+
+# CI and repository policy
+/.github/ @Arudchayan
+
+# Application code
+/src/ @Arudchayan
+/tests/ @Arudchayan

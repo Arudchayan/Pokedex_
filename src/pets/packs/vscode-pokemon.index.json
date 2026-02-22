@@ -1,0 +1,2226 @@
+[
+  {
+    "generation": "gen1",
+    "species": "abra"
+  },
+  {
+    "generation": "gen1",
+    "species": "aerodactyl"
+  },
+  {
+    "generation": "gen1",
+    "species": "alakazam"
+  },
+  {
+    "generation": "gen1",
+    "species": "arbok"
+  },
+  {
+    "generation": "gen1",
+    "species": "arcanine"
+  },
+  {
+    "generation": "gen1",
+    "species": "articuno"
+  },
+  {
+    "generation": "gen1",
+    "species": "beedrill"
+  },
+  {
+    "generation": "gen1",
+    "species": "bellsprout"
+  },
+  {
+    "generation": "gen1",
+    "species": "blastoise"
+  },
+  {
+    "generation": "gen1",
+    "species": "bulbasaur"
+  },
+  {
+    "generation": "gen1",
+    "species": "butterfree"
+  },
+  {
+    "generation": "gen1",
+    "species": "caterpie"
+  },
+  {
+    "generation": "gen1",
+    "species": "chansey"
+  },
+  {
+    "generation": "gen1",
+    "species": "charizard"
+  },
+  {
+    "generation": "gen1",
+    "species": "charmander"
+  },
+  {
+    "generation": "gen1",
+    "species": "charmeleon"
+  },
+  {
+    "generation": "gen1",
+    "species": "clefable"
+  },
+  {
+    "generation": "gen1",
+    "species": "clefairy"
+  },
+  {
+    "generation": "gen1",
+    "species": "cloyster"
+  },
+  {
+    "generation": "gen1",
+    "species": "cubone"
+  },
+  {
+    "generation": "gen1",
+    "species": "dewgong"
+  },
+  {
+    "generation": "gen1",
+    "species": "diglett"
+  },
+  {
+    "generation": "gen1",
+    "species": "ditto"
+  },
+  {
+    "generation": "gen1",
+    "species": "dodrio"
+  },
+  {
+    "generation": "gen1",
+    "species": "doduo"
+  },
+  {
+    "generation": "gen1",
+    "species": "dragonair"
+  },
+  {
+    "generation": "gen1",
+    "species": "dragonite"
+  },
+  {
+    "generation": "gen1",
+    "species": "dratini"
+  },
+  {
+    "generation": "gen1",
+    "species": "drowzee"
+  },
+  {
+    "generation": "gen1",
+    "species": "dugtrio"
+  },
+  {
+    "generation": "gen1",
+    "species": "eevee"
+  },
+  {
+    "generation": "gen1",
+    "species": "ekans"
+  },
+  {
+    "generation": "gen1",
+    "species": "electabuzz"
+  },
+  {
+    "generation": "gen1",
+    "species": "electrode"
+  },
+  {
+    "generation": "gen1",
+    "species": "exeggcute"
+  },
+  {
+    "generation": "gen1",
+    "species": "exeggutor"
+  },
+  {
+    "generation": "gen1",
+    "species": "farfetchd"
+  },
+  {
+    "generation": "gen1",
+    "species": "fearow"
+  },
+  {
+    "generation": "gen1",
+    "species": "flareon"
+  },
+  {
+    "generation": "gen1",
+    "species": "gastly"
+  },
+  {
+    "generation": "gen1",
+    "species": "gengar"
+  },
+  {
+    "generation": "gen1",
+    "species": "geodude"
+  },
+  {
+    "generation": "gen1",
+    "species": "gloom"
+  },
+  {
+    "generation": "gen1",
+    "species": "golbat"
+  },
+  {
+    "generation": "gen1",
+    "species": "goldeen"
+  },
+  {
+    "generation": "gen1",
+    "species": "golduck"
+  },
+  {
+    "generation": "gen1",
+    "species": "golem"
+  },
+  {
+    "generation": "gen1",
+    "species": "graveler"
+  },
+  {
+    "generation": "gen1",
+    "species": "grimer"
+  },
+  {
+    "generation": "gen1",
+    "species": "growlithe"
+  },
+  {
+    "generation": "gen1",
+    "species": "gyarados"
+  },
+  {
+    "generation": "gen1",
+    "species": "haunter"
+  },
+  {
+    "generation": "gen1",
+    "species": "hitmonchan"
+  },
+  {
+    "generation": "gen1",
+    "species": "hitmonlee"
+  },
+  {
+    "generation": "gen1",
+    "species": "horsea"
+  },
+  {
+    "generation": "gen1",
+    "species": "hypno"
+  },
+  {
+    "generation": "gen1",
+    "species": "ivysaur"
+  },
+  {
+    "generation": "gen1",
+    "species": "jigglypuff"
+  },
+  {
+    "generation": "gen1",
+    "species": "jolteon"
+  },
+  {
+    "generation": "gen1",
+    "species": "jynx"
+  },
+  {
+    "generation": "gen1",
+    "species": "kabuto"
+  },
+  {
+    "generation": "gen1",
+    "species": "kabutops"
+  },
+  {
+    "generation": "gen1",
+    "species": "kadabra"
+  },
+  {
+    "generation": "gen1",
+    "species": "kakuna"
+  },
+  {
+    "generation": "gen1",
+    "species": "kangaskhan"
+  },
+  {
+    "generation": "gen1",
+    "species": "kingler"
+  },
+  {
+    "generation": "gen1",
+    "species": "koffing"
+  },
+  {
+    "generation": "gen1",
+    "species": "krabby"
+  },
+  {
+    "generation": "gen1",
+    "species": "lapras"
+  },
+  {
+    "generation": "gen1",
+    "species": "lickitung"
+  },
+  {
+    "generation": "gen1",
+    "species": "machamp"
+  },
+  {
+    "generation": "gen1",
+    "species": "machoke"
+  },
+  {
+    "generation": "gen1",
+    "species": "machop"
+  },
+  {
+    "generation": "gen1",
+    "species": "magikarp"
+  },
+  {
+    "generation": "gen1",
+    "species": "magmar"
+  },
+  {
+    "generation": "gen1",
+    "species": "magnemite"
+  },
+  {
+    "generation": "gen1",
+    "species": "magneton"
+  },
+  {
+    "generation": "gen1",
+    "species": "mankey"
+  },
+  {
+    "generation": "gen1",
+    "species": "marowak"
+  },
+  {
+    "generation": "gen1",
+    "species": "meowth"
+  },
+  {
+    "generation": "gen1",
+    "species": "metapod"
+  },
+  {
+    "generation": "gen1",
+    "species": "mew"
+  },
+  {
+    "generation": "gen1",
+    "species": "mewtwo"
+  },
+  {
+    "generation": "gen1",
+    "species": "moltres"
+  },
+  {
+    "generation": "gen1",
+    "species": "mrmime"
+  },
+  {
+    "generation": "gen1",
+    "species": "muk"
+  },
+  {
+    "generation": "gen1",
+    "species": "nidoking"
+  },
+  {
+    "generation": "gen1",
+    "species": "nidoqueen"
+  },
+  {
+    "generation": "gen1",
+    "species": "nidoran_female"
+  },
+  {
+    "generation": "gen1",
+    "species": "nidoran_male"
+  },
+  {
+    "generation": "gen1",
+    "species": "nidorina"
+  },
+  {
+    "generation": "gen1",
+    "species": "nidorino"
+  },
+  {
+    "generation": "gen1",
+    "species": "ninetales"
+  },
+  {
+    "generation": "gen1",
+    "species": "oddish"
+  },
+  {
+    "generation": "gen1",
+    "species": "omanyte"
+  },
+  {
+    "generation": "gen1",
+    "species": "omastar"
+  },
+  {
+    "generation": "gen1",
+    "species": "onix"
+  },
+  {
+    "generation": "gen1",
+    "species": "paras"
+  },
+  {
+    "generation": "gen1",
+    "species": "parasect"
+  },
+  {
+    "generation": "gen1",
+    "species": "persian"
+  },
+  {
+    "generation": "gen1",
+    "species": "pidgeot"
+  },
+  {
+    "generation": "gen1",
+    "species": "pidgeotto"
+  },
+  {
+    "generation": "gen1",
+    "species": "pidgey"
+  },
+  {
+    "generation": "gen1",
+    "species": "pikachu"
+  },
+  {
+    "generation": "gen1",
+    "species": "pinsir"
+  },
+  {
+    "generation": "gen1",
+    "species": "poliwag"
+  },
+  {
+    "generation": "gen1",
+    "species": "poliwhirl"
+  },
+  {
+    "generation": "gen1",
+    "species": "poliwrath"
+  },
+  {
+    "generation": "gen1",
+    "species": "ponyta"
+  },
+  {
+    "generation": "gen1",
+    "species": "porygon"
+  },
+  {
+    "generation": "gen1",
+    "species": "primeape"
+  },
+  {
+    "generation": "gen1",
+    "species": "psyduck"
+  },
+  {
+    "generation": "gen1",
+    "species": "raichu"
+  },
+  {
+    "generation": "gen1",
+    "species": "rapidash"
+  },
+  {
+    "generation": "gen1",
+    "species": "raticate"
+  },
+  {
+    "generation": "gen1",
+    "species": "rattata"
+  },
+  {
+    "generation": "gen1",
+    "species": "rhydon"
+  },
+  {
+    "generation": "gen1",
+    "species": "rhyhorn"
+  },
+  {
+    "generation": "gen1",
+    "species": "sandshrew"
+  },
+  {
+    "generation": "gen1",
+    "species": "sandslash"
+  },
+  {
+    "generation": "gen1",
+    "species": "scyther"
+  },
+  {
+    "generation": "gen1",
+    "species": "seadra"
+  },
+  {
+    "generation": "gen1",
+    "species": "seaking"
+  },
+  {
+    "generation": "gen1",
+    "species": "seel"
+  },
+  {
+    "generation": "gen1",
+    "species": "shellder"
+  },
+  {
+    "generation": "gen1",
+    "species": "slowbro"
+  },
+  {
+    "generation": "gen1",
+    "species": "slowpoke"
+  },
+  {
+    "generation": "gen1",
+    "species": "snorlax"
+  },
+  {
+    "generation": "gen1",
+    "species": "spearow"
+  },
+  {
+    "generation": "gen1",
+    "species": "squirtle"
+  },
+  {
+    "generation": "gen1",
+    "species": "starmie"
+  },
+  {
+    "generation": "gen1",
+    "species": "staryu"
+  },
+  {
+    "generation": "gen1",
+    "species": "tangela"
+  },
+  {
+    "generation": "gen1",
+    "species": "tauros"
+  },
+  {
+    "generation": "gen1",
+    "species": "tentacool"
+  },
+  {
+    "generation": "gen1",
+    "species": "tentacruel"
+  },
+  {
+    "generation": "gen1",
+    "species": "vaporeon"
+  },
+  {
+    "generation": "gen1",
+    "species": "venomoth"
+  },
+  {
+    "generation": "gen1",
+    "species": "venonat"
+  },
+  {
+    "generation": "gen1",
+    "species": "venusaur"
+  },
+  {
+    "generation": "gen1",
+    "species": "victreebel"
+  },
+  {
+    "generation": "gen1",
+    "species": "vileplume"
+  },
+  {
+    "generation": "gen1",
+    "species": "voltorb"
+  },
+  {
+    "generation": "gen1",
+    "species": "vulpix"
+  },
+  {
+    "generation": "gen1",
+    "species": "wartortle"
+  },
+  {
+    "generation": "gen1",
+    "species": "weedle"
+  },
+  {
+    "generation": "gen1",
+    "species": "weepinbell"
+  },
+  {
+    "generation": "gen1",
+    "species": "weezing"
+  },
+  {
+    "generation": "gen1",
+    "species": "wigglytuff"
+  },
+  {
+    "generation": "gen1",
+    "species": "zapdos"
+  },
+  {
+    "generation": "gen1",
+    "species": "zubat"
+  },
+  {
+    "generation": "gen2",
+    "species": "aipom"
+  },
+  {
+    "generation": "gen2",
+    "species": "ampharos"
+  },
+  {
+    "generation": "gen2",
+    "species": "ariados"
+  },
+  {
+    "generation": "gen2",
+    "species": "azumarill"
+  },
+  {
+    "generation": "gen2",
+    "species": "bayleef"
+  },
+  {
+    "generation": "gen2",
+    "species": "bellossom"
+  },
+  {
+    "generation": "gen2",
+    "species": "blissey"
+  },
+  {
+    "generation": "gen2",
+    "species": "celebi"
+  },
+  {
+    "generation": "gen2",
+    "species": "chikorita"
+  },
+  {
+    "generation": "gen2",
+    "species": "chinchou"
+  },
+  {
+    "generation": "gen2",
+    "species": "cleffa"
+  },
+  {
+    "generation": "gen2",
+    "species": "corsola"
+  },
+  {
+    "generation": "gen2",
+    "species": "crobat"
+  },
+  {
+    "generation": "gen2",
+    "species": "croconaw"
+  },
+  {
+    "generation": "gen2",
+    "species": "cyndaquil"
+  },
+  {
+    "generation": "gen2",
+    "species": "delibird"
+  },
+  {
+    "generation": "gen2",
+    "species": "donphan"
+  },
+  {
+    "generation": "gen2",
+    "species": "dunsparce"
+  },
+  {
+    "generation": "gen2",
+    "species": "elekid"
+  },
+  {
+    "generation": "gen2",
+    "species": "entei"
+  },
+  {
+    "generation": "gen2",
+    "species": "espeon"
+  },
+  {
+    "generation": "gen2",
+    "species": "feraligatr"
+  },
+  {
+    "generation": "gen2",
+    "species": "flaaffy"
+  },
+  {
+    "generation": "gen2",
+    "species": "forretress"
+  },
+  {
+    "generation": "gen2",
+    "species": "furret"
+  },
+  {
+    "generation": "gen2",
+    "species": "girafarig"
+  },
+  {
+    "generation": "gen2",
+    "species": "gligar"
+  },
+  {
+    "generation": "gen2",
+    "species": "granbull"
+  },
+  {
+    "generation": "gen2",
+    "species": "heracross_female"
+  },
+  {
+    "generation": "gen2",
+    "species": "heracross_male"
+  },
+  {
+    "generation": "gen2",
+    "species": "hitmontop"
+  },
+  {
+    "generation": "gen2",
+    "species": "hooh"
+  },
+  {
+    "generation": "gen2",
+    "species": "hoothoot"
+  },
+  {
+    "generation": "gen2",
+    "species": "hoppip"
+  },
+  {
+    "generation": "gen2",
+    "species": "houndoom"
+  },
+  {
+    "generation": "gen2",
+    "species": "houndour"
+  },
+  {
+    "generation": "gen2",
+    "species": "igglybuff"
+  },
+  {
+    "generation": "gen2",
+    "species": "jumpluff"
+  },
+  {
+    "generation": "gen2",
+    "species": "kingdra"
+  },
+  {
+    "generation": "gen2",
+    "species": "lanturn"
+  },
+  {
+    "generation": "gen2",
+    "species": "larvitar"
+  },
+  {
+    "generation": "gen2",
+    "species": "ledian"
+  },
+  {
+    "generation": "gen2",
+    "species": "ledyba"
+  },
+  {
+    "generation": "gen2",
+    "species": "lugia"
+  },
+  {
+    "generation": "gen2",
+    "species": "magby"
+  },
+  {
+    "generation": "gen2",
+    "species": "magcargo"
+  },
+  {
+    "generation": "gen2",
+    "species": "mantine"
+  },
+  {
+    "generation": "gen2",
+    "species": "mareep"
+  },
+  {
+    "generation": "gen2",
+    "species": "marill"
+  },
+  {
+    "generation": "gen2",
+    "species": "meganium"
+  },
+  {
+    "generation": "gen2",
+    "species": "miltank"
+  },
+  {
+    "generation": "gen2",
+    "species": "misdreavus"
+  },
+  {
+    "generation": "gen2",
+    "species": "murkrow"
+  },
+  {
+    "generation": "gen2",
+    "species": "natu"
+  },
+  {
+    "generation": "gen2",
+    "species": "noctowl"
+  },
+  {
+    "generation": "gen2",
+    "species": "octillery"
+  },
+  {
+    "generation": "gen2",
+    "species": "phanpy"
+  },
+  {
+    "generation": "gen2",
+    "species": "pichu"
+  },
+  {
+    "generation": "gen2",
+    "species": "pichu_spiky_eared"
+  },
+  {
+    "generation": "gen2",
+    "species": "piloswine"
+  },
+  {
+    "generation": "gen2",
+    "species": "pineco"
+  },
+  {
+    "generation": "gen2",
+    "species": "politoed"
+  },
+  {
+    "generation": "gen2",
+    "species": "porygon2"
+  },
+  {
+    "generation": "gen2",
+    "species": "pupitar"
+  },
+  {
+    "generation": "gen2",
+    "species": "quagsire"
+  },
+  {
+    "generation": "gen2",
+    "species": "quilava"
+  },
+  {
+    "generation": "gen2",
+    "species": "qwilfish"
+  },
+  {
+    "generation": "gen2",
+    "species": "raikou"
+  },
+  {
+    "generation": "gen2",
+    "species": "remoraid"
+  },
+  {
+    "generation": "gen2",
+    "species": "scizor"
+  },
+  {
+    "generation": "gen2",
+    "species": "sentret"
+  },
+  {
+    "generation": "gen2",
+    "species": "shuckle"
+  },
+  {
+    "generation": "gen2",
+    "species": "skarmory"
+  },
+  {
+    "generation": "gen2",
+    "species": "skiploom"
+  },
+  {
+    "generation": "gen2",
+    "species": "slowking"
+  },
+  {
+    "generation": "gen2",
+    "species": "slugma"
+  },
+  {
+    "generation": "gen2",
+    "species": "smeargle"
+  },
+  {
+    "generation": "gen2",
+    "species": "smoochum"
+  },
+  {
+    "generation": "gen2",
+    "species": "sneasel"
+  },
+  {
+    "generation": "gen2",
+    "species": "snubbull"
+  },
+  {
+    "generation": "gen2",
+    "species": "spinarak"
+  },
+  {
+    "generation": "gen2",
+    "species": "stantler"
+  },
+  {
+    "generation": "gen2",
+    "species": "steelix"
+  },
+  {
+    "generation": "gen2",
+    "species": "sudowoodo"
+  },
+  {
+    "generation": "gen2",
+    "species": "suicune"
+  },
+  {
+    "generation": "gen2",
+    "species": "sunflora"
+  },
+  {
+    "generation": "gen2",
+    "species": "sunkern"
+  },
+  {
+    "generation": "gen2",
+    "species": "swinub"
+  },
+  {
+    "generation": "gen2",
+    "species": "teddiursa"
+  },
+  {
+    "generation": "gen2",
+    "species": "togepi"
+  },
+  {
+    "generation": "gen2",
+    "species": "togetic"
+  },
+  {
+    "generation": "gen2",
+    "species": "totodile"
+  },
+  {
+    "generation": "gen2",
+    "species": "typhlosion"
+  },
+  {
+    "generation": "gen2",
+    "species": "tyranitar"
+  },
+  {
+    "generation": "gen2",
+    "species": "tyrogue"
+  },
+  {
+    "generation": "gen2",
+    "species": "umbreon"
+  },
+  {
+    "generation": "gen2",
+    "species": "unown_a"
+  },
+  {
+    "generation": "gen2",
+    "species": "unown_b"
+  },
+  {
+    "generation": "gen2",
+    "species": "unown_c"
+  },
+  {
+    "generation": "gen2",
+    "species": "unown_d"
+  },
+  {
+    "generation": "gen2",
+    "species": "unown_e"
+  },
+  {
+    "generation": "gen2",
+    "species": "unown_exclamation"
+  },
+  {
+    "generation": "gen2",
+    "species": "unown_f"
+  },
+  {
+    "generation": "gen2",
+    "species": "unown_g"
+  },
+  {
+    "generation": "gen2",
+    "species": "unown_h"
+  },
+  {
+    "generation": "gen2",
+    "species": "unown_i"
+  },
+  {
+    "generation": "gen2",
+    "species": "unown_j"
+  },
+  {
+    "generation": "gen2",
+    "species": "unown_k"
+  },
+  {
+    "generation": "gen2",
+    "species": "unown_l"
+  },
+  {
+    "generation": "gen2",
+    "species": "unown_m"
+  },
+  {
+    "generation": "gen2",
+    "species": "unown_n"
+  },
+  {
+    "generation": "gen2",
+    "species": "unown_o"
+  },
+  {
+    "generation": "gen2",
+    "species": "unown_p"
+  },
+  {
+    "generation": "gen2",
+    "species": "unown_q"
+  },
+  {
+    "generation": "gen2",
+    "species": "unown_question"
+  },
+  {
+    "generation": "gen2",
+    "species": "unown_r"
+  },
+  {
+    "generation": "gen2",
+    "species": "unown_s"
+  },
+  {
+    "generation": "gen2",
+    "species": "unown_t"
+  },
+  {
+    "generation": "gen2",
+    "species": "unown_u"
+  },
+  {
+    "generation": "gen2",
+    "species": "unown_v"
+  },
+  {
+    "generation": "gen2",
+    "species": "unown_w"
+  },
+  {
+    "generation": "gen2",
+    "species": "unown_x"
+  },
+  {
+    "generation": "gen2",
+    "species": "unown_y"
+  },
+  {
+    "generation": "gen2",
+    "species": "unown_z"
+  },
+  {
+    "generation": "gen2",
+    "species": "ursaring"
+  },
+  {
+    "generation": "gen2",
+    "species": "wobbuffet_female"
+  },
+  {
+    "generation": "gen2",
+    "species": "wobbuffet_male"
+  },
+  {
+    "generation": "gen2",
+    "species": "wooper"
+  },
+  {
+    "generation": "gen2",
+    "species": "xatu"
+  },
+  {
+    "generation": "gen2",
+    "species": "yanma"
+  },
+  {
+    "generation": "gen3",
+    "species": "absol"
+  },
+  {
+    "generation": "gen3",
+    "species": "aggron"
+  },
+  {
+    "generation": "gen3",
+    "species": "altaria"
+  },
+  {
+    "generation": "gen3",
+    "species": "anorith"
+  },
+  {
+    "generation": "gen3",
+    "species": "armaldo"
+  },
+  {
+    "generation": "gen3",
+    "species": "aron"
+  },
+  {
+    "generation": "gen3",
+    "species": "azurill"
+  },
+  {
+    "generation": "gen3",
+    "species": "bagon"
+  },
+  {
+    "generation": "gen3",
+    "species": "baltoy"
+  },
+  {
+    "generation": "gen3",
+    "species": "banette"
+  },
+  {
+    "generation": "gen3",
+    "species": "barboach"
+  },
+  {
+    "generation": "gen3",
+    "species": "beautifly"
+  },
+  {
+    "generation": "gen3",
+    "species": "beldum"
+  },
+  {
+    "generation": "gen3",
+    "species": "blaziken"
+  },
+  {
+    "generation": "gen3",
+    "species": "breloom"
+  },
+  {
+    "generation": "gen3",
+    "species": "cacnea"
+  },
+  {
+    "generation": "gen3",
+    "species": "cacturne"
+  },
+  {
+    "generation": "gen3",
+    "species": "camerupt"
+  },
+  {
+    "generation": "gen3",
+    "species": "carvanha"
+  },
+  {
+    "generation": "gen3",
+    "species": "cascoon"
+  },
+  {
+    "generation": "gen3",
+    "species": "castform"
+  },
+  {
+    "generation": "gen3",
+    "species": "chimecho"
+  },
+  {
+    "generation": "gen3",
+    "species": "clamperl"
+  },
+  {
+    "generation": "gen3",
+    "species": "claydol"
+  },
+  {
+    "generation": "gen3",
+    "species": "combusken"
+  },
+  {
+    "generation": "gen3",
+    "species": "corphish"
+  },
+  {
+    "generation": "gen3",
+    "species": "cradily"
+  },
+  {
+    "generation": "gen3",
+    "species": "crawdaunt"
+  },
+  {
+    "generation": "gen3",
+    "species": "delcatty"
+  },
+  {
+    "generation": "gen3",
+    "species": "deoxys"
+  },
+  {
+    "generation": "gen3",
+    "species": "deoxys_attack"
+  },
+  {
+    "generation": "gen3",
+    "species": "deoxys_defense"
+  },
+  {
+    "generation": "gen3",
+    "species": "deoxys_speed"
+  },
+  {
+    "generation": "gen3",
+    "species": "dusclops"
+  },
+  {
+    "generation": "gen3",
+    "species": "duskull"
+  },
+  {
+    "generation": "gen3",
+    "species": "dustox"
+  },
+  {
+    "generation": "gen3",
+    "species": "electrike"
+  },
+  {
+    "generation": "gen3",
+    "species": "exploud"
+  },
+  {
+    "generation": "gen3",
+    "species": "feebas"
+  },
+  {
+    "generation": "gen3",
+    "species": "flygon"
+  },
+  {
+    "generation": "gen3",
+    "species": "gardevoir"
+  },
+  {
+    "generation": "gen3",
+    "species": "glalie"
+  },
+  {
+    "generation": "gen3",
+    "species": "gorebyss"
+  },
+  {
+    "generation": "gen3",
+    "species": "groudon"
+  },
+  {
+    "generation": "gen3",
+    "species": "grovyle"
+  },
+  {
+    "generation": "gen3",
+    "species": "grumpig"
+  },
+  {
+    "generation": "gen3",
+    "species": "gulpin"
+  },
+  {
+    "generation": "gen3",
+    "species": "hariyama"
+  },
+  {
+    "generation": "gen3",
+    "species": "huntail"
+  },
+  {
+    "generation": "gen3",
+    "species": "illumise"
+  },
+  {
+    "generation": "gen3",
+    "species": "jirachi"
+  },
+  {
+    "generation": "gen3",
+    "species": "kecleon"
+  },
+  {
+    "generation": "gen3",
+    "species": "kirlia"
+  },
+  {
+    "generation": "gen3",
+    "species": "kyogre"
+  },
+  {
+    "generation": "gen3",
+    "species": "lairon"
+  },
+  {
+    "generation": "gen3",
+    "species": "latias"
+  },
+  {
+    "generation": "gen3",
+    "species": "latios"
+  },
+  {
+    "generation": "gen3",
+    "species": "lileep"
+  },
+  {
+    "generation": "gen3",
+    "species": "linoone"
+  },
+  {
+    "generation": "gen3",
+    "species": "lombre"
+  },
+  {
+    "generation": "gen3",
+    "species": "lotad"
+  },
+  {
+    "generation": "gen3",
+    "species": "loudred"
+  },
+  {
+    "generation": "gen3",
+    "species": "ludicolo"
+  },
+  {
+    "generation": "gen3",
+    "species": "lunatone"
+  },
+  {
+    "generation": "gen3",
+    "species": "luvdisc"
+  },
+  {
+    "generation": "gen3",
+    "species": "makuhita"
+  },
+  {
+    "generation": "gen3",
+    "species": "manectric"
+  },
+  {
+    "generation": "gen3",
+    "species": "marshtomp"
+  },
+  {
+    "generation": "gen3",
+    "species": "masquerain"
+  },
+  {
+    "generation": "gen3",
+    "species": "mawile"
+  },
+  {
+    "generation": "gen3",
+    "species": "medicham"
+  },
+  {
+    "generation": "gen3",
+    "species": "meditite"
+  },
+  {
+    "generation": "gen3",
+    "species": "metagross"
+  },
+  {
+    "generation": "gen3",
+    "species": "metang"
+  },
+  {
+    "generation": "gen3",
+    "species": "mightyena"
+  },
+  {
+    "generation": "gen3",
+    "species": "milotic"
+  },
+  {
+    "generation": "gen3",
+    "species": "minun"
+  },
+  {
+    "generation": "gen3",
+    "species": "mudkip"
+  },
+  {
+    "generation": "gen3",
+    "species": "nincada"
+  },
+  {
+    "generation": "gen3",
+    "species": "ninjask"
+  },
+  {
+    "generation": "gen3",
+    "species": "nosepass"
+  },
+  {
+    "generation": "gen3",
+    "species": "numel"
+  },
+  {
+    "generation": "gen3",
+    "species": "nuzleaf"
+  },
+  {
+    "generation": "gen3",
+    "species": "pelipper"
+  },
+  {
+    "generation": "gen3",
+    "species": "plusle"
+  },
+  {
+    "generation": "gen3",
+    "species": "poochyena"
+  },
+  {
+    "generation": "gen3",
+    "species": "ralts"
+  },
+  {
+    "generation": "gen3",
+    "species": "rayquaza"
+  },
+  {
+    "generation": "gen3",
+    "species": "regice"
+  },
+  {
+    "generation": "gen3",
+    "species": "regirock"
+  },
+  {
+    "generation": "gen3",
+    "species": "registeel"
+  },
+  {
+    "generation": "gen3",
+    "species": "relicanth"
+  },
+  {
+    "generation": "gen3",
+    "species": "roselia"
+  },
+  {
+    "generation": "gen3",
+    "species": "sableye"
+  },
+  {
+    "generation": "gen3",
+    "species": "salamence"
+  },
+  {
+    "generation": "gen3",
+    "species": "sceptile"
+  },
+  {
+    "generation": "gen3",
+    "species": "sealeo"
+  },
+  {
+    "generation": "gen3",
+    "species": "seedot"
+  },
+  {
+    "generation": "gen3",
+    "species": "seviper"
+  },
+  {
+    "generation": "gen3",
+    "species": "sharpedo"
+  },
+  {
+    "generation": "gen3",
+    "species": "shedinja"
+  },
+  {
+    "generation": "gen3",
+    "species": "shelgon"
+  },
+  {
+    "generation": "gen3",
+    "species": "shiftry"
+  },
+  {
+    "generation": "gen3",
+    "species": "shroomish"
+  },
+  {
+    "generation": "gen3",
+    "species": "shuppet"
+  },
+  {
+    "generation": "gen3",
+    "species": "silcoon"
+  },
+  {
+    "generation": "gen3",
+    "species": "skitty"
+  },
+  {
+    "generation": "gen3",
+    "species": "slaking"
+  },
+  {
+    "generation": "gen3",
+    "species": "slakoth"
+  },
+  {
+    "generation": "gen3",
+    "species": "snorunt"
+  },
+  {
+    "generation": "gen3",
+    "species": "solrock"
+  },
+  {
+    "generation": "gen3",
+    "species": "spheal"
+  },
+  {
+    "generation": "gen3",
+    "species": "spinda"
+  },
+  {
+    "generation": "gen3",
+    "species": "spoink"
+  },
+  {
+    "generation": "gen3",
+    "species": "surskit"
+  },
+  {
+    "generation": "gen3",
+    "species": "swablu"
+  },
+  {
+    "generation": "gen3",
+    "species": "swalot"
+  },
+  {
+    "generation": "gen3",
+    "species": "swampert"
+  },
+  {
+    "generation": "gen3",
+    "species": "swellow"
+  },
+  {
+    "generation": "gen3",
+    "species": "taillow"
+  },
+  {
+    "generation": "gen3",
+    "species": "torchic"
+  },
+  {
+    "generation": "gen3",
+    "species": "torkoal"
+  },
+  {
+    "generation": "gen3",
+    "species": "trapinch"
+  },
+  {
+    "generation": "gen3",
+    "species": "treecko"
+  },
+  {
+    "generation": "gen3",
+    "species": "tropius"
+  },
+  {
+    "generation": "gen3",
+    "species": "vibrava"
+  },
+  {
+    "generation": "gen3",
+    "species": "vigoroth"
+  },
+  {
+    "generation": "gen3",
+    "species": "volbeat"
+  },
+  {
+    "generation": "gen3",
+    "species": "wailmer"
+  },
+  {
+    "generation": "gen3",
+    "species": "wailord"
+  },
+  {
+    "generation": "gen3",
+    "species": "walrein"
+  },
+  {
+    "generation": "gen3",
+    "species": "whiscash"
+  },
+  {
+    "generation": "gen3",
+    "species": "whismur"
+  },
+  {
+    "generation": "gen3",
+    "species": "wingull"
+  },
+  {
+    "generation": "gen3",
+    "species": "wurmple"
+  },
+  {
+    "generation": "gen3",
+    "species": "wynaut"
+  },
+  {
+    "generation": "gen3",
+    "species": "zangoose"
+  },
+  {
+    "generation": "gen3",
+    "species": "zigzagoon"
+  },
+  {
+    "generation": "gen4",
+    "species": "abomasnow"
+  },
+  {
+    "generation": "gen4",
+    "species": "ambipom"
+  },
+  {
+    "generation": "gen4",
+    "species": "arceus"
+  },
+  {
+    "generation": "gen4",
+    "species": "arceus_bug"
+  },
+  {
+    "generation": "gen4",
+    "species": "arceus_dark"
+  },
+  {
+    "generation": "gen4",
+    "species": "arceus_dragon"
+  },
+  {
+    "generation": "gen4",
+    "species": "arceus_electric"
+  },
+  {
+    "generation": "gen4",
+    "species": "arceus_fighting"
+  },
+  {
+    "generation": "gen4",
+    "species": "arceus_fire"
+  },
+  {
+    "generation": "gen4",
+    "species": "arceus_flying"
+  },
+  {
+    "generation": "gen4",
+    "species": "arceus_ghost"
+  },
+  {
+    "generation": "gen4",
+    "species": "arceus_grass"
+  },
+  {
+    "generation": "gen4",
+    "species": "arceus_ground"
+  },
+  {
+    "generation": "gen4",
+    "species": "arceus_ice"
+  },
+  {
+    "generation": "gen4",
+    "species": "arceus_poison"
+  },
+  {
+    "generation": "gen4",
+    "species": "arceus_psychic"
+  },
+  {
+    "generation": "gen4",
+    "species": "arceus_rock"
+  },
+  {
+    "generation": "gen4",
+    "species": "arceus_steel"
+  },
+  {
+    "generation": "gen4",
+    "species": "arceus_water"
+  },
+  {
+    "generation": "gen4",
+    "species": "azelf"
+  },
+  {
+    "generation": "gen4",
+    "species": "bastiodon"
+  },
+  {
+    "generation": "gen4",
+    "species": "bibarel"
+  },
+  {
+    "generation": "gen4",
+    "species": "bidoof"
+  },
+  {
+    "generation": "gen4",
+    "species": "bronzong"
+  },
+  {
+    "generation": "gen4",
+    "species": "bronzor"
+  },
+  {
+    "generation": "gen4",
+    "species": "budew"
+  },
+  {
+    "generation": "gen4",
+    "species": "buizel"
+  },
+  {
+    "generation": "gen4",
+    "species": "buneary"
+  },
+  {
+    "generation": "gen4",
+    "species": "burmy_plant"
+  },
+  {
+    "generation": "gen4",
+    "species": "burmy_sandy"
+  },
+  {
+    "generation": "gen4",
+    "species": "burmy_trash"
+  },
+  {
+    "generation": "gen4",
+    "species": "carnivine"
+  },
+  {
+    "generation": "gen4",
+    "species": "chatot"
+  },
+  {
+    "generation": "gen4",
+    "species": "cherrim"
+  },
+  {
+    "generation": "gen4",
+    "species": "cherubi"
+  },
+  {
+    "generation": "gen4",
+    "species": "chimchar"
+  },
+  {
+    "generation": "gen4",
+    "species": "chingling"
+  },
+  {
+    "generation": "gen4",
+    "species": "combee_female"
+  },
+  {
+    "generation": "gen4",
+    "species": "combee_male"
+  },
+  {
+    "generation": "gen4",
+    "species": "cranidos"
+  },
+  {
+    "generation": "gen4",
+    "species": "cresselia"
+  },
+  {
+    "generation": "gen4",
+    "species": "croagunk"
+  },
+  {
+    "generation": "gen4",
+    "species": "darkrai"
+  },
+  {
+    "generation": "gen4",
+    "species": "dialga"
+  },
+  {
+    "generation": "gen4",
+    "species": "drapion"
+  },
+  {
+    "generation": "gen4",
+    "species": "drifblim"
+  },
+  {
+    "generation": "gen4",
+    "species": "drifloon"
+  },
+  {
+    "generation": "gen4",
+    "species": "dusknoir"
+  },
+  {
+    "generation": "gen4",
+    "species": "electivire"
+  },
+  {
+    "generation": "gen4",
+    "species": "empoleon"
+  },
+  {
+    "generation": "gen4",
+    "species": "finneon"
+  },
+  {
+    "generation": "gen4",
+    "species": "floatzel"
+  },
+  {
+    "generation": "gen4",
+    "species": "froslass"
+  },
+  {
+    "generation": "gen4",
+    "species": "gabite"
+  },
+  {
+    "generation": "gen4",
+    "species": "gallade"
+  },
+  {
+    "generation": "gen4",
+    "species": "garchomp"
+  },
+  {
+    "generation": "gen4",
+    "species": "gastrodon_east"
+  },
+  {
+    "generation": "gen4",
+    "species": "gastrodon_west"
+  },
+  {
+    "generation": "gen4",
+    "species": "gible"
+  },
+  {
+    "generation": "gen4",
+    "species": "giratina"
+  },
+  {
+    "generation": "gen4",
+    "species": "giratina_origin"
+  },
+  {
+    "generation": "gen4",
+    "species": "glaceon"
+  },
+  {
+    "generation": "gen4",
+    "species": "glameow"
+  },
+  {
+    "generation": "gen4",
+    "species": "gliscor"
+  },
+  {
+    "generation": "gen4",
+    "species": "grotle"
+  },
+  {
+    "generation": "gen4",
+    "species": "happiny"
+  },
+  {
+    "generation": "gen4",
+    "species": "heatran"
+  },
+  {
+    "generation": "gen4",
+    "species": "hippopotas_female"
+  },
+  {
+    "generation": "gen4",
+    "species": "hippopotas_male"
+  },
+  {
+    "generation": "gen4",
+    "species": "hippowdon_female"
+  },
+  {
+    "generation": "gen4",
+    "species": "hippowdon_male"
+  },
+  {
+    "generation": "gen4",
+    "species": "honchkrow"
+  },
+  {
+    "generation": "gen4",
+    "species": "infernape"
+  },
+  {
+    "generation": "gen4",
+    "species": "kricketot"
+  },
+  {
+    "generation": "gen4",
+    "species": "kricketune"
+  },
+  {
+    "generation": "gen4",
+    "species": "leafeon"
+  },
+  {
+    "generation": "gen4",
+    "species": "lickilicky"
+  },
+  {
+    "generation": "gen4",
+    "species": "lopunny"
+  },
+  {
+    "generation": "gen4",
+    "species": "lucario"
+  },
+  {
+    "generation": "gen4",
+    "species": "lumineon"
+  },
+  {
+    "generation": "gen4",
+    "species": "luxio"
+  },
+  {
+    "generation": "gen4",
+    "species": "luxray"
+  },
+  {
+    "generation": "gen4",
+    "species": "magmortar"
+  },
+  {
+    "generation": "gen4",
+    "species": "magnezone"
+  },
+  {
+    "generation": "gen4",
+    "species": "mamoswine"
+  },
+  {
+    "generation": "gen4",
+    "species": "manaphy"
+  },
+  {
+    "generation": "gen4",
+    "species": "mantyke"
+  },
+  {
+    "generation": "gen4",
+    "species": "mesprit"
+  },
+  {
+    "generation": "gen4",
+    "species": "mismagius"
+  },
+  {
+    "generation": "gen4",
+    "species": "monferno"
+  },
+  {
+    "generation": "gen4",
+    "species": "mothim"
+  },
+  {
+    "generation": "gen4",
+    "species": "munchlax"
+  },
+  {
+    "generation": "gen4",
+    "species": "pachirisu"
+  },
+  {
+    "generation": "gen4",
+    "species": "palkia"
+  },
+  {
+    "generation": "gen4",
+    "species": "phione"
+  },
+  {
+    "generation": "gen4",
+    "species": "piplup"
+  },
+  {
+    "generation": "gen4",
+    "species": "porygonZ"
+  },
+  {
+    "generation": "gen4",
+    "species": "prinplup"
+  },
+  {
+    "generation": "gen4",
+    "species": "probopass"
+  },
+  {
+    "generation": "gen4",
+    "species": "purugly"
+  },
+  {
+    "generation": "gen4",
+    "species": "rampardos"
+  },
+  {
+    "generation": "gen4",
+    "species": "regigigas"
+  },
+  {
+    "generation": "gen4",
+    "species": "rhyperior"
+  },
+  {
+    "generation": "gen4",
+    "species": "riolu"
+  },
+  {
+    "generation": "gen4",
+    "species": "roserade"
+  },
+  {
+    "generation": "gen4",
+    "species": "rotom"
+  },
+  {
+    "generation": "gen4",
+    "species": "rotom_fan"
+  },
+  {
+    "generation": "gen4",
+    "species": "rotom_frost"
+  },
+  {
+    "generation": "gen4",
+    "species": "rotom_heat"
+  },
+  {
+    "generation": "gen4",
+    "species": "rotom_mow"
+  },
+  {
+    "generation": "gen4",
+    "species": "rotom_wash"
+  },
+  {
+    "generation": "gen4",
+    "species": "shaymin"
+  },
+  {
+    "generation": "gen4",
+    "species": "shaymin_sky"
+  },
+  {
+    "generation": "gen4",
+    "species": "shellos_east"
+  },
+  {
+    "generation": "gen4",
+    "species": "shellos_west"
+  },
+  {
+    "generation": "gen4",
+    "species": "shieldon"
+  },
+  {
+    "generation": "gen4",
+    "species": "shinx"
+  },
+  {
+    "generation": "gen4",
+    "species": "skorupi"
+  },
+  {
+    "generation": "gen4",
+    "species": "skuntank"
+  },
+  {
+    "generation": "gen4",
+    "species": "snover"
+  },
+  {
+    "generation": "gen4",
+    "species": "spiritomb"
+  },
+  {
+    "generation": "gen4",
+    "species": "staraptor"
+  },
+  {
+    "generation": "gen4",
+    "species": "staravia"
+  },
+  {
+    "generation": "gen4",
+    "species": "starly"
+  },
+  {
+    "generation": "gen4",
+    "species": "stunky"
+  },
+  {
+    "generation": "gen4",
+    "species": "tangrowth"
+  },
+  {
+    "generation": "gen4",
+    "species": "togekiss"
+  },
+  {
+    "generation": "gen4",
+    "species": "torterra"
+  },
+  {
+    "generation": "gen4",
+    "species": "toxicroak"
+  },
+  {
+    "generation": "gen4",
+    "species": "turtwig"
+  },
+  {
+    "generation": "gen4",
+    "species": "uxie"
+  },
+  {
+    "generation": "gen4",
+    "species": "vespiquen"
+  },
+  {
+    "generation": "gen4",
+    "species": "weavile"
+  },
+  {
+    "generation": "gen4",
+    "species": "wormadam_plant"
+  },
+  {
+    "generation": "gen4",
+    "species": "wormadam_sandy"
+  },
+  {
+    "generation": "gen4",
+    "species": "wormadam_trash"
+  },
+  {
+    "generation": "gen4",
+    "species": "yanmega"
+  }
+]

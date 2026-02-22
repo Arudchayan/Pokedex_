@@ -1,0 +1,42 @@
+name: Repo Hygiene
+
+on:
+  pull_request:
+    branches: ['**']
+  push:
+    branches: ['master']
+
+permissions:
+  contents: read
+
+jobs:
+  hygiene:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Block tracked local env files
+        run: |
+          bad_files=$(git ls-files | grep -E '(^|/)\.env($|\.|_)' | grep -Ev '^\.env\.example$' || true)
+          if [ -n "$bad_files" ]; then
+            echo "Tracked env files are not allowed:"
+            echo "$bad_files"
+            exit 1
+          fi
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Verify npm pack contents
+        run: |
+          npm pack --dry-run > packlist.txt
+          if grep -E '\.npm-cache|\.jules|\.Jules' packlist.txt; then
+            echo "Unexpected artifact included in npm package output"
+            exit 1
+          fi

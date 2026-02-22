@@ -1,0 +1,107 @@
+query getPokemonDetails($id: Int!) {
+  pokemon_v2_pokemonspecies(where: {pokemon_v2_pokemons: {id: {_eq: $id}}}) {
+    id
+    name
+    capture_rate
+    base_happiness
+    gender_rate
+    pokemon_v2_pokemoncolor {
+      name
+    }
+    pokemon_v2_pokemonhabitat {
+      name
+    }
+    pokemon_v2_pokemonspeciesnames(where: {pokemon_v2_language: {name: {_eq: "en"}}}) {
+      genus
+    }
+    pokemon_v2_growthrate {
+      name
+    }
+    pokemon_v2_pokemonshape {
+      name
+    }
+    pokemon_v2_pokemonegggroups {
+      pokemon_v2_egggroup {
+        name
+      }
+    }
+    pokemon_v2_evolutionchain {
+      pokemon_v2_pokemonspecies(order_by: {order: asc}) {
+        id
+        name
+        evolves_from_species_id
+        pokemon_v2_pokemons(limit: 1, order_by: {id: asc}) {
+          pokemon_v2_pokemonsprites {
+            sprites
+          }
+        }
+        pokemon_v2_pokemonevolutions {
+          min_level
+          min_happiness
+          pokemon_v2_evolutiontrigger {
+            name
+          }
+          pokemon_v2_item {
+            name
+          }
+          held_item_id
+          pokemon_v2_move {
+            name
+          }
+          time_of_day
+          pokemon_v2_location {
+            name
+          }
+        }
+      }
+    }
+    pokemon_v2_pokemonspeciesflavortexts(where: {pokemon_v2_language: {name: {_eq: "en"}}}, limit: 1, order_by: {version_id: desc}) {
+      flavor_text
+    }
+    pokemon_v2_pokemons(order_by: {id: asc}) {
+      id
+      name
+      height
+      weight
+      is_default
+      pokemon_v2_pokemonsprites {
+        sprites
+      }
+      pokemon_v2_pokemontypes {
+        pokemon_v2_type {
+          name
+        }
+      }
+      pokemon_v2_pokemonstats {
+        base_stat
+        pokemon_v2_stat {
+          name
+        }
+      }
+      pokemon_v2_pokemonabilities {
+        pokemon_v2_ability {
+          name
+        }
+      }
+      pokemon_v2_pokemonmoves(order_by: {level: asc, move_learn_method_id: asc}) {
+        level
+        pokemon_v2_movelearnmethod {
+          name
+        }
+        pokemon_v2_move {
+          name
+          power
+          accuracy
+          pp
+          priority
+          pokemon_v2_type {
+            name
+          }
+          pokemon_v2_movedamageclass {
+            name
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,88 @@
+import { BattlePokemon, TypeName } from './types';
+
+// Iconic moves for the premade roster
+const MOVES = {
+    Flamethrower: { name: 'Flamethrower', type: 'fire', power: 90, accuracy: 100, pp: 15, category: 'special' },
+    FireBlast: { name: 'Fire Blast', type: 'fire', power: 110, accuracy: 85, pp: 5, category: 'special' },
+    HydroPump: { name: 'Hydro Pump', type: 'water', power: 110, accuracy: 80, pp: 5, category: 'special' },
+    Surf: { name: 'Surf', type: 'water', power: 90, accuracy: 100, pp: 15, category: 'special' },
+    SolarBeam: { name: 'Solar Beam', type: 'grass', power: 120, accuracy: 100, pp: 10, category: 'special' },
+    Thunderbolt: { name: 'Thunderbolt', type: 'electric', power: 90, accuracy: 100, pp: 15, category: 'special' },
+    Thunder: { name: 'Thunder', type: 'electric', power: 110, accuracy: 70, pp: 10, category: 'special' },
+    Earthquake: { name: 'Earthquake', type: 'ground', power: 100, accuracy: 100, pp: 10, category: 'physical' },
+    Psychic: { name: 'Psychic', type: 'psychic', power: 90, accuracy: 100, pp: 10, category: 'special' },
+    ShadowBall: { name: 'Shadow Ball', type: 'ghost', power: 80, accuracy: 100, pp: 15, category: 'special' },
+    IceBeam: { name: 'Ice Beam', type: 'ice', power: 90, accuracy: 100, pp: 10, category: 'special' },
+    BodySlam: { name: 'Body Slam', type: 'normal', power: 85, accuracy: 100, pp: 15, category: 'physical' },
+    HyperBeam: { name: 'Hyper Beam', type: 'normal', power: 150, accuracy: 90, pp: 5, category: 'special' },
+    SludgeBomb: { name: 'Sludge Bomb', type: 'poison', power: 90, accuracy: 100, pp: 10, category: 'special' },
+    DragonClaw: { name: 'Dragon Claw', type: 'dragon', power: 80, accuracy: 100, pp: 15, category: 'physical' },
+    StoneEdge: { name: 'Stone Edge', type: 'rock', power: 100, accuracy: 80, pp: 5, category: 'physical' },
+    CloseCombat: { name: 'Close Combat', type: 'fighting', power: 120, accuracy: 100, pp: 5, category: 'physical' },
+    GigaImpact: { name: 'Giga Impact', type: 'normal', power: 150, accuracy: 90, pp: 5, category: 'physical' },
+    Recover: { name: 'Recover', type: 'normal', power: 0, accuracy: 100, pp: 10, category: 'status', logicId: 'heal_50' },
+    Toxic: { name: 'Toxic', type: 'poison', power: 0, accuracy: 90, pp: 10, category: 'status', logicId: 'toxic' },
+    ThunderWave: { name: 'Thunder Wave', type: 'electric', power: 0, accuracy: 90, pp: 20, category: 'status', logicId: 'thunder_wave' },
+    AirSlash: { name: 'Air Slash', type: 'flying', power: 75, accuracy: 95, pp: 15, category: 'special' }, // Added Missing Move
+};
+
+const makeMon = (id: string, name: string, speciesId: number, types: TypeName[], hp: number, atk: number, def: number, spa: number, spd: number, spe: number, moveKeys: (keyof typeof MOVES)[]): BattlePokemon => {
+    return {
+        id,
+        name,
+        speciesId,
+        types: types as [TypeName, TypeName?],
+        level: 50,
+        gender: 'M',
+        baseStats: { hp, atk, def, spa, spd, spe },
+        stats: { // Simplified Lv 50 calc
+            hp: Math.floor((2 * hp + 31 + 21) * 50 / 100) + 60,
+            atk: Math.floor((2 * atk + 31 + 21) * 50 / 100) + 5,
+            def: Math.floor((2 * def + 31 + 21) * 50 / 100) + 5,
+            spa: Math.floor((2 * spa + 31 + 21) * 50 / 100) + 5,
+            spd: Math.floor((2 * spd + 31 + 21) * 50 / 100) + 5,
+            spe: Math.floor((2 * spe + 31 + 21) * 50 / 100) + 5,
+        },
+        currentHp: Math.floor((2 * hp + 31 + 21) * 50 / 100) + 60,
+        maxHp: Math.floor((2 * hp + 31 + 21) * 50 / 100) + 60,
+        status: 'none',
+        statStages: { hp: 0, atk: 0, def: 0, spa: 0, spd: 0, spe: 0 },
+        ability: 'unknown',
+        item: 'leftovers',
+        spriteFront: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${speciesId}.png`,
+        spriteBack: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/back/${speciesId}.png`,
+        moves: moveKeys.map(k => ({
+            id: MOVES[k].name,
+            name: MOVES[k].name,
+            type: MOVES[k].type as TypeName,
+            power: MOVES[k].power,
+            accuracy: MOVES[k].accuracy,
+            pp: MOVES[k].pp,
+            maxPp: MOVES[k].pp,
+            priority: 0,
+            category: MOVES[k].category as any,
+            target: 'normal',
+            desc: '',
+            logicId: (MOVES[k] as any).logicId || 'basic_damage'
+        }))
+    };
+};
+
+export const PREMADE_TEAMS = {
+    teamA: [
+        makeMon("p1_charizard", "Charizard", 6, ["fire", "flying"], 78, 84, 78, 109, 85, 100, ["Flamethrower", "AirSlash", "DragonClaw", "FireBlast"]),
+        makeMon("p1_gengar", "Gengar", 94, ["ghost", "poison"], 60, 65, 60, 130, 75, 110, ["ShadowBall", "SludgeBomb", "Thunderbolt", "Psychic"]),
+        makeMon("p1_gyarados", "Gyarados", 130, ["water", "flying"], 95, 125, 79, 60, 100, 81, ["HydroPump", "Earthquake", "IceBeam", "BodySlam"]),
+        makeMon("p1_snorlax", "Snorlax", 143, ["normal"], 160, 110, 65, 65, 110, 30, ["BodySlam", "Earthquake", "HyperBeam", "Recover"]),
+        makeMon("p1_dragonite", "Dragonite", 149, ["dragon", "flying"], 91, 134, 95, 100, 100, 80, ["DragonClaw", "Thunderbolt", "IceBeam", "HyperBeam"]),
+        makeMon("p1_mewtwo", "Mewtwo", 150, ["psychic"], 106, 110, 90, 154, 90, 130, ["Psychic", "ShadowBall", "Thunderbolt", "Recover"]),
+    ],
+    teamB: [
+        makeMon("ai_venusaur", "Venusaur", 3, ["grass", "poison"], 80, 82, 83, 100, 100, 80, ["SolarBeam", "SludgeBomb", "Toxic", "Recover"]),
+        makeMon("ai_blastoise", "Blastoise", 9, ["water"], 79, 83, 100, 85, 105, 78, ["HydroPump", "IceBeam", "Earthquake", "BodySlam"]),
+        makeMon("ai_alakazam", "Alakazam", 65, ["psychic"], 55, 50, 45, 135, 95, 120, ["Psychic", "ShadowBall", "ThunderWave", "Recover"]),
+        makeMon("ai_machamp", "Machamp", 68, ["fighting"], 90, 130, 80, 65, 85, 55, ["CloseCombat", "StoneEdge", "Earthquake", "BodySlam"]),
+        makeMon("ai_golem", "Golem", 76, ["rock", "ground"], 80, 120, 130, 55, 65, 45, ["Earthquake", "StoneEdge", "BodySlam", "GigaImpact"]),
+        makeMon("ai_jolteon", "Jolteon", 135, ["electric"], 65, 65, 60, 110, 95, 130, ["Thunderbolt", "Thunder", "ShadowBall", "ThunderWave"]),
+    ]
+};

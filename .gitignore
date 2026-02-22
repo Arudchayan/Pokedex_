@@ -1,0 +1,49 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+.env
+.env.*
+!.env.example
+
+# Codex scratch workspace
+.codex_tmp/
+
+# Agent/workspace artifacts (not product source)
+.jules/
+.Jules/
+.npm-cache/
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Generated architecture analysis reports
+ARCHITECTURE_CRITICISM_REPORT.md
+architecture-report.json
+
+# Optional locally-installed Pokemon walker asset pack(s)
+public/pets/
+
+# Playwright
+playwright-report/
+test-results/
+
+# Dev scripts
+git_ops.bat

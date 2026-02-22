@@ -1,0 +1,13 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`filterPokemonList > keeps combined search/stat/ability filters stable 1`] = `
+[
+  "bulbasaur",
+]
+`;
+
+exports[`filterPokemonList > keeps generation/type filters stable 1`] = `
+[
+  1,
+]
+`;

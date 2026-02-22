@@ -1,0 +1,16 @@
+query FetchMoveDex {
+  pokemon_v2_move(limit: 1000, order_by: {id: asc}) {
+    name
+    accuracy
+    power
+    pp
+    type_id
+    move_damage_class_id
+    pokemon_v2_type {
+      name
+    }
+    pokemon_v2_movedamageclass {
+      name
+    }
+  }
+}

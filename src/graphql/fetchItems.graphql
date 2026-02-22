@@ -1,0 +1,10 @@
+query FetchItems {
+  pokemon_v2_item(limit: 100, order_by: {id: asc}, where: {cost: {_gt: 0}}) {
+    id
+    name
+    cost
+    pokemon_v2_itemflavortexts(where: {language_id: {_eq: 9}}, limit: 1) {
+      flavor_text
+    }
+  }
+}
