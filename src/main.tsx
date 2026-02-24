@@ -5,11 +5,13 @@ import ErrorBoundary from './components/shared/ErrorBoundary';
 import { PokemonProvider } from './context/PokemonContext';
 import { ToastProvider } from './context/ToastContext';
 import { AchievementProvider } from './context/AchievementContext';
+import { WalkthroughProvider } from './context/WalkthroughContext';
 import ToastContainer from './components/shared/ToastContainer';
 import { registerServiceWorker } from './utils/registerSW';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { queryClient } from './config/queryClient';
+import { ALL_TOURS } from './data/tours';
 import './index.css';
 import './styles/global.css';
 
@@ -26,8 +28,10 @@ root.render(
         <PokemonProvider>
           <ToastProvider>
             <AchievementProvider>
-              <App />
-              <ToastContainer />
+              <WalkthroughProvider tours={ALL_TOURS}>
+                <App />
+                <ToastContainer />
+              </WalkthroughProvider>
             </AchievementProvider>
           </ToastProvider>
         </PokemonProvider>

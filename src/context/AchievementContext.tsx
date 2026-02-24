@@ -60,6 +60,12 @@ export const ACHIEVEMENTS_LIST: Omit<Achievement, 'unlockedAt'>[] = [
     description: 'Guess correctly in "Who\'s That Pokémon?".',
     icon: '❓',
   },
+  {
+    id: 'tour_graduate',
+    title: 'Tour Graduate',
+    description: 'Complete all walkthrough tours.',
+    icon: '🎓',
+  },
 ];
 
 interface AchievementContextType {

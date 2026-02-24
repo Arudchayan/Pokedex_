@@ -3,6 +3,8 @@ import { useShallow } from 'zustand/react/shallow';
 import SearchBar from './SearchBar';
 import ThemeSelector from './ThemeSelector';
 import MobileDrawer from './MobileDrawer';
+import WalkthroughBadge from '../walkthrough/WalkthroughBadge';
+import { openWalkthroughModal } from '../walkthrough/WalkthroughManager';
 import { playUISound, toggleAudio as toggleAudioService, isAudioEnabled } from '../../services/soundService';
 import { useClickOutside } from '../../hooks/useClickOutside';
 import { useAchievements } from '../../context/AchievementContext';
@@ -184,6 +186,9 @@ const AppHeader: React.FC<AppHeaderProps> = memo(({ onRandomPokemon }) => {
 
             {/* Utility buttons */}
             <div className="flex gap-2 items-center">
+              {/* Walkthrough Badge */}
+              <WalkthroughBadge onClick={openWalkthroughModal} />
+
               {/* Mobile drawer toggle - visible below md */}
               <button
                 type="button"
@@ -191,6 +196,7 @@ const AppHeader: React.FC<AppHeaderProps> = memo(({ onRandomPokemon }) => {
                 className={`md:hidden p-2 rounded-lg border transition-all hover:scale-105 focus-visible:ring-2 focus-visible:ring-primary-500 focus:outline-none ${theme === 'dark' ? 'bg-slate-800 border-slate-700 text-slate-300 hover:text-white' : 'bg-slate-200 border-slate-300 text-slate-600 hover:text-slate-900'
                   }`}
                 aria-label="Open navigation menu"
+                data-tour="mobile-drawer"
               >
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h8M4 18h16" />
@@ -207,6 +213,7 @@ const AppHeader: React.FC<AppHeaderProps> = memo(({ onRandomPokemon }) => {
                   aria-expanded={showMenu}
                   aria-haspopup="menu"
                   aria-controls={menuId}
+                  data-tour="header-menu"
                 >
                   <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
@@ -237,11 +244,15 @@ const AppHeader: React.FC<AppHeaderProps> = memo(({ onRandomPokemon }) => {
                     <button type="button" role="menuitem" onClick={() => { openShinyCalc(); closeMenu(); }} className={`p-2 text-left rounded-lg font-bold focus:outline-none focus:ring-2 focus:ring-primary-500 ${theme === 'dark' ? 'hover:bg-white/10 text-slate-300' : 'hover:bg-slate-100 text-slate-700'}`}>Shiny Odds Calculator</button>
                     <div className={`h-px w-full my-1 ${theme === 'dark' ? 'bg-white/10' : 'bg-slate-200'}`}></div>
                     <button type="button" role="menuitem" onClick={() => { openAchievements(); closeMenu(); }} className={`p-2 text-left rounded-lg font-bold focus:outline-none focus:ring-2 focus:ring-primary-500 ${theme === 'dark' ? 'hover:bg-white/10 text-slate-300' : 'hover:bg-slate-100 text-slate-700'}`}>Achievements</button>
+                    <div className={`h-px w-full my-1 ${theme === 'dark' ? 'bg-white/10' : 'bg-slate-200'}`}></div>
+                    <button type="button" role="menuitem" onClick={() => { openWalkthroughModal(); closeMenu(); }} className={`p-2 text-left rounded-lg font-bold focus:outline-none focus:ring-2 focus:ring-primary-500 ${theme === 'dark' ? 'hover:bg-white/10 text-primary-400' : 'hover:bg-slate-100 text-primary-600'}`}>🎓 Start Walkthrough</button>
                   </div>
                 )}
               </div>
 
-              <ThemeSelector />
+              <div data-tour="theme-toggle">
+                <ThemeSelector />
+              </div>
 
               <button
                 type="button"
@@ -253,6 +264,7 @@ const AppHeader: React.FC<AppHeaderProps> = memo(({ onRandomPokemon }) => {
                 title={isShiny ? 'Disable Shiny Mode (Shift+S)' : 'Enable Shiny Mode (Shift+S)'}
                 aria-label={isShiny ? 'Disable Shiny Mode' : 'Enable Shiny Mode'}
                 aria-pressed={isShiny}
+                data-tour="command-palette-trigger"
               >
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
@@ -306,7 +318,7 @@ const AppHeader: React.FC<AppHeaderProps> = memo(({ onRandomPokemon }) => {
               </a>
             </div>
           </div>
-          <div className="flex gap-2 w-full max-w-md md:max-w-sm">
+          <div className="flex gap-2 w-full max-w-md md:max-w-sm" data-tour="search-bar">
             <SearchBar
               id="main-search"
               value={searchTerm}
