@@ -47,3 +47,6 @@ test-results/
 
 # Dev scripts
 git_ops.bat
+
+# Agent instructions
+AGENTS.md
