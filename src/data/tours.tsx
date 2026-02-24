@@ -125,7 +125,7 @@ export const ALL_TOURS: TourDefinition[] = [
     id: 'browsing',
     name: 'Browsing Pokémon',
     description: 'Search, filter, and explore detailed Pokémon information.',
-    estimatedTimeMinutes: 5,
+    estimatedTimeMinutes: 7,
     icon: '🔍',
     requiredTours: ['welcome'],
     steps: [
@@ -235,6 +235,83 @@ export const ALL_TOURS: TourDefinition[] = [
           </div>
         ),
       },
+      {
+        id: 'detail-type-defense',
+        target: '[data-tour="detail-type-defense"]',
+        title: 'Type Defense',
+        position: 'left',
+        content: (
+          <div className="space-y-2">
+            <p>See how this Pokémon fares against all types:</p>
+            <ul className="list-disc list-inside text-sm space-y-1 ml-2">
+              <li><span className="text-red-500">Red</span> - 2x+ weaknesses</li>
+              <li><span className="text-green-500">Green</span> - 0.5x resistances</li>
+              <li><span className="text-gray-500">Gray</span> - Immunities (0x)</li>
+            </ul>
+          </div>
+        ),
+      },
+      {
+        id: 'detail-flavor-text',
+        target: '[data-tour="detail-flavor-text"]',
+        title: 'Pokédex Entry',
+        position: 'left',
+        content: (
+          <div className="space-y-2">
+            <p>Read the official Pokédex description for this Pokémon.</p>
+            <p className="text-sm text-slate-500 dark:text-slate-400">
+              You can search Pokédex entries from the main filters too!
+            </p>
+          </div>
+        ),
+      },
+      {
+        id: 'detail-forms',
+        target: '[data-tour="detail-forms"]',
+        title: 'Forms & Variants',
+        position: 'right',
+        content: (
+          <div className="space-y-2">
+            <p>Switch between different forms:</p>
+            <ul className="list-disc list-inside text-sm space-y-1 ml-2">
+              <li>Regional variants (Alolan, Galarian, etc.)</li>
+              <li>Mega Evolutions</li>
+              <li>Form changes (like Rotom, Deoxys)</li>
+              <li>Each form has different stats and typing!</li>
+            </ul>
+          </div>
+        ),
+      },
+      {
+        id: 'detail-shiny-toggle',
+        target: '[data-tour="detail-shiny-toggle"]',
+        title: 'Shiny Sprites',
+        position: 'bottom',
+        content: (
+          <div className="space-y-2">
+            <p>Toggle between regular and shiny color palettes.</p>
+            <p className="text-sm text-slate-500 dark:text-slate-400">
+              <strong>Shortcut:</strong> Press <kbd className="px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-700">Shift S</kbd> from anywhere!
+            </p>
+          </div>
+        ),
+      },
+      {
+        id: 'detail-sprite-gen',
+        target: '[data-tour="detail-sprite-gen"]',
+        title: 'Generation Sprites',
+        position: 'top',
+        content: (
+          <div className="space-y-2">
+            <p>View sprites from different generations:</p>
+            <ul className="list-disc list-inside text-sm space-y-1 ml-2">
+              <li>Gen 1-8 sprites available</li>
+              <li>See how sprite art evolved over time</li>
+              <li>Includes shiny variants per generation</li>
+            </ul>
+          </div>
+        ),
+      },
     ],
   },
 
@@ -245,7 +322,7 @@ export const ALL_TOURS: TourDefinition[] = [
     id: 'team-builder',
     name: 'Team Builder',
     description: 'Build and analyze competitive teams with coverage tools.',
-    estimatedTimeMinutes: 6,
+    estimatedTimeMinutes: 8,
     icon: '🛠️',
     requiredTours: ['browsing'],
     steps: [
@@ -333,17 +410,81 @@ export const ALL_TOURS: TourDefinition[] = [
         ),
       },
       {
-        id: 'export-team',
-        target: '[data-tour="export-button"]',
-        title: 'Export & Share',
+        id: 'entry-hazards',
+        target: '[data-tour="entry-hazards"]',
+        title: 'Entry Hazard Analysis',
+        position: 'left',
+        content: (
+          <div className="space-y-2">
+            <p>Check your team&apos;s vulnerability to entry hazards:</p>
+            <ul className="list-disc list-inside text-sm space-y-1 ml-2">
+              <li>Stealth Rock damage per Pokémon</li>
+              <li>Spikes and Toxic Spikes weakness</li>
+              <li>Defog/Rapid Spin move recommendations</li>
+            </ul>
+          </div>
+        ),
+      },
+      {
+        id: 'saved-teams',
+        target: '[data-tour="saved-teams"]',
+        title: 'Saved Teams',
+        position: 'left',
+        content: (
+          <div className="space-y-2">
+            <p>Save multiple teams for quick access:</p>
+            <ul className="list-disc list-inside text-sm space-y-1 ml-2">
+              <li>Name your teams for organization</li>
+              <li>Load saved teams instantly</li>
+              <li>Store up to 20 different team compositions</li>
+            </ul>
+          </div>
+        ),
+      },
+      {
+        id: 'trainer-card',
+        target: '[data-tour="trainer-card"]',
+        title: 'Trainer Card',
+        position: 'left',
+        content: (
+          <div className="space-y-2">
+            <p>Generate a shareable Trainer Card image:</p>
+            <ul className="list-disc list-inside text-sm space-y-1 ml-2">
+              <li>Customize your trainer name</li>
+              <li>Beautiful visual card with your team</li>
+              <li>Download as PNG image to share</li>
+            </ul>
+          </div>
+        ),
+      },
+      {
+        id: 'import-export',
+        target: '[data-tour="import-export"]',
+        title: 'Import & Export',
         position: 'top',
         content: (
           <div className="space-y-2">
-            <p>Export your team in multiple formats:</p>
+            <p>Flexible team management options:</p>
             <ul className="list-disc list-inside text-sm space-y-1 ml-2">
-              <li><strong>Pokémon Showdown:</strong> For battle simulator</li>
-              <li><strong>JSON:</strong> For backup and sharing</li>
-              <li><strong>Trainer Card:</strong> Generate image</li>
+              <li><strong>Export:</strong> Showdown format, JSON, or image</li>
+              <li><strong>Import:</strong> Paste Showdown teams directly</li>
+              <li><strong>Share:</strong> Compressed URL for sharing teams</li>
+            </ul>
+          </div>
+        ),
+      },
+      {
+        id: 'undo-redo',
+        target: '[data-tour="undo-redo"]',
+        title: 'Undo & Redo',
+        position: 'left',
+        content: (
+          <div className="space-y-2">
+            <p>Made a mistake? No problem!</p>
+            <ul className="list-disc list-inside text-sm space-y-1 ml-2">
+              <li>Undo accidental changes</li>
+              <li>Redo if you change your mind</li>
+              <li>Full history tracking for your session</li>
             </ul>
           </div>
         ),
@@ -527,8 +668,8 @@ export const ALL_TOURS: TourDefinition[] = [
   {
     id: 'advanced',
     name: 'Advanced Features',
-    description: 'Comparison tool, reference data, favorites, and data management.',
-    estimatedTimeMinutes: 4,
+    description: 'Comparison, reference data, favorites, walkers, and keyboard shortcuts.',
+    estimatedTimeMinutes: 5,
     icon: '⚡',
     requiredTours: ['calculators', 'games'],
     steps: [
@@ -590,12 +731,69 @@ export const ALL_TOURS: TourDefinition[] = [
         content: (
           <div className="space-y-2">
             <p>Backup and restore your data:</p>
-            <ul class="list-disc list-inside text-sm space-y-1 ml-2">
+            <ul className="list-disc list-inside text-sm space-y-1 ml-2">
               <li>Export teams, favorites, and settings</li>
               <li>Import from JSON backup</li>
               <li>Import from Pokémon Showdown</li>
               <li>Your data stays local - you own it</li>
             </ul>
+          </div>
+        ),
+      },
+      {
+        id: 'pokemon-walkers',
+        target: '[data-tour="pokemon-walkers"]',
+        title: 'Pokémon Walkers',
+        position: 'right',
+        content: (
+          <div className="space-y-2">
+            <p>Decorate your screen with walking Pokémon:</p>
+            <ul className="list-disc list-inside text-sm space-y-1 ml-2">
+              <li>Cute sprites walking across your screen</li>
+              <li>Customize which Pokémon appear</li>
+              <li>Set walking speed and behavior</li>
+              <li>Toggle on/off in settings</li>
+            </ul>
+          </div>
+        ),
+      },
+      {
+        id: 'keyboard-shortcuts',
+        target: '[data-tour="keyboard-shortcuts"]',
+        title: 'Keyboard Shortcuts',
+        position: 'center',
+        content: (
+          <div className="space-y-3">
+            <p>Master the keyboard for lightning-fast navigation:</p>
+            <div className="grid grid-cols-2 gap-2 text-sm">
+              <div className="flex justify-between p-2 rounded bg-slate-100 dark:bg-slate-800">
+                <kbd className="font-mono">Ctrl K</kbd>
+                <span>Command Palette</span>
+              </div>
+              <div className="flex justify-between p-2 rounded bg-slate-100 dark:bg-slate-800">
+                <kbd className="font-mono">Shift T</kbd>
+                <span>Toggle Theme</span>
+              </div>
+              <div className="flex justify-between p-2 rounded bg-slate-100 dark:bg-slate-800">
+                <kbd className="font-mono">Shift S</kbd>
+                <span>Toggle Shiny</span>
+              </div>
+              <div className="flex justify-between p-2 rounded bg-slate-100 dark:bg-slate-800">
+                <kbd className="font-mono">Shift R</kbd>
+                <span>Random Pokémon</span>
+              </div>
+              <div className="flex justify-between p-2 rounded bg-slate-100 dark:bg-slate-800">
+                <kbd className="font-mono">/</kbd>
+                <span>Focus Search</span>
+              </div>
+              <div className="flex justify-between p-2 rounded bg-slate-100 dark:bg-slate-800">
+                <kbd className="font-mono">?</kbd>
+                <span>Show Help</span>
+              </div>
+            </div>
+            <p className="text-sm text-slate-500 dark:text-slate-400">
+              Press <kbd className="px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-700">?</kbd> anytime to see all shortcuts!
+            </p>
           </div>
         ),
       },

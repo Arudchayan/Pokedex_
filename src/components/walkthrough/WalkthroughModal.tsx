@@ -233,16 +233,16 @@ function getTourList() {
       name: 'Browsing Pokémon',
       description: 'Search, filter, and explore detailed Pokémon information.',
       icon: '🔍',
-      estimatedTimeMinutes: 5,
-      steps: 7,
+      estimatedTimeMinutes: 7,
+      steps: 12,
     },
     {
       id: 'team-builder',
       name: 'Team Builder',
       description: 'Build and analyze competitive teams with coverage tools.',
       icon: '🛠️',
-      estimatedTimeMinutes: 6,
-      steps: 7,
+      estimatedTimeMinutes: 8,
+      steps: 11,
     },
     {
       id: 'calculators',
@@ -263,10 +263,10 @@ function getTourList() {
     {
       id: 'advanced',
       name: 'Advanced Features',
-      description: 'Comparison tool, reference data, favorites, and data management.',
+      description: 'Comparison, reference data, favorites, walkers, and keyboard shortcuts.',
       icon: '⚡',
-      estimatedTimeMinutes: 4,
-      steps: 5,
+      estimatedTimeMinutes: 5,
+      steps: 7,
     },
   ];
 }
