@@ -5,6 +5,8 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { PokemonProvider } from '../context/PokemonContext';
 import { ToastProvider } from '../context/ToastContext';
 import { AchievementProvider } from '../context/AchievementContext';
+import { WalkthroughProvider } from '../context/WalkthroughContext';
+import { ALL_TOURS } from '../data/tours';
 import ToastContainer from '../components/shared/ToastContainer';
 import type { PokemonDetails, PokemonListItem } from '../types';
 import type { Item, Move } from '../services/pokeapiService';
@@ -145,8 +147,10 @@ export const renderWithProvider = (ui: React.ReactElement) => {
       <PokemonProvider>
         <ToastProvider>
           <AchievementProvider>
-            {ui}
-            <ToastContainer />
+            <WalkthroughProvider tours={ALL_TOURS}>
+              {ui}
+              <ToastContainer />
+            </WalkthroughProvider>
           </AchievementProvider>
         </ToastProvider>
       </PokemonProvider>
