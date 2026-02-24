@@ -60,13 +60,17 @@ export default function WalkthroughModal({ isOpen, onClose }: WalkthroughModalPr
         {isWelcome && (
           <div
             className={`p-4 rounded-lg ${
-              isDark ? 'bg-primary-500/10 border border-primary-500/20' : 'bg-primary-50 border border-primary-100'
+              isDark
+                ? 'bg-primary-500/10 border border-primary-500/20'
+                : 'bg-primary-50 border border-primary-100'
             }`}
           >
-            <p className={`text-sm leading-relaxed ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>
-              Welcome to the ultimate Pokédex experience! This app is packed with features to help you explore,
-              build teams, calculate battles, and play games. Take a quick tour to discover everything, or
-              explore on your own and come back anytime.
+            <p
+              className={`text-sm leading-relaxed ${isDark ? 'text-slate-300' : 'text-slate-600'}`}
+            >
+              Welcome to the ultimate Pokédex experience! This app is packed with features to help
+              you explore, build teams, calculate battles, and play games. Take a quick tour to
+              discover everything, or explore on your own and come back anytime.
             </p>
           </div>
         )}
@@ -90,7 +94,9 @@ export default function WalkthroughModal({ isOpen, onClose }: WalkthroughModalPr
 
         {/* Tour list */}
         <div className="space-y-3">
-          <h3 className={`text-sm font-semibold uppercase tracking-wider ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+          <h3
+            className={`text-sm font-semibold uppercase tracking-wider ${isDark ? 'text-slate-400' : 'text-slate-500'}`}
+          >
             Available Tours
           </h3>
 
@@ -196,7 +202,9 @@ function TourList({ onStartTour }: { onStartTour: (tourId: string) => void }) {
                   </span>
                 )}
               </div>
-              <p className={`text-sm ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>{tour.description}</p>
+              <p className={`text-sm ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+                {tour.description}
+              </p>
               <p className={`text-xs mt-1 ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>
                 ~{tour.estimatedTimeMinutes} min • {tour.steps} steps
               </p>

@@ -25,14 +25,18 @@ export const ALL_TOURS: TourDefinition[] = [
         content: (
           <div className="space-y-3">
             <p>
-              Your ultimate companion for exploring Pokémon, building competitive teams, and testing your knowledge.
+              Your ultimate companion for exploring Pokémon, building competitive teams, and testing
+              your knowledge.
             </p>
             <p>
               This tour will guide you through all the features. Let&apos;s start with the basics!
             </p>
             <div className="flex items-center gap-2 text-sm text-primary-500">
               <span>💡</span>
-              <span>Press <kbd className="px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-700">?</kbd> anytime for keyboard shortcuts</span>
+              <span>
+                Press <kbd className="px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-700">?</kbd>{' '}
+                anytime for keyboard shortcuts
+              </span>
             </div>
           </div>
         ),
@@ -69,7 +73,9 @@ export const ALL_TOURS: TourDefinition[] = [
           <div className="space-y-2">
             <p>Search for Pokémon by name or ID instantly.</p>
             <p className="text-sm text-slate-500 dark:text-slate-400">
-              <strong>Pro tip:</strong> Press <kbd className="px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-700">/</kbd> from anywhere to focus search instantly!
+              <strong>Pro tip:</strong> Press{' '}
+              <kbd className="px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-700">/</kbd> from
+              anywhere to focus search instantly!
             </p>
           </div>
         ),
@@ -110,7 +116,9 @@ export const ALL_TOURS: TourDefinition[] = [
           <div className="space-y-2">
             <p>Switch between light, dark, and cyberpunk themes.</p>
             <p className="text-sm text-slate-500 dark:text-slate-400">
-              <strong>Shortcut:</strong> Press <kbd className="px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-700">Shift T</kbd> to toggle anytime.
+              <strong>Shortcut:</strong> Press{' '}
+              <kbd className="px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-700">Shift T</kbd> to
+              toggle anytime.
             </p>
           </div>
         ),
@@ -154,10 +162,18 @@ export const ALL_TOURS: TourDefinition[] = [
           <div className="space-y-2">
             <p>Find exactly what you&apos;re looking for:</p>
             <ul className="list-disc list-inside text-sm space-y-1 ml-2">
-              <li><strong>Generation:</strong> Filter by Gen 1-9</li>
-              <li><strong>Type:</strong> Single or dual-type filtering</li>
-              <li><strong>Base Stat Total:</strong> Find powerful Pokémon</li>
-              <li><strong>Flavor Text:</strong> Search Pokédex entries</li>
+              <li>
+                <strong>Generation:</strong> Filter by Gen 1-9
+              </li>
+              <li>
+                <strong>Type:</strong> Single or dual-type filtering
+              </li>
+              <li>
+                <strong>Base Stat Total:</strong> Find powerful Pokémon
+              </li>
+              <li>
+                <strong>Flavor Text:</strong> Search Pokédex entries
+              </li>
             </ul>
           </div>
         ),
@@ -168,7 +184,10 @@ export const ALL_TOURS: TourDefinition[] = [
         title: 'Grid vs List',
         position: 'bottom',
         content: (
-          <p>Switch between immersive grid view with 3D cards, or compact list view for quick browsing.</p>
+          <p>
+            Switch between immersive grid view with 3D cards, or compact list view for quick
+            browsing.
+          </p>
         ),
       },
       {
@@ -244,9 +263,15 @@ export const ALL_TOURS: TourDefinition[] = [
           <div className="space-y-2">
             <p>See how this Pokémon fares against all types:</p>
             <ul className="list-disc list-inside text-sm space-y-1 ml-2">
-              <li><span className="text-red-500">Red</span> - 2x+ weaknesses</li>
-              <li><span className="text-green-500">Green</span> - 0.5x resistances</li>
-              <li><span className="text-gray-500">Gray</span> - Immunities (0x)</li>
+              <li>
+                <span className="text-red-500">Red</span> - 2x+ weaknesses
+              </li>
+              <li>
+                <span className="text-green-500">Green</span> - 0.5x resistances
+              </li>
+              <li>
+                <span className="text-gray-500">Gray</span> - Immunities (0x)
+              </li>
             </ul>
           </div>
         ),
@@ -291,7 +316,9 @@ export const ALL_TOURS: TourDefinition[] = [
           <div className="space-y-2">
             <p>Toggle between regular and shiny color palettes.</p>
             <p className="text-sm text-slate-500 dark:text-slate-400">
-              <strong>Shortcut:</strong> Press <kbd className="px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-700">Shift S</kbd> from anywhere!
+              <strong>Shortcut:</strong> Press{' '}
+              <kbd className="px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-700">Shift S</kbd>{' '}
+              from anywhere!
             </p>
           </div>
         ),
@@ -362,11 +389,21 @@ export const ALL_TOURS: TourDefinition[] = [
           <div className="space-y-2">
             <p>Click any team member to customize:</p>
             <ul className="list-disc list-inside text-sm space-y-1 ml-2">
-              <li><strong>EVs/IVs:</strong> Set 0-252 EVs, 0-31 IVs</li>
-              <li><strong>Nature:</strong> Select stat-modifying nature</li>
-              <li><strong>Ability:</strong> Choose from available abilities</li>
-              <li><strong>Held Item:</strong> Equip competitive items</li>
-              <li><strong>Moves:</strong> Select 4 moves for your set</li>
+              <li>
+                <strong>EVs/IVs:</strong> Set 0-252 EVs, 0-31 IVs
+              </li>
+              <li>
+                <strong>Nature:</strong> Select stat-modifying nature
+              </li>
+              <li>
+                <strong>Ability:</strong> Choose from available abilities
+              </li>
+              <li>
+                <strong>Held Item:</strong> Equip competitive items
+              </li>
+              <li>
+                <strong>Moves:</strong> Select 4 moves for your set
+              </li>
             </ul>
           </div>
         ),
@@ -380,8 +417,12 @@ export const ALL_TOURS: TourDefinition[] = [
           <div className="space-y-2">
             <p>See your team&apos;s offensive and defensive coverage:</p>
             <ul className="list-disc list-inside text-sm space-y-1 ml-2">
-              <li><span className="text-green-500">Green</span> - Strong coverage</li>
-              <li><span className="text-red-500">Red</span> - Weaknesses/gaps</li>
+              <li>
+                <span className="text-green-500">Green</span> - Strong coverage
+              </li>
+              <li>
+                <span className="text-red-500">Red</span> - Weaknesses/gaps
+              </li>
               <li>Identify missing type coverage</li>
             </ul>
           </div>
@@ -394,7 +435,8 @@ export const ALL_TOURS: TourDefinition[] = [
         position: 'left',
         content: (
           <p>
-            Visualize your team&apos;s stat distribution. See if you have balanced stats or focus areas.
+            Visualize your team&apos;s stat distribution. See if you have balanced stats or focus
+            areas.
           </p>
         ),
       },
@@ -405,7 +447,8 @@ export const ALL_TOURS: TourDefinition[] = [
         position: 'left',
         content: (
           <p>
-            Compare your team&apos;s speed against common threats. See which Pokémon you outspeed at different levels.
+            Compare your team&apos;s speed against common threats. See which Pokémon you outspeed at
+            different levels.
           </p>
         ),
       },
@@ -466,9 +509,15 @@ export const ALL_TOURS: TourDefinition[] = [
           <div className="space-y-2">
             <p>Flexible team management options:</p>
             <ul className="list-disc list-inside text-sm space-y-1 ml-2">
-              <li><strong>Export:</strong> Showdown format, JSON, or image</li>
-              <li><strong>Import:</strong> Paste Showdown teams directly</li>
-              <li><strong>Share:</strong> Compressed URL for sharing teams</li>
+              <li>
+                <strong>Export:</strong> Showdown format, JSON, or image
+              </li>
+              <li>
+                <strong>Import:</strong> Paste Showdown teams directly
+              </li>
+              <li>
+                <strong>Share:</strong> Compressed URL for sharing teams
+              </li>
             </ul>
           </div>
         ),
@@ -546,7 +595,8 @@ export const ALL_TOURS: TourDefinition[] = [
         position: 'center',
         content: (
           <p>
-            Calculate final stats given base stats, EVs, IVs, nature, and level. Perfect for planning competitive spreads.
+            Calculate final stats given base stats, EVs, IVs, nature, and level. Perfect for
+            planning competitive spreads.
           </p>
         ),
       },
@@ -632,11 +682,12 @@ export const ALL_TOURS: TourDefinition[] = [
       {
         id: 'whos-that',
         target: '[data-tour="whos-that"]',
-        title: 'Who\'s That Pokémon?',
+        title: "Who's That Pokémon?",
         position: 'center',
         content: (
           <p>
-            The classic silhouette game! Identify Pokémon from their shadow. Perfect for testing your visual memory.
+            The classic silhouette game! Identify Pokémon from their shadow. Perfect for testing
+            your visual memory.
           </p>
         ),
       },
@@ -649,12 +700,24 @@ export const ALL_TOURS: TourDefinition[] = [
           <div className="space-y-2">
             <p>Explore all 8 daily challenges:</p>
             <ul className="list-disc list-inside text-sm space-y-1 ml-2">
-              <li><strong>FlavorDle:</strong> Guess from Pokédex entry</li>
-              <li><strong>CryDle:</strong> Identify by cry</li>
-              <li><strong>StatDle:</strong> Guess from base stats</li>
-              <li><strong>MoveDle:</strong> Guess move attributes</li>
-              <li><strong>ItemDle:</strong> Guess the item</li>
-              <li><strong>TrainerDle:</strong> Guess trainer team</li>
+              <li>
+                <strong>FlavorDle:</strong> Guess from Pokédex entry
+              </li>
+              <li>
+                <strong>CryDle:</strong> Identify by cry
+              </li>
+              <li>
+                <strong>StatDle:</strong> Guess from base stats
+              </li>
+              <li>
+                <strong>MoveDle:</strong> Guess move attributes
+              </li>
+              <li>
+                <strong>ItemDle:</strong> Guess the item
+              </li>
+              <li>
+                <strong>TrainerDle:</strong> Guess trainer team
+              </li>
             </ul>
           </div>
         ),
@@ -698,11 +761,21 @@ export const ALL_TOURS: TourDefinition[] = [
           <div className="space-y-2">
             <p>Complete databases for competitive play:</p>
             <ul className="list-disc list-inside text-sm space-y-1 ml-2">
-              <li><strong>Move Dex:</strong> All moves with power, accuracy, PP</li>
-              <li><strong>Ability Dex:</strong> Complete ability descriptions</li>
-              <li><strong>Item Dex:</strong> All items and effects</li>
-              <li><strong>Type Chart:</strong> Full effectiveness matrix</li>
-              <li><strong>Nature Chart:</strong> Stat modifiers</li>
+              <li>
+                <strong>Move Dex:</strong> All moves with power, accuracy, PP
+              </li>
+              <li>
+                <strong>Ability Dex:</strong> Complete ability descriptions
+              </li>
+              <li>
+                <strong>Item Dex:</strong> All items and effects
+              </li>
+              <li>
+                <strong>Type Chart:</strong> Full effectiveness matrix
+              </li>
+              <li>
+                <strong>Nature Chart:</strong> Stat modifiers
+              </li>
             </ul>
           </div>
         ),
@@ -792,7 +865,8 @@ export const ALL_TOURS: TourDefinition[] = [
               </div>
             </div>
             <p className="text-sm text-slate-500 dark:text-slate-400">
-              Press <kbd className="px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-700">?</kbd> anytime to see all shortcuts!
+              Press <kbd className="px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-700">?</kbd>{' '}
+              anytime to see all shortcuts!
             </p>
           </div>
         ),
@@ -806,12 +880,16 @@ export const ALL_TOURS: TourDefinition[] = [
           <div className="space-y-3">
             <p className="text-lg">You&apos;ve mastered the Advanced Pokédex!</p>
             <p>
-              You now know how to browse Pokémon, build teams, use calculators, play games, and manage your data.
+              You now know how to browse Pokémon, build teams, use calculators, play games, and
+              manage your data.
             </p>
             <div className="p-3 rounded-lg bg-primary-500/10 border border-primary-500/20">
               <p className="text-sm">
-                <strong>Remember:</strong> Press <kbd className="px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-700">?</kbd> anytime for keyboard shortcuts, or{' '}
-                <kbd className="px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-700">Ctrl K</kbd> for the command palette.
+                <strong>Remember:</strong> Press{' '}
+                <kbd className="px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-700">?</kbd>{' '}
+                anytime for keyboard shortcuts, or{' '}
+                <kbd className="px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-700">Ctrl K</kbd>{' '}
+                for the command palette.
               </p>
             </div>
             <p className="text-sm text-slate-500 dark:text-slate-400">

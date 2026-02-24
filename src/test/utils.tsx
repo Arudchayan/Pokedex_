@@ -17,7 +17,8 @@ const defaultPokemonList: PokemonListItem[] = [
     name: 'bulbasaur',
     types: ['grass', 'poison'],
     imageUrl: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1.png',
-    shinyImageUrl: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/1.png',
+    shinyImageUrl:
+      'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/1.png',
     flavorText: 'A strange seed was planted on its back at birth.',
     stats: [{ name: 'hp', value: 45 }],
     abilities: ['overgrow'],
@@ -27,7 +28,8 @@ const defaultPokemonList: PokemonListItem[] = [
     name: 'charmander',
     types: ['fire'],
     imageUrl: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/4.png',
-    shinyImageUrl: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/4.png',
+    shinyImageUrl:
+      'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/4.png',
     flavorText: 'Obviously prefers hot places.',
     stats: [{ name: 'hp', value: 39 }],
     abilities: ['blaze'],
@@ -39,9 +41,12 @@ const defaultPokemonDetails: PokemonDetails = {
   name: 'bulbasaur',
   types: ['grass', 'poison'],
   imageUrl: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1.png',
-  shinyImageUrl: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/1.png',
-  detailImageUrl: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/1.png',
-  shinyDetailImageUrl: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/shiny/1.png',
+  shinyImageUrl:
+    'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/1.png',
+  detailImageUrl:
+    'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/1.png',
+  shinyDetailImageUrl:
+    'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/shiny/1.png',
   flavorText: 'A strange seed was planted on its back at birth.',
   height: 7,
   weight: 69,
@@ -81,7 +86,8 @@ const defaultPokemonDetails: PokemonDetails = {
       isDefault: true,
       types: ['grass', 'poison'],
       imageUrl: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1.png',
-      shinyImageUrl: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/1.png',
+      shinyImageUrl:
+        'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/1.png',
       height: 7,
       weight: 69,
       stats: [{ name: 'hp', value: 45 }],
@@ -92,12 +98,34 @@ const defaultPokemonDetails: PokemonDetails = {
 
 const defaultMoves: Move[] = [
   { id: 1, name: 'pound', type: 'normal', category: 'physical', power: 40, accuracy: 100, pp: 35 },
-  { id: 2, name: 'karate-chop', type: 'fighting', category: 'physical', power: 50, accuracy: 100, pp: 25 },
+  {
+    id: 2,
+    name: 'karate-chop',
+    type: 'fighting',
+    category: 'physical',
+    power: 50,
+    accuracy: 100,
+    pp: 25,
+  },
 ];
 
 const defaultItems: Item[] = [
-  { id: 1, name: 'master-ball', cost: 0, flavorText: 'The best ball.', category: 'standard-balls', imageUrl: 'master-ball.png' },
-  { id: 2, name: 'ultra-ball', cost: 1200, flavorText: 'A good ball.', category: 'standard-balls', imageUrl: 'ultra-ball.png' },
+  {
+    id: 1,
+    name: 'master-ball',
+    cost: 0,
+    flavorText: 'The best ball.',
+    category: 'standard-balls',
+    imageUrl: 'master-ball.png',
+  },
+  {
+    id: 2,
+    name: 'ultra-ball',
+    cost: 1200,
+    flavorText: 'A good ball.',
+    category: 'standard-balls',
+    imageUrl: 'ultra-ball.png',
+  },
 ];
 
 const fetchAllPokemonsMock = vi.fn().mockResolvedValue(defaultPokemonList);
@@ -105,7 +133,12 @@ const fetchPokemonDetailsMock = vi.fn().mockResolvedValue(defaultPokemonDetails)
 const fetchAllMovesMock = vi.fn().mockResolvedValue(defaultMoves);
 const fetchAllItemsMock = vi.fn().mockResolvedValue(defaultItems);
 const validatePokemonListItemMock = vi.fn().mockImplementation((data) => {
-  if (data && typeof data === 'object' && typeof data.id === 'number' && typeof data.name === 'string') {
+  if (
+    data &&
+    typeof data === 'object' &&
+    typeof data.id === 'number' &&
+    typeof data.name === 'string'
+  ) {
     return data;
   }
   return null;

@@ -84,22 +84,25 @@ export const AchievementProvider: React.FC<{ children: ReactNode }> = ({ childre
   const unlocked = usePokemonStore((s) => s.achievements);
   const storeUnlock = usePokemonStore((s) => s.unlockAchievement);
 
-  const unlockAchievement = useCallback((id: string) => {
-    if (unlocked[id]) return; // Already unlocked
+  const unlockAchievement = useCallback(
+    (id: string) => {
+      if (unlocked[id]) return; // Already unlocked
 
-    const achievement = ACHIEVEMENTS_LIST.find((a) => a.id === id);
-    if (!achievement) return;
+      const achievement = ACHIEVEMENTS_LIST.find((a) => a.id === id);
+      if (!achievement) return;
 
-    // Dispatch to Zustand store — persisted automatically via Zustand persist middleware
-    storeUnlock(id);
+      // Dispatch to Zustand store — persisted automatically via Zustand persist middleware
+      storeUnlock(id);
 
-    playUISound('success');
-    addToast(`Achievement Unlocked: ${achievement.title}!`, 'success');
-  }, [unlocked, storeUnlock, addToast]);
+      playUISound('success');
+      addToast(`Achievement Unlocked: ${achievement.title}!`, 'success');
+    },
+    [unlocked, storeUnlock, addToast]
+  );
 
   const achievements: Achievement[] = useMemo(
     () => ACHIEVEMENTS_LIST.map((a) => ({ ...a, unlockedAt: unlocked[a.id] })),
-    [unlocked],
+    [unlocked]
   );
 
   const totalUnlocked = Object.keys(unlocked).length;
@@ -107,14 +110,10 @@ export const AchievementProvider: React.FC<{ children: ReactNode }> = ({ childre
 
   const value = useMemo(
     () => ({ achievements, unlockAchievement, progress, totalUnlocked }),
-    [achievements, unlockAchievement, progress, totalUnlocked],
+    [achievements, unlockAchievement, progress, totalUnlocked]
   );
 
-  return (
-    <AchievementContext.Provider value={value}>
-      {children}
-    </AchievementContext.Provider>
-  );
+  return <AchievementContext.Provider value={value}>{children}</AchievementContext.Provider>;
 };
 
 export const useAchievements = () => {

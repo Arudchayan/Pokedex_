@@ -121,12 +121,7 @@ export default function SpotlightOverlay({
   `;
 
   return (
-    <div
-      style={spotlightStyle}
-      onClick={handleOverlayClick}
-      role="presentation"
-      aria-hidden="true"
-    >
+    <div style={spotlightStyle} onClick={handleOverlayClick} role="presentation" aria-hidden="true">
       <svg
         width="100%"
         height="100%"

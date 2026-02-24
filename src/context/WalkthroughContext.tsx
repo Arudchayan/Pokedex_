@@ -1,4 +1,12 @@
-import React, { createContext, useContext, useCallback, useMemo, ReactNode, useState, useEffect } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useCallback,
+  useMemo,
+  ReactNode,
+  useState,
+  useEffect,
+} from 'react';
 import { useToast } from './ToastContext';
 import { useAchievements } from './AchievementContext';
 import { logger } from '../utils/logger';
@@ -277,13 +285,16 @@ export const WalkthroughProvider: React.FC<{ children: ReactNode; tours: TourDef
     }
   }, [currentTour, progress.completedTours, tours, addToast, unlockAchievement]);
 
-  const resetTour = useCallback((tourId: string) => {
-    setProgress((prev) => ({
-      ...prev,
-      completedTours: prev.completedTours.filter((id) => id !== tourId),
-    }));
-    addToast(`Tour "${tourId}" reset. You can start it again.`, 'info');
-  }, [addToast]);
+  const resetTour = useCallback(
+    (tourId: string) => {
+      setProgress((prev) => ({
+        ...prev,
+        completedTours: prev.completedTours.filter((id) => id !== tourId),
+      }));
+      addToast(`Tour "${tourId}" reset. You can start it again.`, 'info');
+    },
+    [addToast]
+  );
 
   const resetAll = useCallback(() => {
     setProgress(defaultProgress);
@@ -345,11 +356,7 @@ export const WalkthroughProvider: React.FC<{ children: ReactNode; tours: TourDef
     ]
   );
 
-  return (
-    <WalkthroughContext.Provider value={value}>
-      {children}
-    </WalkthroughContext.Provider>
-  );
+  return <WalkthroughContext.Provider value={value}>{children}</WalkthroughContext.Provider>;
 };
 
 export const useWalkthrough = () => {

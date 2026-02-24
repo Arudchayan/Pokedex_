@@ -317,9 +317,17 @@ export default function WalkthroughTooltip({
         }`}
       >
         Press{' '}
-        <kbd className={`px-1.5 py-0.5 rounded font-mono text-xs ${isDark ? 'bg-slate-700' : 'bg-white border'}`}>→</kbd>{' '}
+        <kbd
+          className={`px-1.5 py-0.5 rounded font-mono text-xs ${isDark ? 'bg-slate-700' : 'bg-white border'}`}
+        >
+          →
+        </kbd>{' '}
         to continue,{' '}
-        <kbd className={`px-1.5 py-0.5 rounded font-mono text-xs ${isDark ? 'bg-slate-700' : 'bg-white border'}`}>Esc</kbd>{' '}
+        <kbd
+          className={`px-1.5 py-0.5 rounded font-mono text-xs ${isDark ? 'bg-slate-700' : 'bg-white border'}`}
+        >
+          Esc
+        </kbd>{' '}
         to skip
       </div>
     </div>
