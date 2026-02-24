@@ -1,0 +1,10 @@
+title = "Gitleaks Config"
+
+[allowlist]
+paths = [
+    '''package-lock.json''',
+    '''yarn.lock''',
+    '''pnpm-lock.yaml''',
+    '''bun.lock''',
+    '''.env.example''',
+]
