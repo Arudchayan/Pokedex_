@@ -8,7 +8,7 @@
 
 A modern Pokédex web app with team building, battle calculator, mini-games, and complete reference data.
 
-**[🔴 Live Demo](https://pokedex-ten-sage.vercel.app/)**
+**[🔴 Live Demo](https://pokedex.arudchayan.com/)**
 
 ![Home View](assets/screenshots/home.png)
 
