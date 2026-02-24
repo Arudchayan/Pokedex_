@@ -1,9 +1,19 @@
 import { describe, it, expect } from 'vitest';
-import { calculateBreedingCompatibility, findBaseEvolution, BreedingParent } from '../../utils/breedingLogic';
+import {
+  calculateBreedingCompatibility,
+  findBaseEvolution,
+  BreedingParent,
+} from '../../utils/breedingLogic';
 import { PokemonDetails, Evolution } from '../../types';
 
 // Helper to create mock Pokemon
-const createMockPokemon = (id: number, name: string, eggGroups: string[], genderRate: number, evolutionChain: Evolution[] = []): PokemonDetails => ({
+const createMockPokemon = (
+  id: number,
+  name: string,
+  eggGroups: string[],
+  genderRate: number,
+  evolutionChain: Evolution[] = []
+): PokemonDetails => ({
   id,
   name,
   eggGroups,
@@ -29,11 +39,18 @@ const createMockPokemon = (id: number, name: string, eggGroups: string[], gender
   weaknesses: [],
   growthRate: '',
   shape: '',
-  forms: []
+  forms: [],
 });
 
-const createMockEvolution = (id: number, name: string, evolvesFromId: number | null = null): Evolution => ({
-    id, name, evolvesFromId, imageUrl: ''
+const createMockEvolution = (
+  id: number,
+  name: string,
+  evolvesFromId: number | null = null
+): Evolution => ({
+  id,
+  name,
+  evolvesFromId,
+  imageUrl: '',
 });
 
 describe('breedingLogic', () => {
@@ -42,7 +59,7 @@ describe('breedingLogic', () => {
       const chain: Evolution[] = [
         createMockEvolution(1, 'Bulbasaur', null),
         createMockEvolution(2, 'Ivysaur', 1),
-        createMockEvolution(3, 'Venusaur', 2)
+        createMockEvolution(3, 'Venusaur', 2),
       ];
       const base = findBaseEvolution(chain);
       expect(base?.name).toBe('Bulbasaur');
@@ -50,8 +67,8 @@ describe('breedingLogic', () => {
 
     it('should handle unordered chain', () => {
       const chain: Evolution[] = [
-          createMockEvolution(2, 'Ivysaur', 1),
-          createMockEvolution(1, 'Bulbasaur', null),
+        createMockEvolution(2, 'Ivysaur', 1),
+        createMockEvolution(1, 'Bulbasaur', null),
       ];
       const base = findBaseEvolution(chain);
       expect(base?.name).toBe('Bulbasaur');
@@ -60,10 +77,21 @@ describe('breedingLogic', () => {
 
   describe('calculateBreedingCompatibility', () => {
     const ditto = createMockPokemon(132, 'Ditto', ['Ditto'], -1);
-    const pikachuM = createMockPokemon(25, 'Pikachu', ['Field', 'Fairy'], 4, [createMockEvolution(172, 'Pichu', null), createMockEvolution(25, 'Pikachu', 172)]);
-    const pikachuF = createMockPokemon(25, 'Pikachu', ['Field', 'Fairy'], 4, [createMockEvolution(172, 'Pichu', null), createMockEvolution(25, 'Pikachu', 172)]);
-    const lucarioM = createMockPokemon(448, 'Lucario', ['Field', 'Human-Like'], 1, [createMockEvolution(447, 'Riolu', null), createMockEvolution(448, 'Lucario', 447)]);
-    const magnemite = createMockPokemon(81, 'Magnemite', ['Mineral'], -1, [createMockEvolution(81, 'Magnemite', null)]);
+    const pikachuM = createMockPokemon(25, 'Pikachu', ['Field', 'Fairy'], 4, [
+      createMockEvolution(172, 'Pichu', null),
+      createMockEvolution(25, 'Pikachu', 172),
+    ]);
+    const pikachuF = createMockPokemon(25, 'Pikachu', ['Field', 'Fairy'], 4, [
+      createMockEvolution(172, 'Pichu', null),
+      createMockEvolution(25, 'Pikachu', 172),
+    ]);
+    const lucarioM = createMockPokemon(448, 'Lucario', ['Field', 'Human-Like'], 1, [
+      createMockEvolution(447, 'Riolu', null),
+      createMockEvolution(448, 'Lucario', 447),
+    ]);
+    const magnemite = createMockPokemon(81, 'Magnemite', ['Mineral'], -1, [
+      createMockEvolution(81, 'Magnemite', null),
+    ]);
     const legendary = createMockPokemon(150, 'Mewtwo', ['no-eggs'], -1);
 
     const parentPikaM: BreedingParent = { pokemon: pikachuM, gender: 'male' };
@@ -98,12 +126,12 @@ describe('breedingLogic', () => {
     });
 
     it('should fail Genderless + Genderless (Non-Ditto)', () => {
-        // Magnemite + Magnemite (if we had two). Or Magnemite + Klink.
-        // But logic says genderless can ONLY breed with Ditto.
-        // Let's test Magnemite + Magnemite.
-        const result = calculateBreedingCompatibility(parentMagnemite, parentMagnemite);
-        expect(result.isCompatible).toBe(false);
-        expect(result.message).toContain('Ditto');
+      // Magnemite + Magnemite (if we had two). Or Magnemite + Klink.
+      // But logic says genderless can ONLY breed with Ditto.
+      // Let's test Magnemite + Magnemite.
+      const result = calculateBreedingCompatibility(parentMagnemite, parentMagnemite);
+      expect(result.isCompatible).toBe(false);
+      expect(result.message).toContain('Ditto');
     });
 
     it('should fail if egg groups do not match', () => {
@@ -121,9 +149,9 @@ describe('breedingLogic', () => {
     });
 
     it('should fail Ditto + Ditto', () => {
-        const result = calculateBreedingCompatibility(parentDitto, parentDitto);
-        expect(result.isCompatible).toBe(false);
-        expect(result.message).toContain('Two Dittos');
+      const result = calculateBreedingCompatibility(parentDitto, parentDitto);
+      expect(result.isCompatible).toBe(false);
+      expect(result.message).toContain('Two Dittos');
     });
   });
 });

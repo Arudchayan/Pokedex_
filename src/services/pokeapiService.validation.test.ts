@@ -18,8 +18,8 @@ describe('pokeapiService data validation', () => {
       json: async () => ({
         data: {
           pokemon_v2_move: [],
-          pokemon_v2_item: []
-        }
+          pokemon_v2_item: [],
+        },
       }),
     } as any);
   });
@@ -29,15 +29,15 @@ describe('pokeapiService data validation', () => {
     const invalidData = [
       { id: 'not-a-number', name: 'valid-name' }, // Invalid ID -> Filtered out
       { id: 2 }, // Missing name -> Filtered out
-      { id: 3, name: 'valid', power: 'huge' } // Invalid power -> Sanitized to null
+      { id: 3, name: 'valid', power: 'huge' }, // Invalid power -> Sanitized to null
     ];
 
     global.fetch = vi.fn().mockResolvedValue({
       ok: true,
       json: async () => ({
         data: {
-          pokemon_v2_move: invalidData
-        }
+          pokemon_v2_move: invalidData,
+        },
       }),
     } as any);
 
@@ -46,13 +46,13 @@ describe('pokeapiService data validation', () => {
     // Expect only the valid item, with sanitized fields
     expect(moves).toHaveLength(1);
     expect(moves[0]).toEqual({
-        id: 3,
-        name: 'valid',
-        type: 'normal', // Defaulted
-        category: 'status', // Defaulted
-        power: null, // Sanitized from 'huge'
-        accuracy: null, // Defaulted
-        pp: 0 // Defaulted
+      id: 3,
+      name: 'valid',
+      type: 'normal', // Defaulted
+      category: 'status', // Defaulted
+      power: null, // Sanitized from 'huge'
+      accuracy: null, // Defaulted
+      pp: 0, // Defaulted
     });
   });
 
@@ -64,16 +64,16 @@ describe('pokeapiService data validation', () => {
         id: 999,
         name: 'fresh-potion',
         cost: 200,
-        pokemon_v2_itemflavortexts: [{ flavor_text: 'Freshly brewed' }]
-      }
+        pokemon_v2_itemflavortexts: [{ flavor_text: 'Freshly brewed' }],
+      },
     ];
 
     global.fetch = vi.fn().mockResolvedValue({
       ok: true,
       json: async () => ({
         data: {
-          pokemon_v2_item: invalidData
-        }
+          pokemon_v2_item: invalidData,
+        },
       }),
     } as any);
 

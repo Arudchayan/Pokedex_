@@ -14,7 +14,9 @@ beforeAll(() => {
     observe() {}
     unobserve() {}
     disconnect() {}
-    takeRecords() { return []; }
+    takeRecords() {
+      return [];
+    }
   } as any;
 });
 
@@ -25,7 +27,7 @@ vi.mock('../components/team/TeamBuilder', () => ({
   default: React.memo((props: any) => {
     TeamBuilderMock(props);
     return <div data-testid="team-builder-mock">TeamBuilder</div>;
-  })
+  }),
 }));
 
 // Mock lazy components
@@ -43,10 +45,10 @@ vi.mock('../components/charts/TypeChart', () => ({ default: () => null }));
 vi.mock('../components/shared/DataManagement', () => ({ default: () => null }));
 
 describe('App Performance', () => {
-    beforeEach(() => {
-        TeamBuilderMock.mockClear();
-        setPokeapiServiceMock();
-    });
+  beforeEach(() => {
+    TeamBuilderMock.mockClear();
+    setPokeapiServiceMock();
+  });
 
   it('should not re-render TeamBuilder when search term changes', async () => {
     renderWithProvider(<App />);
@@ -55,7 +57,7 @@ describe('App Performance', () => {
     await screen.findByRole('heading', { name: /Pokedex/i });
     // Wait for loading to vanish to ensure data is loaded and filteredPokemon populated
     await waitFor(() => {
-        expect(screen.queryByText(/Loading/i)).not.toBeInTheDocument();
+      expect(screen.queryByText(/Loading/i)).not.toBeInTheDocument();
     });
     await screen.findByTestId('team-builder-mock');
 
@@ -67,12 +69,12 @@ describe('App Performance', () => {
 
     // Change input to something that matches (so hasFilteredPokemon boolean doesn't flip)
     await act(async () => {
-        fireEvent.change(searchInput, { target: { value: 'Bulba' } });
+      fireEvent.change(searchInput, { target: { value: 'Bulba' } });
     });
 
     // Wait a bit for state updates
     await act(async () => {
-        await new Promise(resolve => setTimeout(resolve, 300));
+      await new Promise((resolve) => setTimeout(resolve, 300));
     });
 
     console.log('Final Render Count:', TeamBuilderMock.mock.calls.length);
@@ -86,7 +88,7 @@ describe('App Performance', () => {
     await screen.findByRole('heading', { name: /Pokedex/i });
     // Wait for data load
     await waitFor(() => {
-        expect(screen.queryByText(/Loading/i)).not.toBeInTheDocument();
+      expect(screen.queryByText(/Loading/i)).not.toBeInTheDocument();
     });
     await screen.findByTestId('team-builder-mock');
 
@@ -98,12 +100,12 @@ describe('App Performance', () => {
 
     // Call randomize
     await act(async () => {
-        onRandomize();
+      onRandomize();
     });
 
     // Wait for update
     await act(async () => {
-        await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise((resolve) => setTimeout(resolve, 100));
     });
 
     // Check new props

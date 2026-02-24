@@ -27,7 +27,12 @@ const PokemonWalkersOverlay: React.FC = () => {
   const [renderWalkers, setRenderWalkers] = useState<WalkerInstance[]>([]);
   const [settingsRev, setSettingsRev] = useState(0);
 
-  const applyWalkerStyle = (el: HTMLImageElement, w: WalkerInstance, baseUrl: string, spriteSizePx: number) => {
+  const applyWalkerStyle = (
+    el: HTMLImageElement,
+    w: WalkerInstance,
+    baseUrl: string,
+    spriteSizePx: number
+  ) => {
     el.style.transform = `translate3d(${Math.round(w.x)}px, ${Math.round(w.y)}px, 0) scaleX(${w.facing})`;
     el.style.width = `${spriteSizePx}px`;
     el.style.height = `${spriteSizePx}px`;
@@ -80,21 +85,22 @@ const PokemonWalkersOverlay: React.FC = () => {
       });
     }
 
-    const chosen =
-      settings.rosterMode === 'choose'
-        ? settings.chosenSpecies
-        : [];
+    const chosen = settings.rosterMode === 'choose' ? settings.chosenSpecies : [];
 
     const entries =
       settings.rosterMode === 'choose' && chosen.length > 0
         ? chosen.map(resolveEntryForSpecies).filter((e): e is NonNullable<typeof e> => !!e)
         : VSCODE_POKEMON_INDEX;
 
-    const spawnStrategy = settings.rosterMode === 'choose'
-      ? 'uniqueThenCycle'
-      : 'randomWithReplacement';
+    const spawnStrategy =
+      settings.rosterMode === 'choose' ? 'uniqueThenCycle' : 'randomWithReplacement';
 
-    const spawned = engineRef.current.spawnFromEntries(settings.count, entries, world, spawnStrategy);
+    const spawned = engineRef.current.spawnFromEntries(
+      settings.count,
+      entries,
+      world,
+      spawnStrategy
+    );
     engineRef.current.setWalkers(spawned);
     walkersRef.current = spawned;
     setRenderWalkers(spawned);

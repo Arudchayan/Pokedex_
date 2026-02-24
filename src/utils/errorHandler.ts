@@ -44,7 +44,7 @@ export const logError = (error: Error, context?: Record<string, any>) => {
     // In production, send to error tracking service
     // Example: Sentry, LogRocket, etc.
     logger.error('[Production Error]', errorReport.message);
-    
+
     // sendToErrorService(errorReport);
   }
 };
@@ -80,7 +80,7 @@ export const retryApiCall = async <T>(
       return await apiCall();
     } catch (error) {
       lastError = error as Error;
-      
+
       if (attempt < maxRetries) {
         // Retries are expected in transient failures; log only in dev.
         logger.debug(`[Retry] Attempt ${attempt} failed, retrying in ${delayMs}ms...`);

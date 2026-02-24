@@ -17,22 +17,22 @@ export interface SpinnerProps extends HTMLAttributes<HTMLDivElement> {
 
 /**
  * Spinner Component
- * 
+ *
  * Loading indicator with multiple variants including Pokemon-themed options.
- * 
+ *
  * Features:
  * - 3 variants: default (circular), pokeball, dots
  * - 4 sizes: sm, md, lg, xl
  * - Optional label text
  * - Accessible with ARIA labels
  * - Pokemon-themed animations
- * 
+ *
  * @example
  * ```tsx
  * <Spinner />
- * 
+ *
  * <Spinner variant="pokeball" size="lg" />
- * 
+ *
  * <Spinner variant="dots" label="Loading Pokemon..." />
  * ```
  */
@@ -66,10 +66,7 @@ export const Spinner: React.FC<SpinnerProps> = ({
   // Render pokeball spinner
   const renderPokeball = () => (
     <div
-      className={cn(
-        'inline-flex relative animate-bounce',
-        sizeStyles[size].spinner
-      )}
+      className={cn('inline-flex relative animate-bounce', sizeStyles[size].spinner)}
       role="status"
       aria-label={label || 'Loading'}
     >
@@ -94,23 +91,9 @@ export const Spinner: React.FC<SpinnerProps> = ({
           strokeWidth="3"
         />
         {/* Center circle (white) */}
-        <circle
-          cx="50"
-          cy="50"
-          r="12"
-          fill="#F8FAFC"
-          stroke="#1F2937"
-          strokeWidth="3"
-        />
+        <circle cx="50" cy="50" r="12" fill="#F8FAFC" stroke="#1F2937" strokeWidth="3" />
         {/* Center circle (inner) */}
-        <circle
-          cx="50"
-          cy="50"
-          r="7"
-          fill="transparent"
-          stroke="#1F2937"
-          strokeWidth="2"
-        />
+        <circle cx="50" cy="50" r="7" fill="transparent" stroke="#1F2937" strokeWidth="2" />
       </svg>
     </div>
   );
@@ -125,30 +108,17 @@ export const Spinner: React.FC<SpinnerProps> = ({
     };
 
     return (
-      <div
-        className="inline-flex items-center gap-1"
-        role="status"
-        aria-label={label || 'Loading'}
-      >
+      <div className="inline-flex items-center gap-1" role="status" aria-label={label || 'Loading'}>
         <div
-          className={cn(
-            'rounded-full bg-primary-400 animate-bounce',
-            dotSize[size]
-          )}
+          className={cn('rounded-full bg-primary-400 animate-bounce', dotSize[size])}
           style={{ animationDelay: '0ms' }}
         />
         <div
-          className={cn(
-            'rounded-full bg-primary-400 animate-bounce',
-            dotSize[size]
-          )}
+          className={cn('rounded-full bg-primary-400 animate-bounce', dotSize[size])}
           style={{ animationDelay: '150ms' }}
         />
         <div
-          className={cn(
-            'rounded-full bg-primary-400 animate-bounce',
-            dotSize[size]
-          )}
+          className={cn('rounded-full bg-primary-400 animate-bounce', dotSize[size])}
           style={{ animationDelay: '300ms' }}
         />
       </div>
@@ -177,9 +147,7 @@ export const Spinner: React.FC<SpinnerProps> = ({
       {...props}
     >
       {renderSpinner()}
-      {label && (
-        <span className="text-sm text-slate-300 font-medium">{label}</span>
-      )}
+      {label && <span className="text-sm text-slate-300 font-medium">{label}</span>}
     </div>
   );
 };

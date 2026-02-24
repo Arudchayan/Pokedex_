@@ -21,9 +21,9 @@ export interface IconButtonProps extends ButtonHTMLAttributes<HTMLButtonElement>
 
 /**
  * IconButton Component
- * 
+ *
  * Square button designed for icon-only usage with proper accessibility.
- * 
+ *
  * Features:
  * - 4 variants: primary, secondary, ghost, danger
  * - 4 sizes: sm, md, lg, xl
@@ -32,7 +32,7 @@ export interface IconButtonProps extends ButtonHTMLAttributes<HTMLButtonElement>
  * - Square dimensions
  * - Hover and active states
  * - WCAG 2.1 AA compliant
- * 
+ *
  * @example
  * ```tsx
  * <IconButton
@@ -40,14 +40,14 @@ export interface IconButtonProps extends ButtonHTMLAttributes<HTMLButtonElement>
  *   aria-label="Add to favorites"
  *   variant="primary"
  * />
- * 
+ *
  * <IconButton
  *   icon={<TrashIcon />}
  *   aria-label="Delete"
  *   variant="danger"
  *   size="sm"
  * />
- * 
+ *
  * <IconButton
  *   icon={<SearchIcon />}
  *   aria-label="Search"
@@ -115,9 +115,7 @@ const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
       'inline-flex items-center justify-center rounded-lg border transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900 disabled:cursor-not-allowed disabled:opacity-50 disabled:shadow-none';
 
     // Interactive styles (only when not disabled)
-    const interactiveStyles = !isDisabled
-      ? 'hover:scale-105 active:scale-95'
-      : '';
+    const interactiveStyles = !isDisabled ? 'hover:scale-105 active:scale-95' : '';
 
     // Render loading spinner
     const renderSpinner = () => (

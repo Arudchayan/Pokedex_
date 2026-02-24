@@ -1,5 +1,5 @@
 query FetchMoveDex {
-  pokemon_v2_move(limit: 1000, order_by: {id: asc}) {
+  pokemon_v2_move(limit: 1000, order_by: { id: asc }) {
     name
     accuracy
     power

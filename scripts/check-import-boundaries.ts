@@ -3,7 +3,16 @@ import path from 'node:path';
 import ts from 'typescript';
 import { fileURLToPath } from 'node:url';
 
-type Layer = 'store' | 'domain' | 'context' | 'components' | 'app' | 'services' | 'utils' | 'types' | 'other';
+type Layer =
+  | 'store'
+  | 'domain'
+  | 'context'
+  | 'components'
+  | 'app'
+  | 'services'
+  | 'utils'
+  | 'types'
+  | 'other';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -113,11 +122,23 @@ function collectModuleSpecifiers(sf: ts.SourceFile): string[] {
 
 function main() {
   const files = walk(srcRoot);
-  const violations: Array<{ file: string; spec: string; to: string; fromLayer: Layer; toLayer: Layer }> = [];
+  const violations: Array<{
+    file: string;
+    spec: string;
+    to: string;
+    fromLayer: Layer;
+    toLayer: Layer;
+  }> = [];
 
   for (const file of files) {
     const code = fs.readFileSync(file, 'utf8');
-    const sf = ts.createSourceFile(file, code, ts.ScriptTarget.Latest, true, file.endsWith('.tsx') ? ts.ScriptKind.TSX : ts.ScriptKind.TS);
+    const sf = ts.createSourceFile(
+      file,
+      code,
+      ts.ScriptTarget.Latest,
+      true,
+      file.endsWith('.tsx') ? ts.ScriptKind.TSX : ts.ScriptKind.TS
+    );
     const fromLayer = layerForFile(file);
     const disallowedTargets = disallow[fromLayer];
     if (!disallowedTargets.length) continue;

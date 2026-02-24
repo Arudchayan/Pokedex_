@@ -5,35 +5,35 @@ export interface KeyboardShortcutOptions {
    * If true, shortcut only triggers when Ctrl (Windows/Linux) or Cmd (Mac) is pressed
    */
   ctrl?: boolean;
-  
+
   /**
    * If true, shortcut only triggers when Shift is pressed
    */
   shift?: boolean;
-  
+
   /**
    * If true, shortcut only triggers when Alt/Option is pressed
    */
   alt?: boolean;
-  
+
   /**
    * If true, the default browser action for this key will be prevented
    * @default true
    */
   preventDefault?: boolean;
-  
+
   /**
    * If true, the event will not propagate to parent elements
    * @default false
    */
   stopPropagation?: boolean;
-  
+
   /**
    * If false, the shortcut will be disabled
    * @default true
    */
   enabled?: boolean;
-  
+
   /**
    * Event type to listen for
    * @default 'keydown'
@@ -44,32 +44,32 @@ export interface KeyboardShortcutOptions {
 /**
  * Registers keyboard shortcuts with modifier key support
  * Automatically handles cleanup and prevents memory leaks
- * 
+ *
  * SSR-safe: Does nothing when window is undefined
- * 
+ *
  * @param key - The key to listen for (e.g., 'k', 'Enter', 'Escape', '/')
  * @param callback - Function to call when the shortcut is triggered
  * @param options - Configuration options for the shortcut
- * 
+ *
  * @example
  * ```tsx
  * // Search shortcut: Ctrl+K or Cmd+K
  * const SearchBar = () => {
  *   const [isOpen, setIsOpen] = useState(false);
- * 
+ *
  *   useKeyboardShortcut('k', () => setIsOpen(true), {
  *     ctrl: true,
  *     preventDefault: true
  *   });
- * 
+ *
  *   useKeyboardShortcut('Escape', () => setIsOpen(false), {
  *     enabled: isOpen
  *   });
- * 
+ *
  *   return isOpen && <SearchModal onClose={() => setIsOpen(false)} />;
  * };
  * ```
- * 
+ *
  * @example
  * ```tsx
  * // Navigation shortcuts
@@ -81,7 +81,7 @@ export interface KeyboardShortcutOptions {
  *   });
  * };
  * ```
- * 
+ *
  * @example
  * ```tsx
  * // Quick actions with multiple modifiers
@@ -90,7 +90,7 @@ export interface KeyboardShortcutOptions {
  *     ctrl: true,
  *     preventDefault: true
  *   });
- * 
+ *
  *   useKeyboardShortcut('Delete', () => clearTeam(), {
  *     shift: true,
  *     preventDefault: true
@@ -115,7 +115,7 @@ export function useKeyboardShortcut(
 
   // Use ref to avoid recreating the handler on every render
   const callbackRef = useRef(callback);
-  
+
   useEffect(() => {
     callbackRef.current = callback;
   }, [callback]);
@@ -124,12 +124,12 @@ export function useKeyboardShortcut(
     (event: KeyboardEvent) => {
       // Check if the key matches (case-insensitive)
       const keyMatches = event.key.toLowerCase() === key.toLowerCase();
-      
+
       // Check modifiers - use metaKey for Cmd on Mac, ctrlKey for Ctrl on Windows/Linux
-      const ctrlPressed = ctrl ? (event.ctrlKey || event.metaKey) : !event.ctrlKey && !event.metaKey;
+      const ctrlPressed = ctrl ? event.ctrlKey || event.metaKey : !event.ctrlKey && !event.metaKey;
       const shiftPressed = shift ? event.shiftKey : !event.shiftKey;
       const altPressed = alt ? event.altKey : !event.altKey;
-      
+
       // Only trigger if all conditions are met
       if (keyMatches && ctrlPressed && shiftPressed && altPressed) {
         if (preventDefault) {
@@ -165,11 +165,11 @@ export function useKeyboardShortcut(
 
 /**
  * Hook for registering multiple keyboard shortcuts at once
- * 
+ *
  * **BUG FIX #1:** Refactored to avoid calling hooks in loops.
  * Instead of calling useKeyboardShortcut in a forEach, we use a single effect
  * that handles all shortcuts, preventing React Rules of Hooks violations.
- * 
+ *
  * @example
  * ```tsx
  * const PokemonDetail = () => {
@@ -180,7 +180,7 @@ export function useKeyboardShortcut(
  *     'f': { handler: () => toggleFavorite(), ctrl: true },
  *     'a': { handler: () => addToTeam(), ctrl: true }
  *   });
- * 
+ *
  *   return <div>...</div>;
  * };
  * ```
@@ -198,7 +198,7 @@ export function useKeyboardShortcuts(
 
   // Store callbacks in ref to avoid recreating handler on every render
   const callbacksRef = useRef(shortcuts);
-  
+
   useEffect(() => {
     callbacksRef.current = shortcuts;
   }, [shortcuts]);
@@ -212,13 +212,13 @@ export function useKeyboardShortcuts(
     // Create a unified handler for all shortcuts
     const handler = (event: KeyboardEvent) => {
       const shortcuts = callbacksRef.current;
-      
+
       // Check each shortcut configuration
       (Object.entries(shortcuts) as Array<[string, ShortcutConfig]>).forEach(([key, config]) => {
         const isFunction = typeof config === 'function';
         const callback = isFunction ? config : config.handler;
-        const options = isFunction ? {} : (config.options || {});
-        
+        const options = isFunction ? {} : config.options || {};
+
         const {
           ctrl = false,
           shift = false,
@@ -226,16 +226,16 @@ export function useKeyboardShortcuts(
           preventDefault = true,
           stopPropagation = false,
         } = options;
-        
+
         // Check if the key matches (case-insensitive)
         const keyMatches = event.key.toLowerCase() === key.toLowerCase();
-        
+
         // Check modifiers - use metaKey for Cmd on Mac, ctrlKey for Ctrl on Windows/Linux
         // BUG FIX #4: When modifier is false, ignore it (don't negate it)
-        const ctrlPressed = ctrl ? (event.ctrlKey || event.metaKey) : true;
+        const ctrlPressed = ctrl ? event.ctrlKey || event.metaKey : true;
         const shiftPressed = shift ? event.shiftKey : true;
         const altPressed = alt ? event.altKey : true;
-        
+
         // Only trigger if all conditions are met
         if (keyMatches && ctrlPressed && shiftPressed && altPressed) {
           if (preventDefault) {

@@ -8,14 +8,19 @@ interface TypeBadgeProps {
   className?: string;
 }
 
-const TypeBadge: React.FC<TypeBadgeProps> = ({ type, iconOnly = false, size = 'md', className = '' }) => {
+const TypeBadge: React.FC<TypeBadgeProps> = ({
+  type,
+  iconOnly = false,
+  size = 'md',
+  className = '',
+}) => {
   const colorClass = TYPE_COLORS[type] || 'bg-gray-500 text-white';
   const hexColor = TYPE_COLORS_HEX[type] || '#666';
 
   const sizeClasses = {
     sm: 'text-[10px] px-1.5 py-0.5',
     md: 'text-xs px-2 py-1',
-    lg: 'text-sm px-3 py-1.5'
+    lg: 'text-sm px-3 py-1.5',
   };
 
   if (iconOnly) {
@@ -24,7 +29,7 @@ const TypeBadge: React.FC<TypeBadgeProps> = ({ type, iconOnly = false, size = 'm
     const sizeDim = {
       sm: 'w-6 h-6 text-[10px]',
       md: 'w-8 h-8 text-xs',
-      lg: 'w-10 h-10 text-sm'
+      lg: 'w-10 h-10 text-sm',
     };
 
     return (
@@ -39,7 +44,9 @@ const TypeBadge: React.FC<TypeBadgeProps> = ({ type, iconOnly = false, size = 'm
   }
 
   return (
-    <span className={`inline-flex items-center justify-center font-bold rounded-full capitalize shadow-sm min-w-[70px] ${colorClass} ${sizeClasses[size]} ${className}`}>
+    <span
+      className={`inline-flex items-center justify-center font-bold rounded-full capitalize shadow-sm min-w-[70px] ${colorClass} ${sizeClasses[size]} ${className}`}
+    >
       {type}
     </span>
   );

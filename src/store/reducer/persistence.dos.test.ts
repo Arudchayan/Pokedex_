@@ -46,13 +46,17 @@ describe('PokemonStore Persistence DoS Vulnerability', () => {
         updatedAt: Date.now(),
       };
 
-      const newState = reducePokemonStorePersistence(state, {
-        type: 'SAVE_TEAM_ENTRY',
-        payload: entry
-      }, {} as any);
+      const newState = reducePokemonStorePersistence(
+        state,
+        {
+          type: 'SAVE_TEAM_ENTRY',
+          payload: entry,
+        },
+        {} as any
+      );
 
       if (newState && 'savedTeams' in newState) {
-          state = { ...state, ...newState };
+        state = { ...state, ...newState };
       }
     }
 

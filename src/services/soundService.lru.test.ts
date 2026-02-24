@@ -7,11 +7,16 @@ describe('soundService LRU cache', () => {
     soundService.resetCache();
 
     // Stub Audio
-    vi.stubGlobal('Audio', class {
-      volume = 1;
-      currentTime = 0;
-      play() { return Promise.resolve(); }
-    });
+    vi.stubGlobal(
+      'Audio',
+      class {
+        volume = 1;
+        currentTime = 0;
+        play() {
+          return Promise.resolve();
+        }
+      }
+    );
   });
 
   afterEach(() => {
@@ -45,7 +50,9 @@ describe('soundService LRU cache', () => {
       constructor(src: string) {
         audioConstructorSpy(src);
       }
-      play() { return Promise.resolve(); }
+      play() {
+        return Promise.resolve();
+      }
     }
     vi.stubGlobal('Audio', MockAudio);
 

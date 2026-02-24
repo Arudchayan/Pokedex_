@@ -89,49 +89,49 @@ Object.defineProperty(window, 'localStorage', {
 
 // Mock Audio
 class AudioMock {
-    volume: number = 1;
-    currentTime: number = 0;
+  volume: number = 1;
+  currentTime: number = 0;
 
-    constructor(public src: string) {}
+  constructor(public src: string) {}
 
-    play() {
-        return Promise.resolve();
-    }
+  play() {
+    return Promise.resolve();
+  }
 
-    pause() {}
+  pause() {}
 }
 
 Object.defineProperty(window, 'Audio', {
-    value: AudioMock
+  value: AudioMock,
 });
 
 // Mock Web Audio API for SoundService
 class AudioContextMock {
-    currentTime = 0;
-    createOscillator() {
-        return {
-            connect: () => {},
-            start: () => {},
-            stop: () => {},
-            frequency: { value: 0, exponentialRampToValueAtTime: () => {} },
-            type: 'sine',
-        };
-    }
-    createGain() {
-        return {
-            connect: () => {},
-            gain: { setValueAtTime: () => {}, exponentialRampToValueAtTime: () => {} },
-        };
-    }
+  currentTime = 0;
+  createOscillator() {
+    return {
+      connect: () => {},
+      start: () => {},
+      stop: () => {},
+      frequency: { value: 0, exponentialRampToValueAtTime: () => {} },
+      type: 'sine',
+    };
+  }
+  createGain() {
+    return {
+      connect: () => {},
+      gain: { setValueAtTime: () => {}, exponentialRampToValueAtTime: () => {} },
+    };
+  }
 }
 
 Object.defineProperty(window, 'AudioContext', {
-    value: AudioContextMock,
-    writable: true,
-    configurable: true
+  value: AudioContextMock,
+  writable: true,
+  configurable: true,
 });
 Object.defineProperty(window, 'webkitAudioContext', {
-    value: AudioContextMock,
-    writable: true,
-    configurable: true
+  value: AudioContextMock,
+  writable: true,
+  configurable: true,
 });

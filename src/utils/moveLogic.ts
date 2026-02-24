@@ -21,14 +21,14 @@ export const getRecommendedMoves = (
   const dedupedMoves = Array.from(uniqueMoves.values());
 
   // Identify key stats
-  const attackStat = stats.find(s => s.name === 'attack')?.value || 0;
-  const spAttackStat = stats.find(s => s.name === 'special-attack')?.value || 0;
+  const attackStat = stats.find((s) => s.name === 'attack')?.value || 0;
+  const spAttackStat = stats.find((s) => s.name === 'special-attack')?.value || 0;
   const isPhysicalAttacker = attackStat > spAttackStat;
   const isMixedAttacker = Math.abs(attackStat - spAttackStat) < 20; // Close stats
 
   return dedupedMoves
-    .filter(move => move.power && move.power > 0) // Only damaging moves for now
-    .map(move => {
+    .filter((move) => move.power && move.power > 0) // Only damaging moves for now
+    .map((move) => {
       let score = 0;
       const reasons: string[] = [];
 
@@ -41,18 +41,18 @@ export const getRecommendedMoves = (
       // 2. Stat Synergy
       if (move.damageClass === 'physical') {
         if (attackStat > spAttackStat) {
-            score += 30;
-            reasons.push('High Physical Stat');
+          score += 30;
+          reasons.push('High Physical Stat');
         } else if (attackStat < spAttackStat) {
-            score -= 20; // Penalty
+          score -= 20; // Penalty
         }
       } else if (move.damageClass === 'special') {
-         if (spAttackStat > attackStat) {
-            score += 30;
-            reasons.push('High Special Stat');
-         } else if (spAttackStat < attackStat) {
-            score -= 20; // Penalty
-         }
+        if (spAttackStat > attackStat) {
+          score += 30;
+          reasons.push('High Special Stat');
+        } else if (spAttackStat < attackStat) {
+          score -= 20; // Penalty
+        }
       }
 
       // 3. Power Scaling
@@ -60,7 +60,7 @@ export const getRecommendedMoves = (
 
       // 4. Accuracy Scaling
       if (move.accuracy && move.accuracy < 100) {
-          score -= (100 - move.accuracy) / 2;
+        score -= (100 - move.accuracy) / 2;
       }
 
       return { ...move, score, reason: reasons };

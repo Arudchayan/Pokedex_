@@ -1,9 +1,9 @@
 /**
  * Button Component Demo
- * 
+ *
  * Quick visual demo of the Button component.
  * Use this to test the component during development.
- * 
+ *
  * To use: Import this component in your App.tsx or create a dedicated demo route.
  */
 
@@ -12,20 +12,46 @@ import { Button } from './Button';
 
 // Simple SVG icons for demo
 const PlusIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    fill="none"
+    viewBox="0 0 24 24"
+    strokeWidth={2}
+    stroke="currentColor"
+  >
     <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
   </svg>
 );
 
 const TrashIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
-    <path strokeLinecap="round" strokeLinejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    fill="none"
+    viewBox="0 0 24 24"
+    strokeWidth={2}
+    stroke="currentColor"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"
+    />
   </svg>
 );
 
 const SearchIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
-    <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    fill="none"
+    viewBox="0 0 24 24"
+    strokeWidth={2}
+    stroke="currentColor"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"
+    />
   </svg>
 );
 
@@ -69,9 +95,15 @@ export function ButtonDemo() {
         <section className="space-y-4">
           <h2 className="text-2xl font-bold">Sizes</h2>
           <div className="flex flex-wrap items-center gap-3">
-            <Button size="sm" variant="primary">Small</Button>
-            <Button size="md" variant="primary">Medium</Button>
-            <Button size="lg" variant="primary">Large</Button>
+            <Button size="sm" variant="primary">
+              Small
+            </Button>
+            <Button size="md" variant="primary">
+              Medium
+            </Button>
+            <Button size="lg" variant="primary">
+              Large
+            </Button>
           </div>
         </section>
 
@@ -181,8 +213,13 @@ export function ButtonDemo() {
           <div className="bg-slate-800/50 rounded-xl p-6">
             <h3 className="font-semibold mb-3">Try Keyboard Navigation:</h3>
             <ul className="space-y-2 text-sm text-slate-300 mb-4">
-              <li>• Press <kbd className="px-2 py-1 bg-slate-700 rounded">Tab</kbd> to navigate</li>
-              <li>• Press <kbd className="px-2 py-1 bg-slate-700 rounded">Enter</kbd> or <kbd className="px-2 py-1 bg-slate-700 rounded">Space</kbd> to activate</li>
+              <li>
+                • Press <kbd className="px-2 py-1 bg-slate-700 rounded">Tab</kbd> to navigate
+              </li>
+              <li>
+                • Press <kbd className="px-2 py-1 bg-slate-700 rounded">Enter</kbd> or{' '}
+                <kbd className="px-2 py-1 bg-slate-700 rounded">Space</kbd> to activate
+              </li>
               <li>• Notice the focus ring (appears only on keyboard focus)</li>
             </ul>
             <div className="flex flex-wrap gap-3">
@@ -197,7 +234,8 @@ export function ButtonDemo() {
         {/* Footer */}
         <div className="pt-8 border-t border-slate-700">
           <p className="text-sm text-slate-400">
-            ✅ All features implemented: Variants, Sizes, Icons, Loading, Disabled, Full Width, Accessibility
+            ✅ All features implemented: Variants, Sizes, Icons, Loading, Disabled, Full Width,
+            Accessibility
           </p>
         </div>
       </div>

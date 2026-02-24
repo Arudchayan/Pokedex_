@@ -7,7 +7,7 @@ import { renderWithProvider } from '../utils';
 // Mock html2canvas dynamic import
 vi.mock('html2canvas', () => ({
   default: vi.fn().mockResolvedValue({
-      toDataURL: vi.fn().mockReturnValue('data:image/png;base64,mock'),
+    toDataURL: vi.fn().mockReturnValue('data:image/png;base64,mock'),
   }),
 }));
 

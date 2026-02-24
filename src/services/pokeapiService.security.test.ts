@@ -18,8 +18,8 @@ describe('pokeapiService security', () => {
       json: async () => ({
         data: {
           pokemon_v2_move: [],
-          pokemon_v2_item: []
-        }
+          pokemon_v2_item: [],
+        },
       }),
     } as any);
   });
@@ -35,7 +35,7 @@ describe('pokeapiService security', () => {
   });
 
   it('fetchAllMoves: handles invalid schema (not an array) in localStorage safely', async () => {
-    await set('pokedex_moves', { some: "object" });
+    await set('pokedex_moves', { some: 'object' });
 
     // This should recover by clearing cache and fetching fresh data
     const moves = await fetchAllMoves();

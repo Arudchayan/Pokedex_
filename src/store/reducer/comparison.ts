@@ -8,10 +8,7 @@ export function reducePokemonStoreComparison(
   switch (action.type) {
     case 'ADD_TO_COMPARISON': {
       const id = action.payload.id;
-      if (
-        state.comparisonList.length >= ctx.maxComparison ||
-        state.comparisonList.includes(id)
-      ) {
+      if (state.comparisonList.length >= ctx.maxComparison || state.comparisonList.includes(id)) {
         return state;
       }
       return { comparisonList: [...state.comparisonList, id] };
@@ -34,4 +31,3 @@ export function reducePokemonStoreComparison(
       return undefined;
   }
 }
-

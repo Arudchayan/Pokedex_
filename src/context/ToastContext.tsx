@@ -1,4 +1,12 @@
-import React, { createContext, useContext, useState, useCallback, ReactNode, useEffect, useRef } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useCallback,
+  ReactNode,
+  useEffect,
+  useRef,
+} from 'react';
 
 export type ToastType = 'success' | 'error' | 'info' | 'warning';
 
@@ -39,19 +47,22 @@ export const ToastProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     setToasts((prev) => prev.filter((toast) => toast.id !== id));
   }, []);
 
-  const addToast = useCallback((message: string, type: ToastType = 'info', duration: number = 3000) => {
-    const id = Math.random().toString(36).substring(2, 9);
-    const newToast: Toast = { id, message, type, duration };
+  const addToast = useCallback(
+    (message: string, type: ToastType = 'info', duration: number = 3000) => {
+      const id = Math.random().toString(36).substring(2, 9);
+      const newToast: Toast = { id, message, type, duration };
 
-    setToasts((prev) => [...prev, newToast]);
+      setToasts((prev) => [...prev, newToast]);
 
-    if (duration > 0) {
-      const timeoutId = setTimeout(() => {
-        removeToast(id);
-      }, duration);
-      timeoutsRef.current.set(id, timeoutId);
-    }
-  }, [removeToast]);
+      if (duration > 0) {
+        const timeoutId = setTimeout(() => {
+          removeToast(id);
+        }, duration);
+        timeoutsRef.current.set(id, timeoutId);
+      }
+    },
+    [removeToast]
+  );
 
   return (
     <ToastContext.Provider value={{ toasts, addToast, removeToast }}>

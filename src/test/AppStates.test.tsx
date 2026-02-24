@@ -8,57 +8,62 @@ const mockUsePokemon = vi.fn();
 
 vi.mock('../context/PokemonContext', () => ({
   usePokemon: () => mockUsePokemon(),
-  usePokemonUI: () => ({ theme: mockUsePokemon().theme || 'dark', accent: 'cyan', isShiny: false, isCyberpunk: false }),
+  usePokemonUI: () => ({
+    theme: mockUsePokemon().theme || 'dark',
+    accent: 'cyan',
+    isShiny: false,
+    isCyberpunk: false,
+  }),
   usePokemonData: () => mockUsePokemon(),
   usePokemonDispatch: () => ({ reload: vi.fn(), undo: vi.fn(), redo: vi.fn() }),
-  PokemonProvider: ({ children }: any) => <div>{children}</div>
+  PokemonProvider: ({ children }: any) => <div>{children}</div>,
 }));
 
 vi.mock('../context/ToastContext', () => ({
   useToast: () => ({ addToast: vi.fn(), toasts: [] }),
-  ToastProvider: ({ children }: any) => <div>{children}</div>
+  ToastProvider: ({ children }: any) => <div>{children}</div>,
 }));
 
 vi.mock('../components/shared/Loader', () => ({
-  default: () => <div>Loader</div>
+  default: () => <div>Loader</div>,
 }));
 
 vi.mock('../components/layout/SearchBar', () => ({
-  default: () => <div>SearchBar</div>
+  default: () => <div>SearchBar</div>,
 }));
 
 vi.mock('../components/layout/FilterControls', () => ({
-  default: () => <div>FilterControls</div>
+  default: () => <div>FilterControls</div>,
 }));
 
 vi.mock('../components/layout/SortingControls', () => ({
-  default: () => <div>SortingControls</div>
+  default: () => <div>SortingControls</div>,
 }));
 
 vi.mock('../components/layout/PaginationControls', () => ({
-  default: () => <div>Pagination</div>
+  default: () => <div>Pagination</div>,
 }));
 
 vi.mock('../components/team/TeamBuilder', () => ({
-  default: () => <div>TeamBuilder</div>
+  default: () => <div>TeamBuilder</div>,
 }));
 
 vi.mock('../components/pokemon/VirtualPokemonList', () => ({
-  default: () => <div>VirtualPokemonList</div>
+  default: () => <div>VirtualPokemonList</div>,
 }));
 
 vi.mock('../components/shared/PokemonDetailView', () => ({
-  default: () => <div>PokemonDetailView</div>
+  default: () => <div>PokemonDetailView</div>,
 }));
 
 vi.mock('../components/layout/ThemeSelector', () => ({
-  default: () => <div>ThemeSelector</div>
+  default: () => <div>ThemeSelector</div>,
 }));
 
 vi.mock('../services/soundService', () => ({
   playUISound: vi.fn(),
   toggleAudio: vi.fn(),
-  isAudioEnabled: vi.fn(() => true)
+  isAudioEnabled: vi.fn(() => true),
 }));
 
 const baseState = {
@@ -79,7 +84,7 @@ const baseState = {
   isShiny: false,
   filteredPokemon: [],
   reload: vi.fn(),
-  totalPages: 1
+  totalPages: 1,
 } as const;
 
 describe('App empty/error states', () => {
@@ -92,7 +97,7 @@ describe('App empty/error states', () => {
       ...baseState,
       loading: false,
       error: null,
-      filteredPokemon: []
+      filteredPokemon: [],
     });
 
     renderWithProvider(<App />);
@@ -107,7 +112,7 @@ describe('App empty/error states', () => {
       ...baseState,
       loading: false,
       error: 'Failed to fetch Pokemon data.',
-      reload
+      reload,
     });
 
     renderWithProvider(<App />);

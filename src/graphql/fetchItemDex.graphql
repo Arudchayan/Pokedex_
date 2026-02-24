@@ -1,10 +1,10 @@
 query FetchItemDex {
-  pokemon_v2_item(limit: 1000, order_by: {id: asc}) {
+  pokemon_v2_item(limit: 1000, order_by: { id: asc }) {
     name
     pokemon_v2_itemcategory {
       name
     }
-    pokemon_v2_itemeffecttexts(where: {language_id: {_eq: 9}}, limit: 1) {
+    pokemon_v2_itemeffecttexts(where: { language_id: { _eq: 9 } }, limit: 1) {
       effect
     }
   }

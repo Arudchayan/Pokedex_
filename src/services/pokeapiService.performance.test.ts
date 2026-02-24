@@ -17,21 +17,17 @@ const makePokemon = (overrides: Record<string, unknown>) => ({
       sprites: JSON.stringify({
         front_default: 'http://example.com/sprite.png',
         other: {
-            'official-artwork': { front_default: 'http://example.com/art.png' }
-        }
+          'official-artwork': { front_default: 'http://example.com/art.png' },
+        },
       }),
     },
   ],
   pokemon_v2_pokemontypes: [{ pokemon_v2_type: { name: 'grass' } }],
   pokemon_v2_pokemonspecy: {
-      pokemon_v2_pokemonspeciesflavortexts: [{ flavor_text: 'A seed pokemon.' }]
+    pokemon_v2_pokemonspeciesflavortexts: [{ flavor_text: 'A seed pokemon.' }],
   },
-  pokemon_v2_pokemonstats: [
-    { base_stat: 45, pokemon_v2_stat: { name: 'hp' } },
-  ],
-  pokemon_v2_pokemonabilities: [
-    { pokemon_v2_ability: { name: 'overgrow' } },
-  ],
+  pokemon_v2_pokemonstats: [{ base_stat: 45, pokemon_v2_stat: { name: 'hp' } }],
+  pokemon_v2_pokemonabilities: [{ pokemon_v2_ability: { name: 'overgrow' } }],
   ...overrides,
 });
 
@@ -52,7 +48,11 @@ describe('fetchAllPokemons Performance', () => {
     const pokemonList = [
       makePokemon({ id: 1, name: 'bulbasaur' }), // Standard
       makePokemon({ id: 25, name: 'pikachu', pokemon_v2_pokemonsprites: [] }), // No sprites
-      makePokemon({ id: 150, name: 'mewtwo', pokemon_v2_pokemonsprites: [{ sprites: '{invalid-json}' }] }) // Invalid JSON
+      makePokemon({
+        id: 150,
+        name: 'mewtwo',
+        pokemon_v2_pokemonsprites: [{ sprites: '{invalid-json}' }],
+      }), // Invalid JSON
     ];
 
     mockFetchResponse({ pokemon_v2_pokemon: pokemonList });
@@ -65,7 +65,9 @@ describe('fetchAllPokemons Performance', () => {
     expect(result[0].imageUrl).toBe('https://play.pokemonshowdown.com/sprites/ani/bulbasaur.gif');
 
     // 2. Pikachu (No sprites) -> Expect Generic URL
-    expect(result[1].imageUrl).toBe('https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/25.png');
+    expect(result[1].imageUrl).toBe(
+      'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/25.png'
+    );
 
     // 3. Mewtwo (Invalid JSON sprites)
     // CURRENT BEHAVIOR: extractSpriteUrls fails parsing -> returns fallback image (poke-ball.png) which then might fall back to generic?
@@ -77,11 +79,15 @@ describe('fetchAllPokemons Performance', () => {
 
   it('should avoid JSON.parse on sprite strings', async () => {
     const spriteJson = JSON.stringify({ front_default: 'foo' });
-    const pokemonList = Array(100).fill(null).map((_, i) => makePokemon({
-        id: i + 1,
-        name: `mon-${i}`,
-        pokemon_v2_pokemonsprites: [{ sprites: spriteJson }]
-    }));
+    const pokemonList = Array(100)
+      .fill(null)
+      .map((_, i) =>
+        makePokemon({
+          id: i + 1,
+          name: `mon-${i}`,
+          pokemon_v2_pokemonsprites: [{ sprites: spriteJson }],
+        })
+      );
 
     mockFetchResponse({ pokemon_v2_pokemon: pokemonList });
 

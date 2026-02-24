@@ -77,15 +77,11 @@ describe('Button', () => {
     const TestIcon = () => <svg data-testid="test-icon" />;
 
     it('renders icon on the left by default', () => {
-      render(
-        <Button icon={<TestIcon />}>
-          With Icon
-        </Button>
-      );
+      render(<Button icon={<TestIcon />}>With Icon</Button>);
       const button = screen.getByRole('button');
       const icon = screen.getByTestId('test-icon');
       expect(button).toContainElement(icon);
-      
+
       // Icon should come before text
       const buttonHTML = button.innerHTML;
       const iconIndex = buttonHTML.indexOf('test-icon');
@@ -102,7 +98,7 @@ describe('Button', () => {
       const button = screen.getByRole('button');
       const icon = screen.getByTestId('test-icon');
       expect(button).toContainElement(icon);
-      
+
       // Icon should come after text
       const buttonHTML = button.innerHTML;
       const iconIndex = buttonHTML.indexOf('test-icon');
@@ -170,10 +166,14 @@ describe('Button', () => {
     it('does not call onClick when disabled', async () => {
       const handleClick = vi.fn();
       const user = userEvent.setup();
-      
-      render(<Button disabled onClick={handleClick}>Disabled</Button>);
+
+      render(
+        <Button disabled onClick={handleClick}>
+          Disabled
+        </Button>
+      );
       await user.click(screen.getByRole('button'));
-      
+
       expect(handleClick).not.toHaveBeenCalled();
     });
 
@@ -199,27 +199,31 @@ describe('Button', () => {
     it('calls onClick when clicked', async () => {
       const handleClick = vi.fn();
       const user = userEvent.setup();
-      
+
       render(<Button onClick={handleClick}>Click me</Button>);
       await user.click(screen.getByRole('button'));
-      
+
       expect(handleClick).toHaveBeenCalledTimes(1);
     });
 
     it('does not call onClick when loading', async () => {
       const handleClick = vi.fn();
       const user = userEvent.setup();
-      
-      render(<Button loading onClick={handleClick}>Loading</Button>);
+
+      render(
+        <Button loading onClick={handleClick}>
+          Loading
+        </Button>
+      );
       await user.click(screen.getByRole('button'));
-      
+
       expect(handleClick).not.toHaveBeenCalled();
     });
 
     it('can be focused with keyboard', async () => {
       const user = userEvent.setup();
       render(<Button>Focus me</Button>);
-      
+
       await user.tab();
       expect(screen.getByRole('button')).toHaveFocus();
     });
@@ -227,22 +231,22 @@ describe('Button', () => {
     it('can be activated with Enter key', async () => {
       const handleClick = vi.fn();
       const user = userEvent.setup();
-      
+
       render(<Button onClick={handleClick}>Press Enter</Button>);
       await user.tab();
       await user.keyboard('{Enter}');
-      
+
       expect(handleClick).toHaveBeenCalledTimes(1);
     });
 
     it('can be activated with Space key', async () => {
       const handleClick = vi.fn();
       const user = userEvent.setup();
-      
+
       render(<Button onClick={handleClick}>Press Space</Button>);
       await user.tab();
       await user.keyboard(' ');
-      
+
       expect(handleClick).toHaveBeenCalledTimes(1);
     });
   });
@@ -261,7 +265,10 @@ describe('Button', () => {
 
     it('applies focus-visible styles', () => {
       render(<Button>Button</Button>);
-      expect(screen.getByRole('button')).toHaveClass('focus-visible:outline-none', 'focus-visible:ring-2');
+      expect(screen.getByRole('button')).toHaveClass(
+        'focus-visible:outline-none',
+        'focus-visible:ring-2'
+      );
     });
 
     it('has proper contrast for focus ring', () => {

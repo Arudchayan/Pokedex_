@@ -10,7 +10,9 @@ const BreedingCalculator = React.lazy(() => import('../components/calculators/Br
 const CatchCalculator = React.lazy(() => import('../components/calculators/CatchCalculator'));
 const StatCalculator = React.lazy(() => import('../components/calculators/StatCalculator'));
 const ComparisonView = React.lazy(() => import('../components/charts/ComparisonView'));
-const ShinyOddsCalculator = React.lazy(() => import('../components/calculators/ShinyOddsCalculator'));
+const ShinyOddsCalculator = React.lazy(
+  () => import('../components/calculators/ShinyOddsCalculator')
+);
 const MoveDex = React.lazy(() => import('../components/dex/MoveDex'));
 const AbilityDex = React.lazy(() => import('../components/dex/AbilityDex'));
 const ItemDex = React.lazy(() => import('../components/dex/ItemDex'));
@@ -18,7 +20,9 @@ const NatureChart = React.lazy(() => import('../components/charts/NatureChart'))
 const TypeChart = React.lazy(() => import('../components/charts/TypeChart'));
 const DataManagement = React.lazy(() => import('../components/shared/DataManagement'));
 const AchievementModal = React.lazy(() => import('../components/shared/AchievementModal'));
-const PokemonWalkersSettingsModal = React.lazy(() => import('../components/shared/PokemonWalkersSettingsModal'));
+const PokemonWalkersSettingsModal = React.lazy(
+  () => import('../components/shared/PokemonWalkersSettingsModal')
+);
 
 type Props = {
   controller: AppController;
@@ -78,7 +82,21 @@ export default function AppModals({ controller }: Props) {
 
   return (
     <>
-      <ErrorBoundary fallback={<div className="fixed inset-0 z-[1050] flex items-center justify-center bg-black/50 p-4"><div className="bg-white dark:bg-slate-900 rounded-2xl p-8 max-w-md text-center"><p className="text-red-500 font-semibold mb-4">Failed to load Pokemon details</p><button onClick={() => window.location.reload()} className="px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors">Reload</button></div></div>}>
+      <ErrorBoundary
+        fallback={
+          <div className="fixed inset-0 z-[1050] flex items-center justify-center bg-black/50 p-4">
+            <div className="bg-white dark:bg-slate-900 rounded-2xl p-8 max-w-md text-center">
+              <p className="text-red-500 font-semibold mb-4">Failed to load Pokemon details</p>
+              <button
+                onClick={() => window.location.reload()}
+                className="px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors"
+              >
+                Reload
+              </button>
+            </div>
+          </div>
+        }
+      >
         <Suspense
           fallback={
             <div className="fixed inset-0 z-[1050] flex items-center justify-center bg-black/50 backdrop-blur-sm">
@@ -107,7 +125,21 @@ export default function AppModals({ controller }: Props) {
         </Suspense>
       </ErrorBoundary>
 
-      <ErrorBoundary fallback={<div className="fixed inset-0 z-[1050] flex items-center justify-center bg-black/50 p-4"><div className="bg-white dark:bg-slate-900 rounded-2xl p-8 max-w-md text-center"><p className="text-red-500 font-semibold mb-4">Something went wrong</p><button onClick={() => window.location.reload()} className="px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors">Reload</button></div></div>}>
+      <ErrorBoundary
+        fallback={
+          <div className="fixed inset-0 z-[1050] flex items-center justify-center bg-black/50 p-4">
+            <div className="bg-white dark:bg-slate-900 rounded-2xl p-8 max-w-md text-center">
+              <p className="text-red-500 font-semibold mb-4">Something went wrong</p>
+              <button
+                onClick={() => window.location.reload()}
+                className="px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors"
+              >
+                Reload
+              </button>
+            </div>
+          </div>
+        }
+      >
         <Suspense fallback={<Loader message="Loading..." />}>
           {showComparison && (
             <ComparisonView
@@ -134,18 +166,25 @@ export default function AppModals({ controller }: Props) {
           {showBreedingCalc && <BreedingCalculator onClose={() => setShowBreedingCalc(false)} />}
 
           {showCatchCalc && (
-            <CatchCalculator onClose={() => setShowCatchCalc(false)} initialPokemonId={selectedPokemonId} />
+            <CatchCalculator
+              onClose={() => setShowCatchCalc(false)}
+              initialPokemonId={selectedPokemonId}
+            />
           )}
 
           {showShinyCalc && <ShinyOddsCalculator onClose={() => setShowShinyCalc(false)} />}
 
           {showGameHub && <GameHub onClose={() => setShowGameHub(false)} />}
 
-          {showMoveDex && <MoveDex onClose={() => setShowMoveDex(false)} initialSearch={dexSearchTerm} />}
+          {showMoveDex && (
+            <MoveDex onClose={() => setShowMoveDex(false)} initialSearch={dexSearchTerm} />
+          )}
           {showAbilityDex && (
             <AbilityDex onClose={() => setShowAbilityDex(false)} initialSearch={dexSearchTerm} />
           )}
-          {showItemDex && <ItemDex onClose={() => setShowItemDex(false)} initialSearch={dexSearchTerm} />}
+          {showItemDex && (
+            <ItemDex onClose={() => setShowItemDex(false)} initialSearch={dexSearchTerm} />
+          )}
           {showNatureChart && <NatureChart onClose={() => setShowNatureChart(false)} />}
           {showTypeChart && <TypeChart onClose={() => setShowTypeChart(false)} />}
           {showDataManagement && <DataManagement onClose={() => setShowDataManagement(false)} />}
@@ -158,4 +197,3 @@ export default function AppModals({ controller }: Props) {
     </>
   );
 }
-

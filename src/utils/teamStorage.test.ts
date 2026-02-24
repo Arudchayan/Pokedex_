@@ -39,29 +39,29 @@ describe('teamStorage', () => {
     });
 
     it('returns empty array if JSON parse fails', () => {
-        localStorage.setItem('pokedex_team', 'invalid-json');
-        expect(getSavedTeam()).toEqual([]);
+      localStorage.setItem('pokedex_team', 'invalid-json');
+      expect(getSavedTeam()).toEqual([]);
     });
   });
 
   describe('getSavedTeamList', () => {
-      it('returns empty array if nothing in localStorage', () => {
-          expect(getSavedTeamList()).toEqual([]);
-      });
+    it('returns empty array if nothing in localStorage', () => {
+      expect(getSavedTeamList()).toEqual([]);
+    });
 
-      it('returns parsed list if valid array', () => {
-          const mockList = [{ id: '1', name: 'My Team', team: [], updatedAt: 123 }] as SavedTeam[];
-          localStorage.setItem('pokedex_saved_teams', JSON.stringify(mockList));
-          const result = getSavedTeamList();
-          expect(result).toHaveLength(1);
-          expect(result[0]).toMatchObject(mockList[0]);
-      });
+    it('returns parsed list if valid array', () => {
+      const mockList = [{ id: '1', name: 'My Team', team: [], updatedAt: 123 }] as SavedTeam[];
+      localStorage.setItem('pokedex_saved_teams', JSON.stringify(mockList));
+      const result = getSavedTeamList();
+      expect(result).toHaveLength(1);
+      expect(result[0]).toMatchObject(mockList[0]);
+    });
 
-      it('returns empty array if localStorage contains non-array JSON', () => {
-          localStorage.setItem('pokedex_saved_teams', JSON.stringify({ malicious: 'object' }));
-          const result = getSavedTeamList();
-          expect(Array.isArray(result)).toBe(true);
-          expect(result).toEqual([]);
-      });
+    it('returns empty array if localStorage contains non-array JSON', () => {
+      localStorage.setItem('pokedex_saved_teams', JSON.stringify({ malicious: 'object' }));
+      const result = getSavedTeamList();
+      expect(Array.isArray(result)).toBe(true);
+      expect(result).toEqual([]);
+    });
   });
 });

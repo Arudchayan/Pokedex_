@@ -41,14 +41,18 @@ describe('BattleCalculator Component Logic', () => {
 
     // Click Fire in Attacker section
     // We can scope queries.
-    const fireBtn = (attackerSection as HTMLElement).querySelector('[data-testid="type-fire"]')?.parentElement;
+    const fireBtn = (attackerSection as HTMLElement).querySelector(
+      '[data-testid="type-fire"]'
+    )?.parentElement;
     fireEvent.click(fireBtn!);
 
     // 2. Select Grass as defender
     // Default is 'normal'. We need to remove 'normal' and add 'grass'.
     // Or just add 'grass' (making it normal/grass) -> Fire vs Normal(1x) * Grass(2x) = 2x.
     // Let's try just adding Grass first.
-    const grassDefBtn = (defenderSection as HTMLElement).querySelector('[data-testid="type-grass"]')?.parentElement;
+    const grassDefBtn = (defenderSection as HTMLElement).querySelector(
+      '[data-testid="type-grass"]'
+    )?.parentElement;
     fireEvent.click(grassDefBtn!);
 
     // Now we have Normal/Grass.
@@ -75,7 +79,9 @@ describe('BattleCalculator Component Logic', () => {
     // Normal vs Normal = 1x
     // 1 * 0 = 0. So Normal/Ghost is fine.
 
-    const ghostDefBtn = (defenderSection as HTMLElement).querySelector('[data-testid="type-ghost"]')?.parentElement;
+    const ghostDefBtn = (defenderSection as HTMLElement).querySelector(
+      '[data-testid="type-ghost"]'
+    )?.parentElement;
     fireEvent.click(ghostDefBtn!);
 
     expect(screen.getByText('×0.00')).toBeInTheDocument();
@@ -90,7 +96,9 @@ describe('BattleCalculator Component Logic', () => {
     const defenderSection = screen.getByText(/Defending Type/i).closest('div');
 
     // Attacker: Fire
-    const fireBtn = (attackerSection as HTMLElement).querySelector('[data-testid="type-fire"]')?.parentElement;
+    const fireBtn = (attackerSection as HTMLElement).querySelector(
+      '[data-testid="type-fire"]'
+    )?.parentElement;
     fireEvent.click(fireBtn!);
 
     // Defender: Currently Normal.
@@ -100,14 +108,18 @@ describe('BattleCalculator Component Logic', () => {
     // Current: ['normal']
 
     // Remove Normal
-    const normalDefBtn = (defenderSection as HTMLElement).querySelector('[data-testid="type-normal"]')?.parentElement;
+    const normalDefBtn = (defenderSection as HTMLElement).querySelector(
+      '[data-testid="type-normal"]'
+    )?.parentElement;
     fireEvent.click(normalDefBtn!);
     // Current: [] (Actually logic might prevent empty list? Let's check component code)
     // Component: if (defenderTypes.includes(type)) { if length > 1 remove }
     // So we cannot remove the last type. We must add another first.
 
     // Add Grass
-    const grassDefBtn = (defenderSection as HTMLElement).querySelector('[data-testid="type-grass"]')?.parentElement;
+    const grassDefBtn = (defenderSection as HTMLElement).querySelector(
+      '[data-testid="type-grass"]'
+    )?.parentElement;
     fireEvent.click(grassDefBtn!);
     // Current: ['normal', 'grass']
 
@@ -116,7 +128,9 @@ describe('BattleCalculator Component Logic', () => {
     // Current: ['grass']
 
     // Add Bug
-    const bugDefBtn = (defenderSection as HTMLElement).querySelector('[data-testid="type-bug"]')?.parentElement;
+    const bugDefBtn = (defenderSection as HTMLElement).querySelector(
+      '[data-testid="type-bug"]'
+    )?.parentElement;
     fireEvent.click(bugDefBtn!);
     // Current: ['grass', 'bug']
 

@@ -52,7 +52,7 @@ const mockPokemonList: PokemonListItem[] = [
     flavorText: 'Char char',
     stats: [{ name: 'hp', value: 78 }],
     abilities: ['blaze'],
-  }
+  },
 ];
 
 // Mock pokeapiService directly in the test file
@@ -119,7 +119,7 @@ describe('StatCalculator Search Optimization', () => {
 
     // Use a small delay or check for absence
     await waitFor(() => {
-       // Wait for any potential re-render
+      // Wait for any potential re-render
     });
 
     expect(screen.queryByText('Pikachu')).not.toBeInTheDocument();

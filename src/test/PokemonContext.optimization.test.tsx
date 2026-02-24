@@ -16,8 +16,26 @@ import { usePokemonStore } from '../store/usePokemonStore';
 
 // Mock Data
 const mockPokemonList: PokemonListItem[] = [
-  { id: 1, name: 'bulbasaur', types: ['grass', 'poison'], imageUrl: '', shinyImageUrl: '', flavorText: '', stats: [], abilities: [] },
-  { id: 2, name: 'ivysaur', types: ['grass', 'poison'], imageUrl: '', shinyImageUrl: '', flavorText: '', stats: [], abilities: [] },
+  {
+    id: 1,
+    name: 'bulbasaur',
+    types: ['grass', 'poison'],
+    imageUrl: '',
+    shinyImageUrl: '',
+    flavorText: '',
+    stats: [],
+    abilities: [],
+  },
+  {
+    id: 2,
+    name: 'ivysaur',
+    types: ['grass', 'poison'],
+    imageUrl: '',
+    shinyImageUrl: '',
+    flavorText: '',
+    stats: [],
+    abilities: [],
+  },
 ];
 
 // Spy on domain list logic (applySort/applyFilters).
@@ -47,15 +65,11 @@ const TestComponent = () => {
   return (
     <div>
       <div data-testid="count">{filteredPokemon.length}</div>
-      <button onClick={() => usePokemonStore.getState().toggleFavorite(1)}>
-        Toggle Fav 1
-      </button>
+      <button onClick={() => usePokemonStore.getState().toggleFavorite(1)}>Toggle Fav 1</button>
       <button onClick={() => usePokemonStore.getState().setSort('favorite', 'desc')}>
         Sort By Fav
       </button>
-       <button onClick={() => usePokemonStore.getState().setSort('id', 'asc')}>
-        Sort By ID
-      </button>
+      <button onClick={() => usePokemonStore.getState().setSort('id', 'asc')}>Sort By ID</button>
     </div>
   );
 };
@@ -96,7 +110,7 @@ describe('PokemonContext Performance Optimization', () => {
     });
 
     // Wait for any effects
-    await new Promise(resolve => setTimeout(resolve, 50));
+    await new Promise((resolve) => setTimeout(resolve, 50));
 
     // CHECK: How many times was applySort called?
     // In unoptimized code, it is called once.
@@ -111,7 +125,7 @@ describe('PokemonContext Performance Optimization', () => {
     });
 
     // Wait for effect
-    await new Promise(resolve => setTimeout(resolve, 50));
+    await new Promise((resolve) => setTimeout(resolve, 50));
 
     // Should be called
     expect(applySortSpy).toHaveBeenCalled();
@@ -119,11 +133,11 @@ describe('PokemonContext Performance Optimization', () => {
     // 3. Toggle Favorite while sorting by Favorite
     applySortSpy.mockClear();
     await act(async () => {
-        screen.getByText('Toggle Fav 1').click();
+      screen.getByText('Toggle Fav 1').click();
     });
 
     // Wait for effect
-    await new Promise(resolve => setTimeout(resolve, 50));
+    await new Promise((resolve) => setTimeout(resolve, 50));
 
     // Should be called because we are sorting by favorites!
     expect(applySortSpy).toHaveBeenCalled();

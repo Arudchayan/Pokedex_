@@ -1,13 +1,13 @@
 /**
  * Design System Index
- * 
+ *
  * Central export point for all design tokens
  * Import from this file to access the complete design system
- * 
+ *
  * @example
  * ```typescript
  * import { colors, spacing, typography, elevation } from '@/design-system';
- * 
+ *
  * const styles = {
  *   color: colors.type.fire.bg,
  *   padding: spacing.lg,
@@ -35,13 +35,7 @@ export {
 } from './colors';
 
 // Spacing tokens
-export {
-  default as spacing,
-  componentSpacing,
-  container,
-  radius,
-  getSpacing,
-} from './spacing';
+export { default as spacing, componentSpacing, container, radius, getSpacing } from './spacing';
 
 // Typography tokens
 export {

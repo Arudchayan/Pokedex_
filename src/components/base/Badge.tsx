@@ -68,8 +68,7 @@ const Badge = forwardRef<HTMLSpanElement, BadgeProps>(
       const defaultVariants = {
         solid: 'bg-primary-500 text-white',
         soft: 'bg-primary-500/20 text-primary-400 dark:text-primary-300',
-        outline:
-          'bg-transparent border border-primary-400 text-primary-500 dark:text-primary-400',
+        outline: 'bg-transparent border border-primary-400 text-primary-500 dark:text-primary-400',
       };
 
       return defaultVariants[variant];

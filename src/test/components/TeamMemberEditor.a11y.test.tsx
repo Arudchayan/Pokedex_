@@ -14,12 +14,12 @@ describe('TeamMemberEditor Accessibility', () => {
     types: ['grass', 'poison'],
     flavorText: '',
     stats: [
-        { name: 'hp', value: 45 },
-        { name: 'attack', value: 49 },
-        { name: 'defense', value: 49 },
-        { name: 'special-attack', value: 65 },
-        { name: 'special-defense', value: 65 },
-        { name: 'speed', value: 45 }
+      { name: 'hp', value: 45 },
+      { name: 'attack', value: 49 },
+      { name: 'defense', value: 49 },
+      { name: 'special-attack', value: 65 },
+      { name: 'special-defense', value: 65 },
+      { name: 'speed', value: 45 },
     ],
   };
 
@@ -28,19 +28,20 @@ describe('TeamMemberEditor Accessibility', () => {
 
   it('renders item search dropdown with accessible roles', async () => {
     setPokeapiServiceMock({
-        fetchAllItems: [
-            { id: 1, name: 'leftovers', cost: 0, flavorText: 'Restores HP', imageUrl: 'leftovers.png' },
-            { id: 2, name: 'choice-band', cost: 0, flavorText: 'Boosts Atk', imageUrl: 'choice-band.png' }
-        ]
+      fetchAllItems: [
+        { id: 1, name: 'leftovers', cost: 0, flavorText: 'Restores HP', imageUrl: 'leftovers.png' },
+        {
+          id: 2,
+          name: 'choice-band',
+          cost: 0,
+          flavorText: 'Boosts Atk',
+          imageUrl: 'choice-band.png',
+        },
+      ],
     });
 
     renderWithProvider(
-      <TeamMemberEditor
-        member={mockMember}
-        onClose={onClose}
-        onSave={onSave}
-        theme="dark"
-      />
+      <TeamMemberEditor member={mockMember} onClose={onClose} onSave={onSave} theme="dark" />
     );
 
     // Wait for data to load

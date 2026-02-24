@@ -17,10 +17,7 @@ export const PokemonCardSkeleton: React.FC<{ className?: string }> = ({ classNam
   >
     {/* Image area – 60 % of height */}
     <div className="aspect-[1/0.6] w-full">
-      <Skeleton
-        animation="wave"
-        className="w-full h-full !rounded-none"
-      />
+      <Skeleton animation="wave" className="w-full h-full !rounded-none" />
     </div>
 
     {/* Text / badges area */}
@@ -60,11 +57,7 @@ export const PokemonDetailSkeleton: React.FC<{ className?: string }> = ({ classN
       {/* ---- Left column ---- */}
       <div className="flex flex-col gap-6">
         {/* Large image placeholder */}
-        <Skeleton
-          animation="wave"
-          className="w-full aspect-square"
-          rounded="xl"
-        />
+        <Skeleton animation="wave" className="w-full aspect-square" rounded="xl" />
 
         {/* Flavor text lines */}
         <div className="space-y-2">

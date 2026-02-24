@@ -15,12 +15,12 @@ const localStorageMock = (() => {
     },
     clear: () => {
       store = {};
-    }
+    },
   };
 })();
 
 Object.defineProperty(window, 'localStorage', {
-  value: localStorageMock
+  value: localStorageMock,
 });
 
 // Mock sound service
@@ -99,16 +99,18 @@ describe('ThemeSelector', () => {
     await waitFor(() => {
       expect(localStorage.getItem('accent')).toBe('rose');
       const roseColors = ACCENT_COLORS['rose'];
-      expect(document.documentElement.style.getPropertyValue('--color-primary-500')).toBe(roseColors[500]);
+      expect(document.documentElement.style.getPropertyValue('--color-primary-500')).toBe(
+        roseColors[500]
+      );
     });
   });
 
   it('closes when clicking outside', async () => {
     renderWithProvider(
-        <div>
-            <div data-testid="outside">Outside</div>
-            <ThemeSelector />
-        </div>
+      <div>
+        <div data-testid="outside">Outside</div>
+        <ThemeSelector />
+      </div>
     );
     const button = screen.getByTitle('Customize Theme');
     fireEvent.click(button);
@@ -120,7 +122,7 @@ describe('ThemeSelector', () => {
 
     // Expect dropdown to disappear
     await waitFor(() => {
-        expect(screen.queryByText('Display Mode')).not.toBeInTheDocument();
+      expect(screen.queryByText('Display Mode')).not.toBeInTheDocument();
     });
   });
 });

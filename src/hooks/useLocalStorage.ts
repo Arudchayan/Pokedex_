@@ -4,18 +4,18 @@ import { useState, useEffect, useCallback, Dispatch, SetStateAction } from 'reac
  * Synchronizes state with localStorage
  * Automatically handles JSON serialization/deserialization
  * SSR-safe: Falls back to initial value when localStorage is unavailable
- * 
+ *
  * @param key - The localStorage key to use
  * @param initialValue - Default value if no stored value exists
  * @returns Tuple of [value, setValue, remove] similar to useState
- * 
+ *
  * @example
  * ```tsx
  * // Store user preferences
  * const UserSettings = () => {
  *   const [theme, setTheme] = useLocalStorage('theme', 'dark');
  *   const [gridDensity, setGridDensity] = useLocalStorage('grid-density', 'comfortable');
- * 
+ *
  *   return (
  *     <div>
  *       <button onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}>
@@ -30,7 +30,7 @@ import { useState, useEffect, useCallback, Dispatch, SetStateAction } from 'reac
  *   );
  * };
  * ```
- * 
+ *
  * @example
  * ```tsx
  * // Store complex objects
@@ -39,21 +39,21 @@ import { useState, useEffect, useCallback, Dispatch, SetStateAction } from 'reac
  *   members: Pokemon[];
  *   tags: string[];
  * }
- * 
+ *
  * const TeamBuilder = () => {
  *   const [savedTeams, setSavedTeams, removeTeams] = useLocalStorage<TeamConfig[]>(
  *     'saved-teams',
  *     []
  *   );
- * 
+ *
  *   const addTeam = (team: TeamConfig) => {
  *     setSavedTeams(prev => [...prev, team]);
  *   };
- * 
+ *
  *   const clearAll = () => {
  *     removeTeams(); // Removes from localStorage
  *   };
- * 
+ *
  *   return <div>...</div>;
  * };
  * ```
@@ -88,18 +88,18 @@ export function useLocalStorage<T>(
       try {
         // Allow value to be a function so we have same API as useState
         const valueToStore = value instanceof Function ? value(storedValue) : value;
-        
+
         // Save state
         setStoredValue(valueToStore);
-        
+
         // SSR safety
         if (typeof window !== 'undefined') {
           window.localStorage.setItem(key, JSON.stringify(valueToStore));
-          
+
           // Dispatch custom event so other tabs/windows can sync
           window.dispatchEvent(
             new CustomEvent('local-storage-change', {
-              detail: { key, value: valueToStore }
+              detail: { key, value: valueToStore },
             })
           );
         }
@@ -115,13 +115,13 @@ export function useLocalStorage<T>(
   const remove = useCallback(() => {
     try {
       setStoredValue(initialValue);
-      
+
       if (typeof window !== 'undefined') {
         window.localStorage.removeItem(key);
-        
+
         window.dispatchEvent(
           new CustomEvent('local-storage-change', {
-            detail: { key, value: undefined }
+            detail: { key, value: undefined },
           })
         );
       }
@@ -157,7 +157,7 @@ export function useLocalStorage<T>(
 
     // Listen to changes from other tabs/windows
     window.addEventListener('storage', handleStorageChange as EventListener);
-    
+
     // Listen to changes from same tab (our custom event)
     window.addEventListener('local-storage-change', handleStorageChange as EventListener);
 
@@ -173,16 +173,16 @@ export function useLocalStorage<T>(
 /**
  * Hook to check if localStorage is available
  * Useful for showing warnings or fallback UI
- * 
+ *
  * @example
  * ```tsx
  * const DataManagement = () => {
  *   const isAvailable = useIsLocalStorageAvailable();
- * 
+ *
  *   if (!isAvailable) {
  *     return <Warning>localStorage is not available. Data will not persist.</Warning>;
  *   }
- * 
+ *
  *   return <div>...</div>;
  * };
  * ```

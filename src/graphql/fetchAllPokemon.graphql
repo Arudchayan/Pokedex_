@@ -1,5 +1,5 @@
 query fetchAllPokemon($limit: Int!) {
-  pokemon_v2_pokemon(order_by: {id: asc}, where: {id: {_lte: $limit}}) {
+  pokemon_v2_pokemon(order_by: { id: asc }, where: { id: { _lte: $limit } }) {
     id
     name
     pokemon_v2_pokemonsprites {
@@ -11,7 +11,11 @@ query fetchAllPokemon($limit: Int!) {
       }
     }
     pokemon_v2_pokemonspecy {
-      pokemon_v2_pokemonspeciesflavortexts(where: {pokemon_v2_language: {name: {_eq: "en"}}}, limit: 1, order_by: {version_id: desc}) {
+      pokemon_v2_pokemonspeciesflavortexts(
+        where: { pokemon_v2_language: { name: { _eq: "en" } } }
+        limit: 1
+        order_by: { version_id: desc }
+      ) {
         flavor_text
       }
     }

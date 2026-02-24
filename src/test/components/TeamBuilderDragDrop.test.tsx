@@ -52,7 +52,7 @@ const mockPokemon: PokemonListItem = {
   moves: [],
   baseExperience: 64,
   height: 7,
-  weight: 69
+  weight: 69,
 };
 
 describe('Drag and Drop Feature', () => {
@@ -124,10 +124,12 @@ describe('Drag and Drop Feature', () => {
       fireEvent.drop(dropZone, { dataTransfer });
     });
 
-    expect(handleAddToTeam).toHaveBeenCalledWith(expect.objectContaining({
-      id: 1,
-      name: 'bulbasaur'
-    }));
+    expect(handleAddToTeam).toHaveBeenCalledWith(
+      expect.objectContaining({
+        id: 1,
+        name: 'bulbasaur',
+      })
+    );
   });
 
   it('TeamBuilder ignores drop with invalid data', async () => {
@@ -193,8 +195,8 @@ describe('Drag and Drop Feature', () => {
 
     // Malformed data: ID is string (should be number), Name is missing
     const maliciousData = {
-      id: "malicious-string-id",
-      imageUrl: "javascript:alert(1)"
+      id: 'malicious-string-id',
+      imageUrl: 'javascript:alert(1)',
     };
 
     dataTransfer.setData('application/x-pokedex-pokemon', JSON.stringify(maliciousData));
@@ -207,7 +209,9 @@ describe('Drag and Drop Feature', () => {
     });
 
     expect(handleAddToTeam).not.toHaveBeenCalled();
-    expect(consoleWarnSpy).toHaveBeenCalledWith(expect.stringContaining('Sentinel: Dropped data failed validation'));
+    expect(consoleWarnSpy).toHaveBeenCalledWith(
+      expect.stringContaining('Sentinel: Dropped data failed validation')
+    );
 
     consoleWarnSpy.mockRestore();
   });

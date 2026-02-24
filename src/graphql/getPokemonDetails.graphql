@@ -1,5 +1,5 @@
 query getPokemonDetails($id: Int!) {
-  pokemon_v2_pokemonspecies(where: {pokemon_v2_pokemons: {id: {_eq: $id}}}) {
+  pokemon_v2_pokemonspecies(where: { pokemon_v2_pokemons: { id: { _eq: $id } } }) {
     id
     name
     capture_rate
@@ -11,7 +11,7 @@ query getPokemonDetails($id: Int!) {
     pokemon_v2_pokemonhabitat {
       name
     }
-    pokemon_v2_pokemonspeciesnames(where: {pokemon_v2_language: {name: {_eq: "en"}}}) {
+    pokemon_v2_pokemonspeciesnames(where: { pokemon_v2_language: { name: { _eq: "en" } } }) {
       genus
     }
     pokemon_v2_growthrate {
@@ -26,11 +26,11 @@ query getPokemonDetails($id: Int!) {
       }
     }
     pokemon_v2_evolutionchain {
-      pokemon_v2_pokemonspecies(order_by: {order: asc}) {
+      pokemon_v2_pokemonspecies(order_by: { order: asc }) {
         id
         name
         evolves_from_species_id
-        pokemon_v2_pokemons(limit: 1, order_by: {id: asc}) {
+        pokemon_v2_pokemons(limit: 1, order_by: { id: asc }) {
           pokemon_v2_pokemonsprites {
             sprites
           }
@@ -55,10 +55,14 @@ query getPokemonDetails($id: Int!) {
         }
       }
     }
-    pokemon_v2_pokemonspeciesflavortexts(where: {pokemon_v2_language: {name: {_eq: "en"}}}, limit: 1, order_by: {version_id: desc}) {
+    pokemon_v2_pokemonspeciesflavortexts(
+      where: { pokemon_v2_language: { name: { _eq: "en" } } }
+      limit: 1
+      order_by: { version_id: desc }
+    ) {
       flavor_text
     }
-    pokemon_v2_pokemons(order_by: {id: asc}) {
+    pokemon_v2_pokemons(order_by: { id: asc }) {
       id
       name
       height
@@ -83,7 +87,7 @@ query getPokemonDetails($id: Int!) {
           name
         }
       }
-      pokemon_v2_pokemonmoves(order_by: {level: asc, move_learn_method_id: asc}) {
+      pokemon_v2_pokemonmoves(order_by: { level: asc, move_learn_method_id: asc }) {
         level
         pokemon_v2_movelearnmethod {
           name

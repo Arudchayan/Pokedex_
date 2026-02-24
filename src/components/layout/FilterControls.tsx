@@ -33,7 +33,9 @@ const SectionToggle: React.FC<{
     aria-controls={controlsId}
   >
     <span>{label}</span>
-    <span className={`flex items-center gap-2 text-xs ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>
+    <span
+      className={`flex items-center gap-2 text-xs ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}
+    >
       {description}
       <svg
         className={`h-3 w-3 transform transition ${isOpen ? 'rotate-180' : ''}`}
@@ -142,36 +144,61 @@ const FilterControls: React.FC<FilterControlsProps> = ({
       });
     }
     return chips;
-  }, [flavorTextSearch, selectedGeneration, selectedTypes, minStats, selectedAbility, isMonoType, minBST, onGenerationChange, onTypeToggle, onFlavorTextChange]);
+  }, [
+    flavorTextSearch,
+    selectedGeneration,
+    selectedTypes,
+    minStats,
+    selectedAbility,
+    isMonoType,
+    minBST,
+    onGenerationChange,
+    onTypeToggle,
+    onFlavorTextChange,
+  ]);
 
   const hasActiveFilters = activeChips.length > 0;
   const allTypes = useMemo(() => Object.keys(TYPE_COLORS), []);
 
   const containerClass =
     className ??
-    `rounded-2xl border p-6 shadow-2xl backdrop-blur-lg ${theme === 'dark'
-      ? 'border-white/10 bg-slate-950/80 shadow-black/40'
-      : 'border-slate-200 bg-white/80 shadow-slate-200/50'
+    `rounded-2xl border p-6 shadow-2xl backdrop-blur-lg ${
+      theme === 'dark'
+        ? 'border-white/10 bg-slate-950/80 shadow-black/40'
+        : 'border-slate-200 bg-white/80 shadow-slate-200/50'
     }`;
 
   return (
     <section className={containerClass} aria-label="Filters">
       <header className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <p className={`text-xs font-semibold uppercase tracking-wide ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>Refine</p>
-          <h2 className={`text-xl font-bold ${theme === 'dark' ? 'text-white' : 'text-slate-800'}`}>Filters</h2>
+          <p
+            className={`text-xs font-semibold uppercase tracking-wide ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}
+          >
+            Refine
+          </p>
+          <h2 className={`text-xl font-bold ${theme === 'dark' ? 'text-white' : 'text-slate-800'}`}>
+            Filters
+          </h2>
         </div>
         {onClearFilters && (
           <button
             type="button"
             onClick={onClearFilters}
             disabled={!hasActiveFilters}
-            className={`inline-flex items-center gap-2 rounded-md border px-3 py-1.5 text-xs font-semibold uppercase tracking-wide transition focus:outline-none focus:ring-2 disabled:cursor-not-allowed disabled:opacity-40 ${theme === 'dark'
+            className={`inline-flex items-center gap-2 rounded-md border px-3 py-1.5 text-xs font-semibold uppercase tracking-wide transition focus:outline-none focus:ring-2 disabled:cursor-not-allowed disabled:opacity-40 ${
+              theme === 'dark'
                 ? 'border-white/10 bg-white/5 text-slate-200 hover:bg-white/10 focus:ring-white/30'
                 : 'border-slate-200 bg-slate-100 text-slate-600 hover:bg-slate-200 focus:ring-slate-300'
-              }`}
+            }`}
           >
-            <svg className="h-3 w-3" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5">
+            <svg
+              className="h-3 w-3"
+              viewBox="0 0 12 12"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+            >
               <path d="M3 3l6 6M9 3L3 9" />
             </svg>
             Clear
@@ -181,19 +208,26 @@ const FilterControls: React.FC<FilterControlsProps> = ({
 
       <div className="mb-4 flex flex-wrap gap-2">
         {activeChips.length === 0 ? (
-          <span className={`text-xs font-semibold uppercase tracking-wide ${theme === 'dark' ? 'text-slate-500' : 'text-slate-400'}`}>
+          <span
+            className={`text-xs font-semibold uppercase tracking-wide ${theme === 'dark' ? 'text-slate-500' : 'text-slate-400'}`}
+          >
             No filters applied
           </span>
         ) : (
           activeChips.map((chip) => (
             <div
               key={`${chip.label}-${chip.value}`}
-              className={`inline-flex items-center gap-2 rounded-full border pl-3 pr-1 py-1 text-xs font-semibold animate-[chipIn_0.2s_ease-out] ${theme === 'dark'
+              className={`inline-flex items-center gap-2 rounded-full border pl-3 pr-1 py-1 text-xs font-semibold animate-[chipIn_0.2s_ease-out] ${
+                theme === 'dark'
                   ? 'border-white/10 bg-white/10 text-slate-100'
                   : 'border-slate-200 bg-slate-100 text-slate-700'
-                }`}
+              }`}
             >
-              <span className={`text-[10px] uppercase tracking-wide ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>{chip.label}</span>
+              <span
+                className={`text-[10px] uppercase tracking-wide ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}
+              >
+                {chip.label}
+              </span>
               <span>{chip.value}</span>
               <button
                 type="button"
@@ -202,7 +236,13 @@ const FilterControls: React.FC<FilterControlsProps> = ({
                 className={`ml-1 rounded-full p-0.5 transition hover:bg-white/20 focus:outline-none focus:ring-2 focus:ring-primary-500`}
                 aria-label={`Remove ${chip.label} filter: ${chip.value}`}
               >
-                <svg className="h-3 w-3" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2">
+                <svg
+                  className="h-3 w-3"
+                  viewBox="0 0 12 12"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                >
                   <path d="M3 3l6 6M9 3L3 9" />
                 </svg>
               </button>
@@ -211,7 +251,9 @@ const FilterControls: React.FC<FilterControlsProps> = ({
         )}
       </div>
 
-      <div className={`flex flex-col divide-y ${theme === 'dark' ? 'divide-white/10' : 'divide-slate-200'}`}>
+      <div
+        className={`flex flex-col divide-y ${theme === 'dark' ? 'divide-white/10' : 'divide-slate-200'}`}
+      >
         <article>
           <SectionToggle
             label="Generation"
@@ -230,10 +272,11 @@ const FilterControls: React.FC<FilterControlsProps> = ({
                 id="generation-select"
                 value={selectedGeneration}
                 onChange={(event) => onGenerationChange(event.target.value)}
-                className={`w-full rounded-md border py-2 px-3 text-sm shadow-inner transition focus:outline-none focus:ring-2 focus:ring-primary-500/60 ${theme === 'dark'
+                className={`w-full rounded-md border py-2 px-3 text-sm shadow-inner transition focus:outline-none focus:ring-2 focus:ring-primary-500/60 ${
+                  theme === 'dark'
                     ? 'border-white/10 bg-slate-900 text-white shadow-black/20'
                     : 'border-slate-300 bg-white text-slate-900 shadow-slate-200/50'
-                  }`}
+                }`}
               >
                 <option value="all">All generations</option>
                 {Object.keys(GENERATIONS).map((generation) => (
@@ -286,7 +329,10 @@ const FilterControls: React.FC<FilterControlsProps> = ({
                   onChange={() => usePokemonStore.getState().toggleMonoType()}
                   className="rounded border-slate-300 text-primary-600 shadow-sm focus:border-primary-300 focus:ring focus:ring-primary-300/40 focus:ring-opacity-50"
                 />
-                <label htmlFor="mono-type-toggle" className={`text-sm ${theme === 'dark' ? 'text-slate-300' : 'text-slate-700'}`}>
+                <label
+                  htmlFor="mono-type-toggle"
+                  className={`text-sm ${theme === 'dark' ? 'text-slate-300' : 'text-slate-700'}`}
+                >
                   Mono-type only (Single Type)
                 </label>
               </div>
@@ -315,10 +361,11 @@ const FilterControls: React.FC<FilterControlsProps> = ({
                 onChange={(event) => handleFlavorTextChange(event.target.value)}
                 maxLength={MAX_INPUT_LENGTH}
                 placeholder="e.g. volcano, gentle giant..."
-                className={`w-full rounded-md border py-2 px-3 text-sm placeholder-slate-400 shadow-inner transition focus:outline-none focus:ring-2 focus:ring-primary-500/60 ${theme === 'dark'
+                className={`w-full rounded-md border py-2 px-3 text-sm placeholder-slate-400 shadow-inner transition focus:outline-none focus:ring-2 focus:ring-primary-500/60 ${
+                  theme === 'dark'
                     ? 'border-white/10 bg-slate-900 text-white shadow-black/20'
                     : 'border-slate-300 bg-white text-slate-900 shadow-slate-200/50'
-                  }`}
+                }`}
               />
             </div>
           )}
@@ -328,7 +375,11 @@ const FilterControls: React.FC<FilterControlsProps> = ({
           <SectionToggle
             label="Advanced (Stats & Abilities)"
             isOpen={expandedSections.advanced}
-            description={Object.keys(minStats).length > 0 || selectedAbility || minBST > 0 ? 'Active' : 'Optional'}
+            description={
+              Object.keys(minStats).length > 0 || selectedAbility || minBST > 0
+                ? 'Active'
+                : 'Optional'
+            }
             onToggle={() => toggleSection('advanced')}
             theme={theme}
             controlsId="filter-section-advanced"
@@ -337,7 +388,12 @@ const FilterControls: React.FC<FilterControlsProps> = ({
             <div className="pb-4 space-y-4" id="filter-section-advanced">
               {/* Ability Search */}
               <div>
-                <label htmlFor="ability-search" className={`text-xs font-semibold capitalize mb-1 block ${theme === 'dark' ? 'text-slate-400' : 'text-slate-600'}`}>Ability</label>
+                <label
+                  htmlFor="ability-search"
+                  className={`text-xs font-semibold capitalize mb-1 block ${theme === 'dark' ? 'text-slate-400' : 'text-slate-600'}`}
+                >
+                  Ability
+                </label>
                 <input
                   id="ability-search"
                   type="text"
@@ -345,10 +401,11 @@ const FilterControls: React.FC<FilterControlsProps> = ({
                   onChange={(e) => handleAbilityChange(e.target.value)}
                   maxLength={MAX_INPUT_LENGTH}
                   placeholder="Search by Ability..."
-                  className={`w-full rounded-md border py-2 px-3 text-sm placeholder-slate-400 shadow-inner transition focus:outline-none focus:ring-2 focus:ring-primary-500/60 ${theme === 'dark'
+                  className={`w-full rounded-md border py-2 px-3 text-sm placeholder-slate-400 shadow-inner transition focus:outline-none focus:ring-2 focus:ring-primary-500/60 ${
+                    theme === 'dark'
                       ? 'border-white/10 bg-slate-900 text-white shadow-black/20'
                       : 'border-slate-300 bg-white text-slate-900 shadow-slate-200/50'
-                    }`}
+                  }`}
                 />
               </div>
 
@@ -361,33 +418,48 @@ const FilterControls: React.FC<FilterControlsProps> = ({
                   onChange={(e) => usePokemonStore.getState().setMinBST(e.target.checked ? 500 : 0)}
                   className="rounded border-slate-300 text-primary-600 shadow-sm focus:border-primary-300 focus:ring focus:ring-primary-300/40 focus:ring-opacity-50"
                 />
-                <label htmlFor="bst-toggle" className={`text-sm ${theme === 'dark' ? 'text-slate-300' : 'text-slate-700'}`}>
+                <label
+                  htmlFor="bst-toggle"
+                  className={`text-sm ${theme === 'dark' ? 'text-slate-300' : 'text-slate-700'}`}
+                >
                   High Stats Only (BST ≥ 500)
                 </label>
               </div>
 
               {/* Stats */}
               <div>
-                <label className={`text-xs font-semibold capitalize mb-2 block ${theme === 'dark' ? 'text-slate-400' : 'text-slate-600'}`}>Minimum Stats</label>
+                <label
+                  className={`text-xs font-semibold capitalize mb-2 block ${theme === 'dark' ? 'text-slate-400' : 'text-slate-600'}`}
+                >
+                  Minimum Stats
+                </label>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                  {['hp', 'attack', 'defense', 'special-attack', 'special-defense', 'speed'].map(stat => (
-                    <div key={stat} className="flex flex-col gap-1">
-                      <label htmlFor={`min-stat-${stat}`} className={`text-[10px] uppercase tracking-wide ${theme === 'dark' ? 'text-slate-500' : 'text-slate-500'}`}>{stat.replace('-', ' ')}</label>
-                      <input
-                        id={`min-stat-${stat}`}
-                        type="number"
-                        min="0"
-                        max="255"
-                        value={minStats[stat] || ''}
-                        onChange={(e) => handleStatChange(stat, e.target.value)}
-                        placeholder="0"
-                        className={`w-full rounded-md border py-1 px-2 text-xs transition focus:outline-none focus:ring-1 focus:ring-primary-500/60 ${theme === 'dark'
-                            ? 'border-white/10 bg-slate-900 text-white'
-                            : 'border-slate-300 bg-white text-slate-900'
+                  {['hp', 'attack', 'defense', 'special-attack', 'special-defense', 'speed'].map(
+                    (stat) => (
+                      <div key={stat} className="flex flex-col gap-1">
+                        <label
+                          htmlFor={`min-stat-${stat}`}
+                          className={`text-[10px] uppercase tracking-wide ${theme === 'dark' ? 'text-slate-500' : 'text-slate-500'}`}
+                        >
+                          {stat.replace('-', ' ')}
+                        </label>
+                        <input
+                          id={`min-stat-${stat}`}
+                          type="number"
+                          min="0"
+                          max="255"
+                          value={minStats[stat] || ''}
+                          onChange={(e) => handleStatChange(stat, e.target.value)}
+                          placeholder="0"
+                          className={`w-full rounded-md border py-1 px-2 text-xs transition focus:outline-none focus:ring-1 focus:ring-primary-500/60 ${
+                            theme === 'dark'
+                              ? 'border-white/10 bg-slate-900 text-white'
+                              : 'border-slate-300 bg-white text-slate-900'
                           }`}
-                      />
-                    </div>
-                  ))}
+                        />
+                      </div>
+                    )
+                  )}
                 </div>
               </div>
             </div>

@@ -1,9 +1,9 @@
 /**
  * Design System: Typography Tokens
- * 
+ *
  * Type scale, weights, and line heights for consistent typography
  * Based on a modular scale with good readability across devices
- * 
+ *
  * Font Stack: 'Inter' from Google Fonts (already loaded)
  * Fallback: system-ui, -apple-system, sans-serif
  */
@@ -26,55 +26,55 @@ export const fontSize = {
     size: '0.75rem',
     lineHeight: '1rem',
   },
-  
+
   /** 14px - Small text, labels */
   sm: {
     size: '0.875rem',
     lineHeight: '1.25rem',
   },
-  
+
   /** 16px - Base body text */
   base: {
     size: '1rem',
     lineHeight: '1.5rem',
   },
-  
+
   /** 18px - Slightly emphasized text */
   lg: {
     size: '1.125rem',
     lineHeight: '1.75rem',
   },
-  
+
   /** 20px - Pokemon names, card titles */
   xl: {
     size: '1.25rem',
     lineHeight: '1.75rem',
   },
-  
+
   /** 24px - Section headers */
   '2xl': {
     size: '1.5rem',
     lineHeight: '2rem',
   },
-  
+
   /** 30px - Page headers */
   '3xl': {
     size: '1.875rem',
     lineHeight: '2.25rem',
   },
-  
+
   /** 36px - Major headings */
   '4xl': {
     size: '2.25rem',
     lineHeight: '2.5rem',
   },
-  
+
   /** 48px - Hero/display text */
   '5xl': {
     size: '3rem',
     lineHeight: '1',
   },
-  
+
   /** 60px - Extra large display */
   '6xl': {
     size: '3.75rem',
@@ -132,7 +132,7 @@ export const typography = {
     fontWeight: fontWeight.extrabold,
     letterSpacing: letterSpacing.tight,
   },
-  
+
   /** H1 - Page titles */
   h1: {
     fontSize: fontSize['4xl'].size,
@@ -140,7 +140,7 @@ export const typography = {
     fontWeight: fontWeight.bold,
     letterSpacing: letterSpacing.tight,
   },
-  
+
   /** H2 - Section titles */
   h2: {
     fontSize: fontSize['3xl'].size,
@@ -148,7 +148,7 @@ export const typography = {
     fontWeight: fontWeight.semibold,
     letterSpacing: letterSpacing.normal,
   },
-  
+
   /** H3 - Subsection titles */
   h3: {
     fontSize: fontSize['2xl'].size,
@@ -156,7 +156,7 @@ export const typography = {
     fontWeight: fontWeight.semibold,
     letterSpacing: letterSpacing.normal,
   },
-  
+
   /** H4 - Component titles */
   h4: {
     fontSize: fontSize.xl.size,
@@ -164,7 +164,7 @@ export const typography = {
     fontWeight: fontWeight.semibold,
     letterSpacing: letterSpacing.wide,
   },
-  
+
   /** Pokemon name - Special styling for Pokemon cards */
   pokemonName: {
     fontSize: fontSize.xl.size,
@@ -173,7 +173,7 @@ export const typography = {
     letterSpacing: letterSpacing.wide,
     textTransform: 'capitalize' as const,
   },
-  
+
   /** Body text - Default paragraph text */
   body: {
     fontSize: fontSize.base.size,
@@ -181,7 +181,7 @@ export const typography = {
     fontWeight: fontWeight.normal,
     letterSpacing: letterSpacing.normal,
   },
-  
+
   /** Body small - Slightly smaller body text */
   bodySm: {
     fontSize: fontSize.sm.size,
@@ -189,7 +189,7 @@ export const typography = {
     fontWeight: fontWeight.normal,
     letterSpacing: letterSpacing.normal,
   },
-  
+
   /** Caption - Fine print, metadata */
   caption: {
     fontSize: fontSize.xs.size,
@@ -197,7 +197,7 @@ export const typography = {
     fontWeight: fontWeight.normal,
     letterSpacing: letterSpacing.wide,
   },
-  
+
   /** Label - Form labels, badges */
   label: {
     fontSize: fontSize.sm.size,
@@ -206,7 +206,7 @@ export const typography = {
     letterSpacing: letterSpacing.wide,
     textTransform: 'uppercase' as const,
   },
-  
+
   /** Button text */
   button: {
     fontSize: fontSize.sm.size,
@@ -214,7 +214,7 @@ export const typography = {
     fontWeight: fontWeight.semibold,
     letterSpacing: letterSpacing.wide,
   },
-  
+
   /** Code/monospace text */
   code: {
     fontFamily: fontFamily.mono,
@@ -234,7 +234,7 @@ export const textUtilities = {
     textOverflow: 'ellipsis' as const,
     whiteSpace: 'nowrap' as const,
   },
-  
+
   /** Limit text to specific number of lines */
   lineClamp: (lines: number) => ({
     overflow: 'hidden' as const,
@@ -247,10 +247,7 @@ export const textUtilities = {
 /**
  * Utility function to create responsive typography
  */
-export const responsiveText = (
-  mobile: keyof typeof fontSize,
-  desktop: keyof typeof fontSize
-) => ({
+export const responsiveText = (mobile: keyof typeof fontSize, desktop: keyof typeof fontSize) => ({
   fontSize: fontSize[mobile].size,
   lineHeight: fontSize[mobile].lineHeight,
   '@media (min-width: 768px)': {

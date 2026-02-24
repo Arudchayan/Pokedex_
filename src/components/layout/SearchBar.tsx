@@ -29,11 +29,11 @@ const SearchBar: React.FC<SearchBarProps> = ({
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       const activeElement = document.activeElement as HTMLElement;
-      const isInputActive = activeElement && (
-        activeElement.tagName === 'INPUT' ||
-        activeElement.tagName === 'TEXTAREA' ||
-        activeElement.isContentEditable
-      );
+      const isInputActive =
+        activeElement &&
+        (activeElement.tagName === 'INPUT' ||
+          activeElement.tagName === 'TEXTAREA' ||
+          activeElement.isContentEditable);
 
       if (e.key === '/' && !isInputActive) {
         e.preventDefault();
@@ -68,10 +68,10 @@ const SearchBar: React.FC<SearchBarProps> = ({
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-      const newValue = e.target.value;
-      if (newValue.length <= MAX_INPUT_LENGTH) {
-          setLocalValue(newValue);
-      }
+    const newValue = e.target.value;
+    if (newValue.length <= MAX_INPUT_LENGTH) {
+      setLocalValue(newValue);
+    }
   };
 
   const containerClass = className ? `relative ${className}` : 'relative w-full max-w-lg mx-auto';
@@ -87,7 +87,12 @@ const SearchBar: React.FC<SearchBarProps> = ({
           stroke="currentColor"
           aria-hidden="true"
         >
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+          />
         </svg>
       </div>
       <input
@@ -113,7 +118,9 @@ const SearchBar: React.FC<SearchBarProps> = ({
           onClick={handleClear}
           title="Clear search"
           className={`absolute inset-y-0 right-0 flex items-center pr-3 focus:outline-none focus:ring-2 focus:ring-primary-500 rounded-full p-1 ${
-            theme === 'dark' ? 'text-slate-400 hover:text-white' : 'text-slate-500 hover:text-slate-900'
+            theme === 'dark'
+              ? 'text-slate-400 hover:text-white'
+              : 'text-slate-500 hover:text-slate-900'
           }`}
           aria-label="Clear search"
         >
@@ -125,7 +132,12 @@ const SearchBar: React.FC<SearchBarProps> = ({
             stroke="currentColor"
             aria-hidden="true"
           >
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M6 18L18 6M6 6l12 12"
+            />
           </svg>
         </button>
       )}

@@ -1,7 +1,7 @@
 query FetchAbilityDex {
-  pokemon_v2_ability(limit: 400, order_by: {id: asc}) {
+  pokemon_v2_ability(limit: 400, order_by: { id: asc }) {
     name
-    pokemon_v2_abilityeffecttexts(where: {language_id: {_eq: 9}}, limit: 1) {
+    pokemon_v2_abilityeffecttexts(where: { language_id: { _eq: 9 } }, limit: 1) {
       effect
     }
   }

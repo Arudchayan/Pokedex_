@@ -11,15 +11,15 @@ const mockAbilities = {
       {
         id: 1,
         name: 'stench',
-        pokemon_v2_abilityeffecttexts: [{ effect: 'Helps repel wild Pokemon.' }]
+        pokemon_v2_abilityeffecttexts: [{ effect: 'Helps repel wild Pokemon.' }],
       },
       {
         id: 2,
         name: 'drizzle',
-        pokemon_v2_abilityeffecttexts: [{ effect: 'Summons rain.' }]
-      }
-    ]
-  }
+        pokemon_v2_abilityeffecttexts: [{ effect: 'Summons rain.' }],
+      },
+    ],
+  },
 };
 
 describe('AbilityDex', () => {
@@ -54,7 +54,7 @@ describe('AbilityDex', () => {
 
     // Wait for load
     await waitFor(() => {
-        expect(screen.getByText('stench')).toBeInTheDocument();
+      expect(screen.getByText('stench')).toBeInTheDocument();
     });
 
     // The Modal wrapper renders a close button with aria-label="Close"

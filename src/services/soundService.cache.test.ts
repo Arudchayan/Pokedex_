@@ -7,11 +7,16 @@ describe('soundService cache', () => {
     if (soundService.resetCache) soundService.resetCache();
 
     // Stub Audio
-    vi.stubGlobal('Audio', class {
-      volume = 1;
-      currentTime = 0;
-      play() { return Promise.resolve(); }
-    });
+    vi.stubGlobal(
+      'Audio',
+      class {
+        volume = 1;
+        currentTime = 0;
+        play() {
+          return Promise.resolve();
+        }
+      }
+    );
   });
 
   afterEach(() => {

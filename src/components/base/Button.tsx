@@ -27,10 +27,10 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 
 /**
  * Button Component
- * 
+ *
  * Production-ready button component with multiple variants, sizes, and states.
  * Fully accessible with proper ARIA attributes and focus management.
- * 
+ *
  * Features:
  * - 4 variants: primary, secondary, ghost, danger
  * - 3 sizes: sm, md, lg
@@ -39,17 +39,17 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
  * - Full width option
  * - Forward ref support
  * - WCAG 2.1 AA compliant
- * 
+ *
  * @example
  * ```tsx
  * <Button variant="primary" size="md" icon={<PlusIcon />}>
  *   Add Pokemon
  * </Button>
- * 
+ *
  * <Button variant="danger" loading>
  *   Deleting...
  * </Button>
- * 
+ *
  * <Button variant="ghost" fullWidth icon={<SearchIcon />} iconPosition="left">
  *   Search
  * </Button>
@@ -113,9 +113,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       'inline-flex items-center justify-center font-semibold rounded-lg border transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900 disabled:cursor-not-allowed disabled:opacity-50 disabled:shadow-none';
 
     // Interactive styles (only when not disabled)
-    const interactiveStyles = !isDisabled
-      ? 'hover:scale-[1.02] active:scale-[0.98]'
-      : '';
+    const interactiveStyles = !isDisabled ? 'hover:scale-[1.02] active:scale-[0.98]' : '';
 
     // Width styles
     const widthStyles = fullWidth ? 'w-full' : '';
@@ -124,9 +122,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     const renderIcon = (iconNode: React.ReactNode) => {
       if (!iconNode) return null;
       return (
-        <span className={cn('inline-flex items-center', iconSizeStyles[size])}>
-          {iconNode}
-        </span>
+        <span className={cn('inline-flex items-center', iconSizeStyles[size])}>{iconNode}</span>
       );
     };
 
@@ -164,9 +160,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         {!loading && icon && iconPosition === 'left' && renderIcon(icon)}
 
         {/* Button content */}
-        {children && (
-          <span className={cn(loading && 'opacity-70')}>{children}</span>
-        )}
+        {children && <span className={cn(loading && 'opacity-70')}>{children}</span>}
 
         {/* Icon on right (only when not loading) */}
         {!loading && icon && iconPosition === 'right' && renderIcon(icon)}

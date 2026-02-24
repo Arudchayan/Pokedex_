@@ -34,7 +34,7 @@ export interface Item {
 }
 
 export interface PokemonStat {
-  name:string;
+  name: string;
   value: number;
 }
 
@@ -106,7 +106,7 @@ export interface PokemonDetails extends Omit<PokemonListItem, 'abilities'> {
   shape: string;
   moves: PokemonMove[];
   detailImageUrl: string;
-  shinyDetailImageUrl:string;
+  shinyDetailImageUrl: string;
   forms: PokemonForm[];
   genSprites?: Record<string, SpriteSet>;
 }

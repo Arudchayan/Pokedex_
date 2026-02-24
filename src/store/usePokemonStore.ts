@@ -6,12 +6,25 @@ import { ACCENT_COLORS, type AccentColor } from '../constants';
 import type { SortOption } from '../types/sorting';
 import { env } from '../config/env';
 import { logger } from '../utils/logger';
-import type { Action, PokemonState, ReducerContext, GameStats, SavedTeamEntry } from './pokemonStoreTypes';
+import type {
+  Action,
+  PokemonState,
+  ReducerContext,
+  GameStats,
+  SavedTeamEntry,
+} from './pokemonStoreTypes';
 import { reducePokemonStore } from './pokemonStoreReducer';
 import { validateSavedTeam } from '../utils/teamStorage';
 
 // Cyberpunk Mode Detection
-const CYBERPUNK_ACCENTS: AccentColor[] = ['neonPink', 'neonCyan', 'neonYellow', 'neonGreen', 'neonOrange', 'neonPurple'];
+const CYBERPUNK_ACCENTS: AccentColor[] = [
+  'neonPink',
+  'neonCyan',
+  'neonYellow',
+  'neonGreen',
+  'neonOrange',
+  'neonPurple',
+];
 
 export const isCyberpunkAccent = (accent: AccentColor): boolean => {
   return CYBERPUNK_ACCENTS.includes(accent);
@@ -126,7 +139,8 @@ type PersistedPokemonStorage = {
   [key: string]: unknown;
 };
 
-const isTheme = (value: unknown): value is 'dark' | 'light' => value === 'dark' || value === 'light';
+const isTheme = (value: unknown): value is 'dark' | 'light' =>
+  value === 'dark' || value === 'light';
 
 function normalizeAccent(value: unknown, fallback: AccentColor): AccentColor {
   if (typeof value === 'string' && ACCENT_COLORS[value as AccentColor]) return value as AccentColor;
@@ -140,7 +154,12 @@ function normalizeTeam(value: unknown, fallback: number[]): number[] {
     .slice(0, TEAM_CAPACITY)
     .map((item: unknown) => {
       if (typeof item === 'number') return item;
-      if (item && typeof item === 'object' && 'id' in item && typeof (item as any).id === 'number') {
+      if (
+        item &&
+        typeof item === 'object' &&
+        'id' in item &&
+        typeof (item as any).id === 'number'
+      ) {
         return (item as any).id;
       }
       return undefined;
@@ -156,7 +175,7 @@ function normalizeFavorites(value: unknown, fallback: Set<number>): Set<number> 
 
 function normalizeAchievements(
   value: unknown,
-  fallback: Record<string, number>,
+  fallback: Record<string, number>
 ): Record<string, number> {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return fallback;
   const result: Record<string, number> = {};
@@ -170,7 +189,7 @@ function normalizeAchievements(
 
 function normalizeGameStats(
   value: unknown,
-  fallback: Record<string, GameStats>,
+  fallback: Record<string, GameStats>
 ): Record<string, GameStats> {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return fallback;
   const result: Record<string, GameStats> = {};
@@ -182,16 +201,18 @@ function normalizeGameStats(
   return result;
 }
 
-function normalizeSavedTeams(
-  value: unknown,
-  fallback: SavedTeamEntry[],
-): SavedTeamEntry[] {
+function normalizeSavedTeams(value: unknown, fallback: SavedTeamEntry[]): SavedTeamEntry[] {
   if (!Array.isArray(value)) return fallback;
   return value
     .map((entry) => {
       const validated = validateSavedTeam(entry);
       return validated
-        ? { id: validated.id, name: validated.name, team: validated.team, updatedAt: validated.updatedAt }
+        ? {
+            id: validated.id,
+            name: validated.name,
+            team: validated.team,
+            updatedAt: validated.updatedAt,
+          }
         : null;
     })
     .filter((t): t is SavedTeamEntry => t !== null);
@@ -204,11 +225,21 @@ function normalizeSavedTeams(
  */
 const LEGACY_MIGRATION_ENABLED = true;
 
-function readLegacyStorage(): Partial<Pick<PokemonState, 'team' | 'favorites' | 'theme' | 'accent' | 'achievements' | 'gameStats' | 'savedTeams'>> {
+function readLegacyStorage(): Partial<
+  Pick<
+    PokemonState,
+    'team' | 'favorites' | 'theme' | 'accent' | 'achievements' | 'gameStats' | 'savedTeams'
+  >
+> {
   if (!LEGACY_MIGRATION_ENABLED) return {};
 
   try {
-    const legacy: Partial<Pick<PokemonState, 'team' | 'favorites' | 'theme' | 'accent' | 'achievements' | 'gameStats' | 'savedTeams'>> = {};
+    const legacy: Partial<
+      Pick<
+        PokemonState,
+        'team' | 'favorites' | 'theme' | 'accent' | 'achievements' | 'gameStats' | 'savedTeams'
+      >
+    > = {};
 
     const legacyTeam = localStorage.getItem('pokedex_team');
     if (legacyTeam) {
@@ -242,7 +273,9 @@ function readLegacyStorage(): Partial<Pick<PokemonState, 'team' | 'favorites' | 
         if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
           legacy.achievements = normalizeAchievements(parsed, {});
         }
-      } catch { /* non-critical */ }
+      } catch {
+        /* non-critical */
+      }
     }
 
     // Migrate game stats from standalone localStorage key
@@ -253,7 +286,9 @@ function readLegacyStorage(): Partial<Pick<PokemonState, 'team' | 'favorites' | 
         if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
           legacy.gameStats = normalizeGameStats(parsed, {});
         }
-      } catch { /* non-critical */ }
+      } catch {
+        /* non-critical */
+      }
     }
 
     // Migrate saved teams from standalone localStorage key
@@ -264,7 +299,9 @@ function readLegacyStorage(): Partial<Pick<PokemonState, 'team' | 'favorites' | 
         if (Array.isArray(parsed)) {
           legacy.savedTeams = normalizeSavedTeams(parsed, []);
         }
-      } catch { /* non-critical */ }
+      } catch {
+        /* non-critical */
+      }
     }
 
     // Clean up legacy keys after successful migration
@@ -276,7 +313,9 @@ function readLegacyStorage(): Partial<Pick<PokemonState, 'team' | 'favorites' | 
         localStorage.removeItem('pokedex_achievements');
         localStorage.removeItem('pokedex_game_stats');
         localStorage.removeItem('pokedex_saved_teams');
-      } catch { /* non-critical */ }
+      } catch {
+        /* non-critical */
+      }
     }
 
     return legacy;
@@ -303,38 +342,47 @@ export const usePokemonStore = create<PokemonState & PokemonActions>()(
           setReload: (reload) => set({ reload }),
 
           // Data-loading helpers.
-          setMasterPokemonList: (list) => dispatchAction({ type: 'SET_POKEMON_LIST', payload: list }),
+          setMasterPokemonList: (list) =>
+            dispatchAction({ type: 'SET_POKEMON_LIST', payload: list }),
           setLoading: (loading) => dispatchAction({ type: 'SET_LOADING', payload: loading }),
           setError: (error) => dispatchAction({ type: 'SET_ERROR', payload: error }),
 
           // Typed helpers (thin wrappers around dispatchAction).
           setSearchTerm: (term) => dispatchAction({ type: 'SET_SEARCH_TERM', payload: term }),
-          setGeneration: (generation) => dispatchAction({ type: 'SET_GENERATION', payload: generation }),
+          setGeneration: (generation) =>
+            dispatchAction({ type: 'SET_GENERATION', payload: generation }),
           toggleType: (type) => dispatchAction({ type: 'TOGGLE_TYPE', payload: type }),
-          setMinStat: (stat, value) => dispatchAction({ type: 'SET_MIN_STAT', payload: { stat, value } }),
+          setMinStat: (stat, value) =>
+            dispatchAction({ type: 'SET_MIN_STAT', payload: { stat, value } }),
           setAbility: (ability) => dispatchAction({ type: 'SET_ABILITY', payload: ability }),
           toggleMonoType: () => dispatchAction({ type: 'TOGGLE_MONO_TYPE' }),
           setMinBST: (value) => dispatchAction({ type: 'SET_MIN_BST', payload: value }),
           clearFilters: () => dispatchAction({ type: 'CLEAR_FILTERS' }),
-          setFlavorTextSearch: (value) => dispatchAction({ type: 'SET_FLAVOR_TEXT_SEARCH', payload: value }),
+          setFlavorTextSearch: (value) =>
+            dispatchAction({ type: 'SET_FLAVOR_TEXT_SEARCH', payload: value }),
 
           addToTeam: (pokemon) => dispatchAction({ type: 'ADD_TO_TEAM', payload: pokemon }),
           removeFromTeam: (id) => dispatchAction({ type: 'REMOVE_FROM_TEAM', payload: id }),
-          updateTeamMember: (id, updates) => dispatchAction({ type: 'UPDATE_TEAM_MEMBER', payload: { id, updates } }),
+          updateTeamMember: (id, updates) =>
+            dispatchAction({ type: 'UPDATE_TEAM_MEMBER', payload: { id, updates } }),
           reorderTeam: (fromIndex, toIndex) =>
             dispatchAction({ type: 'REORDER_TEAM', payload: { fromIndex, toIndex } }),
           clearTeam: () => dispatchAction({ type: 'CLEAR_TEAM' }),
           setTeam: (team) => dispatchAction({ type: 'SET_TEAM', payload: team }),
 
-          setFavorites: (favorites) => dispatchAction({ type: 'SET_FAVORITES', payload: favorites }),
+          setFavorites: (favorites) =>
+            dispatchAction({ type: 'SET_FAVORITES', payload: favorites }),
           toggleFavorite: (id) => dispatchAction({ type: 'TOGGLE_FAVORITE', payload: id }),
 
-          addToComparison: (pokemon) => dispatchAction({ type: 'ADD_TO_COMPARISON', payload: pokemon }),
-          removeFromComparison: (id) => dispatchAction({ type: 'REMOVE_FROM_COMPARISON', payload: id }),
+          addToComparison: (pokemon) =>
+            dispatchAction({ type: 'ADD_TO_COMPARISON', payload: pokemon }),
+          removeFromComparison: (id) =>
+            dispatchAction({ type: 'REMOVE_FROM_COMPARISON', payload: id }),
           clearComparison: () => dispatchAction({ type: 'CLEAR_COMPARISON' }),
           setComparisonList: (ids) => dispatchAction({ type: 'SET_COMPARISON_LIST', payload: ids }),
 
-          setSort: (sortBy, sortOrder) => dispatchAction({ type: 'SET_SORT', payload: { sortBy, sortOrder } }),
+          setSort: (sortBy, sortOrder) =>
+            dispatchAction({ type: 'SET_SORT', payload: { sortBy, sortOrder } }),
 
           toggleTheme: () => dispatchAction({ type: 'TOGGLE_THEME' }),
           setTheme: (theme) => dispatchAction({ type: 'SET_THEME', payload: theme }),
@@ -372,7 +420,10 @@ export const usePokemonStore = create<PokemonState & PokemonActions>()(
           const hasNewStorage = Boolean(persisted && (persisted.team || persisted.favorites));
           const legacy = hasNewStorage ? {} : readLegacyStorage();
 
-          const team = normalizeTeam(hasNewStorage ? persisted.team : legacy.team, currentState.team);
+          const team = normalizeTeam(
+            hasNewStorage ? persisted.team : legacy.team,
+            currentState.team
+          );
           const favorites = normalizeFavorites(
             hasNewStorage ? persisted.favorites : legacy.favorites,
             currentState.favorites
@@ -385,15 +436,15 @@ export const usePokemonStore = create<PokemonState & PokemonActions>()(
           // Consolidated persistence fields — prefer persisted Zustand, fall back to legacy
           const achievements = normalizeAchievements(
             persisted.achievements ?? legacy.achievements,
-            currentState.achievements,
+            currentState.achievements
           );
           const gameStats = normalizeGameStats(
             persisted.gameStats ?? legacy.gameStats,
-            currentState.gameStats,
+            currentState.gameStats
           );
           const savedTeams = normalizeSavedTeams(
             persisted.savedTeams ?? legacy.savedTeams,
-            currentState.savedTeams,
+            currentState.savedTeams
           );
 
           // If we pulled achievements/gameStats/savedTeams from legacy keys,
@@ -403,7 +454,9 @@ export const usePokemonStore = create<PokemonState & PokemonActions>()(
               localStorage.removeItem('pokedex_achievements');
               localStorage.removeItem('pokedex_game_stats');
               localStorage.removeItem('pokedex_saved_teams');
-            } catch { /* non-critical */ }
+            } catch {
+              /* non-critical */
+            }
           }
 
           return {
@@ -446,7 +499,9 @@ export const useComparisonPokemon = (): PokemonListItem[] => {
   return useMemo(() => {
     if (comparisonIds.length === 0) return [];
     const map = new Map(masterList.map((p) => [p.id, p]));
-    return comparisonIds.map((id) => map.get(id)).filter((p): p is PokemonListItem => p !== undefined);
+    return comparisonIds
+      .map((id) => map.get(id))
+      .filter((p): p is PokemonListItem => p !== undefined);
   }, [comparisonIds, masterList]);
 };
 

@@ -1,7 +1,13 @@
 import React, { ReactNode, useMemo, useEffect, useCallback } from 'react';
 import { useShallow } from 'zustand/react/shallow';
 import { useQuery } from '@tanstack/react-query';
-import { usePokemonStore, isCyberpunkAccent, PokemonState, useTeamPokemon, useComparisonPokemon } from '../store/usePokemonStore';
+import {
+  usePokemonStore,
+  isCyberpunkAccent,
+  PokemonState,
+  useTeamPokemon,
+  useComparisonPokemon,
+} from '../store/usePokemonStore';
 import type { Action } from '../store/usePokemonStore';
 import { usePokemonStoreEffects } from '../hooks/usePokemonStoreEffects';
 import { AccentColor } from '../constants';
@@ -72,7 +78,8 @@ export interface PokemonDataContextType extends Omit<PokemonState, 'theme' | 'ac
   canRedo: boolean;
 }
 
-export interface PokemonContextType extends PokemonDataContextType, PokemonUIContextType, PokemonDispatchContextType {}
+export interface PokemonContextType
+  extends PokemonDataContextType, PokemonUIContextType, PokemonDispatchContextType {}
 
 export const PokemonProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   usePokemonQuerySync();
@@ -81,72 +88,79 @@ export const PokemonProvider: React.FC<{ children: ReactNode }> = ({ children })
 };
 
 export const usePokemonDispatch = (): PokemonDispatchContextType => {
-    const reload = usePokemonStore(state => state.reload);
-    const undo = usePokemonStore(state => state.undo);
-    const redo = usePokemonStore(state => state.redo);
+  const reload = usePokemonStore((state) => state.reload);
+  const undo = usePokemonStore((state) => state.undo);
+  const redo = usePokemonStore((state) => state.redo);
 
-    return useMemo(() => ({ reload, undo, redo }), [reload, undo, redo]);
+  return useMemo(() => ({ reload, undo, redo }), [reload, undo, redo]);
 };
 
 export const usePokemonUI = (): PokemonUIContextType => {
-    return usePokemonStore(useShallow(state => ({
-        theme: state.theme,
-        accent: state.accent,
-        isShiny: state.isShiny,
-        isCyberpunk: isCyberpunkAccent(state.accent)
-    })));
+  return usePokemonStore(
+    useShallow((state) => ({
+      theme: state.theme,
+      accent: state.accent,
+      isShiny: state.isShiny,
+      isCyberpunk: isCyberpunkAccent(state.accent),
+    }))
+  );
 };
 
 export const usePokemonData = (): PokemonDataContextType => {
-    const storeSlice = usePokemonStore(useShallow(state => ({
-        masterPokemonList: state.masterPokemonList,
-        loading: state.loading,
-        error: state.error,
-        searchTerm: state.searchTerm,
-        selectedGeneration: state.selectedGeneration,
-        selectedTypes: state.selectedTypes,
-        flavorTextSearch: state.flavorTextSearch,
-        minStats: state.minStats,
-        selectedAbility: state.selectedAbility,
-        isMonoType: state.isMonoType,
-        minBST: state.minBST,
-        team: state.team,
-        favorites: state.favorites,
-        history: state.history,
-        future: state.future,
-        comparisonList: state.comparisonList,
-        sortBy: state.sortBy,
-        sortOrder: state.sortOrder,
-        filteredPokemon: state.filteredPokemon,
-        isFiltering: state.isFiltering,
-        canUndo: state.history.length > 0,
-        canRedo: state.future.length > 0,
-        // Consolidated persistence fields
-        achievements: state.achievements,
-        gameStats: state.gameStats,
-        savedTeams: state.savedTeams,
-    })));
+  const storeSlice = usePokemonStore(
+    useShallow((state) => ({
+      masterPokemonList: state.masterPokemonList,
+      loading: state.loading,
+      error: state.error,
+      searchTerm: state.searchTerm,
+      selectedGeneration: state.selectedGeneration,
+      selectedTypes: state.selectedTypes,
+      flavorTextSearch: state.flavorTextSearch,
+      minStats: state.minStats,
+      selectedAbility: state.selectedAbility,
+      isMonoType: state.isMonoType,
+      minBST: state.minBST,
+      team: state.team,
+      favorites: state.favorites,
+      history: state.history,
+      future: state.future,
+      comparisonList: state.comparisonList,
+      sortBy: state.sortBy,
+      sortOrder: state.sortOrder,
+      filteredPokemon: state.filteredPokemon,
+      isFiltering: state.isFiltering,
+      canUndo: state.history.length > 0,
+      canRedo: state.future.length > 0,
+      // Consolidated persistence fields
+      achievements: state.achievements,
+      gameStats: state.gameStats,
+      savedTeams: state.savedTeams,
+    }))
+  );
 
-    // Resolve ID arrays → full objects for downstream consumers.
-    const teamPokemon = useTeamPokemon();
-    const comparisonPokemon = useComparisonPokemon();
+  // Resolve ID arrays → full objects for downstream consumers.
+  const teamPokemon = useTeamPokemon();
+  const comparisonPokemon = useComparisonPokemon();
 
-    return useMemo(
-        () => ({ ...storeSlice, teamPokemon, comparisonPokemon }),
-        [storeSlice, teamPokemon, comparisonPokemon],
-    );
+  return useMemo(
+    () => ({ ...storeSlice, teamPokemon, comparisonPokemon }),
+    [storeSlice, teamPokemon, comparisonPokemon]
+  );
 };
 
 export const usePokemon = (): PokemonContextType => {
-    const dispatchContext = usePokemonDispatch();
-    const uiContext = usePokemonUI();
-    const dataContext = usePokemonData();
+  const dispatchContext = usePokemonDispatch();
+  const uiContext = usePokemonUI();
+  const dataContext = usePokemonData();
 
-    return useMemo(() => ({
-        ...dispatchContext,
-        ...uiContext,
-        ...dataContext
-    }), [dispatchContext, uiContext, dataContext]);
+  return useMemo(
+    () => ({
+      ...dispatchContext,
+      ...uiContext,
+      ...dataContext,
+    }),
+    [dispatchContext, uiContext, dataContext]
+  );
 };
 
 export { filterPokemonList } from './pokemonStateHelpers';

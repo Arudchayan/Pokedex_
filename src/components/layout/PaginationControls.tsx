@@ -29,13 +29,22 @@ const PaginationControls: React.FC<PaginationControlsProps> = ({
           aria-label="Previous Page"
         >
           <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M15 19l-7-7 7-7"
+            />
           </svg>
           Previous
         </button>
 
-        <span className={`font-mono font-bold ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>
-          Page <span className={theme === 'dark' ? 'text-white' : 'text-slate-900'}>{currentPage}</span> of{' '}
+        <span
+          className={`font-mono font-bold ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}
+        >
+          Page{' '}
+          <span className={theme === 'dark' ? 'text-white' : 'text-slate-900'}>{currentPage}</span>{' '}
+          of{' '}
           <span className={theme === 'dark' ? 'text-white' : 'text-slate-900'}>{totalPages}</span>
         </span>
 
@@ -58,24 +67,24 @@ const PaginationControls: React.FC<PaginationControlsProps> = ({
 
       {/* Quick Jump Buttons (First/Last) if many pages */}
       {totalPages > 2 && (
-          <div className="flex gap-2">
-            {currentPage > 2 && (
-                <button
-                    onClick={() => onPageChange(1)}
-                    className={`min-h-[44px] min-w-[44px] px-3 py-2 text-xs underline ${theme === 'dark' ? 'text-slate-500 hover:text-slate-300' : 'text-slate-500 hover:text-slate-700'}`}
-                >
-                    First Page
-                </button>
-            )}
-            {currentPage < totalPages - 1 && (
-                <button
-                    onClick={() => onPageChange(totalPages)}
-                    className={`min-h-[44px] min-w-[44px] px-3 py-2 text-xs underline ${theme === 'dark' ? 'text-slate-500 hover:text-slate-300' : 'text-slate-500 hover:text-slate-700'}`}
-                >
-                    Last Page
-                </button>
-            )}
-          </div>
+        <div className="flex gap-2">
+          {currentPage > 2 && (
+            <button
+              onClick={() => onPageChange(1)}
+              className={`min-h-[44px] min-w-[44px] px-3 py-2 text-xs underline ${theme === 'dark' ? 'text-slate-500 hover:text-slate-300' : 'text-slate-500 hover:text-slate-700'}`}
+            >
+              First Page
+            </button>
+          )}
+          {currentPage < totalPages - 1 && (
+            <button
+              onClick={() => onPageChange(totalPages)}
+              className={`min-h-[44px] min-w-[44px] px-3 py-2 text-xs underline ${theme === 'dark' ? 'text-slate-500 hover:text-slate-300' : 'text-slate-500 hover:text-slate-700'}`}
+            >
+              Last Page
+            </button>
+          )}
+        </div>
       )}
     </div>
   );

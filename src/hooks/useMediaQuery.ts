@@ -3,10 +3,10 @@ import { useState, useEffect } from 'react';
 /**
  * Hook for responsive design using media queries
  * SSR-safe: Returns false on server and updates after hydration
- * 
+ *
  * @param query - The media query string to match against
  * @returns Boolean indicating if the media query matches
- * 
+ *
  * @example
  * ```tsx
  * // Basic responsive layout
@@ -14,34 +14,34 @@ import { useState, useEffect } from 'react';
  *   const isMobile = useMediaQuery('(max-width: 640px)');
  *   const isTablet = useMediaQuery('(min-width: 641px) and (max-width: 1024px)');
  *   const isDesktop = useMediaQuery('(min-width: 1025px)');
- * 
+ *
  *   const columns = isMobile ? 1 : isTablet ? 2 : 4;
- * 
+ *
  *   return <Grid columns={columns}>...</Grid>;
  * };
  * ```
- * 
+ *
  * @example
  * ```tsx
  * // Show/hide based on screen size
  * const Sidebar = () => {
  *   const isLargeScreen = useMediaQuery('(min-width: 1024px)');
- * 
+ *
  *   if (!isLargeScreen) {
  *     return <BottomSheet>{content}</BottomSheet>;
  *   }
- * 
+ *
  *   return <aside className="fixed">{content}</aside>;
  * };
  * ```
- * 
+ *
  * @example
  * ```tsx
  * // Detect user preferences
  * const App = () => {
  *   const prefersDark = useMediaQuery('(prefers-color-scheme: dark)');
  *   const prefersReducedMotion = useMediaQuery('(prefers-reduced-motion: reduce)');
- * 
+ *
  *   return (
  *     <div
  *       data-theme={prefersDark ? 'dark' : 'light'}
@@ -64,7 +64,7 @@ export function useMediaQuery(query: string): boolean {
     }
 
     const mediaQuery = window.matchMedia(query);
-    
+
     // Set initial value
     setMatches(mediaQuery.matches);
 
@@ -90,12 +90,12 @@ export function useMediaQuery(query: string): boolean {
 
 /**
  * Common breakpoint helpers based on Tailwind CSS defaults
- * 
+ *
  * @example
  * ```tsx
  * const ResponsiveNav = () => {
  *   const { isMobile, isTablet, isDesktop } = useBreakpoint();
- * 
+ *
  *   return (
  *     <nav>
  *       {isMobile && <HamburgerMenu />}
@@ -112,7 +112,7 @@ export function useBreakpoint() {
   const isLg = useMediaQuery('(min-width: 1024px) and (max-width: 1279px)');
   const isXl = useMediaQuery('(min-width: 1280px) and (max-width: 1535px)');
   const is2Xl = useMediaQuery('(min-width: 1536px)');
-  
+
   const isTablet = isSm || isMd;
   const isDesktop = isLg || isXl || is2Xl;
   const isLargeScreen = isXl || is2Xl;
@@ -125,12 +125,12 @@ export function useBreakpoint() {
     isLg,
     isXl,
     is2Xl,
-    
+
     // Grouped breakpoints
     isTablet,
     isDesktop,
     isLargeScreen,
-    
+
     // Convenience flags
     isTouchDevice: isMobile || isTablet,
   };
@@ -138,13 +138,13 @@ export function useBreakpoint() {
 
 /**
  * Detects user's system preferences
- * 
+ *
  * @example
  * ```tsx
  * const ThemeProvider = ({ children }) => {
  *   const { prefersDark, prefersReducedMotion, prefersHighContrast } = useSystemPreferences();
  *   const [theme, setTheme] = useLocalStorage('theme', prefersDark ? 'dark' : 'light');
- * 
+ *
  *   return (
  *     <ThemeContext.Provider
  *       value={{
@@ -178,12 +178,12 @@ export function useSystemPreferences() {
 
 /**
  * Hook to detect if device supports touch
- * 
+ *
  * @example
  * ```tsx
  * const InteractiveCard = () => {
  *   const isTouchDevice = useIsTouchDevice();
- * 
+ *
  *   return (
  *     <Card
  *       // Show touch-friendly targets on touch devices
@@ -198,18 +198,18 @@ export function useSystemPreferences() {
 export function useIsTouchDevice(): boolean {
   const hasCoarsePointer = useMediaQuery('(pointer: coarse)');
   const hasTouchScreen = useMediaQuery('(hover: none) and (pointer: coarse)');
-  
+
   return hasCoarsePointer || hasTouchScreen;
 }
 
 /**
  * Hook to detect current orientation
- * 
+ *
  * @example
  * ```tsx
  * const ImageGallery = () => {
  *   const isPortrait = useOrientation();
- * 
+ *
  *   return (
  *     <div className={isPortrait ? 'grid-cols-2' : 'grid-cols-4'}>
  *       {images.map(img => <Image key={img.id} {...img} />)}

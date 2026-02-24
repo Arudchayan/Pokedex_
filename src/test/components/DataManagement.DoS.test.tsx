@@ -92,7 +92,7 @@ describe('DataManagement DoS Prevention', () => {
     // Create a large list of favorites to import (e.g. 50 items)
     const largeFavoritesList = Array.from({ length: 50 }, (_, i) => i + 1);
     const importData = JSON.stringify({
-      favorites: largeFavoritesList
+      favorites: largeFavoritesList,
     });
 
     const textarea = screen.getByPlaceholderText('Paste JSON here...');
@@ -120,12 +120,12 @@ describe('DataManagement DoS Prevention', () => {
 
     // Create a team list
     const teamList = [
-        { id: 1, name: 'Bulbasaur' },
-        { id: 4, name: 'Charmander' },
-        { id: 7, name: 'Squirtle' }
+      { id: 1, name: 'Bulbasaur' },
+      { id: 4, name: 'Charmander' },
+      { id: 7, name: 'Squirtle' },
     ];
     const importData = JSON.stringify({
-      team: teamList
+      team: teamList,
     });
 
     const textarea = screen.getByPlaceholderText('Paste JSON here...');
@@ -141,7 +141,7 @@ describe('DataManagement DoS Prevention', () => {
         expect.objectContaining({ id: 1 }),
         expect.objectContaining({ id: 4 }),
         expect.objectContaining({ id: 7 }),
-      ]),
+      ])
     );
   });
 });

@@ -39,8 +39,11 @@ const ComparisonBar: React.FC = () => {
             ))}
           </div>
           <div className="hidden sm:block">
-            <p className={`text-sm font-medium ${theme === 'dark' ? 'text-slate-300' : 'text-slate-600'}`}>
-              <span className="font-bold text-primary-500">{comparisonPokemon.length}</span> Pokemon selected
+            <p
+              className={`text-sm font-medium ${theme === 'dark' ? 'text-slate-300' : 'text-slate-600'}`}
+            >
+              <span className="font-bold text-primary-500">{comparisonPokemon.length}</span> Pokemon
+              selected
             </p>
           </div>
         </div>
@@ -49,7 +52,9 @@ const ComparisonBar: React.FC = () => {
           <button
             onClick={clearComparison}
             className={`text-sm font-medium underline decoration-dotted transition-colors ${
-              theme === 'dark' ? 'text-slate-400 hover:text-white' : 'text-slate-500 hover:text-slate-900'
+              theme === 'dark'
+                ? 'text-slate-400 hover:text-white'
+                : 'text-slate-500 hover:text-slate-900'
             }`}
           >
             Clear All
@@ -64,7 +69,12 @@ const ComparisonBar: React.FC = () => {
           >
             <span>Compare Now</span>
             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+              />
             </svg>
           </button>
         </div>

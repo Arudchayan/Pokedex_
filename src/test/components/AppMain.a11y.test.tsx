@@ -7,23 +7,23 @@ import { PokemonListItem } from '../../types';
 
 // Mock child components to isolate AppMain
 vi.mock('../../components/pokemon/VirtualPokemonList', () => ({
-  default: () => <div data-testid="virtual-list">Virtual List</div>
+  default: () => <div data-testid="virtual-list">Virtual List</div>,
 }));
 
 vi.mock('../../components/team/TeamBuilder', () => ({
-  default: () => <div data-testid="team-builder">Team Builder</div>
+  default: () => <div data-testid="team-builder">Team Builder</div>,
 }));
 
 vi.mock('../../components/layout/SortingControls', () => ({
-  default: () => <div data-testid="sorting-controls">Sorting Controls</div>
+  default: () => <div data-testid="sorting-controls">Sorting Controls</div>,
 }));
 
 vi.mock('../../components/layout/FilterControls', () => ({
-  default: () => <div data-testid="filter-controls">Filter Controls</div>
+  default: () => <div data-testid="filter-controls">Filter Controls</div>,
 }));
 
 vi.mock('../../components/base/SkeletonComposites', () => ({
-  PokemonGridSkeleton: () => <div data-testid="skeleton">Loading...</div>
+  PokemonGridSkeleton: () => <div data-testid="skeleton">Loading...</div>,
 }));
 
 const mockPokemon: PokemonListItem = {
@@ -110,7 +110,11 @@ describe('AppMain Accessibility', () => {
 
     // Find the element containing "Showing" and the count
     const statusText = screen.getByText((content, element) => {
-        return element?.tagName.toLowerCase() === 'p' && content.includes('Showing') && content.includes('Pokemon');
+      return (
+        element?.tagName.toLowerCase() === 'p' &&
+        content.includes('Showing') &&
+        content.includes('Pokemon')
+      );
     });
 
     const statusContainer = statusText.closest('div');

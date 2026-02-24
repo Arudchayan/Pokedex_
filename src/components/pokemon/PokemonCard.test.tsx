@@ -47,12 +47,7 @@ describe('PokemonCard', () => {
 
   it('calls onSelect when clicked or via keyboard', () => {
     renderWithProvider(
-      <PokemonCard
-        pokemon={mockPokemon}
-        onSelect={onSelect}
-        theme="light"
-        isShiny={false}
-      />
+      <PokemonCard pokemon={mockPokemon} onSelect={onSelect} theme="light" isShiny={false} />
     );
 
     const card = screen.getByRole('button', { name: /view details for pikachu/i });

@@ -16,9 +16,9 @@ export interface SkeletonProps extends HTMLAttributes<HTMLDivElement> {
 
 /**
  * Skeleton Component
- * 
+ *
  * Base skeleton loading placeholder with customizable dimensions and animations.
- * 
+ *
  * @example
  * ```tsx
  * <Skeleton width="100%" height="20px" />
@@ -85,9 +85,9 @@ export interface SkeletonTextProps extends HTMLAttributes<HTMLDivElement> {
 
 /**
  * SkeletonText Component
- * 
+ *
  * Multi-line text skeleton with configurable lines and spacing.
- * 
+ *
  * @example
  * ```tsx
  * <SkeletonText lines={3} />
@@ -110,11 +110,7 @@ export const SkeletonText: React.FC<SkeletonTextProps> = ({
       {...props}
     >
       {Array.from({ length: lines }).map((_, index) => (
-        <Skeleton
-          key={index}
-          height={lineHeight}
-          width={index === lines - 1 ? '70%' : '100%'}
-        />
+        <Skeleton key={index} height={lineHeight} width={index === lines - 1 ? '70%' : '100%'} />
       ))}
     </div>
   );
@@ -130,9 +126,9 @@ export interface SkeletonCircleProps extends HTMLAttributes<HTMLDivElement> {
 
 /**
  * SkeletonCircle Component
- * 
+ *
  * Circular skeleton for avatars and profile images.
- * 
+ *
  * @example
  * ```tsx
  * <SkeletonCircle size={64} />
@@ -173,9 +169,9 @@ export interface SkeletonCardProps extends HTMLAttributes<HTMLDivElement> {
 
 /**
  * SkeletonCard Component
- * 
+ *
  * Full card skeleton matching typical card layouts.
- * 
+ *
  * @example
  * ```tsx
  * <SkeletonCard />
@@ -201,25 +197,15 @@ export const SkeletonCard: React.FC<SkeletonCardProps> = ({
       {...props}
     >
       {/* Image */}
-      {showImage && (
-        <Skeleton
-          height={imageHeight}
-          rounded="none"
-          className="w-full"
-        />
-      )}
+      {showImage && <Skeleton height={imageHeight} rounded="none" className="w-full" />}
 
       {/* Content */}
       <div className="p-4 space-y-3">
         {/* Title */}
-        {showTitle && (
-          <Skeleton height="1.5rem" width="75%" />
-        )}
+        {showTitle && <Skeleton height="1.5rem" width="75%" />}
 
         {/* Description */}
-        {descriptionLines > 0 && (
-          <SkeletonText lines={descriptionLines} />
-        )}
+        {descriptionLines > 0 && <SkeletonText lines={descriptionLines} />}
 
         {/* Actions */}
         <div className="flex gap-2 pt-2">

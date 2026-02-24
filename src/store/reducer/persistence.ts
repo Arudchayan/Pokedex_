@@ -34,7 +34,7 @@ const initialGameStats = (gameId: string): GameStats => ({
 export function reducePokemonStorePersistence(
   state: PokemonState,
   action: Action,
-  _ctx: ReducerContext,
+  _ctx: ReducerContext
 ): Partial<PokemonState> | PokemonState | undefined {
   switch (action.type) {
     case 'UNLOCK_ACHIEVEMENT': {

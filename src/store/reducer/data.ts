@@ -42,4 +42,3 @@ export function reducePokemonStoreData(
       return undefined;
   }
 }
-

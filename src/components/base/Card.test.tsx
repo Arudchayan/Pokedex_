@@ -140,17 +140,13 @@ describe('Card Component', () => {
 
   describe('Custom props', () => {
     it('applies custom className', () => {
-      const { container } = render(
-        <Card className="custom-class">Content</Card>
-      );
+      const { container } = render(<Card className="custom-class">Content</Card>);
       const card = container.firstChild as HTMLElement;
       expect(card).toHaveClass('custom-class');
     });
 
     it('forwards additional props', () => {
-      const { container } = render(
-        <Card data-testid="test-card">Content</Card>
-      );
+      const { container } = render(<Card data-testid="test-card">Content</Card>);
       expect(container.querySelector('[data-testid="test-card"]')).toBeInTheDocument();
     });
   });

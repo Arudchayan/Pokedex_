@@ -32,92 +32,92 @@
   /* Normal - Contrast Ratio: 4.52:1 (AA Pass) */
   --color-type-normal-bg: 168 168 120;
   --color-type-normal-text: 31 41 55;
-  --gradient-type-normal: linear-gradient(135deg, #A8A878 0%, #C6C6A7 100%);
-  
+  --gradient-type-normal: linear-gradient(135deg, #a8a878 0%, #c6c6a7 100%);
+
   /* Fire - Contrast Ratio: 4.54:1 (AA Pass) */
   --color-type-fire-bg: 240 128 48;
   --color-type-fire-text: 255 255 255;
-  --gradient-type-fire: linear-gradient(135deg, #F08030 0%, #F5AC78 100%);
-  
+  --gradient-type-fire: linear-gradient(135deg, #f08030 0%, #f5ac78 100%);
+
   /* Water - Contrast Ratio: 4.52:1 (AA Pass) */
   --color-type-water-bg: 104 144 240;
   --color-type-water-text: 255 255 255;
-  --gradient-type-water: linear-gradient(135deg, #6890F0 0%, #9DB7F5 100%);
-  
+  --gradient-type-water: linear-gradient(135deg, #6890f0 0%, #9db7f5 100%);
+
   /* Electric - Contrast Ratio: 12.47:1 (AAA Pass) */
   --color-type-electric-bg: 248 208 48;
   --color-type-electric-text: 31 41 55;
-  --gradient-type-electric: linear-gradient(135deg, #F8D030 0%, #FAE078 100%);
-  
+  --gradient-type-electric: linear-gradient(135deg, #f8d030 0%, #fae078 100%);
+
   /* Grass - Contrast Ratio: 4.51:1 (AA Pass) */
   --color-type-grass-bg: 120 200 80;
   --color-type-grass-text: 255 255 255;
-  --gradient-type-grass: linear-gradient(135deg, #78C850 0%, #A7DB8D 100%);
-  
+  --gradient-type-grass: linear-gradient(135deg, #78c850 0%, #a7db8d 100%);
+
   /* Ice - Contrast Ratio: 9.85:1 (AAA Pass) */
   --color-type-ice-bg: 152 216 216;
   --color-type-ice-text: 31 41 55;
-  --gradient-type-ice: linear-gradient(135deg, #98D8D8 0%, #BCE6E6 100%);
-  
+  --gradient-type-ice: linear-gradient(135deg, #98d8d8 0%, #bce6e6 100%);
+
   /* Fighting - Contrast Ratio: 5.89:1 (AA Pass) */
   --color-type-fighting-bg: 192 48 40;
   --color-type-fighting-text: 255 255 255;
-  --gradient-type-fighting: linear-gradient(135deg, #C03028 0%, #D67873 100%);
-  
+  --gradient-type-fighting: linear-gradient(135deg, #c03028 0%, #d67873 100%);
+
   /* Poison - Contrast Ratio: 5.24:1 (AA Pass) */
   --color-type-poison-bg: 160 64 160;
   --color-type-poison-text: 255 255 255;
-  --gradient-type-poison: linear-gradient(135deg, #A040A0 0%, #C183C1 100%);
-  
+  --gradient-type-poison: linear-gradient(135deg, #a040a0 0%, #c183c1 100%);
+
   /* Ground - Contrast Ratio: 10.12:1 (AAA Pass) */
   --color-type-ground-bg: 224 192 104;
   --color-type-ground-text: 31 41 55;
-  --gradient-type-ground: linear-gradient(135deg, #E0C068 0%, #EBD69D 100%);
-  
+  --gradient-type-ground: linear-gradient(135deg, #e0c068 0%, #ebd69d 100%);
+
   /* Flying - Contrast Ratio: 4.68:1 (AA Pass) */
   --color-type-flying-bg: 168 144 240;
   --color-type-flying-text: 255 255 255;
-  --gradient-type-flying: linear-gradient(135deg, #A890F0 0%, #C6B7F5 100%);
-  
+  --gradient-type-flying: linear-gradient(135deg, #a890f0 0%, #c6b7f5 100%);
+
   /* Psychic - Contrast Ratio: 4.67:1 (AA Pass) */
   --color-type-psychic-bg: 248 88 136;
   --color-type-psychic-text: 255 255 255;
-  --gradient-type-psychic: linear-gradient(135deg, #F85888 0%, #FA92B2 100%);
-  
+  --gradient-type-psychic: linear-gradient(135deg, #f85888 0%, #fa92b2 100%);
+
   /* Bug - Contrast Ratio: 7.85:1 (AAA Pass) */
   --color-type-bug-bg: 168 184 32;
   --color-type-bug-text: 31 41 55;
-  --gradient-type-bug: linear-gradient(135deg, #A8B820 0%, #C6D16E 100%);
-  
+  --gradient-type-bug: linear-gradient(135deg, #a8b820 0%, #c6d16e 100%);
+
   /* Rock - Contrast Ratio: 5.12:1 (AA Pass) */
   --color-type-rock-bg: 184 160 56;
   --color-type-rock-text: 255 255 255;
-  --gradient-type-rock: linear-gradient(135deg, #B8A038 0%, #D1C17D 100%);
-  
+  --gradient-type-rock: linear-gradient(135deg, #b8a038 0%, #d1c17d 100%);
+
   /* Ghost - Contrast Ratio: 6.87:1 (AA Pass) */
   --color-type-ghost-bg: 112 88 152;
   --color-type-ghost-text: 255 255 255;
-  --gradient-type-ghost: linear-gradient(135deg, #705898 0%, #A292BC 100%);
-  
+  --gradient-type-ghost: linear-gradient(135deg, #705898 0%, #a292bc 100%);
+
   /* Dragon - Contrast Ratio: 8.25:1 (AAA Pass) */
   --color-type-dragon-bg: 112 56 248;
   --color-type-dragon-text: 255 255 255;
-  --gradient-type-dragon: linear-gradient(135deg, #7038F8 0%, #A27DFA 100%);
-  
+  --gradient-type-dragon: linear-gradient(135deg, #7038f8 0%, #a27dfa 100%);
+
   /* Dark - Contrast Ratio: 7.45:1 (AAA Pass) */
   --color-type-dark-bg: 112 88 72;
   --color-type-dark-text: 255 255 255;
-  --gradient-type-dark: linear-gradient(135deg, #705848 0%, #A29288 100%);
-  
+  --gradient-type-dark: linear-gradient(135deg, #705848 0%, #a29288 100%);
+
   /* Steel - Contrast Ratio: 10.22:1 (AAA Pass) */
   --color-type-steel-bg: 184 184 208;
   --color-type-steel-text: 31 41 55;
-  --gradient-type-steel: linear-gradient(135deg, #B8B8D0 0%, #D1D1E0 100%);
-  
+  --gradient-type-steel: linear-gradient(135deg, #b8b8d0 0%, #d1d1e0 100%);
+
   /* Fairy - Contrast Ratio: 7.98:1 (AAA Pass) */
   --color-type-fairy-bg: 238 153 172;
   --color-type-fairy-text: 31 41 55;
-  --gradient-type-fairy: linear-gradient(135deg, #EE99AC 0%, #F4BDC9 100%);
+  --gradient-type-fairy: linear-gradient(135deg, #ee99ac 0%, #f4bdc9 100%);
 }
 
 /* ============================================
@@ -128,17 +128,17 @@
   --color-success-light: 16 185 129;
   --color-success: 5 150 105;
   --color-success-dark: 4 120 87;
-  
+
   /* Warning - Contrast Ratio: 5.85:1 (AA Pass) */
   --color-warning-light: 245 158 11;
   --color-warning: 217 119 6;
   --color-warning-dark: 180 83 9;
-  
+
   /* Error - Contrast Ratio: 5.89:1 (AA Pass) */
   --color-error-light: 239 68 68;
   --color-error: 220 38 38;
   --color-error-dark: 185 28 28;
-  
+
   /* Info - Contrast Ratio: 4.68:1 (AA Pass) */
   --color-info-light: 59 130 246;
   --color-info: 37 99 235;
@@ -151,16 +151,16 @@
 :root {
   --color-rarity-common: 156 163 175;
   --glow-rarity-common: rgba(156, 163, 175, 0.3);
-  
+
   --color-rarity-uncommon: 59 130 246;
   --glow-rarity-uncommon: rgba(59, 130, 246, 0.3);
-  
+
   --color-rarity-rare: 139 92 246;
   --glow-rarity-rare: rgba(139, 92, 246, 0.3);
-  
+
   --color-rarity-legendary: 245 158 11;
   --glow-rarity-legendary: rgba(245, 158, 11, 0.4);
-  
+
   --color-rarity-mythical: 236 72 153;
   --glow-rarity-mythical: rgba(236, 72, 153, 0.4);
 }
@@ -177,37 +177,36 @@
   --shadow-elevation-3: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
   --shadow-elevation-4: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
   --shadow-elevation-5: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-  
+
   /* Inner Shadows (for pressed states) */
   --shadow-inner-sm: inset 0 1px 2px 0 rgba(0, 0, 0, 0.05);
   --shadow-inner-md: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
   --shadow-inner-lg: inset 0 4px 8px 0 rgba(0, 0, 0, 0.08);
-  
+
   /* Glow Effects */
   --glow-primary-sm: 0 0 10px rgba(6, 182, 212, 0.3);
   --glow-primary-md: 0 0 20px rgba(6, 182, 212, 0.4);
   --glow-primary-lg: 0 0 30px rgba(6, 182, 212, 0.5);
-  
+
   --glow-success-sm: 0 0 10px rgba(5, 150, 105, 0.3);
   --glow-success-md: 0 0 20px rgba(5, 150, 105, 0.4);
   --glow-success-lg: 0 0 30px rgba(5, 150, 105, 0.5);
-  
+
   --glow-error-sm: 0 0 10px rgba(220, 38, 38, 0.3);
   --glow-error-md: 0 0 20px rgba(220, 38, 38, 0.4);
   --glow-error-lg: 0 0 30px rgba(220, 38, 38, 0.5);
-  
+
   --glow-legendary-sm: 0 0 15px rgba(245, 158, 11, 0.4);
   --glow-legendary-md: 0 0 25px rgba(245, 158, 11, 0.5);
   --glow-legendary-lg: 0 0 40px rgba(245, 158, 11, 0.6);
-  
+
   --glow-mythical-sm: 0 0 15px rgba(236, 72, 153, 0.4);
   --glow-mythical-md: 0 0 25px rgba(236, 72, 153, 0.5);
   --glow-mythical-lg: 0 0 40px rgba(236, 72, 153, 0.6);
-  
+
   /* Shiny Effect (multi-color glow) */
-  --glow-shiny: 
-    0 0 20px rgba(255, 215, 0, 0.5),
-    0 0 30px rgba(255, 105, 180, 0.3),
+  --glow-shiny:
+    0 0 20px rgba(255, 215, 0, 0.5), 0 0 30px rgba(255, 105, 180, 0.3),
     0 0 40px rgba(138, 43, 226, 0.2);
 }
 
@@ -220,7 +219,7 @@
   --duration-normal: 300ms;
   --duration-slow: 500ms;
   --duration-slower: 700ms;
-  
+
   /* Easing */
   --ease-linear: linear;
   --ease-in: cubic-bezier(0.4, 0, 1, 1);
@@ -248,7 +247,7 @@
    DARK THEME OVERRIDES
    Apply with data-theme="dark" on <html>
    ============================================ */
-[data-theme="dark"] {
+[data-theme='dark'] {
   /* Elevated shadows for dark backgrounds */
   --shadow-elevation-1: 0 1px 3px 0 rgba(0, 0, 0, 0.3), 0 1px 2px -1px rgba(0, 0, 0, 0.3);
   --shadow-elevation-2: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -2px rgba(0, 0, 0, 0.3);
@@ -261,42 +260,26 @@
    CYBERPUNK THEME
    Apply with data-theme="cyberpunk" on <html>
    ============================================ */
-[data-theme="cyberpunk"] {
+[data-theme='cyberpunk'] {
   /* Neon glow effects */
-  --shadow-elevation-1: 
-    0 0 10px rgba(6, 182, 212, 0.3),
-    0 4px 15px rgba(0, 0, 0, 0.3);
-  
-  --shadow-elevation-2: 
-    0 0 15px rgba(6, 182, 212, 0.4),
-    0 8px 20px rgba(0, 0, 0, 0.3);
-  
-  --shadow-elevation-3: 
-    0 0 20px rgba(6, 182, 212, 0.5),
-    0 0 40px rgba(6, 182, 212, 0.3),
-    0 8px 25px rgba(0, 0, 0, 0.4);
-  
-  --shadow-elevation-4: 
-    0 0 30px rgba(6, 182, 212, 0.6),
-    0 0 60px rgba(6, 182, 212, 0.4),
-    0 12px 35px rgba(0, 0, 0, 0.5);
-  
-  --shadow-elevation-5: 
-    0 0 40px rgba(6, 182, 212, 0.7),
-    0 0 80px rgba(6, 182, 212, 0.5),
-    0 20px 50px rgba(0, 0, 0, 0.6);
-  
+  --shadow-elevation-1: 0 0 10px rgba(6, 182, 212, 0.3), 0 4px 15px rgba(0, 0, 0, 0.3);
+
+  --shadow-elevation-2: 0 0 15px rgba(6, 182, 212, 0.4), 0 8px 20px rgba(0, 0, 0, 0.3);
+
+  --shadow-elevation-3:
+    0 0 20px rgba(6, 182, 212, 0.5), 0 0 40px rgba(6, 182, 212, 0.3), 0 8px 25px rgba(0, 0, 0, 0.4);
+
+  --shadow-elevation-4:
+    0 0 30px rgba(6, 182, 212, 0.6), 0 0 60px rgba(6, 182, 212, 0.4), 0 12px 35px rgba(0, 0, 0, 0.5);
+
+  --shadow-elevation-5:
+    0 0 40px rgba(6, 182, 212, 0.7), 0 0 80px rgba(6, 182, 212, 0.5), 0 20px 50px rgba(0, 0, 0, 0.6);
+
   /* Stronger glows for cyberpunk aesthetic */
-  --glow-primary-md: 
-    0 0 5px currentColor,
-    0 0 10px currentColor,
-    0 0 20px currentColor;
-  
-  --glow-primary-lg: 
-    0 0 5px currentColor,
-    0 0 10px currentColor,
-    0 0 20px currentColor,
-    0 0 40px currentColor;
+  --glow-primary-md: 0 0 5px currentColor, 0 0 10px currentColor, 0 0 20px currentColor;
+
+  --glow-primary-lg:
+    0 0 5px currentColor, 0 0 10px currentColor, 0 0 20px currentColor, 0 0 40px currentColor;
 }
 
 /* ============================================
@@ -305,99 +288,245 @@
    ============================================ */
 @layer utilities {
   /* Pokemon Type Background Colors */
-  .bg-type-normal { background-color: rgb(var(--color-type-normal-bg)); }
-  .bg-type-fire { background-color: rgb(var(--color-type-fire-bg)); }
-  .bg-type-water { background-color: rgb(var(--color-type-water-bg)); }
-  .bg-type-electric { background-color: rgb(var(--color-type-electric-bg)); }
-  .bg-type-grass { background-color: rgb(var(--color-type-grass-bg)); }
-  .bg-type-ice { background-color: rgb(var(--color-type-ice-bg)); }
-  .bg-type-fighting { background-color: rgb(var(--color-type-fighting-bg)); }
-  .bg-type-poison { background-color: rgb(var(--color-type-poison-bg)); }
-  .bg-type-ground { background-color: rgb(var(--color-type-ground-bg)); }
-  .bg-type-flying { background-color: rgb(var(--color-type-flying-bg)); }
-  .bg-type-psychic { background-color: rgb(var(--color-type-psychic-bg)); }
-  .bg-type-bug { background-color: rgb(var(--color-type-bug-bg)); }
-  .bg-type-rock { background-color: rgb(var(--color-type-rock-bg)); }
-  .bg-type-ghost { background-color: rgb(var(--color-type-ghost-bg)); }
-  .bg-type-dragon { background-color: rgb(var(--color-type-dragon-bg)); }
-  .bg-type-dark { background-color: rgb(var(--color-type-dark-bg)); }
-  .bg-type-steel { background-color: rgb(var(--color-type-steel-bg)); }
-  .bg-type-fairy { background-color: rgb(var(--color-type-fairy-bg)); }
-  
-  /* Pokemon Type Text Colors */
-  .text-type-normal { color: rgb(var(--color-type-normal-text)); }
-  .text-type-fire { color: rgb(var(--color-type-fire-text)); }
-  .text-type-water { color: rgb(var(--color-type-water-text)); }
-  .text-type-electric { color: rgb(var(--color-type-electric-text)); }
-  .text-type-grass { color: rgb(var(--color-type-grass-text)); }
-  .text-type-ice { color: rgb(var(--color-type-ice-text)); }
-  .text-type-fighting { color: rgb(var(--color-type-fighting-text)); }
-  .text-type-poison { color: rgb(var(--color-type-poison-text)); }
-  .text-type-ground { color: rgb(var(--color-type-ground-text)); }
-  .text-type-flying { color: rgb(var(--color-type-flying-text)); }
-  .text-type-psychic { color: rgb(var(--color-type-psychic-text)); }
-  .text-type-bug { color: rgb(var(--color-type-bug-text)); }
-  .text-type-rock { color: rgb(var(--color-type-rock-text)); }
-  .text-type-ghost { color: rgb(var(--color-type-ghost-text)); }
-  .text-type-dragon { color: rgb(var(--color-type-dragon-text)); }
-  .text-type-dark { color: rgb(var(--color-type-dark-text)); }
-  .text-type-steel { color: rgb(var(--color-type-steel-text)); }
-  .text-type-fairy { color: rgb(var(--color-type-fairy-text)); }
-  
-  /* Type Gradients */
-  .bg-gradient-type-normal { background-image: var(--gradient-type-normal); }
-  .bg-gradient-type-fire { background-image: var(--gradient-type-fire); }
-  .bg-gradient-type-water { background-image: var(--gradient-type-water); }
-  .bg-gradient-type-electric { background-image: var(--gradient-type-electric); }
-  .bg-gradient-type-grass { background-image: var(--gradient-type-grass); }
-  .bg-gradient-type-ice { background-image: var(--gradient-type-ice); }
-  .bg-gradient-type-fighting { background-image: var(--gradient-type-fighting); }
-  .bg-gradient-type-poison { background-image: var(--gradient-type-poison); }
-  .bg-gradient-type-ground { background-image: var(--gradient-type-ground); }
-  .bg-gradient-type-flying { background-image: var(--gradient-type-flying); }
-  .bg-gradient-type-psychic { background-image: var(--gradient-type-psychic); }
-  .bg-gradient-type-bug { background-image: var(--gradient-type-bug); }
-  .bg-gradient-type-rock { background-image: var(--gradient-type-rock); }
-  .bg-gradient-type-ghost { background-image: var(--gradient-type-ghost); }
-  .bg-gradient-type-dragon { background-image: var(--gradient-type-dragon); }
-  .bg-gradient-type-dark { background-image: var(--gradient-type-dark); }
-  .bg-gradient-type-steel { background-image: var(--gradient-type-steel); }
-  .bg-gradient-type-fairy { background-image: var(--gradient-type-fairy); }
-  
-  /* Elevation Shadows */
-  .shadow-elevation-0 { box-shadow: var(--shadow-elevation-0); }
-  .shadow-elevation-1 { box-shadow: var(--shadow-elevation-1); }
-  .shadow-elevation-2 { box-shadow: var(--shadow-elevation-2); }
-  .shadow-elevation-3 { box-shadow: var(--shadow-elevation-3); }
-  .shadow-elevation-4 { box-shadow: var(--shadow-elevation-4); }
-  .shadow-elevation-5 { box-shadow: var(--shadow-elevation-5); }
-  
-  /* Inner Shadows */
-  .shadow-inner-sm { box-shadow: var(--shadow-inner-sm); }
-  .shadow-inner-md { box-shadow: var(--shadow-inner-md); }
-  .shadow-inner-lg { box-shadow: var(--shadow-inner-lg); }
-  
-  /* Glow Effects */
-  .glow-primary-sm { box-shadow: var(--glow-primary-sm); }
-  .glow-primary-md { box-shadow: var(--glow-primary-md); }
-  .glow-primary-lg { box-shadow: var(--glow-primary-lg); }
-  
-  .glow-legendary-sm { box-shadow: var(--glow-legendary-sm); }
-  .glow-legendary-md { box-shadow: var(--glow-legendary-md); }
-  .glow-legendary-lg { box-shadow: var(--glow-legendary-lg); }
-  
-  .glow-mythical-sm { box-shadow: var(--glow-mythical-sm); }
-  .glow-mythical-md { box-shadow: var(--glow-mythical-md); }
-  .glow-mythical-lg { box-shadow: var(--glow-mythical-lg); }
-  
-  .glow-shiny { box-shadow: var(--glow-shiny); }
-  
-  /* Combined Shadow + Glow */
-  .shadow-elevation-2-glow-legendary { 
-    box-shadow: var(--shadow-elevation-2), var(--glow-legendary-md); 
+  .bg-type-normal {
+    background-color: rgb(var(--color-type-normal-bg));
   }
-  .shadow-elevation-3-glow-mythical { 
-    box-shadow: var(--shadow-elevation-3), var(--glow-mythical-md); 
+  .bg-type-fire {
+    background-color: rgb(var(--color-type-fire-bg));
+  }
+  .bg-type-water {
+    background-color: rgb(var(--color-type-water-bg));
+  }
+  .bg-type-electric {
+    background-color: rgb(var(--color-type-electric-bg));
+  }
+  .bg-type-grass {
+    background-color: rgb(var(--color-type-grass-bg));
+  }
+  .bg-type-ice {
+    background-color: rgb(var(--color-type-ice-bg));
+  }
+  .bg-type-fighting {
+    background-color: rgb(var(--color-type-fighting-bg));
+  }
+  .bg-type-poison {
+    background-color: rgb(var(--color-type-poison-bg));
+  }
+  .bg-type-ground {
+    background-color: rgb(var(--color-type-ground-bg));
+  }
+  .bg-type-flying {
+    background-color: rgb(var(--color-type-flying-bg));
+  }
+  .bg-type-psychic {
+    background-color: rgb(var(--color-type-psychic-bg));
+  }
+  .bg-type-bug {
+    background-color: rgb(var(--color-type-bug-bg));
+  }
+  .bg-type-rock {
+    background-color: rgb(var(--color-type-rock-bg));
+  }
+  .bg-type-ghost {
+    background-color: rgb(var(--color-type-ghost-bg));
+  }
+  .bg-type-dragon {
+    background-color: rgb(var(--color-type-dragon-bg));
+  }
+  .bg-type-dark {
+    background-color: rgb(var(--color-type-dark-bg));
+  }
+  .bg-type-steel {
+    background-color: rgb(var(--color-type-steel-bg));
+  }
+  .bg-type-fairy {
+    background-color: rgb(var(--color-type-fairy-bg));
+  }
+
+  /* Pokemon Type Text Colors */
+  .text-type-normal {
+    color: rgb(var(--color-type-normal-text));
+  }
+  .text-type-fire {
+    color: rgb(var(--color-type-fire-text));
+  }
+  .text-type-water {
+    color: rgb(var(--color-type-water-text));
+  }
+  .text-type-electric {
+    color: rgb(var(--color-type-electric-text));
+  }
+  .text-type-grass {
+    color: rgb(var(--color-type-grass-text));
+  }
+  .text-type-ice {
+    color: rgb(var(--color-type-ice-text));
+  }
+  .text-type-fighting {
+    color: rgb(var(--color-type-fighting-text));
+  }
+  .text-type-poison {
+    color: rgb(var(--color-type-poison-text));
+  }
+  .text-type-ground {
+    color: rgb(var(--color-type-ground-text));
+  }
+  .text-type-flying {
+    color: rgb(var(--color-type-flying-text));
+  }
+  .text-type-psychic {
+    color: rgb(var(--color-type-psychic-text));
+  }
+  .text-type-bug {
+    color: rgb(var(--color-type-bug-text));
+  }
+  .text-type-rock {
+    color: rgb(var(--color-type-rock-text));
+  }
+  .text-type-ghost {
+    color: rgb(var(--color-type-ghost-text));
+  }
+  .text-type-dragon {
+    color: rgb(var(--color-type-dragon-text));
+  }
+  .text-type-dark {
+    color: rgb(var(--color-type-dark-text));
+  }
+  .text-type-steel {
+    color: rgb(var(--color-type-steel-text));
+  }
+  .text-type-fairy {
+    color: rgb(var(--color-type-fairy-text));
+  }
+
+  /* Type Gradients */
+  .bg-gradient-type-normal {
+    background-image: var(--gradient-type-normal);
+  }
+  .bg-gradient-type-fire {
+    background-image: var(--gradient-type-fire);
+  }
+  .bg-gradient-type-water {
+    background-image: var(--gradient-type-water);
+  }
+  .bg-gradient-type-electric {
+    background-image: var(--gradient-type-electric);
+  }
+  .bg-gradient-type-grass {
+    background-image: var(--gradient-type-grass);
+  }
+  .bg-gradient-type-ice {
+    background-image: var(--gradient-type-ice);
+  }
+  .bg-gradient-type-fighting {
+    background-image: var(--gradient-type-fighting);
+  }
+  .bg-gradient-type-poison {
+    background-image: var(--gradient-type-poison);
+  }
+  .bg-gradient-type-ground {
+    background-image: var(--gradient-type-ground);
+  }
+  .bg-gradient-type-flying {
+    background-image: var(--gradient-type-flying);
+  }
+  .bg-gradient-type-psychic {
+    background-image: var(--gradient-type-psychic);
+  }
+  .bg-gradient-type-bug {
+    background-image: var(--gradient-type-bug);
+  }
+  .bg-gradient-type-rock {
+    background-image: var(--gradient-type-rock);
+  }
+  .bg-gradient-type-ghost {
+    background-image: var(--gradient-type-ghost);
+  }
+  .bg-gradient-type-dragon {
+    background-image: var(--gradient-type-dragon);
+  }
+  .bg-gradient-type-dark {
+    background-image: var(--gradient-type-dark);
+  }
+  .bg-gradient-type-steel {
+    background-image: var(--gradient-type-steel);
+  }
+  .bg-gradient-type-fairy {
+    background-image: var(--gradient-type-fairy);
+  }
+
+  /* Elevation Shadows */
+  .shadow-elevation-0 {
+    box-shadow: var(--shadow-elevation-0);
+  }
+  .shadow-elevation-1 {
+    box-shadow: var(--shadow-elevation-1);
+  }
+  .shadow-elevation-2 {
+    box-shadow: var(--shadow-elevation-2);
+  }
+  .shadow-elevation-3 {
+    box-shadow: var(--shadow-elevation-3);
+  }
+  .shadow-elevation-4 {
+    box-shadow: var(--shadow-elevation-4);
+  }
+  .shadow-elevation-5 {
+    box-shadow: var(--shadow-elevation-5);
+  }
+
+  /* Inner Shadows */
+  .shadow-inner-sm {
+    box-shadow: var(--shadow-inner-sm);
+  }
+  .shadow-inner-md {
+    box-shadow: var(--shadow-inner-md);
+  }
+  .shadow-inner-lg {
+    box-shadow: var(--shadow-inner-lg);
+  }
+
+  /* Glow Effects */
+  .glow-primary-sm {
+    box-shadow: var(--glow-primary-sm);
+  }
+  .glow-primary-md {
+    box-shadow: var(--glow-primary-md);
+  }
+  .glow-primary-lg {
+    box-shadow: var(--glow-primary-lg);
+  }
+
+  .glow-legendary-sm {
+    box-shadow: var(--glow-legendary-sm);
+  }
+  .glow-legendary-md {
+    box-shadow: var(--glow-legendary-md);
+  }
+  .glow-legendary-lg {
+    box-shadow: var(--glow-legendary-lg);
+  }
+
+  .glow-mythical-sm {
+    box-shadow: var(--glow-mythical-sm);
+  }
+  .glow-mythical-md {
+    box-shadow: var(--glow-mythical-md);
+  }
+  .glow-mythical-lg {
+    box-shadow: var(--glow-mythical-lg);
+  }
+
+  .glow-shiny {
+    box-shadow: var(--glow-shiny);
+  }
+
+  /* Combined Shadow + Glow */
+  .shadow-elevation-2-glow-legendary {
+    box-shadow: var(--shadow-elevation-2), var(--glow-legendary-md);
+  }
+  .shadow-elevation-3-glow-mythical {
+    box-shadow: var(--shadow-elevation-3), var(--glow-mythical-md);
   }
 }
 

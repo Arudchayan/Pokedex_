@@ -61,7 +61,7 @@ function Modal({
         onClose();
       }
     },
-    [onClose],
+    [onClose]
   );
 
   useEffect(() => {
@@ -88,9 +88,7 @@ function Modal({
       if (focusableElements.length === 0) return;
 
       const firstElement = focusableElements[0] as HTMLElement;
-      const lastElement = focusableElements[
-        focusableElements.length - 1
-      ] as HTMLElement;
+      const lastElement = focusableElements[focusableElements.length - 1] as HTMLElement;
 
       if (e.shiftKey) {
         if (document.activeElement === firstElement) {
@@ -108,9 +106,7 @@ function Modal({
     document.addEventListener('keydown', handleTab);
 
     // Auto-focus the first focusable element (typically the close button)
-    const firstFocusable = modal.querySelector(
-      focusableSelectors,
-    ) as HTMLElement;
+    const firstFocusable = modal.querySelector(focusableSelectors) as HTMLElement;
     if (firstFocusable) {
       setTimeout(() => firstFocusable.focus(), 50);
     }
@@ -129,10 +125,7 @@ function Modal({
       aria-labelledby={titleId}
     >
       {/* Backdrop */}
-      <div
-        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-        onClick={onClose}
-      />
+      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
 
       {/* Content */}
       <div
@@ -201,7 +194,7 @@ function Modal({
         }
       `}</style>
     </div>,
-    document.body,
+    document.body
   );
 }
 

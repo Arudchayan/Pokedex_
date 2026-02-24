@@ -25,7 +25,11 @@ export function resolveEntryForSpecies(species: string): WalkersPackIndexEntry |
   return VSCODE_POKEMON_INDEX.find((e) => e.species.toLowerCase() === wanted) ?? null;
 }
 
-export function spriteUrlFor(baseUrl: string, entry: WalkersPackIndexEntry, anim: WalkerAnimation): string {
+export function spriteUrlFor(
+  baseUrl: string,
+  entry: WalkersPackIndexEntry,
+  anim: WalkerAnimation
+): string {
   // We keep the web app implementation simple:
   // - Only depend on `default_idle_8fps.gif` and `default_walk_8fps.gif`.
   // - Flip horizontally via CSS when walking left.
@@ -33,4 +37,3 @@ export function spriteUrlFor(baseUrl: string, entry: WalkersPackIndexEntry, anim
   const trimmed = baseUrl.replace(/\/+$/, '');
   return `${trimmed}/media/${entry.generation}/${entry.species}/default_${safeAnim}_8fps.gif`;
 }
-

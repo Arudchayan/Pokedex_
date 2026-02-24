@@ -35,9 +35,9 @@ export interface InputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 
 
 /**
  * Input Component
- * 
+ *
  * Accessible and feature-rich input component with multiple variants and states.
- * 
+ *
  * Features:
  * - 3 variants: default, filled, outlined
  * - 3 sizes: sm, md, lg
@@ -48,7 +48,7 @@ export interface InputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 
  * - Label with required indicator
  * - Helper text
  * - WCAG 2.1 AA compliant
- * 
+ *
  * @example
  * ```tsx
  * <Input
@@ -57,14 +57,14 @@ export interface InputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 
  *   placeholder="Enter your email"
  *   required
  * />
- * 
+ *
  * <Input
  *   type="search"
  *   prefix={<SearchIcon />}
  *   clearable
  *   onClear={() => console.log('cleared')}
  * />
- * 
+ *
  * <Input
  *   error
  *   errorMessage="This field is required"
@@ -100,12 +100,9 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
 
     // Variant styles
     const variantStyles: Record<InputVariant, string> = {
-      default:
-        'bg-slate-800/50 border-slate-600 focus:border-primary-400 focus:bg-slate-800',
-      filled:
-        'bg-slate-700 border-transparent focus:border-primary-400 focus:bg-slate-600',
-      outlined:
-        'bg-transparent border-slate-500 focus:border-primary-400 focus:bg-slate-800/30',
+      default: 'bg-slate-800/50 border-slate-600 focus:border-primary-400 focus:bg-slate-800',
+      filled: 'bg-slate-700 border-transparent focus:border-primary-400 focus:bg-slate-600',
+      outlined: 'bg-transparent border-slate-500 focus:border-primary-400 focus:bg-slate-800/30',
     };
 
     // Size styles
@@ -131,9 +128,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
       'w-full rounded-lg border transition-all duration-200 text-white placeholder:text-slate-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900 disabled:cursor-not-allowed disabled:opacity-50';
 
     // Error styles
-    const errorStyles = error
-      ? 'border-red-500 focus:border-red-500 focus:ring-red-500'
-      : '';
+    const errorStyles = error ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : '';
 
     const handleClear = () => {
       if (onClear) {
@@ -157,12 +152,13 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
       <div className={cn('w-full', containerClassName)}>
         {/* Label */}
         {label && (
-          <label
-            htmlFor={inputId}
-            className="block text-sm font-medium text-slate-200 mb-1.5"
-          >
+          <label htmlFor={inputId} className="block text-sm font-medium text-slate-200 mb-1.5">
             {label}
-            {required && <span className="text-red-400 ml-1" aria-label="required">*</span>}
+            {required && (
+              <span className="text-red-400 ml-1" aria-label="required">
+                *
+              </span>
+            )}
           </label>
         )}
 
@@ -192,8 +188,8 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
               error && errorMessage
                 ? `${inputId}-error`
                 : helperText
-                ? `${inputId}-helper`
-                : undefined
+                  ? `${inputId}-helper`
+                  : undefined
             }
             aria-required={required}
             className={cn(
@@ -252,21 +248,14 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
 
         {/* Error Message */}
         {error && errorMessage && (
-          <p
-            id={`${inputId}-error`}
-            className="mt-1.5 text-xs text-red-400"
-            role="alert"
-          >
+          <p id={`${inputId}-error`} className="mt-1.5 text-xs text-red-400" role="alert">
             {errorMessage}
           </p>
         )}
 
         {/* Helper Text */}
         {!error && helperText && (
-          <p
-            id={`${inputId}-helper`}
-            className="mt-1.5 text-xs text-slate-400"
-          >
+          <p id={`${inputId}-helper`} className="mt-1.5 text-xs text-slate-400">
             {helperText}
           </p>
         )}

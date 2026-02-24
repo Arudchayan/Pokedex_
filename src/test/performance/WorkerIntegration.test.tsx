@@ -14,15 +14,15 @@ class WorkerMock {
     // And we return ID 1 as result
 
     const response = {
-        filteredIds: [1], // Return ID 1 (Bulbasaur)
-        requestId: data.requestId
+      filteredIds: [1], // Return ID 1 (Bulbasaur)
+      requestId: data.requestId,
     };
 
     // Simulate async response
     setTimeout(() => {
-        if (this.onmessage) {
-            this.onmessage({ data: response } as MessageEvent);
-        }
+      if (this.onmessage) {
+        this.onmessage({ data: response } as MessageEvent);
+      }
     }, 10);
   }
 
@@ -36,9 +36,9 @@ describe('usePokemonStoreEffects with Worker', () => {
     // @ts-ignore
     window.Worker = WorkerMock;
     usePokemonStore.setState({
-        masterPokemonList: [],
-        filteredPokemon: [],
-        isFiltering: false
+      masterPokemonList: [],
+      filteredPokemon: [],
+      isFiltering: false,
     });
   });
 
@@ -49,9 +49,9 @@ describe('usePokemonStoreEffects with Worker', () => {
   it('should process worker response and map IDs to objects', async () => {
     // Setup initial store state
     const mockPokemon = [
-        { id: 1, name: 'Bulbasaur', types: ['grass'] },
-        { id: 2, name: 'Ivysaur', types: ['grass'] },
-        { id: 3, name: 'Venusaur', types: ['grass'] }
+      { id: 1, name: 'Bulbasaur', types: ['grass'] },
+      { id: 2, name: 'Ivysaur', types: ['grass'] },
+      { id: 3, name: 'Venusaur', types: ['grass'] },
     ] as any[];
 
     usePokemonStore.setState({ masterPokemonList: mockPokemon });
@@ -61,15 +61,15 @@ describe('usePokemonStoreEffects with Worker', () => {
 
     // Trigger a filter update (e.g. change search term)
     act(() => {
-        usePokemonStore.getState().setSearchTerm('Bulba');
+      usePokemonStore.getState().setSearchTerm('Bulba');
     });
 
     // Wait for filteredPokemon to be updated
     await waitFor(() => {
-        const filtered = usePokemonStore.getState().filteredPokemon;
-        expect(filtered).toHaveLength(1);
-        expect(filtered[0].id).toBe(1);
-        expect(filtered[0].name).toBe('Bulbasaur');
+      const filtered = usePokemonStore.getState().filteredPokemon;
+      expect(filtered).toHaveLength(1);
+      expect(filtered[0].id).toBe(1);
+      expect(filtered[0].name).toBe('Bulbasaur');
     });
 
     unmount();

@@ -61,42 +61,48 @@ export const validateTeamMember = (data: any): TeamMember | null => {
     flavorText: typeof data.flavorText === 'string' ? sanitizeString(data.flavorText) : '',
     // Optional properties
     bst: validateSafeNumber(data.bst),
-    stats: Array.isArray(data.stats) ? data.stats.map((s: any) => ({
-        name: sanitizeString(String(s?.name || '')),
-        value: validateSafeNumber(s?.value) || 0
-    })) : [],
-    abilities: Array.isArray(data.abilities) ? data.abilities.map((a: any) => sanitizeString(String(a))) : [],
+    stats: Array.isArray(data.stats)
+      ? data.stats.map((s: any) => ({
+          name: sanitizeString(String(s?.name || '')),
+          value: validateSafeNumber(s?.value) || 0,
+        }))
+      : [],
+    abilities: Array.isArray(data.abilities)
+      ? data.abilities.map((a: any) => sanitizeString(String(a)))
+      : [],
 
     // TeamMember specifics
-    selectedMoves: Array.isArray(data.selectedMoves) ? data.selectedMoves.map((m: any) => sanitizeString(String(m))) : [],
+    selectedMoves: Array.isArray(data.selectedMoves)
+      ? data.selectedMoves.map((m: any) => sanitizeString(String(m)))
+      : [],
     selectedAbility: data.selectedAbility ? sanitizeString(data.selectedAbility) : undefined,
     selectedNature: data.selectedNature ? sanitizeString(data.selectedNature) : undefined,
     selectedItem: data.selectedItem ? sanitizeString(data.selectedItem) : undefined,
     evs: validateStatsObject(data.evs, 252), // EVs max 252
-    ivs: validateStatsObject(data.ivs, 31),   // IVs max 31
+    ivs: validateStatsObject(data.ivs, 31), // IVs max 31
   };
 
   return member;
 };
 
 export const validateSavedTeam = (data: any): SavedTeam | null => {
-    if (!data || typeof data !== 'object') return null;
-    if (typeof data.id !== 'string') return null;
-    if (typeof data.name !== 'string') return null;
-    if (!Array.isArray(data.team)) return null;
+  if (!data || typeof data !== 'object') return null;
+  if (typeof data.id !== 'string') return null;
+  if (typeof data.name !== 'string') return null;
+  if (!Array.isArray(data.team)) return null;
 
-    // SECURITY: Limit team size to prevent DoS
-    const safeTeam = data.team
-        .slice(0, UI_CONSTANTS.MAX_TEAM_SIZE)
-        .map(validateTeamMember)
-        .filter((m: TeamMember | null): m is TeamMember => m !== null);
+  // SECURITY: Limit team size to prevent DoS
+  const safeTeam = data.team
+    .slice(0, UI_CONSTANTS.MAX_TEAM_SIZE)
+    .map(validateTeamMember)
+    .filter((m: TeamMember | null): m is TeamMember => m !== null);
 
-    return {
-        id: sanitizeString(data.id),
-        name: sanitizeString(data.name),
-        team: safeTeam,
-        updatedAt: typeof data.updatedAt === 'number' ? data.updatedAt : Date.now()
-    };
+  return {
+    id: sanitizeString(data.id),
+    name: sanitizeString(data.name),
+    team: safeTeam,
+    updatedAt: typeof data.updatedAt === 'number' ? data.updatedAt : Date.now(),
+  };
 };
 
 export const getSavedTeam = (): TeamMember[] => {
@@ -105,11 +111,11 @@ export const getSavedTeam = (): TeamMember[] => {
     if (stored) {
       const parsed = JSON.parse(stored);
       if (Array.isArray(parsed)) {
-          // SECURITY: Limit team size to prevent DoS
-          return parsed
-            .slice(0, UI_CONSTANTS.MAX_TEAM_SIZE)
-            .map(validateTeamMember)
-            .filter((m): m is TeamMember => m !== null);
+        // SECURITY: Limit team size to prevent DoS
+        return parsed
+          .slice(0, UI_CONSTANTS.MAX_TEAM_SIZE)
+          .map(validateTeamMember)
+          .filter((m): m is TeamMember => m !== null);
       }
     }
   } catch (error) {
@@ -132,9 +138,7 @@ export const getSavedTeamList = (): SavedTeam[] => {
     if (stored) {
       const parsed = JSON.parse(stored);
       if (Array.isArray(parsed)) {
-          return parsed
-            .map(validateSavedTeam)
-            .filter((t): t is SavedTeam => t !== null);
+        return parsed.map(validateSavedTeam).filter((t): t is SavedTeam => t !== null);
       }
     }
   } catch (error) {
@@ -146,9 +150,10 @@ export const getSavedTeamList = (): SavedTeam[] => {
 export const saveTeamList = (teams: SavedTeam[]): void => {
   try {
     // SECURITY: Enforce limit to prevent DoS
-    const limitedTeams = teams.length > UI_CONSTANTS.MAX_SAVED_TEAMS
-      ? teams.slice(0, UI_CONSTANTS.MAX_SAVED_TEAMS)
-      : teams;
+    const limitedTeams =
+      teams.length > UI_CONSTANTS.MAX_SAVED_TEAMS
+        ? teams.slice(0, UI_CONSTANTS.MAX_SAVED_TEAMS)
+        : teams;
     localStorage.setItem(SAVED_TEAMS_KEY, JSON.stringify(limitedTeams));
   } catch (error) {
     logger.warn('Error saving team list to storage:', error);

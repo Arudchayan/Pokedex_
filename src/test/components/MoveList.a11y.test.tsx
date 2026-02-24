@@ -16,7 +16,7 @@ const mockMoves: PokemonMove[] = [
     pp: 35,
     priority: 0,
     level: 1,
-    learnMethod: 'level up'
+    learnMethod: 'level up',
   },
   {
     name: 'growl',
@@ -28,8 +28,8 @@ const mockMoves: PokemonMove[] = [
     pp: 40,
     priority: 0,
     level: 1,
-    learnMethod: 'level up'
-  }
+    learnMethod: 'level up',
+  },
 ];
 
 describe('MoveList Accessibility', () => {
@@ -47,9 +47,9 @@ describe('MoveList Accessibility', () => {
   });
 
   it('has accessible sort buttons in headers', () => {
-      render(<MoveList moves={mockMoves} />);
-      // This should FAIL initially as headers use <th> with onClick instead of <button>
-      expect(screen.getByRole('button', { name: /move/i })).toBeInTheDocument();
-      expect(screen.getByRole('button', { name: /type/i })).toBeInTheDocument();
+    render(<MoveList moves={mockMoves} />);
+    // This should FAIL initially as headers use <th> with onClick instead of <button>
+    expect(screen.getByRole('button', { name: /move/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /type/i })).toBeInTheDocument();
   });
 });

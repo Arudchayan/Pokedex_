@@ -1,11 +1,16 @@
-
 import { describe, it, expect } from 'vitest';
 import { compressTeam, decompressTeam } from '../../utils/urlCompression';
 import { PokemonListItem, TeamMember } from '../../types';
 
 describe('urlCompression', () => {
   const mockMasterList: PokemonListItem[] = [
-    { id: 1, name: 'bulbasaur', types: ['grass', 'poison'], imageUrl: 'img1', shinyImageUrl: 'simg1' },
+    {
+      id: 1,
+      name: 'bulbasaur',
+      types: ['grass', 'poison'],
+      imageUrl: 'img1',
+      shinyImageUrl: 'simg1',
+    },
     { id: 25, name: 'pikachu', types: ['electric'], imageUrl: 'img25', shinyImageUrl: 'simg25' },
     { id: 133, name: 'eevee', types: ['normal'], imageUrl: 'img133', shinyImageUrl: 'simg133' },
   ];
@@ -51,21 +56,23 @@ describe('urlCompression', () => {
   });
 
   it('should sanitize strings in decompressed data', () => {
-     const maliciousTeam = [{
+    const maliciousTeam = [
+      {
         id: 25,
         a: '<script>alert(1)</script>',
         n: 'Bold<',
         i: 'Berry"',
-        m: ['Move1', '<img src=x>']
-     }];
-     const jsonString = JSON.stringify(maliciousTeam);
-     const compressed = require('lz-string').compressToEncodedURIComponent(jsonString);
+        m: ['Move1', '<img src=x>'],
+      },
+    ];
+    const jsonString = JSON.stringify(maliciousTeam);
+    const compressed = require('lz-string').compressToEncodedURIComponent(jsonString);
 
-     const decompressed = decompressTeam(compressed, mockMasterList);
+    const decompressed = decompressTeam(compressed, mockMasterList);
 
-     expect(decompressed[0].selectedAbility).toBe('scriptalert(1)/script'); // Sanitize removes < >
-     expect(decompressed[0].selectedNature).toBe('Bold');
-     expect(decompressed[0].selectedItem).toBe('Berry');
-     expect(decompressed[0].selectedMoves?.[1]).toBe('img src=x');
+    expect(decompressed[0].selectedAbility).toBe('scriptalert(1)/script'); // Sanitize removes < >
+    expect(decompressed[0].selectedNature).toBe('Bold');
+    expect(decompressed[0].selectedItem).toBe('Berry');
+    expect(decompressed[0].selectedMoves?.[1]).toBe('img src=x');
   });
 });

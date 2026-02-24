@@ -32,10 +32,10 @@ export const playPokemonCry = (pokemonId: number) => {
 
   try {
     const cryUrl = `https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/${pokemonId}.ogg`;
-    
+
     // Check cache first
     let audio = audioCache.get(cryUrl);
-    
+
     if (audio) {
       // Refresh LRU status: move to end of Map
       audioCache.delete(cryUrl);
@@ -46,7 +46,7 @@ export const playPokemonCry = (pokemonId: number) => {
         // Map iterates in insertion order, so the first key is the oldest
         const oldestKey = audioCache.keys().next().value;
         if (oldestKey) {
-            audioCache.delete(oldestKey);
+          audioCache.delete(oldestKey);
         }
       }
 
@@ -54,7 +54,7 @@ export const playPokemonCry = (pokemonId: number) => {
       audio.volume = 0.3; // Lower volume for better UX
       audioCache.set(cryUrl, audio);
     }
-    
+
     // Reset and play
     audio.currentTime = 0;
     audio.play().catch(() => {

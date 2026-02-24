@@ -71,7 +71,7 @@ export const useSlowRenderDetection = (
       logger.warn(
         `[Slow Render] ${componentName} took ${renderTime.toFixed(2)}ms (threshold: ${threshold}ms)`
       );
-      
+
       // In production, send to analytics
       // if (import.meta.env.PROD) {
       //   reportSlowRender(componentName, renderTime);

@@ -12,11 +12,7 @@ const InfoPill: React.FC<InfoPillProps> = ({ label, value, theme }) => (
       theme === 'dark' ? 'bg-black/10' : 'bg-slate-100'
     }`}
   >
-    <p
-      className={`text-xs capitalize ${
-        theme === 'dark' ? 'text-slate-300' : 'text-slate-500'
-      }`}
-    >
+    <p className={`text-xs capitalize ${theme === 'dark' ? 'text-slate-300' : 'text-slate-500'}`}>
       {label}
     </p>
     <p

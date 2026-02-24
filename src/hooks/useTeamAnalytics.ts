@@ -19,7 +19,7 @@ export function useTeamAnalytics(team: TeamMember[]) {
 
   const teamWeaknesses = useMemo<Record<string, number>>(() => {
     if (team.length === 0) return {};
-    
+
     const allTypes = Object.keys(TYPE_RELATIONS);
     const weaknessCounts: Record<string, number> = {};
 
@@ -40,7 +40,7 @@ export function useTeamAnalytics(team: TeamMember[]) {
 
   const teamResistances = useMemo<Record<string, number>>(() => {
     if (team.length === 0) return {};
-    
+
     const allTypes = Object.keys(TYPE_RELATIONS);
     const resistanceCounts: Record<string, number> = {};
 
@@ -73,22 +73,22 @@ export function useTeamAnalytics(team: TeamMember[]) {
 
     // Check which types are hit super-effectively by the team's types
     allTypes.forEach((defenseType) => {
-        let isCovered = false;
-        teamTypes.forEach((attackType) => {
-            if ((TYPE_RELATIONS[attackType][defenseType] ?? 1) > 1) {
-                isCovered = true;
-            }
-        });
-        if (isCovered) {
-             // Calculate how many types we have that hit this super effectively
-             let count = 0;
-             teamTypes.forEach((attackType) => {
-                 if ((TYPE_RELATIONS[attackType][defenseType] ?? 1) > 1) {
-                     count++;
-                 }
-             });
-             coverageCounts[defenseType] = count;
+      let isCovered = false;
+      teamTypes.forEach((attackType) => {
+        if ((TYPE_RELATIONS[attackType][defenseType] ?? 1) > 1) {
+          isCovered = true;
         }
+      });
+      if (isCovered) {
+        // Calculate how many types we have that hit this super effectively
+        let count = 0;
+        teamTypes.forEach((attackType) => {
+          if ((TYPE_RELATIONS[attackType][defenseType] ?? 1) > 1) {
+            count++;
+          }
+        });
+        coverageCounts[defenseType] = count;
+      }
     });
 
     return coverageCounts;
@@ -101,39 +101,39 @@ export function useTeamAnalytics(team: TeamMember[]) {
   }, [teamWeaknesses]);
 
   const teamStats = useMemo(() => {
-      if (team.length === 0) return null;
+    if (team.length === 0) return null;
 
-      const stats = {
-          hp: 0,
-          attack: 0,
-          defense: 0,
-          'special-attack': 0,
-          'special-defense': 0,
-          speed: 0
-      };
+    const stats = {
+      hp: 0,
+      attack: 0,
+      defense: 0,
+      'special-attack': 0,
+      'special-defense': 0,
+      speed: 0,
+    };
 
-      let count = 0;
-      team.forEach(p => {
-          if(p.stats) {
-              p.stats.forEach(s => {
-                  if (stats[s.name as keyof typeof stats] !== undefined) {
-                      stats[s.name as keyof typeof stats] += s.value;
-                  }
-              });
-              count++;
+    let count = 0;
+    team.forEach((p) => {
+      if (p.stats) {
+        p.stats.forEach((s) => {
+          if (stats[s.name as keyof typeof stats] !== undefined) {
+            stats[s.name as keyof typeof stats] += s.value;
           }
-      });
+        });
+        count++;
+      }
+    });
 
-      if (count === 0) return null;
+    if (count === 0) return null;
 
-      return [
-          { name: 'HP', value: Math.round(stats.hp / count) },
-          { name: 'Attack', value: Math.round(stats.attack / count) },
-          { name: 'Defense', value: Math.round(stats.defense / count) },
-          { name: 'Sp. Atk', value: Math.round(stats['special-attack'] / count) },
-          { name: 'Sp. Def', value: Math.round(stats['special-defense'] / count) },
-          { name: 'Speed', value: Math.round(stats.speed / count) },
-      ];
+    return [
+      { name: 'HP', value: Math.round(stats.hp / count) },
+      { name: 'Attack', value: Math.round(stats.attack / count) },
+      { name: 'Defense', value: Math.round(stats.defense / count) },
+      { name: 'Sp. Atk', value: Math.round(stats['special-attack'] / count) },
+      { name: 'Sp. Def', value: Math.round(stats['special-defense'] / count) },
+      { name: 'Speed', value: Math.round(stats.speed / count) },
+    ];
   }, [team]);
 
   return {

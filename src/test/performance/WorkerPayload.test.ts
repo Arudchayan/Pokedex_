@@ -40,7 +40,7 @@ describe('Worker Payload Benchmarks', () => {
     const baselinePayloadSize = estimatePayloadSize(pokemonList);
 
     // Optimized: Returning IDs only
-    const optimizedPayloadSize = estimatePayloadSize(pokemonList.map(p => p.id));
+    const optimizedPayloadSize = estimatePayloadSize(pokemonList.map((p) => p.id));
 
     console.log(`Payload Size (1000 items):`);
     console.log(`Baseline (Objects): ${(baselinePayloadSize / 1024).toFixed(2)} KB`);

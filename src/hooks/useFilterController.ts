@@ -9,31 +9,22 @@ export const useFilterController = () => {
   const sortBy = usePokemonStore((s) => s.sortBy);
   const sortOrder = usePokemonStore((s) => s.sortOrder);
 
-  const handleTypeToggle = useCallback(
-    (type: string) => {
-      usePokemonStore.getState().toggleType(type);
-    },
-    []
-  );
+  const handleTypeToggle = useCallback((type: string) => {
+    usePokemonStore.getState().toggleType(type);
+  }, []);
 
   const handleClearFilters = useCallback(() => {
     usePokemonStore.getState().clearFilters();
     addToast('Filters cleared', 'info');
   }, [addToast]);
 
-  const handleGenerationChange = useCallback(
-    (val: string) => {
-      usePokemonStore.getState().setGeneration(val);
-    },
-    []
-  );
+  const handleGenerationChange = useCallback((val: string) => {
+    usePokemonStore.getState().setGeneration(val);
+  }, []);
 
-  const handleFlavorTextChange = useCallback(
-    (val: string) => {
-      usePokemonStore.getState().setFlavorTextSearch(val);
-    },
-    []
-  );
+  const handleFlavorTextChange = useCallback((val: string) => {
+    usePokemonStore.getState().setFlavorTextSearch(val);
+  }, []);
 
   const handleSortChange = useCallback(
     (val: SortOption) => {
@@ -49,12 +40,9 @@ export const useFilterController = () => {
     [sortBy]
   );
 
-  const handleSearchChange = useCallback(
-    (val: string) => {
-      usePokemonStore.getState().setSearchTerm(val);
-    },
-    []
-  );
+  const handleSearchChange = useCallback((val: string) => {
+    usePokemonStore.getState().setSearchTerm(val);
+  }, []);
 
   return {
     handleTypeToggle,

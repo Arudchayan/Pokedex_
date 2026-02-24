@@ -1,6 +1,6 @@
 /**
  * Custom React Hooks for Pokedex App
- * 
+ *
  * This module provides a collection of reusable hooks for common patterns:
  * - UI state management (hover, intersection, click outside)
  * - Performance optimization (debounce, throttle)
@@ -8,7 +8,7 @@
  * - User input (keyboard shortcuts)
  * - Persistence (localStorage)
  * - Analytics and performance tracking
- * 
+ *
  * All hooks are SSR-safe and handle cleanup properly to prevent memory leaks.
  */
 
@@ -18,22 +18,18 @@ export { useHover, useHoverRef } from './useHover';
 export {
   useIntersectionObserver,
   useIsVisible,
-  type UseIntersectionObserverOptions
+  type UseIntersectionObserverOptions,
 } from './useIntersectionObserver';
 
 // Input Hooks
 export {
   useKeyboardShortcut,
   useKeyboardShortcuts,
-  type KeyboardShortcutOptions
+  type KeyboardShortcutOptions,
 } from './useKeyboardShortcut';
 
 // Performance Hooks
-export {
-  useDebounce,
-  useDebouncedCallback,
-  useThrottle
-} from './useDebounce';
+export { useDebounce, useDebouncedCallback, useThrottle } from './useDebounce';
 
 // Responsive Design Hooks
 export {
@@ -41,14 +37,11 @@ export {
   useBreakpoint,
   useSystemPreferences,
   useIsTouchDevice,
-  useOrientation
+  useOrientation,
 } from './useMediaQuery';
 
 // Persistence Hooks
-export {
-  useLocalStorage,
-  useIsLocalStorageAvailable
-} from './useLocalStorage';
+export { useLocalStorage, useIsLocalStorageAvailable } from './useLocalStorage';
 
 // Application-Specific Hooks
 export { useModalState } from './useModalState';

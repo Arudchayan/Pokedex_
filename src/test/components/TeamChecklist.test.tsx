@@ -14,7 +14,7 @@ describe('TeamChecklist', () => {
       types: ['normal'],
       flavorText: 'test',
       selectedMoves: ['stealth rock', 'recover', 'swords dance', 'tackle'],
-    } as unknown as TeamMember
+    } as unknown as TeamMember,
   ];
 
   it('renders nothing when team is empty', () => {
@@ -48,22 +48,22 @@ describe('TeamChecklist', () => {
   });
 
   it('handles mixed case move names', () => {
-     const mixedCaseTeam: TeamMember[] = [
-        {
-          id: 1,
-          name: 'Spinner',
-          imageUrl: '',
-          shinyImageUrl: '',
-          types: ['normal'],
-          flavorText: '',
-          selectedMoves: ['Rapid Spin', 'DEFOG'],
-        } as unknown as TeamMember
-      ];
+    const mixedCaseTeam: TeamMember[] = [
+      {
+        id: 1,
+        name: 'Spinner',
+        imageUrl: '',
+        shinyImageUrl: '',
+        types: ['normal'],
+        flavorText: '',
+        selectedMoves: ['Rapid Spin', 'DEFOG'],
+      } as unknown as TeamMember,
+    ];
 
-      render(<TeamChecklist team={mixedCaseTeam} theme="light" />);
-      // Should find Rapid Spin or Defog under Hazard Removal
-      // The component lowercases inputs, so it should match
-      const carrier = screen.getByText('Spinner');
-      expect(carrier).toBeInTheDocument();
+    render(<TeamChecklist team={mixedCaseTeam} theme="light" />);
+    // Should find Rapid Spin or Defog under Hazard Removal
+    // The component lowercases inputs, so it should match
+    const carrier = screen.getByText('Spinner');
+    expect(carrier).toBeInTheDocument();
   });
 });

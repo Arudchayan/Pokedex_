@@ -35,8 +35,7 @@ const Card = forwardRef<HTMLDivElement, CardProps>(
     const variantStyles = {
       elevated:
         'bg-white/80 dark:bg-black/20 backdrop-blur-lg shadow-lg border border-white/10 dark:border-white/20',
-      outlined:
-        'bg-transparent border-2 border-slate-200 dark:border-white/20',
+      outlined: 'bg-transparent border-2 border-slate-200 dark:border-white/20',
       filled: 'bg-slate-100 dark:bg-slate-900/50 border border-transparent',
     };
 

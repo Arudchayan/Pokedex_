@@ -41,9 +41,9 @@ const calculateTypeEffectiveness = (types: string[]): TypeEffectiveness => {
   const effectiveness: { [type: string]: number } = {};
   const allTypes = Object.keys(TYPE_RELATIONS);
 
-  allTypes.forEach(attackType => {
+  allTypes.forEach((attackType) => {
     let multiplier = 1;
-    types.forEach(defenseType => {
+    types.forEach((defenseType) => {
       multiplier *= TYPE_RELATIONS[attackType][defenseType] ?? 1;
     });
     effectiveness[attackType] = multiplier;
@@ -84,13 +84,21 @@ const PokemonDetailView: React.FC<PokemonDetailViewProps> = ({
   const [isMovesExpanded, setIsMovesExpanded] = useState(false);
   const [selectedGen, setSelectedGen] = useState<string | null>(null);
 
-  const { data: pokemon, isLoading: loading, error: queryError } = useQuery({
+  const {
+    data: pokemon,
+    isLoading: loading,
+    error: queryError,
+  } = useQuery({
     queryKey: ['pokemonDetails', pokemonId],
     queryFn: () => fetchPokemonDetails(pokemonId),
     staleTime: 24 * 60 * 60 * 1000,
   });
 
-  const error = queryError ? 'Failed to fetch Pokemon details.' : (pokemon === null && !loading ? 'Could not find details for this Pokemon.' : null);
+  const error = queryError
+    ? 'Failed to fetch Pokemon details.'
+    : pokemon === null && !loading
+      ? 'Could not find details for this Pokemon.'
+      : null;
 
   // Sync local shiny state with global shiny state when opening
   useEffect(() => {
@@ -99,7 +107,7 @@ const PokemonDetailView: React.FC<PokemonDetailViewProps> = ({
 
   useEffect(() => {
     if (pokemon) {
-      const defaultForm = pokemon.forms.find(f => f.isDefault) || pokemon.forms[0];
+      const defaultForm = pokemon.forms.find((f) => f.isDefault) || pokemon.forms[0];
       setSelectedForm(defaultForm);
       setIsMovesExpanded(false);
       setSelectedGen(null);
@@ -116,8 +124,8 @@ const PokemonDetailView: React.FC<PokemonDetailViewProps> = ({
 
   const { megaForm, defaultForm } = useMemo(() => {
     if (!pokemon) return { megaForm: null, defaultForm: null };
-    const mega = pokemon.forms.find(f => f.name.includes('-mega'));
-    const def = pokemon.forms.find(f => f.isDefault) || pokemon.forms[0];
+    const mega = pokemon.forms.find((f) => f.name.includes('-mega'));
+    const def = pokemon.forms.find((f) => f.isDefault) || pokemon.forms[0];
     return { megaForm: mega, defaultForm: def };
   }, [pokemon]);
 
@@ -144,7 +152,7 @@ const PokemonDetailView: React.FC<PokemonDetailViewProps> = ({
       types: selectedForm.types,
       flavorText: pokemon.flavorText,
       stats: selectedForm.stats,
-      abilities: selectedForm.abilities.map(a => a.name),
+      abilities: selectedForm.abilities.map((a) => a.name),
     };
 
     onAddToTeam(listItem);
@@ -158,7 +166,9 @@ const PokemonDetailView: React.FC<PokemonDetailViewProps> = ({
     onRemoveFromTeam(pokemon.id);
   };
 
-  const primaryTypeHex = selectedForm ? (TYPE_COLORS_HEX[selectedForm.types[0]] || '#A8A878') : '#A8A878';
+  const primaryTypeHex = selectedForm
+    ? TYPE_COLORS_HEX[selectedForm.types[0]] || '#A8A878'
+    : '#A8A878';
 
   const statTotal = useMemo(() => {
     return selectedForm?.stats.reduce((total, stat) => total + stat.value, 0) || 0;
@@ -174,7 +184,10 @@ const PokemonDetailView: React.FC<PokemonDetailViewProps> = ({
       <div className="flex items-center">
         <span className="text-blue-400 font-bold text-sm">♂ {maleChance}%</span>
         <div className="w-full h-1.5 bg-pink-400/50 mx-2 rounded-full">
-          <div className="h-full bg-blue-400 rounded-full" style={{ width: `${maleChance}%` }}></div>
+          <div
+            className="h-full bg-blue-400 rounded-full"
+            style={{ width: `${maleChance}%` }}
+          ></div>
         </div>
         <span className="text-pink-400 font-bold text-sm">♀ {femaleChance}%</span>
       </div>
@@ -191,8 +204,9 @@ const PokemonDetailView: React.FC<PokemonDetailViewProps> = ({
 
   return (
     <div
-      className={`fixed inset-0 backdrop-blur-sm flex justify-center items-center z-[1050] p-4 ${theme === 'dark' ? 'bg-black/70' : 'bg-slate-500/50'
-        }`}
+      className={`fixed inset-0 backdrop-blur-sm flex justify-center items-center z-[1050] p-4 ${
+        theme === 'dark' ? 'bg-black/70' : 'bg-slate-500/50'
+      }`}
       onClick={onClose}
       onKeyDown={handleKeyDown}
       tabIndex={-1}
@@ -200,23 +214,74 @@ const PokemonDetailView: React.FC<PokemonDetailViewProps> = ({
       aria-modal="true"
     >
       <div
-        className={`backdrop-blur-2xl rounded-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto relative shadow-2xl border modal-enter-active ${theme === 'dark'
-          ? 'bg-black/40 shadow-black/50 border-white/20'
-          : 'bg-white/90 shadow-slate-400/50 border-slate-200'
-          }`}
-        onClick={e => e.stopPropagation()}
+        className={`backdrop-blur-2xl rounded-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto relative shadow-2xl border modal-enter-active ${
+          theme === 'dark'
+            ? 'bg-black/40 shadow-black/50 border-white/20'
+            : 'bg-white/90 shadow-slate-400/50 border-slate-200'
+        }`}
+        onClick={(e) => e.stopPropagation()}
       >
-        <button onClick={onPrevious} className={`fixed left-4 top-1/2 -translate-y-1/2 transition-transform hover:scale-110 z-10 ${theme === 'dark' ? 'text-slate-300 hover:text-white' : 'text-slate-600 hover:text-slate-900'}`} aria-label="Previous Pokemon">
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
+        <button
+          onClick={onPrevious}
+          className={`fixed left-4 top-1/2 -translate-y-1/2 transition-transform hover:scale-110 z-10 ${theme === 'dark' ? 'text-slate-300 hover:text-white' : 'text-slate-600 hover:text-slate-900'}`}
+          aria-label="Previous Pokemon"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-12 w-12"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M15 19l-7-7 7-7"
+            />
+          </svg>
         </button>
-        <button onClick={onNext} className={`fixed right-4 top-1/2 -translate-y-1/2 transition-transform hover:scale-110 z-10 ${theme === 'dark' ? 'text-slate-300 hover:text-white' : 'text-slate-600 hover:text-slate-900'}`} aria-label="Next Pokemon">
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+        <button
+          onClick={onNext}
+          className={`fixed right-4 top-1/2 -translate-y-1/2 transition-transform hover:scale-110 z-10 ${theme === 'dark' ? 'text-slate-300 hover:text-white' : 'text-slate-600 hover:text-slate-900'}`}
+          aria-label="Next Pokemon"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-12 w-12"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+          </svg>
         </button>
-        <button onClick={onClose} className={`absolute top-4 right-4 transition-colors z-20 ${theme === 'dark' ? 'text-slate-300 hover:text-white' : 'text-slate-600 hover:text-slate-900'}`} aria-label="Close">
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+        <button
+          onClick={onClose}
+          className={`absolute top-4 right-4 transition-colors z-20 ${theme === 'dark' ? 'text-slate-300 hover:text-white' : 'text-slate-600 hover:text-slate-900'}`}
+          aria-label="Close"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-8 w-8"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M6 18L18 6M6 6l12 12"
+            />
+          </svg>
         </button>
 
-        {(loading || !pokemon || !selectedForm) && <div className="flex justify-center items-center h-96"><Loader size="h-16 w-16" /></div>}
+        {(loading || !pokemon || !selectedForm) && (
+          <div className="flex justify-center items-center h-96">
+            <Loader size="h-16 w-16" />
+          </div>
+        )}
         {error && <div className="flex justify-center items-center h-96 text-red-400">{error}</div>}
 
         {pokemon && selectedForm && (
@@ -242,29 +307,56 @@ const PokemonDetailView: React.FC<PokemonDetailViewProps> = ({
             />
 
             <div className="p-4 sm:p-8">
-              <div className={`grid grid-cols-1 lg:grid-cols-2 gap-8 ${theme === 'dark' ? 'text-white' : 'text-slate-800'}`}>
+              <div
+                className={`grid grid-cols-1 lg:grid-cols-2 gap-8 ${theme === 'dark' ? 'text-white' : 'text-slate-800'}`}
+              >
                 <div className="flex flex-col gap-8">
-                  <div className={`flex justify-center items-center rounded-lg p-4 h-64 ${theme === 'dark' ? 'bg-black/10' : 'bg-slate-100'}`}>
+                  <div
+                    className={`flex justify-center items-center rounded-lg p-4 h-64 ${theme === 'dark' ? 'bg-black/10' : 'bg-slate-100'}`}
+                  >
                     {(() => {
-                      let currentImageUrl = showShiny ? selectedForm.shinyImageUrl : selectedForm.imageUrl;
+                      let currentImageUrl = showShiny
+                        ? selectedForm.shinyImageUrl
+                        : selectedForm.imageUrl;
 
                       // If a generation is selected and it exists in the data
                       if (selectedGen && pokemon.genSprites && pokemon.genSprites[selectedGen]) {
                         const genSpriteSet = pokemon.genSprites[selectedGen];
-                        const genSprite = showShiny && genSpriteSet.shiny ? genSpriteSet.shiny : genSpriteSet.default;
+                        const genSprite =
+                          showShiny && genSpriteSet.shiny
+                            ? genSpriteSet.shiny
+                            : genSpriteSet.default;
                         if (genSprite) {
                           currentImageUrl = genSprite;
                         }
                       }
 
-                      return <img src={currentImageUrl} alt={selectedForm.name} className="h-full object-contain drop-shadow-lg" loading="lazy" />;
+                      return (
+                        <img
+                          src={currentImageUrl}
+                          alt={selectedForm.name}
+                          className="h-full object-contain drop-shadow-lg"
+                          loading="lazy"
+                        />
+                      );
                     })()}
                   </div>
-                  <p className={`text-center italic p-4 rounded-lg ${theme === 'dark' ? 'text-slate-300 bg-black/10' : 'text-slate-600 bg-slate-100'}`}>"{pokemon.flavorText}"</p>
+                  <p
+                    className={`text-center italic p-4 rounded-lg ${theme === 'dark' ? 'text-slate-300 bg-black/10' : 'text-slate-600 bg-slate-100'}`}
+                  >
+                    "{pokemon.flavorText}"
+                  </p>
 
                   <DetailSection title={`Base Stats (Total: ${statTotal})`} theme={theme}>
                     <div className="space-y-2">
-                      {selectedForm.stats.map(stat => <StatBar key={stat.name} name={stat.name} value={stat.value} theme={theme} />)}
+                      {selectedForm.stats.map((stat) => (
+                        <StatBar
+                          key={stat.name}
+                          name={stat.name}
+                          value={stat.value}
+                          theme={theme}
+                        />
+                      ))}
                     </div>
                   </DetailSection>
 
@@ -297,41 +389,69 @@ const PokemonDetailView: React.FC<PokemonDetailViewProps> = ({
 
                   <DetailSection title="Pokédex Data" theme={theme}>
                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                      <InfoPill label="Height" value={`${(selectedForm.height / 10).toFixed(1)} m`} theme={theme} />
-                      <InfoPill label="Weight" value={`${(selectedForm.weight / 10).toFixed(1)} kg`} theme={theme} />
+                      <InfoPill
+                        label="Height"
+                        value={`${(selectedForm.height / 10).toFixed(1)} m`}
+                        theme={theme}
+                      />
+                      <InfoPill
+                        label="Weight"
+                        value={`${(selectedForm.weight / 10).toFixed(1)} kg`}
+                        theme={theme}
+                      />
                       <InfoPill label="Color" value={pokemon.color} theme={theme} />
                       <InfoPill label="Shape" value={pokemon.shape} theme={theme} />
                       <InfoPill label="Habitat" value={pokemon.habitat} theme={theme} />
-                      <InfoPill label="Abilities" value={
-                        <div className="flex flex-wrap gap-1 justify-center">
-                          {selectedForm.abilities.map((a, i) => (
-                            <React.Fragment key={a.name}>
-                              {i > 0 && ", "}
-                              <button
-                                onClick={() => onOpenAbilityDex?.(a.name.replace(/-/g, ' '))}
-                                className={`hover:underline ${theme === 'dark' ? 'text-primary-300 hover:text-primary-200' : 'text-primary-600 hover:text-primary-500'}`}
-                              >
-                                {a.name.replace(/-/g, ' ')}
-                              </button>
-                            </React.Fragment>
-                          ))}
-                        </div>
-                      } theme={theme} />
+                      <InfoPill
+                        label="Abilities"
+                        value={
+                          <div className="flex flex-wrap gap-1 justify-center">
+                            {selectedForm.abilities.map((a, i) => (
+                              <React.Fragment key={a.name}>
+                                {i > 0 && ', '}
+                                <button
+                                  onClick={() => onOpenAbilityDex?.(a.name.replace(/-/g, ' '))}
+                                  className={`hover:underline ${theme === 'dark' ? 'text-primary-300 hover:text-primary-200' : 'text-primary-600 hover:text-primary-500'}`}
+                                >
+                                  {a.name.replace(/-/g, ' ')}
+                                </button>
+                              </React.Fragment>
+                            ))}
+                          </div>
+                        }
+                        theme={theme}
+                      />
                     </div>
                   </DetailSection>
 
                   <DetailSection title="Training" theme={theme}>
                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                      <InfoPill label="Capture Rate" value={`${pokemon.captureRate}`} theme={theme} />
-                      <InfoPill label="Base Happiness" value={`${pokemon.baseHappiness}`} theme={theme} />
+                      <InfoPill
+                        label="Capture Rate"
+                        value={`${pokemon.captureRate}`}
+                        theme={theme}
+                      />
+                      <InfoPill
+                        label="Base Happiness"
+                        value={`${pokemon.baseHappiness}`}
+                        theme={theme}
+                      />
                       <InfoPill label="Growth Rate" value={pokemon.growthRate} theme={theme} />
                     </div>
                   </DetailSection>
 
                   <DetailSection title="Breeding" theme={theme}>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      <InfoPill label="Gender" value={renderGenderInfo(pokemon.genderRate)} theme={theme} />
-                      <InfoPill label="Egg Groups" value={pokemon.eggGroups.join(', ')} theme={theme} />
+                      <InfoPill
+                        label="Gender"
+                        value={renderGenderInfo(pokemon.genderRate)}
+                        theme={theme}
+                      />
+                      <InfoPill
+                        label="Egg Groups"
+                        value={pokemon.eggGroups.join(', ')}
+                        theme={theme}
+                      />
                     </div>
                   </DetailSection>
 
@@ -342,7 +462,11 @@ const PokemonDetailView: React.FC<PokemonDetailViewProps> = ({
                   </DetailSection>
 
                   {pokemon.moves && pokemon.moves.length > 0 && (
-                    <MoveRecommender moves={pokemon.moves} stats={selectedForm.stats} types={selectedForm.types} />
+                    <MoveRecommender
+                      moves={pokemon.moves}
+                      stats={selectedForm.stats}
+                      types={selectedForm.types}
+                    />
                   )}
                 </div>
               </div>

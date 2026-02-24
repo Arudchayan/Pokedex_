@@ -2,7 +2,14 @@ import { get, set, del } from 'idb-keyval';
 import { MAX_POKEMON_ID, POKEAPI_GRAPHQL_URL } from '../constants';
 import { PokemonListItem, PokemonDetails, PokemonMove, PokemonForm, Item } from '../types';
 import { logError, retryApiCall, isNetworkError } from '../utils/errorHandler';
-import { sanitizeString, validateSafeNumber, sanitizeUrl, isSafeString, isSafeNumber, isSafeUrl } from '../utils/securityUtils';
+import {
+  sanitizeString,
+  validateSafeNumber,
+  sanitizeUrl,
+  isSafeString,
+  isSafeNumber,
+  isSafeUrl,
+} from '../utils/securityUtils';
 import { scheduleIdleTask } from '../utils/scheduler';
 import { logger } from '../utils/logger';
 import fetchAllPokemonQuery from '../graphql/fetchAllPokemon.graphql?raw';
@@ -13,7 +20,7 @@ import type {
   FetchAllPokemonQuery,
   FetchMovesQuery,
   FetchItemsQuery,
-  GetPokemonDetailsQuery
+  GetPokemonDetailsQuery,
 } from '../graphql/generated';
 
 // --- Interfaces for GraphQL Response ---
@@ -36,28 +43,30 @@ const ITEMS_CACHE_TIMESTAMP_KEY = 'pokedex_items_timestamp';
 
 const EVOLUTION_ITEM_MAP: Record<number, string> = {
   198: "King's Rock",
-  210: "Metal Coat",
-  235: "Dragon Scale",
-  237: "Up-Grade",
-  211: "Deep Sea Scale",
-  212: "Deep Sea Tooth",
-  303: "Razor Claw",
-  326: "Razor Fang",
-  306: "Protector",
-  307: "Electirizer",
-  308: "Magmarizer",
-  309: "Dubious Disc",
-  310: "Reaper Cloth",
-  519: "Prism Scale",
-  624: "Sachet",
-  625: "Whipped Dream",
+  210: 'Metal Coat',
+  235: 'Dragon Scale',
+  237: 'Up-Grade',
+  211: 'Deep Sea Scale',
+  212: 'Deep Sea Tooth',
+  303: 'Razor Claw',
+  326: 'Razor Fang',
+  306: 'Protector',
+  307: 'Electirizer',
+  308: 'Magmarizer',
+  309: 'Dubious Disc',
+  310: 'Reaper Cloth',
+  519: 'Prism Scale',
+  624: 'Sachet',
+  625: 'Whipped Dream',
 };
 
 const getShowdownName = (name: string): string => {
   return name.toLowerCase().replace(/[.':\s-]/g, '');
-}
+};
 
-const parseGenSprites = (spritesJson: string | any): Record<string, { default: string; shiny?: string }> => {
+const parseGenSprites = (
+  spritesJson: string | any
+): Record<string, { default: string; shiny?: string }> => {
   const genSprites: Record<string, { default: string; shiny?: string }> = {};
 
   try {
@@ -71,7 +80,7 @@ const parseGenSprites = (spritesJson: string | any): Record<string, { default: s
       if (data && data.front_default) {
         genSprites[key] = {
           default: data.front_default,
-          shiny: data.front_shiny || undefined
+          shiny: data.front_shiny || undefined,
         };
       }
     };
@@ -107,7 +116,10 @@ const parseGenSprites = (spritesJson: string | any): Record<string, { default: s
     // Generation VI
     if (versions['generation-vi']) {
       addIfExist('Gen 6: X/Y', versions['generation-vi']['x-y']);
-      addIfExist('Gen 6: OmegaRuby/AlphaSapphire', versions['generation-vi']['omegaruby-alphasapphire']);
+      addIfExist(
+        'Gen 6: OmegaRuby/AlphaSapphire',
+        versions['generation-vi']['omegaruby-alphasapphire']
+      );
     }
     // Generation VII
     if (versions['generation-vii']) {
@@ -123,7 +135,6 @@ const parseGenSprites = (spritesJson: string | any): Record<string, { default: s
         addIfExist('HOME', sprites.other['home']);
       }
     }
-
   } catch (e) {
     console.warn('Failed to parse gen sprites', e);
   }
@@ -138,8 +149,8 @@ const extractSpriteUrls = (pokemonId: number, pokemonName: string) => {
   const genericShinySprite = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/${pokemonId}.png`;
 
   const showdownName = getShowdownName(pokemonName);
-  const showdownAnimated = `https://play.pokemonshowdown.com/sprites/ani/${showdownName}.gif`
-  const shinyShowdownAnimated = `https://play.pokemonshowdown.com/sprites/ani-shiny/${showdownName}.gif`
+  const showdownAnimated = `https://play.pokemonshowdown.com/sprites/ani/${showdownName}.gif`;
+  const shinyShowdownAnimated = `https://play.pokemonshowdown.com/sprites/ani-shiny/${showdownName}.gif`;
 
   return {
     showdownUrl: showdownAnimated,
@@ -151,7 +162,6 @@ const extractSpriteUrls = (pokemonId: number, pokemonName: string) => {
   };
 };
 
-
 async function queryPokeAPI<T>(
   query: string,
   variables: Record<string, any> = {},
@@ -160,13 +170,15 @@ async function queryPokeAPI<T>(
   try {
     const timeoutSignal = AbortSignal.timeout(30000);
     const combinedSignal = options.signal
-      ? (AbortSignal.any ? AbortSignal.any([options.signal, timeoutSignal]) : options.signal)
+      ? AbortSignal.any
+        ? AbortSignal.any([options.signal, timeoutSignal])
+        : options.signal
       : timeoutSignal;
     const response = await fetch(POKEAPI_GRAPHQL_URL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Accept': 'application/json',
+        Accept: 'application/json',
       },
       body: JSON.stringify({ query, variables }),
       // Add timeout
@@ -271,15 +283,21 @@ export const validatePokemonListItem = (data: any): PokemonListItem | null => {
     shinyImageUrl: sanitizeUrl(data.shinyImageUrl),
     types: Array.isArray(data.types) ? data.types.map((t: any) => sanitizeString(String(t))) : [],
     flavorText: sanitizeString(data.flavorText),
-    stats: Array.isArray(data.stats) ? data.stats.map((s: any) => ({
-      name: sanitizeString(s.name),
-      value: validateSafeNumber(s.value) || 0
-    })) : [],
-    abilities: Array.isArray(data.abilities) ? data.abilities.map((a: any) => sanitizeString(String(a))) : [],
+    stats: Array.isArray(data.stats)
+      ? data.stats.map((s: any) => ({
+          name: sanitizeString(s.name),
+          value: validateSafeNumber(s.value) || 0,
+        }))
+      : [],
+    abilities: Array.isArray(data.abilities)
+      ? data.abilities.map((a: any) => sanitizeString(String(a)))
+      : [],
     bst: validateSafeNumber(data.bst),
     nameLower: sanitizeString(data.nameLower),
     flavorTextLower: sanitizeString(data.flavorTextLower),
-    abilitiesLower: Array.isArray(data.abilitiesLower) ? data.abilitiesLower.map((a: any) => sanitizeString(String(a))) : []
+    abilitiesLower: Array.isArray(data.abilitiesLower)
+      ? data.abilitiesLower.map((a: any) => sanitizeString(String(a)))
+      : [],
   };
 };
 
@@ -292,7 +310,8 @@ export const fetchAllPokemons = async (signal?: AbortSignal): Promise<PokemonLis
 
     // Check TTL
     if (cachedTimestamp) {
-      const timestamp = typeof cachedTimestamp === 'number' ? cachedTimestamp : parseInt(cachedTimestamp, 10);
+      const timestamp =
+        typeof cachedTimestamp === 'number' ? cachedTimestamp : parseInt(cachedTimestamp, 10);
       if (!isNaN(timestamp) && Date.now() - timestamp < CACHE_TTL) {
         isCacheValid = true;
       } else {
@@ -314,7 +333,9 @@ export const fetchAllPokemons = async (signal?: AbortSignal): Promise<PokemonLis
         }
 
         if (!isValid) {
-          validated = parsed.map(validatePokemonListItem).filter((p): p is PokemonListItem => p !== null);
+          validated = parsed
+            .map(validatePokemonListItem)
+            .filter((p): p is PokemonListItem => p !== null);
         }
 
         // If validation preserves most of the list, use it.
@@ -325,7 +346,9 @@ export const fetchAllPokemons = async (signal?: AbortSignal): Promise<PokemonLis
         if (validated.length === parsed.length && validated.length > 0) {
           return validated;
         } else {
-          console.warn(`Cache corrupted: ${parsed.length - validated.length} invalid items found. Refetching.`);
+          console.warn(
+            `Cache corrupted: ${parsed.length - validated.length} invalid items found. Refetching.`
+          );
         }
       }
     }
@@ -335,58 +358,76 @@ export const fetchAllPokemons = async (signal?: AbortSignal): Promise<PokemonLis
 
   // Use retry logic for fetching all Pokemon
   const data = await retryApiCall(
-    () => queryPokeAPI<FetchAllPokemonQuery>(fetchAllPokemonQuery, { limit: MAX_POKEMON_ID }, { signal }),
+    () =>
+      queryPokeAPI<FetchAllPokemonQuery>(
+        fetchAllPokemonQuery,
+        { limit: MAX_POKEMON_ID },
+        { signal }
+      ),
     3, // max 3 retries
     2000 // start with 2s delay
   );
 
-  const processed = data.pokemon_v2_pokemon.filter(p => {
-    // Basic validation to prevent crashes from malformed data
-    const isValidId = validateSafeNumber(p.id);
-    const isValidName = sanitizeString(p.name);
-    // Ensure critical arrays exist
-    const hasTypes = Array.isArray(p.pokemon_v2_pokemontypes);
-    const hasStats = Array.isArray(p.pokemon_v2_pokemonstats);
+  const processed = data.pokemon_v2_pokemon
+    .filter((p) => {
+      // Basic validation to prevent crashes from malformed data
+      const isValidId = validateSafeNumber(p.id);
+      const isValidName = sanitizeString(p.name);
+      // Ensure critical arrays exist
+      const hasTypes = Array.isArray(p.pokemon_v2_pokemontypes);
+      const hasStats = Array.isArray(p.pokemon_v2_pokemonstats);
 
-    if (!isValidId || !isValidName || !hasTypes || !hasStats) {
-      console.warn(`Sentinel: Skipping invalid pokemon ID: ${p.id}`);
-      return false;
-    }
-    return true;
-  }).map(p => {
-    // Optimization: Directly construct Showdown URLs to avoid parsing JSON sprites for every Pokemon
-    // We only fetch ID to check existence, saving bandwidth by avoiding the large 'sprites' JSON string
-    const hasSprites = p.pokemon_v2_pokemonsprites && p.pokemon_v2_pokemonsprites.length > 0;
-    let showdownUrl, shinyShowdownUrl;
-    if (hasSprites) {
-      const showdownName = getShowdownName(p.name);
-      showdownUrl = `https://play.pokemonshowdown.com/sprites/ani/${showdownName}.gif`;
-      shinyShowdownUrl = `https://play.pokemonshowdown.com/sprites/ani-shiny/${showdownName}.gif`;
-    }
+      if (!isValidId || !isValidName || !hasTypes || !hasStats) {
+        console.warn(`Sentinel: Skipping invalid pokemon ID: ${p.id}`);
+        return false;
+      }
+      return true;
+    })
+    .map((p) => {
+      // Optimization: Directly construct Showdown URLs to avoid parsing JSON sprites for every Pokemon
+      // We only fetch ID to check existence, saving bandwidth by avoiding the large 'sprites' JSON string
+      const hasSprites = p.pokemon_v2_pokemonsprites && p.pokemon_v2_pokemonsprites.length > 0;
+      let showdownUrl, shinyShowdownUrl;
+      if (hasSprites) {
+        const showdownName = getShowdownName(p.name);
+        showdownUrl = `https://play.pokemonshowdown.com/sprites/ani/${showdownName}.gif`;
+        shinyShowdownUrl = `https://play.pokemonshowdown.com/sprites/ani-shiny/${showdownName}.gif`;
+      }
 
-    const genericSprite = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${p.id}.png`;
-    const genericShinySprite = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/${p.id}.png`;
-    const flavorText = p.pokemon_v2_pokemonspecy?.pokemon_v2_pokemonspeciesflavortexts?.[0]?.flavor_text?.replace(FLAVOR_TEXT_SANITIZATION_REGEX, ' ') || '';
-    const stats = p.pokemon_v2_pokemonstats.map(s => ({ name: s.pokemon_v2_stat?.name || 'unknown', value: s.base_stat }));
-    const types = p.pokemon_v2_pokemontypes.map((t) => t.pokemon_v2_type?.name || 'unknown');
-    const bst = stats.reduce((sum, stat) => sum + stat.value, 0);
+      const genericSprite = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${p.id}.png`;
+      const genericShinySprite = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/${p.id}.png`;
+      const flavorText =
+        p.pokemon_v2_pokemonspecy?.pokemon_v2_pokemonspeciesflavortexts?.[0]?.flavor_text?.replace(
+          FLAVOR_TEXT_SANITIZATION_REGEX,
+          ' '
+        ) || '';
+      const stats = p.pokemon_v2_pokemonstats.map((s) => ({
+        name: s.pokemon_v2_stat?.name || 'unknown',
+        value: s.base_stat,
+      }));
+      const types = p.pokemon_v2_pokemontypes.map((t) => t.pokemon_v2_type?.name || 'unknown');
+      const bst = stats.reduce((sum, stat) => sum + stat.value, 0);
 
-    return {
-      id: p.id,
-      name: p.name,
-      imageUrl: showdownUrl || genericSprite,
-      shinyImageUrl: shinyShowdownUrl || genericShinySprite,
-      types,
-      flavorText: flavorText,
-      stats: stats,
-      bst: bst,
-      abilities: (p.pokemon_v2_pokemonabilities || []).map(a => a.pokemon_v2_ability?.name || 'unknown'),
-      // Optimization: Pre-compute lowercased values for filtering
-      nameLower: p.name.toLowerCase(),
-      flavorTextLower: flavorText.toLowerCase(),
-      abilitiesLower: (p.pokemon_v2_pokemonabilities || []).map(a => a.pokemon_v2_ability?.name.toLowerCase() || 'unknown'),
-    }
-  });
+      return {
+        id: p.id,
+        name: p.name,
+        imageUrl: showdownUrl || genericSprite,
+        shinyImageUrl: shinyShowdownUrl || genericShinySprite,
+        types,
+        flavorText: flavorText,
+        stats: stats,
+        bst: bst,
+        abilities: (p.pokemon_v2_pokemonabilities || []).map(
+          (a) => a.pokemon_v2_ability?.name || 'unknown'
+        ),
+        // Optimization: Pre-compute lowercased values for filtering
+        nameLower: p.name.toLowerCase(),
+        flavorTextLower: flavorText.toLowerCase(),
+        abilitiesLower: (p.pokemon_v2_pokemonabilities || []).map(
+          (a) => a.pokemon_v2_ability?.name.toLowerCase() || 'unknown'
+        ),
+      };
+    });
 
   scheduleIdleTask(async () => {
     try {
@@ -423,8 +464,13 @@ export const isMoveValid = (data: any): data is Move => {
   if (data.type && !isSafeString(data.type)) return false;
   if (data.category && !isSafeString(data.category)) return false;
 
-  if (data.power !== null && (typeof data.power !== 'number' || !isSafeNumber(data.power, 0, 1000))) return false;
-  if (data.accuracy !== null && (typeof data.accuracy !== 'number' || !isSafeNumber(data.accuracy, 0, 100))) return false;
+  if (data.power !== null && (typeof data.power !== 'number' || !isSafeNumber(data.power, 0, 1000)))
+    return false;
+  if (
+    data.accuracy !== null &&
+    (typeof data.accuracy !== 'number' || !isSafeNumber(data.accuracy, 0, 100))
+  )
+    return false;
 
   if (typeof data.pp !== 'number' || !isSafeNumber(data.pp, 0, 100)) return false;
 
@@ -484,7 +530,8 @@ export const fetchAllMoves = async (): Promise<Move[]> => {
 
     let isCacheValid = false;
     if (cachedTimestamp) {
-      const timestamp = typeof cachedTimestamp === 'number' ? cachedTimestamp : parseInt(cachedTimestamp, 10);
+      const timestamp =
+        typeof cachedTimestamp === 'number' ? cachedTimestamp : parseInt(cachedTimestamp, 10);
       if (!isNaN(timestamp) && Date.now() - timestamp < CACHE_TTL) {
         isCacheValid = true;
       } else {
@@ -520,15 +567,18 @@ export const fetchAllMoves = async (): Promise<Move[]> => {
 
   try {
     const data = await queryPokeAPI<FetchMovesQuery>(fetchMovesQuery);
-    const moves = data.pokemon_v2_move.map((m) => ({
-      id: m.id,
-      name: m.name,
-      type: m.pokemon_v2_type?.name || 'normal',
-      category: m.pokemon_v2_movedamageclass?.name || 'status',
-      power: m.power,
-      accuracy: m.accuracy,
-      pp: m.pp
-    })).map(validateMove).filter((m: Move | null): m is Move => m !== null);
+    const moves = data.pokemon_v2_move
+      .map((m) => ({
+        id: m.id,
+        name: m.name,
+        type: m.pokemon_v2_type?.name || 'normal',
+        category: m.pokemon_v2_movedamageclass?.name || 'status',
+        power: m.power,
+        accuracy: m.accuracy,
+        pp: m.pp,
+      }))
+      .map(validateMove)
+      .filter((m: Move | null): m is Move => m !== null);
 
     scheduleIdleTask(async () => {
       try {
@@ -540,7 +590,7 @@ export const fetchAllMoves = async (): Promise<Move[]> => {
     });
     return moves;
   } catch (e) {
-    console.error("Failed to fetch moves", e);
+    console.error('Failed to fetch moves', e);
     return [];
   }
 };
@@ -552,7 +602,8 @@ export const fetchAllItems = async (): Promise<Item[]> => {
 
     let isCacheValid = false;
     if (cachedTimestamp) {
-      const timestamp = typeof cachedTimestamp === 'number' ? cachedTimestamp : parseInt(cachedTimestamp, 10);
+      const timestamp =
+        typeof cachedTimestamp === 'number' ? cachedTimestamp : parseInt(cachedTimestamp, 10);
       if (!isNaN(timestamp) && Date.now() - timestamp < CACHE_TTL) {
         isCacheValid = true;
       } else {
@@ -594,7 +645,7 @@ export const fetchAllItems = async (): Promise<Item[]> => {
         name: i.name,
         cost: i.cost || 0,
         flavorText: i.pokemon_v2_itemflavortexts?.[0]?.flavor_text || '',
-        imageUrl: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/${i.name}.png`
+        imageUrl: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/${i.name}.png`,
       };
       const validated = validateItem(itemData);
       if (validated) {
@@ -612,24 +663,26 @@ export const fetchAllItems = async (): Promise<Item[]> => {
     });
     return items;
   } catch (e) {
-    console.error("Failed to fetch items", e);
+    console.error('Failed to fetch items', e);
     return [];
   }
 };
 
 export const fetchPokemonDetails = async (id: number): Promise<PokemonDetails | null> => {
-  const data = await queryPokeAPI<GetPokemonDetailsQuery>(
-    getPokemonDetailsQuery,
-    { id }
-  );
+  const data = await queryPokeAPI<GetPokemonDetailsQuery>(getPokemonDetailsQuery, { id });
 
   const species = data.pokemon_v2_pokemonspecies[0];
   if (!species) return null;
 
-  const defaultPokemon = species.pokemon_v2_pokemons.find((p) => p.is_default) || species.pokemon_v2_pokemons[0];
+  const defaultPokemon =
+    species.pokemon_v2_pokemons.find((p) => p.is_default) || species.pokemon_v2_pokemons[0];
   if (!defaultPokemon) return null;
 
-  const flavorText = species?.pokemon_v2_pokemonspeciesflavortexts[0]?.flavor_text?.replace(FLAVOR_TEXT_SANITIZATION_REGEX, ' ') || 'No description available.';
+  const flavorText =
+    species?.pokemon_v2_pokemonspeciesflavortexts[0]?.flavor_text?.replace(
+      FLAVOR_TEXT_SANITIZATION_REGEX,
+      ' '
+    ) || 'No description available.';
 
   const moves: PokemonMove[] = (defaultPokemon.pokemon_v2_pokemonmoves || []).map((m) => ({
     name: m.pokemon_v2_move?.name?.replace(/-/g, ' ') || 'Unknown Move',
@@ -660,17 +713,25 @@ export const fetchPokemonDetails = async (id: number): Promise<PokemonDetails | 
       shinyImageUrl: shinyOfficialUrl,
       height: p.height,
       weight: p.weight,
-      stats: (p.pokemon_v2_pokemonstats || []).map((s) => ({ name: s.pokemon_v2_stat?.name || 'unknown', value: s.base_stat })),
-      abilities: (p.pokemon_v2_pokemonabilities || []).map((a) => ({ name: a.pokemon_v2_ability?.name || 'unknown' })),
-    }
+      stats: (p.pokemon_v2_pokemonstats || []).map((s) => ({
+        name: s.pokemon_v2_stat?.name || 'unknown',
+        value: s.base_stat,
+      })),
+      abilities: (p.pokemon_v2_pokemonabilities || []).map((a) => ({
+        name: a.pokemon_v2_ability?.name || 'unknown',
+      })),
+    };
   });
 
-  const defaultForm = forms.find(f => f.isDefault) || forms[0];
+  const defaultForm = forms.find((f) => f.isDefault) || forms[0];
 
   const {
-    showdownUrl, shinyShowdownUrl,
-    officialUrl, shinyOfficialUrl,
-    defaultUrl, shinyDefaultUrl
+    showdownUrl,
+    shinyShowdownUrl,
+    officialUrl,
+    shinyOfficialUrl,
+    defaultUrl,
+    shinyDefaultUrl,
   } = extractSpriteUrls(defaultPokemon.id, defaultPokemon.name);
 
   const spritesBlob = defaultPokemon.pokemon_v2_pokemonsprites?.[0]?.sprites;
@@ -689,45 +750,56 @@ export const fetchPokemonDetails = async (id: number): Promise<PokemonDetails | 
     stats: defaultForm.stats,
     abilities: defaultForm.abilities,
     genSprites: genSprites,
-    evolutionChain: species?.pokemon_v2_evolutionchain?.pokemon_v2_pokemonspecies?.map((e) => {
-      const { officialUrl: evoOfficial, defaultUrl: evoSprite } = extractSpriteUrls(e.id, e.name);
+    evolutionChain:
+      species?.pokemon_v2_evolutionchain?.pokemon_v2_pokemonspecies?.map((e) => {
+        const { officialUrl: evoOfficial, defaultUrl: evoSprite } = extractSpriteUrls(e.id, e.name);
 
-      // Extract evolution details
-      const evoDetails = e.pokemon_v2_pokemonevolutions[0];
-      let trigger = evoDetails?.pokemon_v2_evolutiontrigger?.name;
-      const minLevel = evoDetails?.min_level;
-      const item = evoDetails?.pokemon_v2_item?.name;
-      const heldItemId = evoDetails?.held_item_id;
-      const heldItem = heldItemId ? (EVOLUTION_ITEM_MAP[heldItemId] || `Item ${heldItemId}`) : undefined;
-      const timeOfDay = evoDetails?.time_of_day;
-      const knownMove = evoDetails?.pokemon_v2_move?.name;
-      const minHappiness = evoDetails?.min_happiness;
-      const location = evoDetails?.pokemon_v2_location?.name;
+        // Extract evolution details
+        const evoDetails = e.pokemon_v2_pokemonevolutions[0];
+        let trigger = evoDetails?.pokemon_v2_evolutiontrigger?.name;
+        const minLevel = evoDetails?.min_level;
+        const item = evoDetails?.pokemon_v2_item?.name;
+        const heldItemId = evoDetails?.held_item_id;
+        const heldItem = heldItemId
+          ? EVOLUTION_ITEM_MAP[heldItemId] || `Item ${heldItemId}`
+          : undefined;
+        const timeOfDay = evoDetails?.time_of_day;
+        const knownMove = evoDetails?.pokemon_v2_move?.name;
+        const minHappiness = evoDetails?.min_happiness;
+        const location = evoDetails?.pokemon_v2_location?.name;
 
-      if (trigger === 'level-up' && !minLevel && !minHappiness && !knownMove && !location && !timeOfDay && !heldItemId) {
-        // Sometimes level-up is default but condition is hidden or it's base form
-        if (e.id !== species.pokemon_v2_evolutionchain.pokemon_v2_pokemonspecies[0].id) {
-          trigger = 'Special Condition';
-        } else {
-          trigger = undefined; // Base form
+        if (
+          trigger === 'level-up' &&
+          !minLevel &&
+          !minHappiness &&
+          !knownMove &&
+          !location &&
+          !timeOfDay &&
+          !heldItemId
+        ) {
+          // Sometimes level-up is default but condition is hidden or it's base form
+          if (e.id !== species.pokemon_v2_evolutionchain.pokemon_v2_pokemonspecies[0].id) {
+            trigger = 'Special Condition';
+          } else {
+            trigger = undefined; // Base form
+          }
         }
-      }
 
-      return {
-        id: e.id,
-        name: e.name,
-        imageUrl: evoOfficial || evoSprite,
-        trigger: trigger?.replace(/-/g, ' '),
-        minLevel: minLevel,
-        item: item?.replace(/-/g, ' '),
-        heldItem: heldItem,
-        timeOfDay: timeOfDay,
-        knownMove: knownMove?.replace(/-/g, ' '),
-        minHappiness: minHappiness,
-        location: location?.replace(/-/g, ' '),
-        evolvesFromId: e.evolves_from_species_id
-      };
-    }) || [],
+        return {
+          id: e.id,
+          name: e.name,
+          imageUrl: evoOfficial || evoSprite,
+          trigger: trigger?.replace(/-/g, ' '),
+          minLevel: minLevel,
+          item: item?.replace(/-/g, ' '),
+          heldItem: heldItem,
+          timeOfDay: timeOfDay,
+          knownMove: knownMove?.replace(/-/g, ' '),
+          minHappiness: minHappiness,
+          location: location?.replace(/-/g, ' '),
+          evolvesFromId: e.evolves_from_species_id,
+        };
+      }) || [],
     color: species?.pokemon_v2_pokemoncolor?.name || 'gray',
     habitat: species?.pokemon_v2_pokemonhabitat?.name || 'Unknown',
     captureRate: species?.capture_rate,
@@ -736,10 +808,12 @@ export const fetchPokemonDetails = async (id: number): Promise<PokemonDetails | 
     genus: species?.pokemon_v2_pokemonspeciesnames[0]?.genus || 'Unknown',
     flavorText: flavorText,
     weaknesses: [], // Will be calculated on the client
-    eggGroups: species?.pokemon_v2_pokemonegggroups?.map((g) => g.pokemon_v2_egggroup?.name || 'Unknown') || [],
+    eggGroups:
+      species?.pokemon_v2_pokemonegggroups?.map((g) => g.pokemon_v2_egggroup?.name || 'Unknown') ||
+      [],
     growthRate: species?.pokemon_v2_growthrate?.name?.replace(/-/g, ' ') || 'Unknown',
     shape: species?.pokemon_v2_pokemonshape?.name || 'Unknown',
     moves: moves,
-    forms: forms
+    forms: forms,
   };
 };

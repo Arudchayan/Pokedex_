@@ -6,7 +6,7 @@ import { PokemonMove } from '../../types';
 
 // Mock MoveList to avoid rendering complex children
 vi.mock('../../components/dex/MoveList', () => ({
-  default: () => <div data-testid="move-list-mock">Move List Content</div>
+  default: () => <div data-testid="move-list-mock">Move List Content</div>,
 }));
 
 const mockMoves: PokemonMove[] = [
@@ -20,21 +20,14 @@ const mockMoves: PokemonMove[] = [
     pp: 35,
     priority: 0,
     level: 1,
-    learnMethod: 'level up'
-  }
+    learnMethod: 'level up',
+  },
 ];
 
 describe('MovesSection Accessibility', () => {
   it('renders a button for toggling moves', () => {
     const onToggle = vi.fn();
-    render(
-      <MovesSection
-        theme="dark"
-        moves={mockMoves}
-        isExpanded={false}
-        onToggle={onToggle}
-      />
-    );
+    render(<MovesSection theme="dark" moves={mockMoves} isExpanded={false} onToggle={onToggle} />);
 
     // This check confirms semantic button usage.
     // If it's a div with role="button", it might pass getByRole if accessible,
@@ -54,38 +47,19 @@ describe('MovesSection Accessibility', () => {
   it('displays aria-expanded state correctly', () => {
     const onToggle = vi.fn();
     const { rerender } = render(
-      <MovesSection
-        theme="dark"
-        moves={mockMoves}
-        isExpanded={false}
-        onToggle={onToggle}
-      />
+      <MovesSection theme="dark" moves={mockMoves} isExpanded={false} onToggle={onToggle} />
     );
 
     const button = screen.getByRole('button', { name: /moves/i });
     expect(button).toHaveAttribute('aria-expanded', 'false');
 
-    rerender(
-      <MovesSection
-        theme="dark"
-        moves={mockMoves}
-        isExpanded={true}
-        onToggle={onToggle}
-      />
-    );
+    rerender(<MovesSection theme="dark" moves={mockMoves} isExpanded={true} onToggle={onToggle} />);
     expect(button).toHaveAttribute('aria-expanded', 'true');
   });
 
   it('controls the moves list visibility', () => {
     const onToggle = vi.fn();
-    render(
-      <MovesSection
-        theme="dark"
-        moves={mockMoves}
-        isExpanded={true}
-        onToggle={onToggle}
-      />
-    );
+    render(<MovesSection theme="dark" moves={mockMoves} isExpanded={true} onToggle={onToggle} />);
 
     const button = screen.getByRole('button', { name: /moves/i });
     expect(button).toHaveAttribute('aria-controls', 'moves-list');

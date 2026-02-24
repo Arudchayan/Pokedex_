@@ -46,7 +46,6 @@ const PokemonCard: React.FC<PokemonCardProps> = ({
   const primaryType = pokemon.types[0];
   const typeColor = TYPE_COLORS_HEX[primaryType] || '#A8A878';
 
-
   useEffect(() => {
     setImgError(false);
     setImgLoaded(false);
@@ -54,26 +53,28 @@ const PokemonCard: React.FC<PokemonCardProps> = ({
 
   useEffect(() => {
     return () => {
-        if (cryTimeoutRef.current) {
-            clearTimeout(cryTimeoutRef.current);
-        }
+      if (cryTimeoutRef.current) {
+        clearTimeout(cryTimeoutRef.current);
+      }
     };
   }, []);
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (prefersReducedMotion || !cardRef.current) return;
-    
+
     const rect = cardRef.current.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
-    
+
     const centerX = rect.width / 2;
     const centerY = rect.height / 2;
-    
+
     const rotateY = ((x - centerX) / centerX) * 15;
     const rotateX = ((centerY - y) / centerY) * 15;
-    
-    setTiltTransform(`perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.05)`);
+
+    setTiltTransform(
+      `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.05)`
+    );
   };
 
   const handleMouseEnter = () => {
@@ -82,15 +83,15 @@ const PokemonCard: React.FC<PokemonCardProps> = ({
     // Debounce cry playback — only when audio is enabled
     if (isAudioEnabled()) {
       if (cryTimeoutRef.current) {
-          clearTimeout(cryTimeoutRef.current);
+        clearTimeout(cryTimeoutRef.current);
       }
       cryTimeoutRef.current = setTimeout(() => {
-          playPokemonCry(pokemon.id);
+        playPokemonCry(pokemon.id);
       }, 200);
     }
-    
+
     if (!prefersReducedMotion) {
-        setTiltTransform('perspective(1000px) rotateX(0deg) rotateY(0deg) scale(1.05)');
+      setTiltTransform('perspective(1000px) rotateX(0deg) rotateY(0deg) scale(1.05)');
     }
   };
 
@@ -99,8 +100,8 @@ const PokemonCard: React.FC<PokemonCardProps> = ({
 
     // Cancel pending cry if mouse leaves early
     if (cryTimeoutRef.current) {
-        clearTimeout(cryTimeoutRef.current);
-        cryTimeoutRef.current = null;
+      clearTimeout(cryTimeoutRef.current);
+      cryTimeoutRef.current = null;
     }
 
     setTiltTransform('');
@@ -148,11 +149,13 @@ const PokemonCard: React.FC<PokemonCardProps> = ({
       aria-label={`View details for ${pokemon.name}`}
       onKeyDown={handleKeyDown}
       className={`group relative overflow-visible rounded-xl border cursor-pointer ${
-        isCyberpunk 
+        isCyberpunk
           ? 'cyber-card cyber-card-glow'
           : isInTeam
             ? 'border-primary-400/60 ring-2 ring-primary-400/60'
-            : theme === 'dark' ? 'border-white/20' : 'border-slate-200'
+            : theme === 'dark'
+              ? 'border-white/20'
+              : 'border-slate-200'
       } ${isInTeam && isCyberpunk ? 'ring-2 ring-primary-400/60' : ''}`}
       style={
         {
@@ -166,15 +169,18 @@ const PokemonCard: React.FC<PokemonCardProps> = ({
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
-
       {/* Favorite Button */}
       {onToggleFavorite && (
         <button
           onClick={handleToggleFavorite}
-          title={isFavorite ? "Remove from favorites" : "Add to favorites"}
-          aria-label={isFavorite ? `Remove ${pokemon.name} from favorites` : `Add ${pokemon.name} to favorites`}
+          title={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
+          aria-label={
+            isFavorite
+              ? `Remove ${pokemon.name} from favorites`
+              : `Add ${pokemon.name} to favorites`
+          }
           className={`absolute top-3 right-3 z-10 p-1.5 rounded-full backdrop-blur-sm transition-all hover:scale-110 focus:outline-none focus:ring-2 focus:ring-primary-500 ${
-              theme === 'dark'
+            theme === 'dark'
               ? 'bg-black/40 hover:bg-black/60'
               : 'bg-white/60 hover:bg-white/80 shadow-sm'
           }`}
@@ -188,34 +194,48 @@ const PokemonCard: React.FC<PokemonCardProps> = ({
               <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
             </svg>
           ) : (
-            <svg className={`w-5 h-5 transition-colors ${theme === 'dark' ? 'text-slate-400 hover:text-yellow-400' : 'text-slate-400 hover:text-yellow-500'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
+            <svg
+              className={`w-5 h-5 transition-colors ${theme === 'dark' ? 'text-slate-400 hover:text-yellow-400' : 'text-slate-400 hover:text-yellow-500'}`}
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"
+              />
             </svg>
           )}
         </button>
       )}
 
       {/* Glow effect - Optimized to use CSS group-hover */}
-      <div 
+      <div
         className="absolute inset-0 rounded-xl opacity-0 group-hover:opacity-30 transition-opacity duration-500 blur-xl pointer-events-none"
         style={{ backgroundColor: typeColor }}
       />
 
       {/* Card content */}
-      <div className={`relative backdrop-blur-lg rounded-xl overflow-hidden ${
-          isCyberpunk 
-            ? 'bg-transparent' 
-            : theme === 'dark' 
-              ? 'bg-black/20' 
+      <div
+        className={`relative backdrop-blur-lg rounded-xl overflow-hidden ${
+          isCyberpunk
+            ? 'bg-transparent'
+            : theme === 'dark'
+              ? 'bg-black/20'
               : 'bg-white/80 shadow-sm'
-      }`}>
-        <div className={`p-4 flex justify-center items-center aspect-square relative bg-gradient-to-br ${
-            isCyberpunk 
-              ? 'from-cyan-500/5 via-transparent to-pink-500/5' 
-              : theme === 'dark' 
-                ? 'from-white/5 to-transparent' 
+        }`}
+      >
+        <div
+          className={`p-4 flex justify-center items-center aspect-square relative bg-gradient-to-br ${
+            isCyberpunk
+              ? 'from-cyan-500/5 via-transparent to-pink-500/5'
+              : theme === 'dark'
+                ? 'from-white/5 to-transparent'
                 : 'from-slate-100 to-transparent'
-        }`}>
+          }`}
+        >
           {!imgLoaded && (
             <Skeleton
               width="100%"
@@ -227,13 +247,14 @@ const PokemonCard: React.FC<PokemonCardProps> = ({
           )}
           <img
             src={(() => {
-              const fallback = (isShiny || isHovered)
-                ? `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/${pokemon.id}.png`
-                : `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokemon.id}.png`;
+              const fallback =
+                isShiny || isHovered
+                  ? `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/${pokemon.id}.png`
+                  : `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokemon.id}.png`;
 
               if (imgError) return fallback;
 
-              const primary = (isShiny || isHovered) ? pokemon.shinyImageUrl : pokemon.imageUrl;
+              const primary = isShiny || isHovered ? pokemon.shinyImageUrl : pokemon.imageUrl;
               return primary || fallback;
             })()}
             onError={() => setImgError(true)}
@@ -242,34 +263,40 @@ const PokemonCard: React.FC<PokemonCardProps> = ({
             className={`w-full h-full object-contain drop-shadow-2xl pixelated transition-all duration-300 group-hover:scale-110 group-hover:drop-shadow-[0_0_30px_rgba(255,255,255,0.5)] ${!imgLoaded ? 'opacity-0' : 'opacity-100'}`}
             loading="lazy"
           />
-          
+
           {/* Animated background pattern - Optimized to use CSS group-hover opacity */}
           <div className="absolute inset-0 opacity-0 group-hover:opacity-10 pointer-events-none transition-opacity duration-300">
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent animate-shimmer" />
           </div>
         </div>
-        
-        <div className={`p-4 ${
-            isCyberpunk 
-              ? 'bg-black/50 border-t border-cyan-500/20' 
-              : theme === 'dark' 
-                ? 'bg-black/30' 
+
+        <div
+          className={`p-4 ${
+            isCyberpunk
+              ? 'bg-black/50 border-t border-cyan-500/20'
+              : theme === 'dark'
+                ? 'bg-black/30'
                 : 'bg-white/50'
-        }`}>
-          <p className={`text-sm font-bold ${
-              isCyberpunk 
-                ? 'cyber-text opacity-70' 
-                : theme === 'dark' 
-                  ? 'text-slate-300' 
+          }`}
+        >
+          <p
+            className={`text-sm font-bold ${
+              isCyberpunk
+                ? 'cyber-text opacity-70'
+                : theme === 'dark'
+                  ? 'text-slate-300'
                   : 'text-slate-500'
-          }`}>#{String(pokemon.id).padStart(4, '0')}</p>
-          <h3 className={`text-xl font-bold capitalize mb-2 truncate ${
-              isCyberpunk 
-                ? 'cyber-text-pink' 
-                : theme === 'dark' 
-                  ? 'text-white' 
-                  : 'text-slate-800'
-          }`}>{pokemon.name}</h3>
+            }`}
+          >
+            #{String(pokemon.id).padStart(4, '0')}
+          </p>
+          <h3
+            className={`text-xl font-bold capitalize mb-2 truncate ${
+              isCyberpunk ? 'cyber-text-pink' : theme === 'dark' ? 'text-white' : 'text-slate-800'
+            }`}
+          >
+            {pokemon.name}
+          </h3>
           <div className="flex gap-2 flex-wrap">
             {pokemon.types.map((type) => (
               <TypeBadge key={type} type={type} />

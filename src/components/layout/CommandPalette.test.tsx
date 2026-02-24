@@ -28,7 +28,7 @@ vi.mock('../../store/usePokemonStore', () => {
     masterPokemonList: [
       { id: 1, name: 'Bulbasaur', imageUrl: 'bulb.png', nameLower: 'bulbasaur' },
       { id: 25, name: 'Pikachu', imageUrl: 'pika.png', nameLower: 'pikachu' },
-      { id: 150, name: 'Mewtwo', imageUrl: 'mewtwo.png', nameLower: 'mewtwo' }
+      { id: 150, name: 'Mewtwo', imageUrl: 'mewtwo.png', nameLower: 'mewtwo' },
     ],
     toggleTheme: vi.fn(),
   };
@@ -73,7 +73,9 @@ describe('CommandPalette', () => {
     const onClose = vi.fn();
     render(<CommandPalette isOpen={true} onClose={onClose} controller={mockController} />);
 
-    fireEvent.change(screen.getByPlaceholderText('Type a command or search...'), { target: { value: 'Random' } });
+    fireEvent.change(screen.getByPlaceholderText('Type a command or search...'), {
+      target: { value: 'Random' },
+    });
     fireEvent.click(screen.getByText('Random Pokemon'));
 
     expect(mockController.handleRandomPokemon).toHaveBeenCalled();

@@ -9,4 +9,3 @@ export function onWalkersSettingsChanged(handler: () => void) {
   window.addEventListener(EVENT_NAME, listener);
   return () => window.removeEventListener(EVENT_NAME, listener);
 }
-

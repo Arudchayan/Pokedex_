@@ -1,15 +1,30 @@
 /**
  * Design System: Theme Management
- * 
+ *
  * Utilities for managing theme switching and accessing design tokens
  * All visual tokens are in design-tokens.css - this file only handles logic
  */
 
 export type Theme = 'light' | 'dark' | 'cyberpunk';
-export type PokemonType = 
-  | 'normal' | 'fire' | 'water' | 'electric' | 'grass' | 'ice'
-  | 'fighting' | 'poison' | 'ground' | 'flying' | 'psychic' | 'bug'
-  | 'rock' | 'ghost' | 'dragon' | 'dark' | 'steel' | 'fairy';
+export type PokemonType =
+  | 'normal'
+  | 'fire'
+  | 'water'
+  | 'electric'
+  | 'grass'
+  | 'ice'
+  | 'fighting'
+  | 'poison'
+  | 'ground'
+  | 'flying'
+  | 'psychic'
+  | 'bug'
+  | 'rock'
+  | 'ghost'
+  | 'dragon'
+  | 'dark'
+  | 'steel'
+  | 'fairy';
 
 export type RarityLevel = 'common' | 'uncommon' | 'rare' | 'legendary' | 'mythical';
 
@@ -34,12 +49,12 @@ export const setTheme = (theme: Theme): void => {
  */
 export const initTheme = (): void => {
   const savedTheme = localStorage.getItem('pokedex-theme') as Theme;
-  
+
   if (savedTheme) {
     setTheme(savedTheme);
     return;
   }
-  
+
   // Check system preference for dark mode
   const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
   setTheme(prefersDark ? 'dark' : 'light');
@@ -84,9 +99,24 @@ export const getTypeGradientClass = (type: string): string => {
  */
 export const isValidPokemonType = (type: string): type is PokemonType => {
   const validTypes: PokemonType[] = [
-    'normal', 'fire', 'water', 'electric', 'grass', 'ice',
-    'fighting', 'poison', 'ground', 'flying', 'psychic', 'bug',
-    'rock', 'ghost', 'dragon', 'dark', 'steel', 'fairy'
+    'normal',
+    'fire',
+    'water',
+    'electric',
+    'grass',
+    'ice',
+    'fighting',
+    'poison',
+    'ground',
+    'flying',
+    'psychic',
+    'bug',
+    'rock',
+    'ghost',
+    'dragon',
+    'dark',
+    'steel',
+    'fairy',
   ];
   return validTypes.includes(type.toLowerCase() as PokemonType);
 };
@@ -110,7 +140,10 @@ export const getElevationClass = (level: 0 | 1 | 2 | 3 | 4 | 5): string => {
 /**
  * Get glow effect class for rarity
  */
-export const getRarityGlowClass = (rarity: RarityLevel, size: 'sm' | 'md' | 'lg' = 'md'): string => {
+export const getRarityGlowClass = (
+  rarity: RarityLevel,
+  size: 'sm' | 'md' | 'lg' = 'md'
+): string => {
   return `glow-${rarity}-${size}`;
 };
 
@@ -130,14 +163,33 @@ export const VERSION = '2.0.0';
  * Export all Pokemon types as a constant array
  */
 export const POKEMON_TYPES: readonly PokemonType[] = [
-  'normal', 'fire', 'water', 'electric', 'grass', 'ice',
-  'fighting', 'poison', 'ground', 'flying', 'psychic', 'bug',
-  'rock', 'ghost', 'dragon', 'dark', 'steel', 'fairy'
+  'normal',
+  'fire',
+  'water',
+  'electric',
+  'grass',
+  'ice',
+  'fighting',
+  'poison',
+  'ground',
+  'flying',
+  'psychic',
+  'bug',
+  'rock',
+  'ghost',
+  'dragon',
+  'dark',
+  'steel',
+  'fairy',
 ] as const;
 
 /**
  * Export rarity levels
  */
 export const RARITY_LEVELS: readonly RarityLevel[] = [
-  'common', 'uncommon', 'rare', 'legendary', 'mythical'
+  'common',
+  'uncommon',
+  'rare',
+  'legendary',
+  'mythical',
 ] as const;

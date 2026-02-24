@@ -19,13 +19,13 @@ const TestComponent = () => {
       types: ['normal'],
       flavorText: '',
       stats: [],
-      abilities: []
+      abilities: [],
     };
     usePokemonStore.getState().addToTeam(newPokemon);
   };
 
   const clearTeam = () => {
-      usePokemonStore.getState().clearTeam();
+    usePokemonStore.getState().clearTeam();
   };
 
   return (
@@ -33,8 +33,12 @@ const TestComponent = () => {
       <div data-testid="team-count">{team.length}</div>
       <button onClick={addPokemon}>Add</button>
       <button onClick={clearTeam}>Clear</button>
-      <button onClick={undo} disabled={!canUndo}>Undo</button>
-      <button onClick={redo} disabled={!canRedo}>Redo</button>
+      <button onClick={undo} disabled={!canUndo}>
+        Undo
+      </button>
+      <button onClick={redo} disabled={!canRedo}>
+        Redo
+      </button>
     </div>
   );
 };
@@ -43,13 +47,13 @@ describe('Undo/Redo Functionality', () => {
   beforeEach(() => {
     localStorage.clear();
     usePokemonStore.setState({
-        team: [],
-        history: [],
-        future: [],
-        favorites: new Set(),
-        masterPokemonList: [],
-        loading: false,
-        error: null,
+      team: [],
+      history: [],
+      future: [],
+      favorites: new Set(),
+      masterPokemonList: [],
+      loading: false,
+      error: null,
     });
   });
 
@@ -82,19 +86,19 @@ describe('Undo/Redo Functionality', () => {
   });
 
   it('should handle clear team undo', async () => {
-      const user = userEvent.setup();
-      renderWithProvider(<TestComponent />);
+    const user = userEvent.setup();
+    renderWithProvider(<TestComponent />);
 
-      // Add Pokemon
-      await user.click(screen.getByText('Add'));
-      expect(screen.getByTestId('team-count')).toHaveTextContent('1');
+    // Add Pokemon
+    await user.click(screen.getByText('Add'));
+    expect(screen.getByTestId('team-count')).toHaveTextContent('1');
 
-      // Clear Team
-      await user.click(screen.getByText('Clear'));
-      expect(screen.getByTestId('team-count')).toHaveTextContent('0');
+    // Clear Team
+    await user.click(screen.getByText('Clear'));
+    expect(screen.getByTestId('team-count')).toHaveTextContent('0');
 
-      // Undo Clear
-      await user.click(screen.getByText('Undo'));
-      expect(screen.getByTestId('team-count')).toHaveTextContent('1');
+    // Undo Clear
+    await user.click(screen.getByText('Undo'));
+    expect(screen.getByTestId('team-count')).toHaveTextContent('1');
   });
 });

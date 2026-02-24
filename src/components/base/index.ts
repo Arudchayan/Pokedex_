@@ -11,5 +11,10 @@ export type { ButtonProps, ButtonVariant, ButtonSize, IconPosition } from './But
 export { default as Modal } from './Modal';
 export type { ModalProps } from './Modal';
 
-export { PokemonCardSkeleton, PokemonDetailSkeleton, CalculatorSkeleton, PokemonGridSkeleton } from './SkeletonComposites';
+export {
+  PokemonCardSkeleton,
+  PokemonDetailSkeleton,
+  CalculatorSkeleton,
+  PokemonGridSkeleton,
+} from './SkeletonComposites';
 export type { PokemonGridSkeletonProps } from './SkeletonComposites';

@@ -14,12 +14,12 @@ describe('TeamMemberEditor', () => {
     types: ['grass', 'poison'],
     flavorText: '',
     stats: [
-        { name: 'hp', value: 45 },
-        { name: 'attack', value: 49 },
-        { name: 'defense', value: 49 },
-        { name: 'special-attack', value: 65 },
-        { name: 'special-defense', value: 65 },
-        { name: 'speed', value: 45 }
+      { name: 'hp', value: 45 },
+      { name: 'attack', value: 49 },
+      { name: 'defense', value: 49 },
+      { name: 'special-attack', value: 65 },
+      { name: 'special-defense', value: 65 },
+      { name: 'speed', value: 45 },
     ],
   };
 
@@ -29,12 +29,7 @@ describe('TeamMemberEditor', () => {
   it('renders stats tab with accessible inputs', async () => {
     setPokeapiServiceMock();
     renderWithProvider(
-      <TeamMemberEditor
-        member={mockMember}
-        onClose={onClose}
-        onSave={onSave}
-        theme="dark"
-      />
+      <TeamMemberEditor member={mockMember} onClose={onClose} onSave={onSave} theme="dark" />
     );
 
     // Wait for data to load

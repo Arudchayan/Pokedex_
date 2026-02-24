@@ -10,7 +10,13 @@ interface MovesSectionProps {
   onOpenMoveDex?: (search?: string) => void;
 }
 
-const MovesSection: React.FC<MovesSectionProps> = ({ theme, moves, isExpanded, onToggle, onOpenMoveDex }) => (
+const MovesSection: React.FC<MovesSectionProps> = ({
+  theme,
+  moves,
+  isExpanded,
+  onToggle,
+  onOpenMoveDex,
+}) => (
   <div className="mt-8">
     <button
       type="button"
@@ -21,7 +27,9 @@ const MovesSection: React.FC<MovesSectionProps> = ({ theme, moves, isExpanded, o
       aria-expanded={isExpanded}
       aria-controls="moves-list"
     >
-      <h3 className={`text-xl font-bold ${theme === 'dark' ? 'text-primary-300' : 'text-primary-600'}`}>
+      <h3
+        className={`text-xl font-bold ${theme === 'dark' ? 'text-primary-300' : 'text-primary-600'}`}
+      >
         Moves
       </h3>
       <svg

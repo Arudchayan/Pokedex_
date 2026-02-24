@@ -16,7 +16,7 @@ const mockMoves: PokemonMove[] = [
     pp: 35,
     priority: 0,
     level: 1,
-    learnMethod: 'level up'
+    learnMethod: 'level up',
   },
   {
     name: 'ember',
@@ -28,8 +28,8 @@ const mockMoves: PokemonMove[] = [
     pp: 25,
     priority: 0,
     level: 1,
-    learnMethod: 'level up'
-  }
+    learnMethod: 'level up',
+  },
 ];
 
 describe('MoveList Stale Memoization Bug', () => {
@@ -50,7 +50,7 @@ describe('MoveList Stale Memoization Bug', () => {
 
     // We expect 'tackle' to disappear
     await waitFor(() => {
-        expect(screen.queryByText('tackle')).not.toBeInTheDocument();
+      expect(screen.queryByText('tackle')).not.toBeInTheDocument();
     });
 
     // 'ember' should still be there

@@ -69,44 +69,44 @@ describe('SortingControls', () => {
   });
 
   it('toggles sort order', async () => {
-      const onSortChange = vi.fn();
-      const onOrderChange = vi.fn();
-      const user = userEvent.setup();
+    const onSortChange = vi.fn();
+    const onOrderChange = vi.fn();
+    const user = userEvent.setup();
 
-      renderWithProvider(
-        <SortingControls
-          sortBy="id"
-          sortOrder="asc"
-          onSortChange={onSortChange}
-          onOrderChange={onOrderChange}
-        />
-      );
+    renderWithProvider(
+      <SortingControls
+        sortBy="id"
+        sortOrder="asc"
+        onSortChange={onSortChange}
+        onOrderChange={onOrderChange}
+      />
+    );
 
-      // We use getByRole here expecting we add aria-label, but initially we might fallback to title if needed or fail.
-      // Since we plan to add aria-label, let's look for it.
-      const orderButton = screen.getByRole('button', { name: /switch to descending sort/i });
-      await user.click(orderButton);
+    // We use getByRole here expecting we add aria-label, but initially we might fallback to title if needed or fail.
+    // Since we plan to add aria-label, let's look for it.
+    const orderButton = screen.getByRole('button', { name: /switch to descending sort/i });
+    await user.click(orderButton);
 
-      expect(onOrderChange).toHaveBeenCalledWith('desc');
-    });
+    expect(onOrderChange).toHaveBeenCalledWith('desc');
+  });
 
   it('changes sort via stats dropdown', async () => {
-      const onSortChange = vi.fn();
-      const onOrderChange = vi.fn();
-      const user = userEvent.setup();
+    const onSortChange = vi.fn();
+    const onOrderChange = vi.fn();
+    const user = userEvent.setup();
 
-      renderWithProvider(
-        <SortingControls
-          sortBy="id"
-          sortOrder="asc"
-          onSortChange={onSortChange}
-          onOrderChange={onOrderChange}
-        />
-      );
+    renderWithProvider(
+      <SortingControls
+        sortBy="id"
+        sortOrder="asc"
+        onSortChange={onSortChange}
+        onOrderChange={onOrderChange}
+      />
+    );
 
-      const select = screen.getByLabelText(/sort by stat/i);
-      await user.selectOptions(select, 'speed');
+    const select = screen.getByLabelText(/sort by stat/i);
+    await user.selectOptions(select, 'speed');
 
-      expect(onSortChange).toHaveBeenCalledWith('speed');
+    expect(onSortChange).toHaveBeenCalledWith('speed');
   });
 });

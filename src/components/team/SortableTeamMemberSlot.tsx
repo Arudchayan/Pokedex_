@@ -14,14 +14,9 @@ interface SortableTeamMemberSlotProps {
 }
 
 export const SortableTeamMemberSlot: React.FC<SortableTeamMemberSlotProps> = (props) => {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ id: props.member.id });
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id: props.member.id,
+  });
 
   const style: React.CSSProperties = {
     transform: CSS.Transform.toString(transform),

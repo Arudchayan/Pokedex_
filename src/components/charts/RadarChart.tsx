@@ -14,7 +14,13 @@ interface RadarChartProps {
   theme?: 'dark' | 'light';
 }
 
-const RadarChart: React.FC<RadarChartProps> = ({ datasets, maxValue = 255, width = 300, height = 300, theme = 'dark' }) => {
+const RadarChart: React.FC<RadarChartProps> = ({
+  datasets,
+  maxValue = 255,
+  width = 300,
+  height = 300,
+  theme = 'dark',
+}) => {
   const size = Math.min(width, height);
   const center = size / 2;
   const radius = size / 2 - 40; // More padding for labels
@@ -22,7 +28,7 @@ const RadarChart: React.FC<RadarChartProps> = ({ datasets, maxValue = 255, width
   if (datasets.length === 0) return null;
 
   // Assuming all datasets have the same stats structure, use the first one for axes
-  const statNames = datasets[0].stats.map(s => s.name);
+  const statNames = datasets[0].stats.map((s) => s.name);
   const numSides = statNames.length;
 
   const textColor = theme === 'dark' ? '#cbd5e1' : '#475569'; // slate-300 : slate-600
@@ -74,12 +80,14 @@ const RadarChart: React.FC<RadarChartProps> = ({ datasets, maxValue = 255, width
   });
 
   // Accessible description
-  const chartDescription = datasets.map(d => {
-    const statsStr = d.stats.map(s => `${s.name}: ${s.value}`).join(', ');
-    return `${d.label} stats: ${statsStr}`;
-  }).join('. ');
+  const chartDescription = datasets
+    .map((d) => {
+      const statsStr = d.stats.map((s) => `${s.name}: ${s.value}`).join(', ');
+      return `${d.label} stats: ${statsStr}`;
+    })
+    .join('. ');
 
-  const chartLabel = `Radar chart showing ${datasets.map(d => d.label).join(', ')}`;
+  const chartLabel = `Radar chart showing ${datasets.map((d) => d.label).join(', ')}`;
 
   return (
     <svg
@@ -94,13 +102,7 @@ const RadarChart: React.FC<RadarChartProps> = ({ datasets, maxValue = 255, width
 
       {/* Background web */}
       {backgroundCircles.map((path, i) => (
-        <path
-          key={`web-${i}`}
-          d={path}
-          fill="none"
-          stroke={lineColor}
-          strokeWidth="1"
-        />
+        <path key={`web-${i}`} d={path} fill="none" stroke={lineColor} strokeWidth="1" />
       ))}
 
       {/* Background lines */}
@@ -118,23 +120,23 @@ const RadarChart: React.FC<RadarChartProps> = ({ datasets, maxValue = 255, width
 
       {/* Datasets */}
       {datasets.map((dataset, idx) => {
-          const points = getPolygonPoints(dataset.stats);
-          const path = points.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ') + ' Z';
+        const points = getPolygonPoints(dataset.stats);
+        const path = points.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ') + ' Z';
 
-          return (
-              <g key={`dataset-${idx}`}>
-                  <path
-                      d={path}
-                      fill={dataset.color}
-                      fillOpacity="0.2"
-                      stroke={dataset.color}
-                      strokeWidth="2"
-                  />
-                  {points.map((p, i) => (
-                      <circle key={`pt-${idx}-${i}`} cx={p.x} cy={p.y} r="3" fill={dataset.color} />
-                  ))}
-              </g>
-          );
+        return (
+          <g key={`dataset-${idx}`}>
+            <path
+              d={path}
+              fill={dataset.color}
+              fillOpacity="0.2"
+              stroke={dataset.color}
+              strokeWidth="2"
+            />
+            {points.map((p, i) => (
+              <circle key={`pt-${idx}-${i}`} cx={p.x} cy={p.y} r="3" fill={dataset.color} />
+            ))}
+          </g>
+        );
       })}
 
       {/* Labels */}

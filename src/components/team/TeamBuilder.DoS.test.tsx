@@ -41,7 +41,7 @@ describe('TeamBuilder DoS Protection', () => {
     canRedo: true,
     onReorderTeam,
     onAddPokemon,
-    onAddToTeam
+    onAddToTeam,
   };
 
   afterEach(() => {
@@ -68,7 +68,7 @@ describe('TeamBuilder DoS Protection', () => {
     };
 
     fireEvent.drop(container, {
-      dataTransfer: mockDataTransfer
+      dataTransfer: mockDataTransfer,
     });
 
     // Expectation for security fix: JSON.parse should NOT be called

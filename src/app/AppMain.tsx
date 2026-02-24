@@ -60,7 +60,11 @@ export default function AppMain({ controller }: Props) {
   } = controller;
 
   return (
-    <main id="main-content" tabIndex={-1} className="mx-auto w-full max-w-7xl px-6 py-8 outline-none">
+    <main
+      id="main-content"
+      tabIndex={-1}
+      className="mx-auto w-full max-w-7xl px-6 py-8 outline-none"
+    >
       <div className="flex flex-col gap-8 lg:flex-row">
         <section className="flex-1 space-y-8">
           <div className="space-y-4">
@@ -76,9 +80,7 @@ export default function AppMain({ controller }: Props) {
               <div className="flex gap-4">
                 <div
                   className={`flex rounded-lg border p-1 ${
-                    theme === 'dark'
-                      ? 'bg-black/20 border-white/10'
-                      : 'bg-white border-slate-200'
+                    theme === 'dark' ? 'bg-black/20 border-white/10' : 'bg-white border-slate-200'
                   }`}
                   role="group"
                   aria-label="Pagination Mode"
@@ -137,9 +139,7 @@ export default function AppMain({ controller }: Props) {
 
                 <div
                   className={`flex rounded-lg border p-1 ${
-                    theme === 'dark'
-                      ? 'bg-black/20 border-white/10'
-                      : 'bg-white border-slate-200'
+                    theme === 'dark' ? 'bg-black/20 border-white/10' : 'bg-white border-slate-200'
                   }`}
                   role="group"
                   aria-label="View Mode"
@@ -224,11 +224,13 @@ export default function AppMain({ controller }: Props) {
           {loading ? (
             <PokemonGridSkeleton count={12} />
           ) : error ? (
-            <div className={`rounded-2xl border p-8 text-center ${
-              theme === 'dark'
-                ? 'border-red-500/30 bg-red-500/10 text-red-200'
-                : 'border-red-300 bg-red-50 text-red-700'
-            }`}>
+            <div
+              className={`rounded-2xl border p-8 text-center ${
+                theme === 'dark'
+                  ? 'border-red-500/30 bg-red-500/10 text-red-200'
+                  : 'border-red-300 bg-red-50 text-red-700'
+              }`}
+            >
               <p className="text-2xl font-bold">Oops! Something went wrong.</p>
               <p className="mt-2">{error}</p>
               <button
@@ -273,9 +275,11 @@ export default function AppMain({ controller }: Props) {
                   }`}
                 >
                   {/* Magnifying glass SVG illustration */}
-                  <div className={`mx-auto mb-5 flex h-20 w-20 items-center justify-center rounded-full ${
-                    theme === 'dark' ? 'bg-white/5' : 'bg-slate-100'
-                  }`}>
+                  <div
+                    className={`mx-auto mb-5 flex h-20 w-20 items-center justify-center rounded-full ${
+                      theme === 'dark' ? 'bg-white/5' : 'bg-slate-100'
+                    }`}
+                  >
                     <svg
                       className={`h-10 w-10 ${theme === 'dark' ? 'text-slate-500' : 'text-slate-400'}`}
                       fill="none"
@@ -296,10 +300,14 @@ export default function AppMain({ controller }: Props) {
                       />
                     </svg>
                   </div>
-                  <p className={`text-xl font-semibold ${theme === 'dark' ? 'text-slate-200' : 'text-slate-700'}`}>
+                  <p
+                    className={`text-xl font-semibold ${theme === 'dark' ? 'text-slate-200' : 'text-slate-700'}`}
+                  >
                     No Pokemon match your filters
                   </p>
-                  <p className={`mt-2 text-sm ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>
+                  <p
+                    className={`mt-2 text-sm ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}
+                  >
                     Try adjusting your search criteria or clear all filters to see every Pokemon.
                   </p>
                   <button
@@ -311,7 +319,13 @@ export default function AppMain({ controller }: Props) {
                         : 'bg-primary-50 text-primary-600 hover:bg-primary-100 border border-primary-200'
                     }`}
                   >
-                    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <svg
+                      className="h-4 w-4"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      strokeWidth={2}
+                    >
                       <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
                     </svg>
                     Clear Filters
@@ -341,7 +355,9 @@ export default function AppMain({ controller }: Props) {
                   }`}
                 >
                   {isCyberpunk ? 'PC Box:' : 'Showing'}{' '}
-                  <span className={`font-bold ${isCyberpunk ? 'cyber-text-pink' : 'text-primary-500'}`}>
+                  <span
+                    className={`font-bold ${isCyberpunk ? 'cyber-text-pink' : 'text-primary-500'}`}
+                  >
                     {filteredPokemon.length}
                   </span>{' '}
                   Pokemon {isCyberpunk ? 'found' : ''}

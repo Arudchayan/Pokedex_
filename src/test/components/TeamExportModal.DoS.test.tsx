@@ -18,13 +18,7 @@ describe('TeamExportModal DoS Prevention', () => {
   });
 
   it('enforces maxLength on import textarea to prevent DoS', () => {
-    renderWithProvider(
-      <TeamExportModal
-        isOpen={true}
-        onClose={() => {}}
-        team={[]}
-      />
-    );
+    renderWithProvider(<TeamExportModal isOpen={true} onClose={() => {}} team={[]} />);
 
     // Switch to Import tab
     const importTab = screen.getByRole('button', { name: 'Import' });

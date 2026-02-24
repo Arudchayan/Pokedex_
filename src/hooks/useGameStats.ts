@@ -38,20 +38,29 @@ export const useGameStats = (): GameStatsHook => {
   const allStats = usePokemonStore((s) => s.gameStats);
   const storeRecordResult = usePokemonStore((s) => s.recordGameResult);
 
-  const getStats = useCallback((gameId: string): GameStats => {
-    return allStats[gameId] || initialStats(gameId);
-  }, [allStats]);
+  const getStats = useCallback(
+    (gameId: string): GameStats => {
+      return allStats[gameId] || initialStats(gameId);
+    },
+    [allStats]
+  );
 
-  const hasPlayedToday = useCallback((gameId: string): boolean => {
-    const stats = allStats[gameId];
-    if (!stats || !stats.lastPlayedDate) return false;
-    return stats.lastPlayedDate === getTodayDateString();
-  }, [allStats]);
+  const hasPlayedToday = useCallback(
+    (gameId: string): boolean => {
+      const stats = allStats[gameId];
+      if (!stats || !stats.lastPlayedDate) return false;
+      return stats.lastPlayedDate === getTodayDateString();
+    },
+    [allStats]
+  );
 
-  const recordResult = useCallback((gameId: string, win: boolean) => {
-    // Delegate to Zustand store action — the reducer handles dedup and streak logic
-    storeRecordResult(gameId, win);
-  }, [storeRecordResult]);
+  const recordResult = useCallback(
+    (gameId: string, win: boolean) => {
+      // Delegate to Zustand store action — the reducer handles dedup and streak logic
+      storeRecordResult(gameId, win);
+    },
+    [storeRecordResult]
+  );
 
   return {
     stats: allStats,

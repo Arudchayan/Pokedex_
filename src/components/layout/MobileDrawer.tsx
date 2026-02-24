@@ -4,7 +4,11 @@ import { usePokemonUI } from '../../context/PokemonContext';
 import { usePokemonStore } from '../../store/usePokemonStore';
 import { useModalStore } from '../../store/useModalStore';
 import { useAchievements } from '../../context/AchievementContext';
-import { playUISound, toggleAudio as toggleAudioService, isAudioEnabled } from '../../services/soundService';
+import {
+  playUISound,
+  toggleAudio as toggleAudioService,
+  isAudioEnabled,
+} from '../../services/soundService';
 
 interface MobileDrawerProps {
   isOpen: boolean;
@@ -26,11 +30,7 @@ interface DrawerSection {
   items: DrawerItem[];
 }
 
-const MobileDrawer: React.FC<MobileDrawerProps> = ({
-  isOpen,
-  onClose,
-  onRandomPokemon,
-}) => {
+const MobileDrawer: React.FC<MobileDrawerProps> = ({ isOpen, onClose, onRandomPokemon }) => {
   const drawerRef = useRef<HTMLDivElement>(null);
   const firstItemRef = useRef<HTMLButtonElement>(null);
 
@@ -65,23 +65,25 @@ const MobileDrawer: React.FC<MobileDrawerProps> = ({
     openShinyCalc,
     openComparison,
     openAchievements,
-  } = useModalStore(useShallow((s) => ({
-    openMoveDex: s.openMoveDex,
-    openAbilityDex: s.openAbilityDex,
-    openItemDex: s.openItemDex,
-    openBreedingCalc: s.openBreedingCalc,
-    openCatchCalc: s.openCatchCalc,
-    openNatureChart: s.openNatureChart,
-    openTypeChart: s.openTypeChart,
-    openDataManagement: s.openDataManagement,
-    openWalkersSettings: s.openWalkersSettings,
-    openGameHub: s.openGameHub,
-    openBattleCalc: s.openBattleCalc,
-    openStatCalc: s.openStatCalc,
-    openShinyCalc: s.openShinyCalc,
-    openComparison: s.openComparison,
-    openAchievements: s.openAchievements,
-  })));
+  } = useModalStore(
+    useShallow((s) => ({
+      openMoveDex: s.openMoveDex,
+      openAbilityDex: s.openAbilityDex,
+      openItemDex: s.openItemDex,
+      openBreedingCalc: s.openBreedingCalc,
+      openCatchCalc: s.openCatchCalc,
+      openNatureChart: s.openNatureChart,
+      openTypeChart: s.openTypeChart,
+      openDataManagement: s.openDataManagement,
+      openWalkersSettings: s.openWalkersSettings,
+      openGameHub: s.openGameHub,
+      openBattleCalc: s.openBattleCalc,
+      openStatCalc: s.openStatCalc,
+      openShinyCalc: s.openShinyCalc,
+      openComparison: s.openComparison,
+      openAchievements: s.openAchievements,
+    }))
+  );
 
   // Achievement wrappers
   const handleToggleShiny = () => {
@@ -172,21 +174,21 @@ const MobileDrawer: React.FC<MobileDrawerProps> = ({
         { label: 'Nature Chart', icon: '📋', onClick: openNatureChart },
         { label: 'Type Chart', icon: '🔥', onClick: handleShowTypeChart },
         ...(comparisonListLength > 0
-          ? [{
-              label: `Compare (${comparisonListLength})`,
-              icon: '⚖️',
-              onClick: openComparison,
-              accent: 'primary' as string,
-              badge: comparisonListLength,
-            }]
+          ? [
+              {
+                label: `Compare (${comparisonListLength})`,
+                icon: '⚖️',
+                onClick: openComparison,
+                accent: 'primary' as string,
+                badge: comparisonListLength,
+              },
+            ]
           : []),
       ],
     },
     {
       title: 'Games',
-      items: [
-        { label: 'Game Hub', icon: '🎮', onClick: handleShowGameHub, accent: 'green' },
-      ],
+      items: [{ label: 'Game Hub', icon: '🎮', onClick: handleShowGameHub, accent: 'green' }],
     },
     {
       title: 'Settings',
@@ -262,11 +264,7 @@ const MobileDrawer: React.FC<MobileDrawerProps> = ({
   return (
     <>
       {/* Backdrop */}
-      <div
-        className={backdropClass}
-        onClick={onClose}
-        aria-hidden="true"
-      />
+      <div className={backdropClass} onClick={onClose} aria-hidden="true" />
 
       {/* Drawer panel */}
       <div
@@ -278,9 +276,11 @@ const MobileDrawer: React.FC<MobileDrawerProps> = ({
         aria-hidden={!isOpen}
       >
         {/* Header */}
-        <div className={`flex items-center justify-between px-4 py-4 border-b ${
-          isCyberpunk ? 'border-cyan-500/30' : isDark ? 'border-white/10' : 'border-slate-200'
-        }`}>
+        <div
+          className={`flex items-center justify-between px-4 py-4 border-b ${
+            isCyberpunk ? 'border-cyan-500/30' : isDark ? 'border-white/10' : 'border-slate-200'
+          }`}
+        >
           <div className="flex items-center gap-2">
             <img
               src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png"
@@ -288,9 +288,11 @@ const MobileDrawer: React.FC<MobileDrawerProps> = ({
               className="h-8 w-8"
               aria-hidden="true"
             />
-            <span className={`text-lg font-bold ${
-              isCyberpunk ? 'text-cyan-300' : isDark ? 'text-white' : 'text-slate-900'
-            }`}>
+            <span
+              className={`text-lg font-bold ${
+                isCyberpunk ? 'text-cyan-300' : isDark ? 'text-white' : 'text-slate-900'
+              }`}
+            >
               Pokédex
             </span>
           </div>
@@ -298,12 +300,25 @@ const MobileDrawer: React.FC<MobileDrawerProps> = ({
             type="button"
             onClick={onClose}
             className={`p-2 rounded-lg transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 ${
-              isDark ? 'text-slate-400 hover:text-white hover:bg-white/10' : 'text-slate-500 hover:text-slate-900 hover:bg-slate-100'
+              isDark
+                ? 'text-slate-400 hover:text-white hover:bg-white/10'
+                : 'text-slate-500 hover:text-slate-900 hover:bg-slate-100'
             }`}
             aria-label="Close menu"
           >
-            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            <svg
+              className="w-5 h-5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              aria-hidden="true"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M6 18L18 6M6 6l12 12"
+              />
             </svg>
           </button>
         </div>

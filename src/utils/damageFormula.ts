@@ -84,7 +84,14 @@ export const calculateDamage = (ctx: BattleContext): DamageResult => {
   const { attacker, defender, move } = ctx;
 
   if (move.power === 0) {
-      return { min: 0, max: 0, rolls: [], minPercent: 0, maxPercent: 0, modifiers: { typeEffectiveness: 0, stab: false, crit: false, item: 1, weather: 1 } };
+    return {
+      min: 0,
+      max: 0,
+      rolls: [],
+      minPercent: 0,
+      maxPercent: 0,
+      modifiers: { typeEffectiveness: 0, stab: false, crit: false, item: 1, weather: 1 },
+    };
   }
 
   const isSpecial = move.damageClass === 'special';
@@ -92,7 +99,7 @@ export const calculateDamage = (ctx: BattleContext): DamageResult => {
   const defenseStatName = isSpecial ? 'special-defense' : 'defense';
 
   // Calculate Attacker's Attack Stat
-  const baseAttack = attacker.stats.find(s => s.name === attackStatName)?.value || 0;
+  const baseAttack = attacker.stats.find((s) => s.name === attackStatName)?.value || 0;
   let A = calculateStat(
     attackStatName,
     baseAttack,
@@ -104,15 +111,19 @@ export const calculateDamage = (ctx: BattleContext): DamageResult => {
 
   // Apply Attacker Item Modifiers to Stat (Choice Band/Specs)
   if (attacker.item === 'Choice Band' && attackStatName === 'attack') A = Math.floor(A * 1.5);
-  if (attacker.item === 'Choice Specs' && attackStatName === 'special-attack') A = Math.floor(A * 1.5);
+  if (attacker.item === 'Choice Specs' && attackStatName === 'special-attack')
+    A = Math.floor(A * 1.5);
 
   // Apply Ability Modifiers to Stat
-  if ((attacker.ability === 'Huge Power' || attacker.ability === 'Pure Power') && attackStatName === 'attack') {
+  if (
+    (attacker.ability === 'Huge Power' || attacker.ability === 'Pure Power') &&
+    attackStatName === 'attack'
+  ) {
     A = Math.floor(A * 2);
   }
 
   // Calculate Defender's Defense Stat
-  const baseDefense = defender.stats.find(s => s.name === defenseStatName)?.value || 0;
+  const baseDefense = defender.stats.find((s) => s.name === defenseStatName)?.value || 0;
   const D = calculateStat(
     defenseStatName,
     baseDefense,
@@ -125,7 +136,6 @@ export const calculateDamage = (ctx: BattleContext): DamageResult => {
   // Apply Defender Item Modifiers to Stat (Eviolite - not implemented yet but placeholder logic)
   // if (defender.item === 'Eviolite' && ...) D = Math.floor(D * 1.5);
 
-
   // Apply Technician (Base Power Modifier)
   let movePower = move.power;
   if (attacker.ability === 'Technician' && movePower <= 60) {
@@ -134,7 +144,8 @@ export const calculateDamage = (ctx: BattleContext): DamageResult => {
 
   // Calculate Base Damage
   // Damage = ((((2 * Level / 5 + 2) * Power * A / D) / 50) + 2) * Modifier
-  let damage = Math.floor(Math.floor(Math.floor(2 * attacker.level / 5 + 2) * movePower * A / D) / 50) + 2;
+  let damage =
+    Math.floor(Math.floor((Math.floor((2 * attacker.level) / 5 + 2) * movePower * A) / D) / 50) + 2;
 
   // Apply Modifiers
 
@@ -147,28 +158,40 @@ export const calculateDamage = (ctx: BattleContext): DamageResult => {
   // 4. STAB
   const isStab = attacker.types.includes(move.type);
   if (isStab) {
-      // Adaptability? Defaults to 1.5
-      damage = Math.floor(damage * 1.5);
+    // Adaptability? Defaults to 1.5
+    damage = Math.floor(damage * 1.5);
   }
 
   // 5. Type Effectiveness
   let typeMult = 1;
-  defender.types.forEach(defType => {
-      const mult = TYPE_RELATIONS[move.type]?.[defType];
-      if (mult !== undefined) typeMult *= mult;
+  defender.types.forEach((defType) => {
+    const mult = TYPE_RELATIONS[move.type]?.[defType];
+    if (mult !== undefined) typeMult *= mult;
   });
 
   // Ability Immunities
   if (defender.ability === 'Levitate' && move.type === 'ground') typeMult = 0;
   if (defender.ability === 'Flash Fire' && move.type === 'fire') typeMult = 0;
-  if ((defender.ability === 'Volt Absorb' || defender.ability === 'Motor Drive' || defender.ability === 'Lightning Rod') && move.type === 'electric') typeMult = 0;
-  if ((defender.ability === 'Water Absorb' || defender.ability === 'Dry Skin' || defender.ability === 'Storm Drain') && move.type === 'water') typeMult = 0;
+  if (
+    (defender.ability === 'Volt Absorb' ||
+      defender.ability === 'Motor Drive' ||
+      defender.ability === 'Lightning Rod') &&
+    move.type === 'electric'
+  )
+    typeMult = 0;
+  if (
+    (defender.ability === 'Water Absorb' ||
+      defender.ability === 'Dry Skin' ||
+      defender.ability === 'Storm Drain') &&
+    move.type === 'water'
+  )
+    typeMult = 0;
   if (defender.ability === 'Sap Sipper' && move.type === 'grass') typeMult = 0;
   if (defender.ability === 'Wonder Guard' && typeMult <= 1) typeMult = 0;
 
   // Tinted Lens
   if (attacker.ability === 'Tinted Lens' && typeMult < 1 && typeMult > 0) {
-      typeMult *= 2;
+    typeMult *= 2;
   }
 
   damage = Math.floor(damage * typeMult);
@@ -187,28 +210,35 @@ export const calculateDamage = (ctx: BattleContext): DamageResult => {
   // Calculate Range (0.85, 0.86, ..., 1.00) -> 16 rolls
   const rolls: number[] = [];
   for (let i = 85; i <= 100; i++) {
-      rolls.push(Math.floor(damage * i / 100));
+    rolls.push(Math.floor((damage * i) / 100));
   }
 
   const minDamage = rolls[0];
   const maxDamage = rolls[rolls.length - 1];
 
   // Calculate Defender HP
-  const hpBase = defender.stats.find(s => s.name === 'hp')?.value || 50;
-  const defenderHP = calculateStat('hp', hpBase, defender.ivs['hp'] ?? 31, defender.evs['hp'] ?? 0, defender.level, defender.nature);
+  const hpBase = defender.stats.find((s) => s.name === 'hp')?.value || 50;
+  const defenderHP = calculateStat(
+    'hp',
+    hpBase,
+    defender.ivs['hp'] ?? 31,
+    defender.evs['hp'] ?? 0,
+    defender.level,
+    defender.nature
+  );
 
   return {
     min: minDamage,
     max: maxDamage,
     rolls,
-    minPercent: Number((minDamage / defenderHP * 100).toFixed(1)),
-    maxPercent: Number((maxDamage / defenderHP * 100).toFixed(1)),
+    minPercent: Number(((minDamage / defenderHP) * 100).toFixed(1)),
+    maxPercent: Number(((maxDamage / defenderHP) * 100).toFixed(1)),
     modifiers: {
-        typeEffectiveness: typeMult,
-        stab: isStab,
-        crit: false,
-        item: otherMult,
-        weather: 1
-    }
+      typeEffectiveness: typeMult,
+      stab: isStab,
+      crit: false,
+      item: otherMult,
+      weather: 1,
+    },
   };
 };

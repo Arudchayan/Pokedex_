@@ -51,7 +51,7 @@ describe('ScrollToTop', () => {
         behavior: 'smooth',
       });
     } else {
-        throw new Error('Button should be visible');
+      throw new Error('Button should be visible');
     }
   });
 

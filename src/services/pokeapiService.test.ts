@@ -2,14 +2,12 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { fetchPokemonDetails, fetchAllPokemons } from './pokeapiService';
 
 const mockFetchResponse = (data: unknown) => {
-  (globalThis.fetch as ReturnType<typeof vi.fn>) = vi
-    .fn()
-    .mockResolvedValue(
-      new Response(JSON.stringify({ data }), {
-        status: 200,
-        headers: { 'Content-Type': 'application/json' },
-      })
-    );
+  (globalThis.fetch as ReturnType<typeof vi.fn>) = vi.fn().mockResolvedValue(
+    new Response(JSON.stringify({ data }), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' },
+    })
+  );
 };
 
 const makePokemon = (overrides: Record<string, unknown>) => ({
@@ -43,12 +41,8 @@ const makePokemon = (overrides: Record<string, unknown>) => ({
     },
   ],
   pokemon_v2_pokemontypes: [{ pokemon_v2_type: { name: 'grass' } }],
-  pokemon_v2_pokemonstats: [
-    { base_stat: 50, pokemon_v2_stat: { name: 'hp' } },
-  ],
-  pokemon_v2_pokemonabilities: [
-    { pokemon_v2_ability: { name: 'overgrow' } },
-  ],
+  pokemon_v2_pokemonstats: [{ base_stat: 50, pokemon_v2_stat: { name: 'hp' } }],
+  pokemon_v2_pokemonabilities: [{ pokemon_v2_ability: { name: 'overgrow' } }],
   pokemon_v2_pokemonmoves: [],
   ...overrides,
 });
@@ -64,15 +58,11 @@ const makeSpecies = (overrides: Record<string, unknown>) => ({
   pokemon_v2_pokemonspeciesnames: [{ genus: 'Seed Pokemon' }],
   pokemon_v2_growthrate: { name: 'medium-slow' },
   pokemon_v2_pokemonshape: { name: 'quadruped' },
-  pokemon_v2_pokemonegggroups: [
-    { pokemon_v2_egggroup: { name: 'monster' } },
-  ],
+  pokemon_v2_pokemonegggroups: [{ pokemon_v2_egggroup: { name: 'monster' } }],
   pokemon_v2_evolutionchain: {
     pokemon_v2_pokemonspecies: [],
   },
-  pokemon_v2_pokemonspeciesflavortexts: [
-    { flavor_text: 'A test pokemon.' },
-  ],
+  pokemon_v2_pokemonspeciesflavortexts: [{ flavor_text: 'A test pokemon.' }],
   pokemon_v2_pokemons: [],
   ...overrides,
 });
@@ -99,8 +89,10 @@ describe('pokeapiService transformations', () => {
 
     const result = await fetchPokemonDetails(25);
 
-    const genericOfficial = 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/25.png';
-    const genericShinyOfficial = 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/shiny/25.png';
+    const genericOfficial =
+      'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/25.png';
+    const genericShinyOfficial =
+      'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/shiny/25.png';
     const showdown = 'https://play.pokemonshowdown.com/sprites/ani/pikachu.gif';
     const shinyShowdown = 'https://play.pokemonshowdown.com/sprites/ani-shiny/pikachu.gif';
 
@@ -148,9 +140,7 @@ describe('pokeapiService transformations', () => {
       id: 100,
       name: 'base',
       evolves_from_species_id: null,
-      pokemon_v2_pokemons: [
-        { pokemon_v2_pokemonsprites: [{ sprites: undefined }] },
-      ],
+      pokemon_v2_pokemons: [{ pokemon_v2_pokemonsprites: [{ sprites: undefined }] }],
       pokemon_v2_pokemonevolutions: [
         {
           min_level: null,
@@ -168,9 +158,7 @@ describe('pokeapiService transformations', () => {
       id: 101,
       name: 'evolved',
       evolves_from_species_id: 100,
-      pokemon_v2_pokemons: [
-        { pokemon_v2_pokemonsprites: [{ sprites: undefined }] },
-      ],
+      pokemon_v2_pokemons: [{ pokemon_v2_pokemonsprites: [{ sprites: undefined }] }],
       pokemon_v2_pokemonevolutions: [
         {
           min_level: null,

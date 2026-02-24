@@ -12,9 +12,33 @@ vi.mock('../../services/soundService', () => ({
 
 // Mock PokemonContext
 const mockMasterList = [
-  { id: 1, name: 'bulbasaur', nameLower: 'bulbasaur', imageUrl: 'url', types: ['grass'], eggGroups: ['monster'], genderRate: 1 },
-  { id: 4, name: 'charmander', nameLower: 'charmander', imageUrl: 'url', types: ['fire'], eggGroups: ['monster'], genderRate: 1 },
-  { id: 25, name: 'pikachu', nameLower: 'pikachu', imageUrl: 'url', types: ['electric'], eggGroups: ['field'], genderRate: 1 },
+  {
+    id: 1,
+    name: 'bulbasaur',
+    nameLower: 'bulbasaur',
+    imageUrl: 'url',
+    types: ['grass'],
+    eggGroups: ['monster'],
+    genderRate: 1,
+  },
+  {
+    id: 4,
+    name: 'charmander',
+    nameLower: 'charmander',
+    imageUrl: 'url',
+    types: ['fire'],
+    eggGroups: ['monster'],
+    genderRate: 1,
+  },
+  {
+    id: 25,
+    name: 'pikachu',
+    nameLower: 'pikachu',
+    imageUrl: 'url',
+    types: ['electric'],
+    eggGroups: ['field'],
+    genderRate: 1,
+  },
 ];
 
 vi.mock('../../context/PokemonContext', async () => {
@@ -47,7 +71,7 @@ describe('BreedingCalculator', () => {
 
     // Expect Bulbasaur to appear
     await waitFor(() => {
-        expect(screen.getByText('bulbasaur')).toBeInTheDocument();
+      expect(screen.getByText('bulbasaur')).toBeInTheDocument();
     });
 
     // Expect Charmander NOT to appear

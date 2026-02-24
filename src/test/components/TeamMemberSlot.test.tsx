@@ -21,7 +21,7 @@ describe('TeamMemberSlot', () => {
     selectedAbility: '',
     selectedMoves: [],
     level: 50,
-    abilities: []
+    abilities: [],
   };
 
   const defaultProps = {
@@ -37,24 +37,27 @@ describe('TeamMemberSlot', () => {
     render(<TeamMemberSlot {...defaultProps} />);
     const handle = screen.getByTitle('Drag to reorder');
     expect(handle).toBeInTheDocument();
-    expect(handle).toHaveAttribute('aria-label', expect.stringContaining('Reorder bulbasaur. Position 2.'));
+    expect(handle).toHaveAttribute(
+      'aria-label',
+      expect.stringContaining('Reorder bulbasaur. Position 2.')
+    );
   });
 
   it('renders with correct classes when dragging', () => {
-     render(<TeamMemberSlot {...defaultProps} isDragging={true} />);
-     // The component is an <article>
-     // Note: screen.getByRole('article') might fail if implicit role isn't recognized, but article usually is.
-     // However, let's verify if 'article' role is standard. Yes it is.
-     // But testing-library sometimes prefers name.
-     // Let's use getByTitle('Drag to reorder').closest('article') or similar if needed.
-     // Or just verify className on what we have.
+    render(<TeamMemberSlot {...defaultProps} isDragging={true} />);
+    // The component is an <article>
+    // Note: screen.getByRole('article') might fail if implicit role isn't recognized, but article usually is.
+    // However, let's verify if 'article' role is standard. Yes it is.
+    // But testing-library sometimes prefers name.
+    // Let's use getByTitle('Drag to reorder').closest('article') or similar if needed.
+    // Or just verify className on what we have.
 
-     // Actually, let's just query by text to find the container or something unique.
-     // But wrapperRef is on the article.
+    // Actually, let's just query by text to find the container or something unique.
+    // But wrapperRef is on the article.
 
-     // Let's rely on class checking.
-     const image = screen.getByAltText('bulbasaur');
-     const article = image.closest('article');
-     expect(article).toHaveClass('opacity-40');
+    // Let's rely on class checking.
+    const image = screen.getByAltText('bulbasaur');
+    const article = image.closest('article');
+    expect(article).toHaveClass('opacity-40');
   });
 });

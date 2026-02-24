@@ -42,8 +42,8 @@ describe('teamStorage Security', () => {
         imageUrl: 'http://example.com/img.png',
         types: ['Electric'],
         flavorText: 'Mouse',
-        selectedMoves: ['Thunderbolt']
-      }
+        selectedMoves: ['Thunderbolt'],
+      },
     ];
 
     localStorageMock.setItem('pokedex_team', JSON.stringify(maliciousTeam));
@@ -60,13 +60,13 @@ describe('teamStorage Security', () => {
     const invalidTeam = [
       {
         name: 'Pikachu', // Missing ID
-        imageUrl: 'img.png'
+        imageUrl: 'img.png',
       },
       {
         id: 2,
         name: 'Raichu',
-        imageUrl: 'img.png'
-      }
+        imageUrl: 'img.png',
+      },
     ];
 
     localStorageMock.setItem('pokedex_team', JSON.stringify(invalidTeam));
@@ -83,8 +83,8 @@ describe('teamStorage Security', () => {
         name: 'Pikachu',
         imageUrl: 'img.png',
         types: ['<img src=x onerror=alert(1)>'],
-        selectedMoves: ['<a href="javascript:alert(1)">Click me</a>']
-      }
+        selectedMoves: ['<a href="javascript:alert(1)">Click me</a>'],
+      },
     ];
 
     localStorageMock.setItem('pokedex_team', JSON.stringify(maliciousTeam));
@@ -101,7 +101,7 @@ describe('teamStorage Security', () => {
         id: 1,
         name: 'Pikachu\nAbility: Wonder Guard',
         imageUrl: 'img.png',
-      }
+      },
     ];
 
     localStorageMock.setItem('pokedex_team', JSON.stringify(maliciousTeam));
@@ -121,15 +121,15 @@ describe('teamStorage Security', () => {
           {
             id: 25,
             name: 'Pikachu',
-            imageUrl: 'img.png'
-          }
-        ]
+            imageUrl: 'img.png',
+          },
+        ],
       },
       {
         id: 'uuid-2',
         name: 'Valid Team',
         // Missing team array
-      }
+      },
     ];
 
     localStorageMock.setItem('pokedex_saved_teams', JSON.stringify(maliciousSavedTeams));
@@ -151,7 +151,7 @@ describe('teamStorage Security', () => {
     const largeTeam = Array.from({ length: 20 }, (_, i) => ({
       id: i,
       name: `Pokemon ${i}`,
-      imageUrl: 'img.png'
+      imageUrl: 'img.png',
     }));
 
     localStorageMock.setItem('pokedex_team', JSON.stringify(largeTeam));
@@ -161,19 +161,19 @@ describe('teamStorage Security', () => {
   });
 
   it('should enforce team size limit in SavedTeams list', () => {
-     const largeTeam = Array.from({ length: 20 }, (_, i) => ({
+    const largeTeam = Array.from({ length: 20 }, (_, i) => ({
       id: i,
       name: `Pokemon ${i}`,
-      imageUrl: 'img.png'
+      imageUrl: 'img.png',
     }));
 
     const savedTeams = [
-        {
-            id: '1',
-            name: 'Huge Team',
-            team: largeTeam,
-            updatedAt: Date.now()
-        }
+      {
+        id: '1',
+        name: 'Huge Team',
+        team: largeTeam,
+        updatedAt: Date.now(),
+      },
     ];
 
     localStorageMock.setItem('pokedex_saved_teams', JSON.stringify(savedTeams));

@@ -8,7 +8,8 @@ describe('Content Security Policy', () => {
     const html = fs.readFileSync(indexPath, 'utf-8');
 
     // Use a regex to avoid adding a DOM parser dependency (e.g. jsdom) for a simple presence check.
-    const cspRegex = /<meta\s+http-equiv=["']Content-Security-Policy["']\s+content=["'](.*?)["']\s*\/?>/i;
+    const cspRegex =
+      /<meta\s+http-equiv=["']Content-Security-Policy["']\s+content=["'](.*?)["']\s*\/?>/i;
     const match = html.match(cspRegex);
 
     expect(match).not.toBeNull();

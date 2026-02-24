@@ -10,4 +10,3 @@ export type SortOption =
   | 'special-attack'
   | 'special-defense'
   | 'speed';
-

@@ -1,6 +1,6 @@
 /**
  * Design System: Color Tokens
- * 
+ *
  * Comprehensive color palette for the Pokedex app including:
  * - Status/semantic colors (success, warning, error, info)
  * - Pokemon type colors (all 18 types with proper contrast)

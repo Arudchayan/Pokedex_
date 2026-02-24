@@ -1,5 +1,5 @@
 query FetchMoves {
-  pokemon_v2_move(limit: 100, order_by: {id: asc}) {
+  pokemon_v2_move(limit: 100, order_by: { id: asc }) {
     id
     name
     power

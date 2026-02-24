@@ -58,19 +58,13 @@ export const useTeamController = () => {
     addToast('Team cleared', 'info');
   }, [addToast]);
 
-  const handleUpdateTeamMember = useCallback(
-    (id: number, updates: Partial<TeamMember>) => {
-      usePokemonStore.getState().updateTeamMember(id, updates);
-    },
-    []
-  );
+  const handleUpdateTeamMember = useCallback((id: number, updates: Partial<TeamMember>) => {
+    usePokemonStore.getState().updateTeamMember(id, updates);
+  }, []);
 
-  const handleLoadTeam = useCallback(
-    (loadedTeam: TeamMember[]) => {
-      usePokemonStore.getState().setTeam(loadedTeam);
-    },
-    []
-  );
+  const handleLoadTeam = useCallback((loadedTeam: TeamMember[]) => {
+    usePokemonStore.getState().setTeam(loadedTeam);
+  }, []);
 
   const handleRandomizeTeam = useCallback(() => {
     const emptySlots = TEAM_CAPACITY - team.length;
@@ -88,12 +82,9 @@ export const useTeamController = () => {
     });
   }, [TEAM_CAPACITY, team]);
 
-  const handleReorderTeam = useCallback(
-    (fromIndex: number, toIndex: number) => {
-      usePokemonStore.getState().reorderTeam(fromIndex, toIndex);
-    },
-    []
-  );
+  const handleReorderTeam = useCallback((fromIndex: number, toIndex: number) => {
+    usePokemonStore.getState().reorderTeam(fromIndex, toIndex);
+  }, []);
 
   return {
     teamIds,

@@ -3,12 +3,13 @@ import { usePokemonStore } from '../../store/usePokemonStore';
 import { PokemonListItem } from '../../types';
 
 describe('PokemonStore', () => {
-  const createPokemon = (id: number, name: string): PokemonListItem => ({
-    id,
-    name,
-    types: [],
-    imageUrl: '',
-  } as any);
+  const createPokemon = (id: number, name: string): PokemonListItem =>
+    ({
+      id,
+      name,
+      types: [],
+      imageUrl: '',
+    }) as any;
 
   beforeEach(() => {
     usePokemonStore.setState({

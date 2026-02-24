@@ -13,7 +13,10 @@ export interface PokemonFilterOptions {
   minBST?: number;
 }
 
-export const applyFilters = (pokemonList: PokemonListItem[], options: PokemonFilterOptions): PokemonListItem[] => {
+export const applyFilters = (
+  pokemonList: PokemonListItem[],
+  options: PokemonFilterOptions
+): PokemonListItem[] => {
   const searchTerm = options.searchTerm.trim().toLowerCase();
   const flavorSearch = options.flavorTextSearch.trim().toLowerCase();
   const abilitySearch = options.selectedAbility.trim().toLowerCase();
@@ -81,7 +84,9 @@ export const applyFilters = (pokemonList: PokemonListItem[], options: PokemonFil
           return false;
         }
       } else {
-        const matchesAbility = pokemon.abilities.some((ability) => ability.toLowerCase().includes(abilitySearch));
+        const matchesAbility = pokemon.abilities.some((ability) =>
+          ability.toLowerCase().includes(abilitySearch)
+        );
         if (!matchesAbility) {
           return false;
         }
@@ -144,4 +149,3 @@ export const applySort = (
 
 export const filterPokemonList = (pokemonList: PokemonListItem[], options: PokemonFilterOptions) =>
   applyFilters(pokemonList, options);
-

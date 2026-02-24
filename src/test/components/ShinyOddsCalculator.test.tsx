@@ -16,15 +16,13 @@ const renderWithProvider = (ui: React.ReactElement) => {
   });
   return render(
     <QueryClientProvider client={queryClient}>
-      <PokemonProvider>
-        {ui}
-      </PokemonProvider>
+      <PokemonProvider>{ui}</PokemonProvider>
     </QueryClientProvider>
   );
 };
 
 // Mock ScrollIntoView since it's not supported in JSDOM
-window.HTMLElement.prototype.scrollIntoView = function() {};
+window.HTMLElement.prototype.scrollIntoView = function () {};
 
 describe('ShinyOddsCalculator', () => {
   it('renders correctly', () => {

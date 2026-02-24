@@ -113,4 +113,3 @@ export interface ReducerContext {
   maxComparison: number;
   maxHistory: number;
 }
-

@@ -72,10 +72,7 @@ export function reducePokemonStoreTeam(
     case 'SET_TEAM': {
       const teamIds = action.payload.slice(0, ctx.teamCapacity).map((p) => p.id);
       // Cheap comparison for 0-6 numbers.
-      if (
-        teamIds.length === state.team.length &&
-        teamIds.every((id, i) => id === state.team[i])
-      ) {
+      if (teamIds.length === state.team.length && teamIds.every((id, i) => id === state.team[i])) {
         return state;
       }
       return {
@@ -109,4 +106,3 @@ export function reducePokemonStoreTeam(
       return undefined;
   }
 }
-

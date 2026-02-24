@@ -12,7 +12,7 @@ export interface OverviewTabProps {
 
 /**
  * OverviewTab Component
- * 
+ *
  * Displays basic Pokemon information including:
  * - Large Pokemon image
  * - Flavor text description
@@ -76,11 +76,7 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({
             {showShiny && (
               <div className="absolute top-4 right-4 z-20">
                 <div className="flex items-center gap-2 bg-yellow-500/20 backdrop-blur-sm border border-yellow-400/50 rounded-full px-3 py-1.5">
-                  <svg
-                    className="w-4 h-4 text-yellow-300"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                  >
+                  <svg className="w-4 h-4 text-yellow-300" fill="currentColor" viewBox="0 0 20 20">
                     <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                   </svg>
                   <span className="text-xs font-semibold text-yellow-200">Shiny</span>
@@ -92,9 +88,7 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({
           <p
             className={cn(
               'text-center italic p-4 rounded-lg leading-relaxed',
-              theme === 'dark'
-                ? 'text-slate-300 bg-black/10'
-                : 'text-slate-600 bg-slate-100'
+              theme === 'dark' ? 'text-slate-300 bg-black/10' : 'text-slate-600 bg-slate-100'
             )}
           >
             "{pokemon.flavorText}"
@@ -129,11 +123,7 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({
               />
               <InfoPill label="Color" value={pokemon.color} theme={theme} />
               <InfoPill label="Shape" value={pokemon.shape} theme={theme} />
-              <InfoPill
-                label="Habitat"
-                value={pokemon.habitat || 'Unknown'}
-                theme={theme}
-              />
+              <InfoPill label="Habitat" value={pokemon.habitat || 'Unknown'} theme={theme} />
               <InfoPill
                 label="Generation"
                 value={`Gen ${Math.ceil(pokemon.id / 151)}`}
@@ -163,26 +153,14 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({
 
           <DetailSection title="Training" theme={theme}>
             <div className="grid grid-cols-2 gap-3">
-              <InfoPill
-                label="Capture Rate"
-                value={`${pokemon.captureRate}`}
-                theme={theme}
-              />
-              <InfoPill
-                label="Base Happiness"
-                value={`${pokemon.baseHappiness}`}
-                theme={theme}
-              />
+              <InfoPill label="Capture Rate" value={`${pokemon.captureRate}`} theme={theme} />
+              <InfoPill label="Base Happiness" value={`${pokemon.baseHappiness}`} theme={theme} />
               <InfoPill
                 label="Growth Rate"
                 value={pokemon.growthRate.replace(/-/g, ' ')}
                 theme={theme}
               />
-              <InfoPill
-                label="EXP Yield"
-                value="~100"
-                theme={theme}
-              />
+              <InfoPill label="EXP Yield" value="~100" theme={theme} />
             </div>
           </DetailSection>
 
@@ -193,16 +171,8 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({
                 value={renderGenderInfo(pokemon.genderRate)}
                 theme={theme}
               />
-              <InfoPill
-                label="Egg Groups"
-                value={pokemon.eggGroups.join(', ')}
-                theme={theme}
-              />
-              <InfoPill
-                label="Egg Cycles"
-                value="~20"
-                theme={theme}
-              />
+              <InfoPill label="Egg Groups" value={pokemon.eggGroups.join(', ')} theme={theme} />
+              <InfoPill label="Egg Cycles" value="~20" theme={theme} />
             </div>
           </DetailSection>
         </div>

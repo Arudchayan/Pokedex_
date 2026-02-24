@@ -30,7 +30,7 @@ describe('SpeedTierAnalysis', () => {
       evs: { speed: 0 },
       selectedNature: 'Quiet', // +SpA -Spe
       selectedItem: 'Iron Ball', // x0.5
-    } as TeamMember
+    } as TeamMember,
   ];
 
   it('renders correctly with team members and benchmarks', () => {
@@ -45,7 +45,7 @@ describe('SpeedTierAnalysis', () => {
   });
 
   it('does not render if team is empty', () => {
-      const { container } = render(<SpeedTierAnalysis team={[]} theme="light" />);
-      expect(container).toBeEmptyDOMElement();
+    const { container } = render(<SpeedTierAnalysis team={[]} theme="light" />);
+    expect(container).toBeEmptyDOMElement();
   });
 });

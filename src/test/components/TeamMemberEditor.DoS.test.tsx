@@ -26,17 +26,12 @@ describe('TeamMemberEditor DoS Prevention', () => {
     const onClose = vi.fn();
 
     renderWithProvider(
-      <TeamMemberEditor
-        member={mockMember}
-        onClose={onClose}
-        onSave={onSave}
-        theme="light"
-      />
+      <TeamMemberEditor member={mockMember} onClose={onClose} onSave={onSave} theme="light" />
     );
 
     // Wait for data loading
     await waitFor(() => {
-        expect(screen.queryByText('Loading Editor...')).not.toBeInTheDocument();
+      expect(screen.queryByText('Loading Editor...')).not.toBeInTheDocument();
     });
 
     // Find item search input

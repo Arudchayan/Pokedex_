@@ -20,7 +20,7 @@ describe('Seeded Random', () => {
   });
 
   it('dateToSeed should produce same hash for same string', () => {
-    const str = "2023-10-27-game";
+    const str = '2023-10-27-game';
     expect(dateToSeed(str)).toBe(dateToSeed(str));
   });
 });

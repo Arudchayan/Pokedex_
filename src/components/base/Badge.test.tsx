@@ -179,17 +179,13 @@ describe('Badge Component', () => {
 
   describe('Custom props', () => {
     it('applies custom className', () => {
-      const { container } = render(
-        <Badge className="custom-class">Badge</Badge>
-      );
+      const { container } = render(<Badge className="custom-class">Badge</Badge>);
       const badge = container.firstChild as HTMLElement;
       expect(badge).toHaveClass('custom-class');
     });
 
     it('forwards additional props', () => {
-      const { container } = render(
-        <Badge data-testid="test-badge">Badge</Badge>
-      );
+      const { container } = render(<Badge data-testid="test-badge">Badge</Badge>);
       expect(container.querySelector('[data-testid="test-badge"]')).toBeInTheDocument();
     });
   });
@@ -225,7 +221,11 @@ describe('Badge Component', () => {
     it('remove button has focus ring classes', () => {
       render(<Badge removable>Badge</Badge>);
       const removeButton = screen.getByLabelText('Remove badge');
-      expect(removeButton).toHaveClass('focus:outline-none', 'focus:ring-2', 'focus:ring-primary-500');
+      expect(removeButton).toHaveClass(
+        'focus:outline-none',
+        'focus:ring-2',
+        'focus:ring-primary-500'
+      );
     });
   });
 });

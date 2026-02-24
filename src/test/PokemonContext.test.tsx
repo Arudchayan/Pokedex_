@@ -46,9 +46,9 @@ const renderWithProvider = (ui: React.ReactElement) => {
   const queryClient = new QueryClient({
     defaultOptions: {
       queries: {
-        retry: false
-      }
-    }
+        retry: false,
+      },
+    },
   });
   return render(
     <QueryClientProvider client={queryClient}>
@@ -67,12 +67,10 @@ describe('PokemonProvider', () => {
     const deferred = createDeferred<PokemonListItem[]>();
     let receivedSignal: AbortSignal | undefined;
 
-    fetchAllPokemonsMock.mockImplementation(
-      (signal?: AbortSignal) => {
-        receivedSignal = signal;
-        return deferred.promise;
-      }
-    );
+    fetchAllPokemonsMock.mockImplementation((signal?: AbortSignal) => {
+      receivedSignal = signal;
+      return deferred.promise;
+    });
 
     const { unmount } = renderWithProvider(<div>Test</div>);
 

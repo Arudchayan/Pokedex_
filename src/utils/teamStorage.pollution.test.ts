@@ -1,4 +1,3 @@
-
 import { describe, it, expect } from 'vitest';
 import { validateTeamMember } from './teamStorage';
 
@@ -7,7 +6,7 @@ describe('validateTeamMember Prototype Pollution', () => {
     const maliciousInput = {
       id: 1,
       name: 'bulbasaur',
-      evs: JSON.parse('{"__proto__": 252, "hp": 252}')
+      evs: JSON.parse('{"__proto__": 252, "hp": 252}'),
     };
 
     const result = validateTeamMember(maliciousInput);
@@ -36,8 +35,8 @@ describe('validateTeamMember Prototype Pollution', () => {
       name: 'bulbasaur',
       evs: {
         constructor: 252,
-        hp: 252
-      }
+        hp: 252,
+      },
     };
 
     const result2 = validateTeamMember(maliciousInputConstructor);

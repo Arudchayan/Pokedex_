@@ -34,7 +34,10 @@ const PokemonWalkersSettingsModal: React.FC<PokemonWalkersSettingsModalProps> = 
 
   const toggleEnabled = () => {
     if (!settings.enabled && prefersReducedMotion()) {
-      addToast('Walkers are disabled because “Reduce motion” is enabled in your OS/browser.', 'warning');
+      addToast(
+        'Walkers are disabled because “Reduce motion” is enabled in your OS/browser.',
+        'warning'
+      );
       return;
     }
     setSettings((s) => ({ ...s, enabled: !s.enabled }));
@@ -56,13 +59,18 @@ const PokemonWalkersSettingsModal: React.FC<PokemonWalkersSettingsModalProps> = 
         <div className="flex items-center justify-between gap-4 rounded-xl border border-white/10 bg-white/5 p-4">
           <div>
             <div className="font-bold text-white">Enable Walkers</div>
-            <div className="text-sm text-slate-400">Shows a draggable Pokemon playground at the bottom.</div>
+            <div className="text-sm text-slate-400">
+              Shows a draggable Pokemon playground at the bottom.
+            </div>
           </div>
           <button
             type="button"
             onClick={toggleEnabled}
-            className={`rounded-full px-4 py-2 text-sm font-bold transition ${settings.enabled ? 'bg-emerald-500/20 text-emerald-200 border border-emerald-400/30' : 'bg-white/5 text-slate-200 border border-white/10'
-              }`}
+            className={`rounded-full px-4 py-2 text-sm font-bold transition ${
+              settings.enabled
+                ? 'bg-emerald-500/20 text-emerald-200 border border-emerald-400/30'
+                : 'bg-white/5 text-slate-200 border border-white/10'
+            }`}
             aria-pressed={settings.enabled}
           >
             {settings.enabled ? 'On' : 'Off'}
@@ -79,7 +87,12 @@ const PokemonWalkersSettingsModal: React.FC<PokemonWalkersSettingsModalProps> = 
               type="number"
               min={0}
               value={settings.count}
-              onChange={(e) => setSettings((s) => ({ ...s, count: Math.max(0, Math.round(Number(e.target.value) || 0)) }))}
+              onChange={(e) =>
+                setSettings((s) => ({
+                  ...s,
+                  count: Math.max(0, Math.round(Number(e.target.value) || 0)),
+                }))
+              }
               className="w-full rounded-lg border border-white/10 bg-black/30 px-3 py-2 text-white"
             />
             <p className="text-xs text-slate-400">
@@ -97,7 +110,12 @@ const PokemonWalkersSettingsModal: React.FC<PokemonWalkersSettingsModalProps> = 
               min={10}
               max={220}
               value={Math.round(settings.speedPxPerSec)}
-              onChange={(e) => setSettings((s) => ({ ...s, speedPxPerSec: Math.max(10, Math.min(220, Number(e.target.value) || 50)) }))}
+              onChange={(e) =>
+                setSettings((s) => ({
+                  ...s,
+                  speedPxPerSec: Math.max(10, Math.min(220, Number(e.target.value) || 50)),
+                }))
+              }
               className="w-full rounded-lg border border-white/10 bg-black/30 px-3 py-2 text-white"
             />
           </div>
@@ -113,7 +131,13 @@ const PokemonWalkersSettingsModal: React.FC<PokemonWalkersSettingsModalProps> = 
               max={256}
               value={settings.spriteSizePx}
               onChange={(e) =>
-                setSettings((s) => ({ ...s, spriteSizePx: Math.max(12, Math.min(256, Math.round(Number(e.target.value) || 48))) }))
+                setSettings((s) => ({
+                  ...s,
+                  spriteSizePx: Math.max(
+                    12,
+                    Math.min(256, Math.round(Number(e.target.value) || 48))
+                  ),
+                }))
               }
               className="w-full rounded-lg border border-white/10 bg-black/30 px-3 py-2 text-white"
             />
@@ -130,7 +154,10 @@ const PokemonWalkersSettingsModal: React.FC<PokemonWalkersSettingsModalProps> = 
               max={260}
               value={settings.playgroundHeightPx}
               onChange={(e) =>
-                setSettings((s) => ({ ...s, playgroundHeightPx: Math.max(90, Math.min(260, Number(e.target.value) || 150)) }))
+                setSettings((s) => ({
+                  ...s,
+                  playgroundHeightPx: Math.max(90, Math.min(260, Number(e.target.value) || 150)),
+                }))
               }
               className="w-full rounded-lg border border-white/10 bg-black/30 px-3 py-2 text-white"
             />
@@ -164,7 +191,8 @@ const PokemonWalkersSettingsModal: React.FC<PokemonWalkersSettingsModalProps> = 
               placeholder="https://raw.githubusercontent.com/Arudchayan/vscode-pokemon/main"
             />
             <p className="text-xs text-slate-400">
-              Uses your fork on GitHub. We only request <code>default_idle_8fps.gif</code> and <code>default_walk_8fps.gif</code>.
+              Uses your fork on GitHub. We only request <code>default_idle_8fps.gif</code> and{' '}
+              <code>default_walk_8fps.gif</code>.
             </p>
           </div>
 
@@ -194,9 +222,7 @@ const PokemonWalkersSettingsModal: React.FC<PokemonWalkersSettingsModalProps> = 
 
           {settings.rosterMode === 'choose' && (
             <div className="grid gap-2">
-              <label className="text-sm font-bold text-white">
-                Choose species
-              </label>
+              <label className="text-sm font-bold text-white">Choose species</label>
               <PokemonGardenSelector
                 value={settings.chosenSpecies}
                 onChange={(selected) => setSettings((s) => ({ ...s, chosenSpecies: selected }))}
@@ -235,4 +261,3 @@ const PokemonWalkersSettingsModal: React.FC<PokemonWalkersSettingsModalProps> = 
 };
 
 export default PokemonWalkersSettingsModal;
-

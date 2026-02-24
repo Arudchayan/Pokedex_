@@ -11,8 +11,22 @@ vi.mock('./TypeBadge', () => ({
 
 describe('TeamBuilder', () => {
   const mockTeam: PokemonListItem[] = [
-    { id: 1, name: 'bulbasaur', imageUrl: 'img1.png', shinyImageUrl: '', types: ['grass', 'poison'], flavorText: '' },
-    { id: 4, name: 'charmander', imageUrl: 'img4.png', shinyImageUrl: '', types: ['fire'], flavorText: '' },
+    {
+      id: 1,
+      name: 'bulbasaur',
+      imageUrl: 'img1.png',
+      shinyImageUrl: '',
+      types: ['grass', 'poison'],
+      flavorText: '',
+    },
+    {
+      id: 4,
+      name: 'charmander',
+      imageUrl: 'img4.png',
+      shinyImageUrl: '',
+      types: ['fire'],
+      flavorText: '',
+    },
   ];
 
   const onRemove = vi.fn();
@@ -45,11 +59,7 @@ describe('TeamBuilder', () => {
   };
 
   it('renders current team members', () => {
-    renderWithProvider(
-      <TeamBuilder
-        {...defaultProps}
-      />
-    );
+    renderWithProvider(<TeamBuilder {...defaultProps} />);
 
     expect(screen.getByText('2/6')).toBeInTheDocument();
     expect(screen.getByText('bulbasaur')).toBeInTheDocument();
@@ -57,11 +67,7 @@ describe('TeamBuilder', () => {
   });
 
   it('renders empty slots', () => {
-    renderWithProvider(
-      <TeamBuilder
-        {...defaultProps}
-      />
-    );
+    renderWithProvider(<TeamBuilder {...defaultProps} />);
 
     // 6 capacity - 2 members = 4 empty slots
     const emptySlots = screen.getAllByText(/Slot \d+/);
@@ -69,12 +75,7 @@ describe('TeamBuilder', () => {
   });
 
   it('calls onAddPokemon when empty slot is clicked', () => {
-    renderWithProvider(
-      <TeamBuilder
-        {...defaultProps}
-        onAddPokemon={onAddPokemon}
-      />
-    );
+    renderWithProvider(<TeamBuilder {...defaultProps} onAddPokemon={onAddPokemon} />);
 
     const emptySlot = screen.getByText('Slot 3').closest('div');
     fireEvent.click(emptySlot!);
@@ -82,11 +83,7 @@ describe('TeamBuilder', () => {
   });
 
   it('calls onRemove when remove button is clicked', () => {
-    renderWithProvider(
-      <TeamBuilder
-        {...defaultProps}
-      />
-    );
+    renderWithProvider(<TeamBuilder {...defaultProps} />);
 
     // Find remove button for first member
     const removeButtons = screen.getAllByLabelText(/Remove .* from team/i);
@@ -95,22 +92,14 @@ describe('TeamBuilder', () => {
   });
 
   it('calls onClear when clear button is clicked', () => {
-    renderWithProvider(
-      <TeamBuilder
-        {...defaultProps}
-      />
-    );
+    renderWithProvider(<TeamBuilder {...defaultProps} />);
 
     fireEvent.click(screen.getByRole('button', { name: /Clear team/i }));
     expect(onClear).toHaveBeenCalled();
   });
 
   it('shows analytics when requested', () => {
-    renderWithProvider(
-      <TeamBuilder
-        {...defaultProps}
-      />
-    );
+    renderWithProvider(<TeamBuilder {...defaultProps} />);
 
     const showDetailsBtn = screen.getByText(/Show Details/i);
     fireEvent.click(showDetailsBtn);
@@ -122,11 +111,7 @@ describe('TeamBuilder', () => {
   });
 
   it('renders reorder handles for team members', () => {
-    renderWithProvider(
-        <TeamBuilder
-            {...defaultProps}
-        />
-    );
+    renderWithProvider(<TeamBuilder {...defaultProps} />);
 
     const handles = screen.getAllByTitle('Drag to reorder');
     expect(handles).toHaveLength(2);

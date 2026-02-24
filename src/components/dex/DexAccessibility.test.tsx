@@ -16,8 +16,8 @@ describe('Dex Components Accessibility', () => {
         data: {
           pokemon_v2_ability: [],
           pokemon_v2_item: [],
-          pokemon_v2_move: []
-        }
+          pokemon_v2_move: [],
+        },
       }),
     });
   });

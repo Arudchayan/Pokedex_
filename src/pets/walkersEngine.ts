@@ -135,7 +135,7 @@ export class WalkersEngine {
       w.y = clamp(w.y, minY, maxY);
 
       w.facing = w.vx >= 0 ? 1 : -1;
-      w.anim = Math.abs(w.vx) < 5 ? 'idle' : (w.facing === 1 ? 'walk' : 'walk_left');
+      w.anim = Math.abs(w.vx) < 5 ? 'idle' : w.facing === 1 ? 'walk' : 'walk_left';
     }
   }
 }

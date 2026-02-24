@@ -78,7 +78,7 @@ const VirtualPokemonList: React.FC<VirtualPokemonListProps> = ({
     return pokemonList.slice(start, start + POKEMON_PER_PAGE);
   }, [pokemonList, currentPage, isPaginationEnabled]);
 
-  const itemsToRender = isPaginationEnabled ? paginatedPokemon : (pokemonList || []);
+  const itemsToRender = isPaginationEnabled ? paginatedPokemon : pokemonList || [];
   const totalPages = Math.max(1, Math.ceil((pokemonList?.length || 0) / POKEMON_PER_PAGE));
 
   useEffect(() => {
@@ -118,8 +118,7 @@ const VirtualPokemonList: React.FC<VirtualPokemonListProps> = ({
     if (focusedIndex < 0 || focusedIndex >= activeList.length) return;
 
     if (isVirtualized) {
-      const targetRow =
-        viewMode === 'grid' ? Math.floor(focusedIndex / columns) : focusedIndex;
+      const targetRow = viewMode === 'grid' ? Math.floor(focusedIndex / columns) : focusedIndex;
       virtualizer.scrollToIndex(targetRow, { align: 'auto' });
     }
 
@@ -150,7 +149,7 @@ const VirtualPokemonList: React.FC<VirtualPokemonListProps> = ({
         if (idx >= 0) setFocusedIndex(idx);
       }
     },
-    [activeList],
+    [activeList]
   );
 
   /** Arrow / Home / End keyboard navigation */
@@ -187,10 +186,13 @@ const VirtualPokemonList: React.FC<VirtualPokemonListProps> = ({
       e.preventDefault();
       setFocusedIndex(next);
     },
-    [activeList.length, focusedIndex, columns],
+    [activeList.length, focusedIndex, columns]
   );
 
-  const renderGridRow = (rowIndex: number, virtualRow: ReturnType<typeof virtualizer.getVirtualItems>[0]) => {
+  const renderGridRow = (
+    rowIndex: number,
+    virtualRow: ReturnType<typeof virtualizer.getVirtualItems>[0]
+  ) => {
     const start = rowIndex * columns;
     const rowPokemon = (pokemonList || []).slice(start, start + columns);
     if (rowPokemon.length === 0) return null;

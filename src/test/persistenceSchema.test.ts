@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { buildPersistenceData, isPersistenceData, PERSISTENCE_VERSION } from '../utils/persistenceSchema';
+import {
+  buildPersistenceData,
+  isPersistenceData,
+  PERSISTENCE_VERSION,
+} from '../utils/persistenceSchema';
 import { PokemonListItem } from '../types';
 
 describe('persistenceSchema', () => {

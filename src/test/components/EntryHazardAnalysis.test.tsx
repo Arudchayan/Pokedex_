@@ -155,36 +155,36 @@ describe('EntryHazardAnalysis', () => {
   });
 
   it('respects Clear Body immunity to Sticky Web', () => {
-      const metagross: TeamMember = {
-          id: 376,
-          name: 'Metagross',
-          imageUrl: '',
-          shinyImageUrl: '',
-          types: ['steel', 'psychic'],
-          flavorText: '',
-          abilities: ['clear body'], // Should be detected even without selectedAbility
-      } as unknown as TeamMember;
+    const metagross: TeamMember = {
+      id: 376,
+      name: 'Metagross',
+      imageUrl: '',
+      shinyImageUrl: '',
+      types: ['steel', 'psychic'],
+      flavorText: '',
+      abilities: ['clear body'], // Should be detected even without selectedAbility
+    } as unknown as TeamMember;
 
-      render(<EntryHazardAnalysis team={[metagross]} theme="light" />);
-      const row = screen.getByText('Metagross').closest('tr');
-      expect(row).toHaveTextContent('Immune'); // Sticky Web
+    render(<EntryHazardAnalysis team={[metagross]} theme="light" />);
+    const row = screen.getByText('Metagross').closest('tr');
+    expect(row).toHaveTextContent('Immune'); // Sticky Web
   });
 
   it('respects Air Balloon immunity', () => {
-      const heatran: TeamMember = {
-          id: 485,
-          name: 'Heatran',
-          imageUrl: '',
-          shinyImageUrl: '',
-          types: ['fire', 'steel'],
-          flavorText: '',
-          abilities: ['flash fire'],
-          selectedItem: 'Air Balloon',
-      } as unknown as TeamMember;
+    const heatran: TeamMember = {
+      id: 485,
+      name: 'Heatran',
+      imageUrl: '',
+      shinyImageUrl: '',
+      types: ['fire', 'steel'],
+      flavorText: '',
+      abilities: ['flash fire'],
+      selectedItem: 'Air Balloon',
+    } as unknown as TeamMember;
 
-      render(<EntryHazardAnalysis team={[heatran]} theme="light" />);
-      const row = screen.getByText('Heatran').closest('tr');
-      expect(row).toHaveTextContent('Immune'); // Spikes
-      expect(row).toHaveTextContent('Immune'); // Sticky Web
+    render(<EntryHazardAnalysis team={[heatran]} theme="light" />);
+    const row = screen.getByText('Heatran').closest('tr');
+    expect(row).toHaveTextContent('Immune'); // Spikes
+    expect(row).toHaveTextContent('Immune'); // Sticky Web
   });
 });
