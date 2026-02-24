@@ -8,6 +8,7 @@ import CommandPalette from '../components/layout/CommandPalette';
 import AppMain from './AppMain';
 import AppModals from './AppModals';
 import ComparisonBar from '../components/compare/ComparisonBar';
+import { WalkthroughManager } from '../components/walkthrough';
 import { useAppController } from './useAppController';
 import { useComparisonSharer } from '../hooks/useComparisonSharer';
 import { useToast } from '../context/ToastContext';
@@ -134,6 +135,7 @@ export default function AppShell() {
         onClose={() => setIsPaletteOpen(false)}
         controller={controller}
       />
+      <WalkthroughManager />
     </div>
   );
 }
