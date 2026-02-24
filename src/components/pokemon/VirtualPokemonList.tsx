@@ -67,13 +67,9 @@ const VirtualPokemonList: React.FC<VirtualPokemonListProps> = ({
   isCyberpunk = false,
   isPaginationEnabled = false,
 }) => {
-  // Early return if pokemonList is undefined
-  if (!pokemonList) {
-    return <div className="text-center text-slate-500 dark:text-slate-400 py-8">Loading...</div>;
-  }
-
   const [currentPage, setCurrentPage] = useState(1);
-  const columns = viewMode === 'grid' ? useGridColumns() : 1;
+  const gridColumns = useGridColumns();
+  const columns = viewMode === 'grid' ? gridColumns : 1;
   const isVirtualized = !isPaginationEnabled;
 
   const paginatedPokemon = useMemo(() => {

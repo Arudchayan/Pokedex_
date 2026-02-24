@@ -1,5 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
+import { Analytics } from '@vercel/analytics/react';
+import { SpeedInsights } from '@vercel/speed-insights/react';
 import App from './App';
 import ErrorBoundary from './components/shared/ErrorBoundary';
 import { PokemonProvider } from './context/PokemonContext';
@@ -38,6 +40,8 @@ root.render(
         {import.meta.env.DEV && <ReactQueryDevtools initialIsOpen={false} />}
       </QueryClientProvider>
     </ErrorBoundary>
+    <Analytics />
+    <SpeedInsights />
   </React.StrictMode>
 );
 

@@ -357,12 +357,12 @@ const FilterControls: React.FC<FilterControlsProps> = ({
                 <input
                   type="checkbox"
                   id="bst-toggle"
-                  checked={minBST >= 600}
-                  onChange={(e) => usePokemonStore.getState().setMinBST(e.target.checked ? 600 : 0)}
+                  checked={minBST >= 500}
+                  onChange={(e) => usePokemonStore.getState().setMinBST(e.target.checked ? 500 : 0)}
                   className="rounded border-slate-300 text-primary-600 shadow-sm focus:border-primary-300 focus:ring focus:ring-primary-300/40 focus:ring-opacity-50"
                 />
                 <label htmlFor="bst-toggle" className={`text-sm ${theme === 'dark' ? 'text-slate-300' : 'text-slate-700'}`}>
-                  High Stats Only (BST ≥ 600)
+                  High Stats Only (BST ≥ 500)
                 </label>
               </div>
 
