@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { usePokemonStore, isCyberpunkAccent } from '../store/usePokemonStore';
 import { ACCENT_COLORS, AccentColor, UI_CONSTANTS } from '../constants';
+import { fetchRegionalDexMap } from '../services/pokeapiService';
 import { applyFilters, applySort } from '../domain/pokemonList';
 import { decompressTeam } from '../utils/urlCompression';
 import { PokemonListItem } from '../types';
@@ -177,6 +178,7 @@ export const usePokemonStoreEffects = () => {
       'sortBy',
       'sortOrder',
       'favorites',
+      'selectedPokedex',
     ] as const;
 
     // Initial Filter
@@ -194,6 +196,7 @@ export const usePokemonStoreEffects = () => {
         selectedAbility,
         isMonoType,
         minBST,
+        selectedPokedex,
       } = state;
 
       const filters = {
@@ -211,7 +214,7 @@ export const usePokemonStoreEffects = () => {
       // Use null to represent "not using favorites" for stable caching comparison
       const relevantFavoritesSource = sortBy === 'favorite' ? favorites : null;
 
-      if (supportsWorker && workerRef.current) {
+      if (supportsWorker && workerRef.current && sortBy !== 'regional-dex') {
         const requestId = requestIdRef.current + 1;
         requestIdRef.current = requestId;
         store.getState().setIsFiltering(true);
@@ -242,11 +245,28 @@ export const usePokemonStoreEffects = () => {
           requestId,
         });
       } else {
-        const relevantFavorites = sortBy === 'favorite' ? favorites : new Set<number>();
-        const filtered = applyFilters(masterPokemonList, filters);
-        const sorted = applySort(filtered, sortBy, sortOrder, relevantFavorites);
-        store.getState().setFilteredPokemon(sorted);
-        store.getState().setIsFiltering(false);
+        const runMainThreadSort = async () => {
+          const relevantFavorites = sortBy === 'favorite' ? favorites : new Set<number>();
+          const filtered = applyFilters(masterPokemonList, filters);
+
+          if (sortBy === 'regional-dex') {
+            const pokedexName =
+              typeof selectedPokedex === 'string' && selectedPokedex.length > 0
+                ? selectedPokedex
+                : 'national';
+            const map = await fetchRegionalDexMap(pokedexName);
+            const sorted = applySort(filtered, sortBy, sortOrder, relevantFavorites, map);
+            store.getState().setFilteredPokemon(sorted);
+            store.getState().setIsFiltering(false);
+            return;
+          }
+
+          const sorted = applySort(filtered, sortBy, sortOrder, relevantFavorites);
+          store.getState().setFilteredPokemon(sorted);
+          store.getState().setIsFiltering(false);
+        };
+
+        runMainThreadSort();
       }
     };
 

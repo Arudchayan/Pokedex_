@@ -1,6 +1,6 @@
 import { get, set, del } from 'idb-keyval';
 import { MAX_POKEMON_ID, POKEAPI_GRAPHQL_URL } from '../constants';
-import { PokemonListItem, PokemonDetails, PokemonMove, PokemonForm, Item } from '../types';
+import { PokemonListItem, PokemonDetails, PokemonMove, PokemonForm, Item, PokemonEncounter } from '../types';
 import { logError, retryApiCall, isNetworkError } from '../utils/errorHandler';
 import {
   sanitizeString,
@@ -16,6 +16,8 @@ import fetchAllPokemonQuery from '../graphql/fetchAllPokemon.graphql?raw';
 import getPokemonDetailsQuery from '../graphql/getPokemonDetails.graphql?raw';
 import fetchMovesQuery from '../graphql/fetchMoves.graphql?raw';
 import fetchItemsQuery from '../graphql/fetchItems.graphql?raw';
+import getEncounterLocationsQuery from '../graphql/getEncounterLocations.graphql?raw';
+import getRegionalDexQuery from '../graphql/getRegionalDex.graphql?raw';
 import type {
   FetchAllPokemonQuery,
   FetchMovesQuery,
@@ -668,6 +670,113 @@ export const fetchAllItems = async (): Promise<Item[]> => {
   }
 };
 
+const ENCOUNTER_CACHE_PREFIX = 'pokemon_encounters_';
+const REGIONAL_DEX_CACHE_PREFIX = 'pokedex_regional_';
+
+// --- Encounter Locations ---
+
+interface EncounterLocationsResponse {
+  pokemon_v2_encounter: {
+    min_level: number;
+    max_level: number;
+    pokemon_v2_encounterslots: { rarity: number; pokemon_v2_encountermethod: { name: string } | null }[];
+    pokemon_v2_version: { name: string } | null;
+    pokemon_v2_locationarea: { pokemon_v2_location: { name: string } | null } | null;
+  }[];
+}
+
+export const fetchEncounterLocations = async (pokemonId: number): Promise<PokemonEncounter[]> => {
+  const cacheKey = `${ENCOUNTER_CACHE_PREFIX}${pokemonId}`;
+  const tsKey = `${cacheKey}_ts`;
+
+  try {
+    const cached = await get(cacheKey);
+    const ts = await get(tsKey);
+    if (cached && ts && Date.now() - Number(ts) < CACHE_TTL) {
+      return cached as PokemonEncounter[];
+    }
+  } catch {
+    await del(cacheKey);
+  }
+
+  try {
+    const data = await queryPokeAPI<EncounterLocationsResponse>(getEncounterLocationsQuery, {
+      pokemonId,
+    });
+
+    const encounters: PokemonEncounter[] = data.pokemon_v2_encounter.map((enc) => ({
+      locationName: enc.pokemon_v2_locationarea?.pokemon_v2_location?.name?.replace(/-/g, ' ') ?? 'Unknown',
+      gameVersion: enc.pokemon_v2_version?.name?.replace(/-/g, ' ') ?? 'Unknown',
+      encounterMethod:
+        enc.pokemon_v2_encounterslots[0]?.pokemon_v2_encountermethod?.name?.replace(/-/g, ' ') ?? 'Unknown',
+      minLevel: enc.min_level,
+      maxLevel: enc.max_level,
+      chance: enc.pokemon_v2_encounterslots[0]?.rarity ?? 0,
+    }));
+
+    scheduleIdleTask(async () => {
+      try {
+        await set(cacheKey, encounters);
+        await set(tsKey, Date.now());
+      } catch (e) {
+        console.error('Failed to cache encounter locations', e);
+      }
+    });
+
+    return encounters;
+  } catch (e) {
+    console.error('Failed to fetch encounter locations', e);
+    return [];
+  }
+};
+
+// --- Regional Dex Map ---
+
+interface RegionalDexResponse {
+  pokemon_v2_pokemondexnumber: { pokedex_number: number; pokemon_species_id: number }[];
+}
+
+/**
+ * Returns a map of pokemonSpeciesId → regional dex number for the given pokedex.
+ */
+export const fetchRegionalDexMap = async (pokedexName: string): Promise<Map<number, number>> => {
+  const cacheKey = `${REGIONAL_DEX_CACHE_PREFIX}${pokedexName}`;
+  const tsKey = `${cacheKey}_ts`;
+
+  try {
+    const cached = await get(cacheKey);
+    const ts = await get(tsKey);
+    if (cached && ts && Date.now() - Number(ts) < CACHE_TTL) {
+      return new Map(cached as [number, number][]);
+    }
+  } catch {
+    await del(cacheKey);
+  }
+
+  try {
+    const data = await queryPokeAPI<RegionalDexResponse>(getRegionalDexQuery, { pokedexName });
+    const entries: [number, number][] = data.pokemon_v2_pokemondexnumber.map((e) => [
+      e.pokemon_species_id,
+      e.pokedex_number,
+    ]);
+    const map = new Map(entries);
+
+    scheduleIdleTask(async () => {
+      try {
+        await set(cacheKey, entries);
+        await set(tsKey, Date.now());
+      } catch (e) {
+        console.error('Failed to cache regional dex', e);
+      }
+    });
+
+    return map;
+  } catch (e) {
+    console.error('Failed to fetch regional dex', e);
+    return new Map();
+  }
+};
+
 export const fetchPokemonDetails = async (id: number): Promise<PokemonDetails | null> => {
   const data = await queryPokeAPI<GetPokemonDetailsQuery>(getPokemonDetailsQuery, { id });
 
@@ -694,6 +803,7 @@ export const fetchPokemonDetails = async (id: number): Promise<PokemonDetails | 
     damageClass: m.pokemon_v2_move?.pokemon_v2_movedamageclass?.name || 'status',
     learnMethod: m.pokemon_v2_movelearnmethod?.name?.replace(/-/g, ' ') || 'Unknown',
     level: m.level,
+    versionGroup: (m as any).pokemon_v2_versiongroup?.name?.replace(/-/g, ' ') || undefined,
   }));
 
   const forms = species.pokemon_v2_pokemons.map((p): PokemonForm => {

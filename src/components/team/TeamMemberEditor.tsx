@@ -464,32 +464,71 @@ const TeamMemberEditor: React.FC<TeamMemberEditorProps> = ({ member, onClose, on
                   Moveset
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {[0, 1, 2, 3].map((index) => (
-                    <div key={index}>
-                      <label className="block text-xs font-bold uppercase tracking-wider mb-1 opacity-50">
-                        Move {index + 1}
-                      </label>
-                      <select
-                        value={moves[index] || ''}
-                        onChange={(e) => updateMove(index, e.target.value)}
-                        className={`w-full p-3 rounded-lg border focus:outline-none focus:ring-2 focus:ring-primary-500 capitalize ${theme === 'dark' ? 'bg-black/20 border-white/10' : 'bg-slate-50 border-slate-200'}`}
-                      >
-                        <option value="">-- Empty Slot --</option>
-                        {/* Show currently selected move even if filtered out from available list */}
-                        {moves[index] && (
-                          <option value={moves[index]!}>{moves[index]!.replace('-', ' ')}</option>
+                  {[0, 1, 2, 3].map((index) => {
+                    const selectedName = moves[index];
+                    return (
+                      <div key={index} className="space-y-1">
+                        <label className="block text-xs font-bold uppercase tracking-wider mb-1 opacity-50">
+                          Move {index + 1}
+                        </label>
+                        <select
+                          value={selectedName || ''}
+                          onChange={(e) => updateMove(index, e.target.value)}
+                          className={`w-full p-3 rounded-lg border focus:outline-none focus:ring-2 focus:ring-primary-500 capitalize ${theme === 'dark' ? 'bg-black/20 border-white/10' : 'bg-slate-50 border-slate-200'}`}
+                        >
+                          <option value="">-- Empty Slot --</option>
+                          {selectedName && (
+                            <option value={selectedName}>{selectedName.replace('-', ' ')}</option>
+                          )}
+                          {details.moves
+                            .filter((m) => !moves.includes(m.name) || m.name === selectedName)
+                            .sort((a, b) => a.name.localeCompare(b.name))
+                            .map((m) => (
+                              <option key={m.name} value={m.name}>
+                                {m.name.replace('-', ' ')} ({m.type.slice(0, 3)})
+                              </option>
+                            ))}
+                        </select>
+                        {selectedName && (
+                          <div className="flex items-center justify-between text-[11px]">
+                            {(() => {
+                              const m = details.moves.find((mv) => mv.name === selectedName);
+                              if (!m) return null;
+                              const isStab =
+                                m.type &&
+                                (member.types || []).some((t) => t.toLowerCase() === m.type.toLowerCase());
+                              const cls =
+                                theme === 'dark'
+                                  ? 'px-2 py-0.5 rounded-full text-[10px] font-semibold bg-white/10 text-slate-200'
+                                  : 'px-2 py-0.5 rounded-full text-[10px] font-semibold bg-slate-100 text-slate-700';
+                              return (
+                                <>
+                                  <span className={cls}>
+                                    {m.damageClass === 'physical'
+                                      ? 'Physical'
+                                      : m.damageClass === 'special'
+                                        ? 'Special'
+                                        : 'Status'}
+                                  </span>
+                                  {isStab && (
+                                    <span
+                                      className={`ml-2 px-2 py-0.5 rounded-full text-[10px] font-semibold ${
+                                        theme === 'dark'
+                                          ? 'bg-amber-500/30 text-amber-200'
+                                          : 'bg-amber-100 text-amber-700'
+                                      }`}
+                                    >
+                                      STAB
+                                    </span>
+                                  )}
+                                </>
+                              );
+                            })()}
+                          </div>
                         )}
-                        {details.moves
-                          .filter((m) => !moves.includes(m.name) || m.name === moves[index]) // Show available + current
-                          .sort((a, b) => a.name.localeCompare(b.name))
-                          .map((m) => (
-                            <option key={m.name} value={m.name}>
-                              {m.name.replace('-', ' ')} ({m.type.slice(0, 3)})
-                            </option>
-                          ))}
-                      </select>
-                    </div>
-                  ))}
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             </div>

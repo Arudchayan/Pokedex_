@@ -66,6 +66,7 @@ export interface PokemonActions {
   setComparisonList: (ids: number[]) => void;
 
   setSort: (sortBy: SortOption, sortOrder: 'asc' | 'desc') => void;
+  setPokedex: (pokedex: string) => void;
 
   toggleTheme: () => void;
   setTheme: (theme: 'dark' | 'light') => void;
@@ -117,6 +118,7 @@ const initialState: PokemonState = {
   comparisonList: [],
   sortBy: 'id',
   sortOrder: 'asc',
+  selectedPokedex: 'national',
   theme: 'dark',
   accent: 'cyan',
   isShiny: false,
@@ -132,6 +134,7 @@ type PersistedPokemonStorage = {
   favorites?: unknown;
   theme?: unknown;
   accent?: unknown;
+  selectedPokedex?: unknown;
   achievements?: unknown;
   gameStats?: unknown;
   savedTeams?: unknown;
@@ -383,6 +386,7 @@ export const usePokemonStore = create<PokemonState & PokemonActions>()(
 
           setSort: (sortBy, sortOrder) =>
             dispatchAction({ type: 'SET_SORT', payload: { sortBy, sortOrder } }),
+          setPokedex: (pokedex) => dispatchAction({ type: 'SET_POKEDEX', payload: pokedex }),
 
           toggleTheme: () => dispatchAction({ type: 'TOGGLE_THEME' }),
           setTheme: (theme) => dispatchAction({ type: 'SET_THEME', payload: theme }),
@@ -411,6 +415,7 @@ export const usePokemonStore = create<PokemonState & PokemonActions>()(
           favorites: Array.from(state.favorites),
           theme: state.theme,
           accent: state.accent,
+          selectedPokedex: state.selectedPokedex,
           achievements: state.achievements,
           gameStats: state.gameStats,
           savedTeams: state.savedTeams,
@@ -432,6 +437,9 @@ export const usePokemonStore = create<PokemonState & PokemonActions>()(
           const theme = isTheme(themeCandidate) ? themeCandidate : currentState.theme;
           const accentCandidate = hasNewStorage ? persisted.accent : legacy.accent;
           const accent = normalizeAccent(accentCandidate, currentState.accent);
+          const pokedexCandidate = hasNewStorage ? persisted.selectedPokedex : persisted.selectedPokedex;
+          const selectedPokedex =
+            typeof pokedexCandidate === 'string' ? pokedexCandidate : currentState.selectedPokedex;
 
           // Consolidated persistence fields — prefer persisted Zustand, fall back to legacy
           const achievements = normalizeAchievements(
@@ -466,6 +474,7 @@ export const usePokemonStore = create<PokemonState & PokemonActions>()(
             favorites,
             theme,
             accent,
+             selectedPokedex,
             achievements,
             gameStats,
             savedTeams,

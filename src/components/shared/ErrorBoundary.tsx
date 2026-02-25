@@ -121,8 +121,10 @@ class ErrorBoundary extends React.Component<Props, State> {
                 <button
                   onClick={() => window.location.reload()}
                   className="px-6 py-3 bg-slate-200 dark:bg-white/10 hover:bg-slate-300 dark:hover:bg-white/20 text-slate-700 dark:text-white font-semibold rounded-lg transition-all border border-slate-300 dark:border-white/20"
+                  title="Refresh the entire app"
+                  aria-label="Reload the page to recover from this error"
                 >
-                  Reload Page
+                  Refresh App
                 </button>
               </div>
             </div>
