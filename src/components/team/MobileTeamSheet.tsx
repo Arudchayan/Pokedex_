@@ -73,19 +73,17 @@ const MobileTeamSheet: React.FC<MobileTeamSheetProps> = ({
       <button
         type="button"
         onClick={handleFabClick}
-        className={`lg:hidden fixed bottom-5 right-5 z-50 flex items-center gap-2 rounded-full px-4 py-3 shadow-2xl transition-all active:scale-95 ${
+        className={`lg:hidden fixed bottom-20 right-4 z-[55] flex items-center gap-2 rounded-2xl px-4 py-3.5 shadow-2xl transition-all active:scale-95 ${
           safeTeam.length > 0 ? 'animate-fab-pulse' : ''
         } ${
           isDark
-            ? 'bg-primary-600 text-white hover:bg-primary-500'
-            : 'bg-primary-600 text-white hover:bg-primary-500'
+            ? 'bg-indigo-600 text-white hover:bg-indigo-500 border border-indigo-400/30'
+            : 'bg-indigo-600 text-white hover:bg-indigo-500 border border-indigo-400/30'
         }`}
         aria-label={`Team: ${safeTeam.length}/${teamCapacity}. Tap to manage team.`}
       >
-        <svg className="w-5 h-5" fill="none" viewBox="0 0 100 100" stroke="currentColor" strokeWidth="8">
-          <circle cx="50" cy="50" r="40" />
-          <line x1="10" y1="50" x2="90" y2="50" />
-          <circle cx="50" cy="50" r="12" />
+        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
         </svg>
         <span className="text-sm font-bold">{safeTeam.length}/{teamCapacity}</span>
       </button>
