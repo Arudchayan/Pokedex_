@@ -245,14 +245,16 @@ const PokemonWalkersOverlay: React.FC = () => {
 
   if (!enabled) return null;
 
-  // Keep this overlay below modals (z-50) and header (z-40).
-  // Hidden on small mobile screens to avoid conflicting with Team FAB.
+  // Keep this overlay below modals and FAB (z-30 < FAB z-55).
+  // Walkers walk behind the FAB on mobile — FAB remains clickable.
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 640;
+  const mobileHeight = Math.min(settings.playgroundHeightPx, 100);
   return (
     <div
       ref={containerRef}
-      className="hidden sm:block fixed bottom-0 left-0 right-0 z-30"
+      className="fixed bottom-0 left-0 right-0 z-30"
       style={{
-        height: settings.playgroundHeightPx,
+        height: isMobile ? mobileHeight : settings.playgroundHeightPx,
         pointerEvents: 'none',
       }}
     >
