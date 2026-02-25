@@ -225,6 +225,37 @@ export const TYPE_RELATIONS: { [key: string]: { [key: string]: number } } = {
   fairy: { fire: 0.5, fighting: 2, poison: 0.5, dragon: 2, dark: 2, steel: 0.5 },
 };
 
+export const EXPANDED_GAMES = {
+  'pokemon-colosseum': {
+    name: 'Pokémon Colosseum',
+    generation: 3,
+    hasShadowMoves: true,
+    hasRegionalDex: false,
+    spriteKey: 'Colosseum',
+  },
+  'pokemon-xd': {
+    name: 'Pokémon XD: Gale of Darkness',
+    generation: 3,
+    hasShadowMoves: true,
+    hasRegionalDex: false,
+    spriteKey: 'XD',
+  },
+  'pokemon-stadium': {
+    name: 'Pokémon Stadium',
+    generation: 1,
+    hasShadowMoves: false,
+    hasRegionalDex: false,
+    spriteKey: 'Stadium',
+  },
+  'legends-arceus': {
+    name: 'Pokémon Legends: Arceus',
+    generation: 8,
+    hasShadowMoves: false,
+    hasRegionalDex: true,
+    spriteKey: 'Hisui',
+  },
+} as const;
+
 export const NATURES: { [key: string]: { up?: string; down?: string } } = {
   Hardy: {},
   Lonely: { up: 'attack', down: 'defense' },

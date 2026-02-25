@@ -9,6 +9,8 @@ interface SortingControlsProps {
   onSortChange: (sortBy: SortOption) => void;
   onOrderChange: (order: 'asc' | 'desc') => void;
   theme: 'dark' | 'light';
+  selectedPokedex?: string;
+  onPokedexChange?: (pokedex: string) => void;
 }
 
 const SortingControls: React.FC<SortingControlsProps> = ({
@@ -17,6 +19,8 @@ const SortingControls: React.FC<SortingControlsProps> = ({
   onSortChange,
   onOrderChange,
   theme,
+  selectedPokedex = 'national',
+  onPokedexChange,
 }) => {
   const sortOptions: { value: SortOption; label: string; icon: string }[] = [
     { value: 'id', label: 'Pokedex #', icon: '#' },
@@ -36,6 +40,22 @@ const SortingControls: React.FC<SortingControlsProps> = ({
   ];
 
   const isStatSelected = statOptions.some((opt) => opt.value === sortBy);
+
+  const dexOptions: { value: string; label: string }[] = [
+    { value: 'national', label: 'National Dex' },
+    { value: 'kanto', label: 'Kanto' },
+    { value: 'original-johto', label: 'Johto' },
+    { value: 'hoenn', label: 'Hoenn' },
+    { value: 'original-sinnoh', label: 'Sinnoh' },
+    { value: 'original-unova', label: 'Unova' },
+    { value: 'kalos-central', label: 'Kalos' },
+    { value: 'original-alola', label: 'Alola' },
+    { value: 'galar', label: 'Galar' },
+    { value: 'hisui', label: 'Hisui' },
+    { value: 'paldea', label: 'Paldea' },
+  ];
+
+  const currentDexValue = sortBy === 'regional-dex' ? selectedPokedex : 'national';
 
   return (
     <div className="flex flex-wrap gap-3 items-center">
@@ -110,7 +130,45 @@ const SortingControls: React.FC<SortingControlsProps> = ({
         </div>
       </div>
 
-      <button
+      <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2" aria-label="Dex order">
+          <span className={`text-sm font-semibold ${theme === 'dark' ? 'text-slate-300' : 'text-slate-600'}`}>
+            Dex:
+          </span>
+          <select
+            value={currentDexValue}
+            onChange={(e) => {
+              const value = e.target.value;
+              if (onPokedexChange) {
+                onPokedexChange(value);
+              }
+              if (value === 'national') {
+                onSortChange('id');
+              } else {
+                onSortChange('regional-dex');
+              }
+            }}
+            className={`pl-3 pr-8 py-2 rounded-lg text-sm font-semibold transition-all focus:outline-none focus:ring-2 focus:ring-primary-500 cursor-pointer ${
+              sortBy === 'regional-dex'
+                ? 'bg-primary-500/30 text-primary-300 border border-primary-400/60 shadow-lg'
+                : theme === 'dark'
+                  ? 'bg-white/5 text-slate-400 border border-white/10 hover:bg-white/10 hover:text-slate-200'
+                  : 'bg-slate-100 text-slate-500 border border-slate-200 hover:bg-slate-200 hover:text-slate-700'
+            }`}
+          >
+            {dexOptions.map((option) => (
+              <option
+                key={option.value}
+                value={option.value}
+                className={theme === 'dark' ? 'bg-slate-800 text-slate-300' : 'bg-white text-slate-700'}
+              >
+                {option.label}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <button
         type="button"
         onClick={() => onOrderChange(sortOrder === 'asc' ? 'desc' : 'asc')}
         className={`p-2 rounded-lg transition-all focus:outline-none focus:ring-2 focus:ring-primary-500 ${
@@ -150,7 +208,8 @@ const SortingControls: React.FC<SortingControlsProps> = ({
             />
           </svg>
         )}
-      </button>
+        </button>
+      </div>
     </div>
   );
 };

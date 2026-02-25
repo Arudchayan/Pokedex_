@@ -9,6 +9,9 @@ export function reducePokemonStoreSorting(
     case 'SET_SORT':
       return { sortBy: action.payload.sortBy, sortOrder: action.payload.sortOrder };
 
+    case 'SET_POKEDEX':
+      return { selectedPokedex: action.payload };
+
     default:
       return undefined;
   }

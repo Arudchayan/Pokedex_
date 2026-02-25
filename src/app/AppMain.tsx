@@ -42,6 +42,8 @@ export default function AppMain({ controller }: Props) {
     handleSelectPokemon,
     handleSortChange,
     handleOrderChange,
+    selectedPokedex,
+    handlePokedexChange,
     handleGenerationChange,
     handleTypeToggle,
     handleFlavorTextChange,
@@ -75,6 +77,8 @@ export default function AppMain({ controller }: Props) {
                 onSortChange={handleSortChange}
                 onOrderChange={handleOrderChange}
                 theme={theme}
+                selectedPokedex={selectedPokedex}
+                onPokedexChange={handlePokedexChange}
               />
 
               <div className="flex gap-4">

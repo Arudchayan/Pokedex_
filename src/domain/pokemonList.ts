@@ -97,11 +97,14 @@ export const applyFilters = (
   });
 };
 
+type RegionalDexMap = Map<number, number> | { [id: number]: number };
+
 export const applySort = (
   pokemonList: PokemonListItem[],
   sortBy: SortOption,
   sortOrder: 'asc' | 'desc',
-  favorites: Set<number>
+  favorites: Set<number>,
+  regionalDexMap?: RegionalDexMap
 ): PokemonListItem[] => {
   const sorted = [...pokemonList].sort((a, b) => {
     let comparison = 0;
@@ -120,6 +123,18 @@ export const applySort = (
         const aFav = favorites.has(a.id) ? 1 : 0;
         const bFav = favorites.has(b.id) ? 1 : 0;
         comparison = bFav - aFav;
+        break;
+      }
+      case 'regional-dex': {
+        if (!regionalDexMap) {
+          comparison = a.id - b.id;
+          break;
+        }
+        const getDex = (id: number) =>
+          regionalDexMap instanceof Map ? regionalDexMap.get(id) ?? Infinity : regionalDexMap[id] ?? Infinity;
+        const aDex = getDex(a.id);
+        const bDex = getDex(b.id);
+        comparison = aDex - bDex;
         break;
       }
       case 'bst': {
