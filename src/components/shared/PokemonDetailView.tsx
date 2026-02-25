@@ -205,7 +205,7 @@ const PokemonDetailView: React.FC<PokemonDetailViewProps> = ({
 
   return (
     <div
-      className={`fixed inset-0 backdrop-blur-sm flex justify-center items-center z-[1050] p-4 ${
+      className={`fixed inset-0 backdrop-blur-sm flex items-end sm:items-center justify-center z-[1050] sm:p-4 ${
         theme === 'dark' ? 'bg-black/70' : 'bg-slate-500/50'
       }`}
       onClick={onClose}
@@ -215,16 +215,22 @@ const PokemonDetailView: React.FC<PokemonDetailViewProps> = ({
       aria-modal="true"
     >
       <div
-        className={`backdrop-blur-2xl rounded-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto relative shadow-2xl border modal-enter-active ${
+        className={`backdrop-blur-2xl w-full max-w-4xl overflow-y-auto relative shadow-2xl border rounded-t-2xl sm:rounded-2xl max-h-[95vh] sm:max-h-[90vh] ${
           theme === 'dark'
             ? 'bg-black/40 shadow-black/50 border-white/20'
             : 'bg-white/90 shadow-slate-400/50 border-slate-200'
         }`}
         onClick={(e) => e.stopPropagation()}
       >
+        {/* Mobile drag indicator */}
+        <div className="sm:hidden flex justify-center pt-2 pb-0 sticky top-0 z-30">
+          <div className={`w-10 h-1 rounded-full ${theme === 'dark' ? 'bg-white/30' : 'bg-slate-300'}`} />
+        </div>
+
+        {/* Navigation arrows - hidden on mobile to save space */}
         <button
           onClick={onPrevious}
-          className={`fixed left-4 top-1/2 -translate-y-1/2 transition-transform hover:scale-110 z-10 ${theme === 'dark' ? 'text-slate-300 hover:text-white' : 'text-slate-600 hover:text-slate-900'}`}
+          className={`hidden sm:block fixed left-4 top-1/2 -translate-y-1/2 transition-transform hover:scale-110 z-10 ${theme === 'dark' ? 'text-slate-300 hover:text-white' : 'text-slate-600 hover:text-slate-900'}`}
           aria-label="Previous Pokemon"
         >
           <svg
@@ -244,7 +250,7 @@ const PokemonDetailView: React.FC<PokemonDetailViewProps> = ({
         </button>
         <button
           onClick={onNext}
-          className={`fixed right-4 top-1/2 -translate-y-1/2 transition-transform hover:scale-110 z-10 ${theme === 'dark' ? 'text-slate-300 hover:text-white' : 'text-slate-600 hover:text-slate-900'}`}
+          className={`hidden sm:block fixed right-4 top-1/2 -translate-y-1/2 transition-transform hover:scale-110 z-10 ${theme === 'dark' ? 'text-slate-300 hover:text-white' : 'text-slate-600 hover:text-slate-900'}`}
           aria-label="Next Pokemon"
         >
           <svg
@@ -259,12 +265,12 @@ const PokemonDetailView: React.FC<PokemonDetailViewProps> = ({
         </button>
         <button
           onClick={onClose}
-          className={`absolute top-4 right-4 transition-colors z-20 ${theme === 'dark' ? 'text-slate-300 hover:text-white' : 'text-slate-600 hover:text-slate-900'}`}
+          className={`absolute top-2 right-2 sm:top-4 sm:right-4 p-1.5 rounded-lg transition-colors z-20 ${theme === 'dark' ? 'text-slate-300 hover:text-white hover:bg-white/10' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'}`}
           aria-label="Close"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            className="h-8 w-8"
+            className="h-6 w-6 sm:h-8 sm:w-8"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"

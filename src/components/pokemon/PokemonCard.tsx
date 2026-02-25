@@ -179,7 +179,7 @@ const PokemonCard: React.FC<PokemonCardProps> = ({
               ? `Remove ${pokemon.name} from favorites`
               : `Add ${pokemon.name} to favorites`
           }
-          className={`absolute top-3 right-3 z-10 p-1.5 rounded-full backdrop-blur-sm transition-all hover:scale-110 focus:outline-none focus:ring-2 focus:ring-primary-500 ${
+          className={`absolute top-2 right-2 sm:top-3 sm:right-3 z-10 p-1 sm:p-1.5 rounded-full backdrop-blur-sm transition-all hover:scale-110 focus:outline-none focus:ring-2 focus:ring-primary-500 ${
             theme === 'dark'
               ? 'bg-black/40 hover:bg-black/60'
               : 'bg-white/60 hover:bg-white/80 shadow-sm'
@@ -187,7 +187,7 @@ const PokemonCard: React.FC<PokemonCardProps> = ({
         >
           {isFavorite ? (
             <svg
-              className={`w-5 h-5 text-yellow-400 fill-current ${heartAnimating && !prefersReducedMotion ? 'animate-[heartPop_0.4s_ease-out]' : ''}`}
+              className={`w-4 h-4 sm:w-5 sm:h-5 text-yellow-400 fill-current ${heartAnimating && !prefersReducedMotion ? 'animate-[heartPop_0.4s_ease-out]' : ''}`}
               viewBox="0 0 24 24"
               onAnimationEnd={() => setHeartAnimating(false)}
             >
@@ -195,7 +195,7 @@ const PokemonCard: React.FC<PokemonCardProps> = ({
             </svg>
           ) : (
             <svg
-              className={`w-5 h-5 transition-colors ${theme === 'dark' ? 'text-slate-400 hover:text-yellow-400' : 'text-slate-400 hover:text-yellow-500'}`}
+              className={`w-4 h-4 sm:w-5 sm:h-5 transition-colors ${theme === 'dark' ? 'text-slate-400 hover:text-yellow-400' : 'text-slate-400 hover:text-yellow-500'}`}
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -271,7 +271,7 @@ const PokemonCard: React.FC<PokemonCardProps> = ({
         </div>
 
         <div
-          className={`p-4 ${
+          className={`p-2.5 sm:p-4 ${
             isCyberpunk
               ? 'bg-black/50 border-t border-cyan-500/20'
               : theme === 'dark'
@@ -280,7 +280,7 @@ const PokemonCard: React.FC<PokemonCardProps> = ({
           }`}
         >
           <p
-            className={`text-sm font-bold ${
+            className={`text-[10px] sm:text-sm font-bold ${
               isCyberpunk
                 ? 'cyber-text opacity-70'
                 : theme === 'dark'
@@ -291,24 +291,24 @@ const PokemonCard: React.FC<PokemonCardProps> = ({
             #{String(pokemon.id).padStart(4, '0')}
           </p>
           <h3
-            className={`text-xl font-bold capitalize mb-2 truncate ${
+            className={`text-sm sm:text-xl font-bold capitalize mb-1 sm:mb-2 truncate ${
               isCyberpunk ? 'cyber-text-pink' : theme === 'dark' ? 'text-white' : 'text-slate-800'
             }`}
           >
             {pokemon.name}
           </h3>
-          <div className="flex gap-2 flex-wrap">
+          <div className="flex gap-1 sm:gap-2 flex-wrap">
             {pokemon.types.map((type) => (
               <TypeBadge key={type} type={type} />
             ))}
           </div>
           {(onAddToTeam || onRemoveFromTeam) && (
-            <div className="mt-4 flex items-center justify-between gap-2">
+            <div className="mt-2 sm:mt-4 flex items-center justify-between gap-2">
               <button
                 type="button"
                 onClick={isInTeam ? handleRemoveFromTeam : handleAddToTeam}
                 disabled={!isInTeam && teamIsFull}
-                className={`w-full rounded-md border px-3 py-2 text-xs font-semibold uppercase tracking-wide transition-all hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary-400/60 ${
+                className={`w-full rounded-md border px-2 py-1.5 sm:px-3 sm:py-2 text-[10px] sm:text-xs font-semibold uppercase tracking-wide transition-all hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary-400/60 ${
                   isCyberpunk
                     ? isInTeam
                       ? 'cyber-btn border-red-400/60 !text-red-400 hover:!border-red-500 hover:!text-red-300'

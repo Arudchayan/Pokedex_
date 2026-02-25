@@ -1,8 +1,10 @@
+import { useState } from 'react';
 import FilterControls from '../components/layout/FilterControls';
 import { PokemonGridSkeleton } from '../components/base/SkeletonComposites';
 import SortingControls from '../components/layout/SortingControls';
 import VirtualPokemonList from '../components/pokemon/VirtualPokemonList';
 import TeamBuilder from '../components/team/TeamBuilder';
+import MobileTeamSheet from '../components/team/MobileTeamSheet';
 import type { AppController } from './useAppController';
 
 type Props = {
@@ -61,16 +63,18 @@ export default function AppMain({ controller }: Props) {
     handleReorderTeam,
   } = controller;
 
+  const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
+
   return (
     <main
       id="main-content"
       tabIndex={-1}
-      className="mx-auto w-full max-w-7xl px-6 py-8 outline-none"
+      className="mx-auto w-full max-w-7xl px-3 py-4 sm:px-6 sm:py-8 outline-none"
     >
-      <div className="flex flex-col gap-8 lg:flex-row">
-        <section className="flex-1 space-y-8">
-          <div className="space-y-4">
-            <div className="flex flex-col items-start justify-between gap-4 md:flex-row md:items-center">
+      <div className="flex flex-col gap-4 sm:gap-8 lg:flex-row">
+        <section className="flex-1 space-y-4 sm:space-y-8">
+          <div className="space-y-3 sm:space-y-4">
+            <div className="flex flex-col items-start justify-between gap-3 sm:gap-4 md:flex-row md:items-center">
               <SortingControls
                 sortBy={sortBy}
                 sortOrder={sortOrder}
@@ -81,7 +85,7 @@ export default function AppMain({ controller }: Props) {
                 onPokedexChange={handlePokedexChange}
               />
 
-              <div className="flex gap-4">
+              <div className="flex gap-2 sm:gap-4">
                 <div
                   className={`flex rounded-lg border p-1 ${
                     theme === 'dark' ? 'bg-black/20 border-white/10' : 'bg-white border-slate-200'
@@ -214,15 +218,63 @@ export default function AppMain({ controller }: Props) {
               </div>
             </div>
 
-            <FilterControls
-              selectedGeneration={selectedGeneration}
-              onGenerationChange={handleGenerationChange}
-              selectedTypes={selectedTypes}
-              onTypeToggle={handleTypeToggle}
-              flavorTextSearch={flavorTextSearch}
-              onFlavorTextChange={handleFlavorTextChange}
-              onClearFilters={handleClearFilters}
-            />
+            {/* Mobile filter toggle */}
+            <div className="sm:hidden">
+              <button
+                type="button"
+                onClick={() => setMobileFiltersOpen(!mobileFiltersOpen)}
+                className={`w-full flex items-center justify-between px-4 py-3 rounded-xl border text-sm font-semibold transition-colors ${
+                  theme === 'dark'
+                    ? 'border-white/10 bg-slate-950/80 text-slate-200 hover:bg-white/5'
+                    : 'border-slate-200 bg-white/80 text-slate-700 hover:bg-slate-50'
+                }`}
+              >
+                <span className="flex items-center gap-2">
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+                  </svg>
+                  Filters
+                  {(selectedTypes.length > 0 || selectedGeneration !== 'all' || flavorTextSearch.trim()) && (
+                    <span className="bg-primary-500 text-white text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                      {selectedTypes.length + (selectedGeneration !== 'all' ? 1 : 0) + (flavorTextSearch.trim() ? 1 : 0)}
+                    </span>
+                  )}
+                </span>
+                <svg
+                  className={`w-4 h-4 transition-transform ${mobileFiltersOpen ? 'rotate-180' : ''}`}
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+              {mobileFiltersOpen && (
+                <div className="mt-2">
+                  <FilterControls
+                    selectedGeneration={selectedGeneration}
+                    onGenerationChange={handleGenerationChange}
+                    selectedTypes={selectedTypes}
+                    onTypeToggle={handleTypeToggle}
+                    flavorTextSearch={flavorTextSearch}
+                    onFlavorTextChange={handleFlavorTextChange}
+                    onClearFilters={handleClearFilters}
+                  />
+                </div>
+              )}
+            </div>
+            {/* Desktop filter controls - always visible */}
+            <div className="hidden sm:block">
+              <FilterControls
+                selectedGeneration={selectedGeneration}
+                onGenerationChange={handleGenerationChange}
+                selectedTypes={selectedTypes}
+                onTypeToggle={handleTypeToggle}
+                flavorTextSearch={flavorTextSearch}
+                onFlavorTextChange={handleFlavorTextChange}
+                onClearFilters={handleClearFilters}
+              />
+            </div>
           </div>
 
           {loading ? (
@@ -382,7 +434,8 @@ export default function AppMain({ controller }: Props) {
           )}
         </section>
 
-        <div className="w-full lg:w-72 xl:w-80">
+        {/* Desktop team builder sidebar - hidden on mobile */}
+        <div className="hidden lg:block w-full lg:w-72 xl:w-80">
           <TeamBuilder
             team={teamPokemon}
             onRemove={handleRemoveFromTeam}
@@ -404,6 +457,19 @@ export default function AppMain({ controller }: Props) {
             onReorderTeam={handleReorderTeam}
           />
         </div>
+
+        {/* Mobile team builder - FAB + bottom sheet */}
+        <MobileTeamSheet
+          team={teamPokemon}
+          onRemove={handleRemoveFromTeam}
+          onClear={handleClearTeam}
+          onSelect={handleSelectPokemon}
+          teamCapacity={TEAM_CAPACITY}
+          theme={theme}
+          isCyberpunk={isCyberpunk}
+          onAddPokemon={handleFocusSearch}
+          onAddToTeam={handleAddToTeam}
+        />
       </div>
     </main>
   );

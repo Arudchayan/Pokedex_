@@ -26,13 +26,14 @@ interface VirtualPokemonListProps {
 }
 
 const GRID_ROW_HEIGHT = 360;
+const GRID_ROW_HEIGHT_MOBILE = 260;
 const LIST_ROW_HEIGHT = 140;
 
 const getGridColumns = (width: number) => {
   if (width >= 1280) return 4;
   if (width >= 1024) return 3;
-  if (width >= 768) return 2;
-  return 1;
+  if (width >= 640) return 2;
+  return 2;
 };
 
 const useGridColumns = () => {
@@ -93,9 +94,10 @@ const VirtualPokemonList: React.FC<VirtualPokemonListProps> = ({
     return pokemonList?.length || 0;
   }, [isVirtualized, viewMode, pokemonList?.length, columns]);
 
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 640;
   const virtualizer = useWindowVirtualizer({
     count: rowCount,
-    estimateSize: () => (viewMode === 'grid' ? GRID_ROW_HEIGHT : LIST_ROW_HEIGHT),
+    estimateSize: () => (viewMode === 'grid' ? (isMobile ? GRID_ROW_HEIGHT_MOBILE : GRID_ROW_HEIGHT) : LIST_ROW_HEIGHT),
     overscan: 6,
   });
 
@@ -297,7 +299,7 @@ const VirtualPokemonList: React.FC<VirtualPokemonListProps> = ({
               : virtualItems.map((virtualRow) => renderListRow(virtualRow))}
           </div>
         ) : viewMode === 'grid' ? (
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4">
+          <div className="grid grid-cols-2 gap-3 sm:gap-6 md:grid-cols-3 xl:grid-cols-4">
             {itemsToRender.map((pokemon) => (
               <div key={pokemon.id} data-poke-id={pokemon.id}>
                 <PokemonGridItem
