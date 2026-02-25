@@ -144,7 +144,9 @@ const GameHub: React.FC<GameHubProps> = ({ onClose }) => {
             <span className="text-3xl sm:text-4xl">🦋</span>
             <div className="text-center">
               <h3 className="font-bold text-sm sm:text-lg">Pokédle</h3>
-              <p className={`text-xs sm:text-sm ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>
+              <p
+                className={`text-xs sm:text-sm ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}
+              >
                 Guess the Pokémon properties
               </p>
             </div>

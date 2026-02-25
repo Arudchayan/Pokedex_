@@ -7,7 +7,12 @@ interface DetailSectionProps {
   defaultOpen?: boolean;
 }
 
-const DetailSection: React.FC<DetailSectionProps> = ({ title, children, theme, defaultOpen = true }) => {
+const DetailSection: React.FC<DetailSectionProps> = ({
+  title,
+  children,
+  theme,
+  defaultOpen = true,
+}) => {
   const [isOpen, setIsOpen] = useState(defaultOpen);
 
   return (
@@ -20,9 +25,7 @@ const DetailSection: React.FC<DetailSectionProps> = ({ title, children, theme, d
       >
         <h3
           className={`text-lg sm:text-xl font-bold pb-1 ${
-            theme === 'dark'
-              ? 'text-primary-300'
-              : 'text-primary-600'
+            theme === 'dark' ? 'text-primary-300' : 'text-primary-600'
           }`}
         >
           {title}
@@ -38,10 +41,10 @@ const DetailSection: React.FC<DetailSectionProps> = ({ title, children, theme, d
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
         </svg>
       </button>
-      <div className={`border-b-2 mb-3 ${theme === 'dark' ? 'border-primary-300/20' : 'border-primary-600/20'}`} />
-      <div className={`${isOpen ? 'block' : 'hidden sm:block'}`}>
-        {children}
-      </div>
+      <div
+        className={`border-b-2 mb-3 ${theme === 'dark' ? 'border-primary-300/20' : 'border-primary-600/20'}`}
+      />
+      <div className={`${isOpen ? 'block' : 'hidden sm:block'}`}>{children}</div>
     </div>
   );
 };

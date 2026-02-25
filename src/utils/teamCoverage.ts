@@ -37,4 +37,3 @@ export const computeOffensiveCoverage = (
 
   return { hits, coverageTypes, gaps, redundant };
 };
-

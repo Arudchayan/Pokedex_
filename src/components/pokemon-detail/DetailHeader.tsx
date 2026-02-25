@@ -55,7 +55,9 @@ const DetailHeader: React.FC<DetailHeaderProps> = ({
       alt=""
     />
     <div className="relative z-10">
-      <p className={`text-lg sm:text-2xl font-bold ${theme === 'dark' ? 'text-slate-300' : 'text-slate-600'}`}>
+      <p
+        className={`text-lg sm:text-2xl font-bold ${theme === 'dark' ? 'text-slate-300' : 'text-slate-600'}`}
+      >
         #{String(pokemon.id).padStart(4, '0')}
       </p>
       <div className="flex items-center gap-2 sm:gap-4 flex-wrap">

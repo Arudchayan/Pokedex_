@@ -32,11 +32,10 @@ const ALL_TYPES = [
 export const TeamCoveragePanel: React.FC<TeamCoveragePanelProps> = ({ team, theme }) => {
   const summary = useMemo(() => {
     const movesByMember = team.map((m) =>
-      (m.selectedMoves || []).map(
-        (name): any =>
-          name && (m as any).allMoves
-            ? (m as any).allMoves.find((mv: any) => mv.name === name) ?? null
-            : null
+      (m.selectedMoves || []).map((name): any =>
+        name && (m as any).allMoves
+          ? ((m as any).allMoves.find((mv: any) => mv.name === name) ?? null)
+          : null
       )
     );
     return computeOffensiveCoverage(team, movesByMember);
@@ -83,4 +82,3 @@ export const TeamCoveragePanel: React.FC<TeamCoveragePanelProps> = ({ team, them
 };
 
 export default TeamCoveragePanel;
-

@@ -1,7 +1,10 @@
 query getEncounterLocations($pokemonId: Int!) {
   pokemon_v2_encounter(
     where: { pokemon_id: { _eq: $pokemonId } }
-    order_by: { pokemon_v2_version: { name: asc }, pokemon_v2_locationarea: { pokemon_v2_location: { name: asc } } }
+    order_by: {
+      pokemon_v2_version: { name: asc }
+      pokemon_v2_locationarea: { pokemon_v2_location: { name: asc } }
+    }
   ) {
     min_level
     max_level

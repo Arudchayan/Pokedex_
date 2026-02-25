@@ -97,7 +97,8 @@ const VirtualPokemonList: React.FC<VirtualPokemonListProps> = ({
   const isMobile = typeof window !== 'undefined' && window.innerWidth < 640;
   const virtualizer = useWindowVirtualizer({
     count: rowCount,
-    estimateSize: () => (viewMode === 'grid' ? (isMobile ? GRID_ROW_HEIGHT_MOBILE : GRID_ROW_HEIGHT) : LIST_ROW_HEIGHT),
+    estimateSize: () =>
+      viewMode === 'grid' ? (isMobile ? GRID_ROW_HEIGHT_MOBILE : GRID_ROW_HEIGHT) : LIST_ROW_HEIGHT,
     overscan: 6,
   });
 

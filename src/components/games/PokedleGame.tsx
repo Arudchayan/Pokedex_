@@ -237,94 +237,95 @@ const PokedleGame: React.FC<Props> = ({ onClose, date, seed }) => {
 
       {/* Header Row */}
       <div className="overflow-x-auto scrollbar-hide -mx-2 px-2">
-      <div className="grid grid-cols-9 gap-1 text-center text-[10px] font-bold opacity-50 uppercase mb-2 min-w-[500px]">
-        <div className="col-span-1">Pokemon</div>
-        <div className="col-span-1">Type 1</div>
-        <div className="col-span-1">Type 2</div>
-        <div className="col-span-1">Habitat</div>
-        <div className="col-span-1">Stage</div>
-        <div className="col-span-1">Gen</div>
-        <div className="col-span-1">Height</div>
-        <div className="col-span-1">Weight</div>
-        <div className="col-span-1">Color</div>
+        <div className="grid grid-cols-9 gap-1 text-center text-[10px] font-bold opacity-50 uppercase mb-2 min-w-[500px]">
+          <div className="col-span-1">Pokemon</div>
+          <div className="col-span-1">Type 1</div>
+          <div className="col-span-1">Type 2</div>
+          <div className="col-span-1">Habitat</div>
+          <div className="col-span-1">Stage</div>
+          <div className="col-span-1">Gen</div>
+          <div className="col-span-1">Height</div>
+          <div className="col-span-1">Weight</div>
+          <div className="col-span-1">Color</div>
+        </div>
+
+        {/* Guesses */}
+        <div className="flex-1 overflow-y-auto space-y-2 pr-2">
+          {guesses.map((g, i) => (
+            <div key={i} className="grid grid-cols-9 gap-1 h-14 animate-fade-in-up min-w-[500px]">
+              {/* Pokemon Icon */}
+              <div className="col-span-1 flex items-center justify-center bg-black/10 rounded-lg border border-white/5">
+                <img src={g.pokemon.imageUrl} className="w-8 h-8 object-contain" />
+              </div>
+
+              {/* Type 1 */}
+              <div
+                className={`col-span-1 flex items-center justify-center rounded-lg border text-[10px] font-bold capitalize leading-none ${g.attributes.type1 === 'correct' ? 'bg-green-500 border-green-400' : g.attributes.type1 === 'partial' ? 'bg-yellow-500 border-yellow-400' : 'bg-red-500 border-red-400'}`}
+              >
+                {g.pokemon.types[0]}
+              </div>
+
+              {/* Type 2 */}
+              <div
+                className={`col-span-1 flex items-center justify-center rounded-lg border text-[10px] font-bold capitalize leading-none ${g.attributes.type2 === 'correct' ? 'bg-green-500 border-green-400' : g.attributes.type2 === 'partial' ? 'bg-yellow-500 border-yellow-400' : 'bg-red-500 border-red-400'}`}
+              >
+                {g.pokemon.types[1] || 'none'}
+              </div>
+
+              {/* Habitat */}
+              <div
+                className={`col-span-1 flex items-center justify-center rounded-lg border text-[10px] font-bold capitalize leading-none ${g.attributes.habitatMatch ? 'bg-green-500 border-green-400' : 'bg-red-500 border-red-400'}`}
+              >
+                {g.pokemon.habitat || '-'}
+              </div>
+
+              {/* Stage */}
+              <div
+                className={`col-span-1 flex items-center justify-center rounded-lg border font-bold ${g.attributes.stageDir === 'correct' ? 'bg-green-500 border-green-400' : 'bg-red-500 border-red-400'}`}
+              >
+                {getStage(g.pokemon)}
+                {g.attributes.stageDir === 'up' && '↑'}
+                {g.attributes.stageDir === 'down' && '↓'}
+              </div>
+
+              {/* Gen */}
+              <div
+                className={`col-span-1 flex items-center justify-center rounded-lg border font-bold ${g.attributes.genDir === 'correct' ? 'bg-green-500 border-green-400' : 'bg-red-500 border-red-400'}`}
+              >
+                {getGen(g.pokemon.id)}
+                {g.attributes.genDir === 'up' && '↑'}
+                {g.attributes.genDir === 'down' && '↓'}
+              </div>
+
+              {/* Height */}
+              <div
+                className={`col-span-1 flex items-center justify-center rounded-lg border font-bold ${g.attributes.heightDir === 'correct' ? 'bg-green-500 border-green-400' : 'bg-red-500 border-red-400'}`}
+              >
+                {g.pokemon.height}
+                {g.attributes.heightDir === 'up' && '↑'}
+                {g.attributes.heightDir === 'down' && '↓'}
+              </div>
+
+              {/* Weight */}
+              <div
+                className={`col-span-1 flex items-center justify-center rounded-lg border font-bold ${g.attributes.weightDir === 'correct' ? 'bg-green-500 border-green-400' : 'bg-red-500 border-red-400'}`}
+              >
+                {g.pokemon.weight}
+                {g.attributes.weightDir === 'up' && '↑'}
+                {g.attributes.weightDir === 'down' && '↓'}
+              </div>
+
+              {/* Color */}
+              <div
+                className={`col-span-1 flex items-center justify-center rounded-lg border font-bold capitalize text-[10px] ${g.attributes.colorMatch ? 'bg-green-500 border-green-400' : 'bg-red-500 border-red-400'}`}
+              >
+                {g.pokemon.color}
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
-
-      {/* Guesses */}
-      <div className="flex-1 overflow-y-auto space-y-2 pr-2">
-        {guesses.map((g, i) => (
-          <div key={i} className="grid grid-cols-9 gap-1 h-14 animate-fade-in-up min-w-[500px]">
-            {/* Pokemon Icon */}
-            <div className="col-span-1 flex items-center justify-center bg-black/10 rounded-lg border border-white/5">
-              <img src={g.pokemon.imageUrl} className="w-8 h-8 object-contain" />
-            </div>
-
-            {/* Type 1 */}
-            <div
-              className={`col-span-1 flex items-center justify-center rounded-lg border text-[10px] font-bold capitalize leading-none ${g.attributes.type1 === 'correct' ? 'bg-green-500 border-green-400' : g.attributes.type1 === 'partial' ? 'bg-yellow-500 border-yellow-400' : 'bg-red-500 border-red-400'}`}
-            >
-              {g.pokemon.types[0]}
-            </div>
-
-            {/* Type 2 */}
-            <div
-              className={`col-span-1 flex items-center justify-center rounded-lg border text-[10px] font-bold capitalize leading-none ${g.attributes.type2 === 'correct' ? 'bg-green-500 border-green-400' : g.attributes.type2 === 'partial' ? 'bg-yellow-500 border-yellow-400' : 'bg-red-500 border-red-400'}`}
-            >
-              {g.pokemon.types[1] || 'none'}
-            </div>
-
-            {/* Habitat */}
-            <div
-              className={`col-span-1 flex items-center justify-center rounded-lg border text-[10px] font-bold capitalize leading-none ${g.attributes.habitatMatch ? 'bg-green-500 border-green-400' : 'bg-red-500 border-red-400'}`}
-            >
-              {g.pokemon.habitat || '-'}
-            </div>
-
-            {/* Stage */}
-            <div
-              className={`col-span-1 flex items-center justify-center rounded-lg border font-bold ${g.attributes.stageDir === 'correct' ? 'bg-green-500 border-green-400' : 'bg-red-500 border-red-400'}`}
-            >
-              {getStage(g.pokemon)}
-              {g.attributes.stageDir === 'up' && '↑'}
-              {g.attributes.stageDir === 'down' && '↓'}
-            </div>
-
-            {/* Gen */}
-            <div
-              className={`col-span-1 flex items-center justify-center rounded-lg border font-bold ${g.attributes.genDir === 'correct' ? 'bg-green-500 border-green-400' : 'bg-red-500 border-red-400'}`}
-            >
-              {getGen(g.pokemon.id)}
-              {g.attributes.genDir === 'up' && '↑'}
-              {g.attributes.genDir === 'down' && '↓'}
-            </div>
-
-            {/* Height */}
-            <div
-              className={`col-span-1 flex items-center justify-center rounded-lg border font-bold ${g.attributes.heightDir === 'correct' ? 'bg-green-500 border-green-400' : 'bg-red-500 border-red-400'}`}
-            >
-              {g.pokemon.height}
-              {g.attributes.heightDir === 'up' && '↑'}
-              {g.attributes.heightDir === 'down' && '↓'}
-            </div>
-
-            {/* Weight */}
-            <div
-              className={`col-span-1 flex items-center justify-center rounded-lg border font-bold ${g.attributes.weightDir === 'correct' ? 'bg-green-500 border-green-400' : 'bg-red-500 border-red-400'}`}
-            >
-              {g.pokemon.weight}
-              {g.attributes.weightDir === 'up' && '↑'}
-              {g.attributes.weightDir === 'down' && '↓'}
-            </div>
-
-            {/* Color */}
-            <div
-              className={`col-span-1 flex items-center justify-center rounded-lg border font-bold capitalize text-[10px] ${g.attributes.colorMatch ? 'bg-green-500 border-green-400' : 'bg-red-500 border-red-400'}`}
-            >
-              {g.pokemon.color}
-            </div>
-          </div>
-        ))}
-      </div>
-      </div>{/* end overflow-x-auto wrapper */}
+      {/* end overflow-x-auto wrapper */}
     </div>
   );
 };

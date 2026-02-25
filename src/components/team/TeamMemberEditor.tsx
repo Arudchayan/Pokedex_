@@ -496,7 +496,9 @@ const TeamMemberEditor: React.FC<TeamMemberEditorProps> = ({ member, onClose, on
                               if (!m) return null;
                               const isStab =
                                 m.type &&
-                                (member.types || []).some((t) => t.toLowerCase() === m.type.toLowerCase());
+                                (member.types || []).some(
+                                  (t) => t.toLowerCase() === m.type.toLowerCase()
+                                );
                               const cls =
                                 theme === 'dark'
                                   ? 'px-2 py-0.5 rounded-full text-[10px] font-semibold bg-white/10 text-slate-200'

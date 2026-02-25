@@ -437,7 +437,9 @@ export const usePokemonStore = create<PokemonState & PokemonActions>()(
           const theme = isTheme(themeCandidate) ? themeCandidate : currentState.theme;
           const accentCandidate = hasNewStorage ? persisted.accent : legacy.accent;
           const accent = normalizeAccent(accentCandidate, currentState.accent);
-          const pokedexCandidate = hasNewStorage ? persisted.selectedPokedex : persisted.selectedPokedex;
+          const pokedexCandidate = hasNewStorage
+            ? persisted.selectedPokedex
+            : persisted.selectedPokedex;
           const selectedPokedex =
             typeof pokedexCandidate === 'string' ? pokedexCandidate : currentState.selectedPokedex;
 
@@ -474,7 +476,7 @@ export const usePokemonStore = create<PokemonState & PokemonActions>()(
             favorites,
             theme,
             accent,
-             selectedPokedex,
+            selectedPokedex,
             achievements,
             gameStats,
             savedTeams,

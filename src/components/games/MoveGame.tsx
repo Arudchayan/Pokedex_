@@ -178,62 +178,63 @@ const MoveGame: React.FC<Props> = ({ onClose, date, seed }) => {
 
       {/* Header Row */}
       <div className="overflow-x-auto scrollbar-hide -mx-2 px-2">
-      <div className="grid grid-cols-6 gap-2 text-center text-xs font-bold opacity-50 uppercase mb-2 min-w-[400px]">
-        <div className="col-span-1">Move</div>
-        <div className="col-span-1">Type</div>
-        <div className="col-span-1">Category</div>
-        <div className="col-span-1">Power</div>
-        <div className="col-span-1">Accuracy</div>
-        <div className="col-span-1">PP</div>
+        <div className="grid grid-cols-6 gap-2 text-center text-xs font-bold opacity-50 uppercase mb-2 min-w-[400px]">
+          <div className="col-span-1">Move</div>
+          <div className="col-span-1">Type</div>
+          <div className="col-span-1">Category</div>
+          <div className="col-span-1">Power</div>
+          <div className="col-span-1">Accuracy</div>
+          <div className="col-span-1">PP</div>
+        </div>
+
+        {/* Guesses */}
+        <div className="flex-1 overflow-y-auto space-y-2 pr-2">
+          {guesses.map((g, i) => (
+            <div key={i} className="grid grid-cols-6 gap-2 h-14 animate-fade-in-up min-w-[400px]">
+              <div className="col-span-1 flex items-center justify-center bg-black/10 rounded-lg border border-white/5 text-xs font-bold capitalize">
+                {g.move.name.replace('-', ' ')}
+              </div>
+
+              <div
+                className={`col-span-1 flex items-center justify-center rounded-lg border text-[10px] font-bold capitalize ${g.attributes.type === 'correct' ? 'bg-green-500 border-green-400' : 'bg-red-500 border-red-400'}`}
+              >
+                {g.move.type}
+              </div>
+
+              <div
+                className={`col-span-1 flex items-center justify-center rounded-lg border text-[10px] font-bold capitalize ${g.attributes.category === 'correct' ? 'bg-green-500 border-green-400' : 'bg-red-500 border-red-400'}`}
+              >
+                {g.move.category}
+              </div>
+
+              <div
+                className={`col-span-1 flex items-center justify-center rounded-lg border font-bold ${g.attributes.power === 'correct' ? 'bg-green-500 border-green-400' : 'bg-red-500 border-red-400'}`}
+              >
+                {g.move.power || '-'}
+                {g.attributes.power === 'up' && '↑'}
+                {g.attributes.power === 'down' && '↓'}
+              </div>
+
+              <div
+                className={`col-span-1 flex items-center justify-center rounded-lg border font-bold ${g.attributes.accuracy === 'correct' ? 'bg-green-500 border-green-400' : 'bg-red-500 border-red-400'}`}
+              >
+                {g.move.accuracy || '-'}
+                {g.attributes.accuracy === 'up' && '↑'}
+                {g.attributes.accuracy === 'down' && '↓'}
+              </div>
+
+              <div
+                className={`col-span-1 flex items-center justify-center rounded-lg border font-bold ${g.attributes.pp === 'correct' ? 'bg-green-500 border-green-400' : 'bg-red-500 border-red-400'}`}
+              >
+                {g.move.pp}
+                {g.attributes.pp === 'up' && '↑'}
+                {g.attributes.pp === 'down' && '↓'}
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
-
-      {/* Guesses */}
-      <div className="flex-1 overflow-y-auto space-y-2 pr-2">
-        {guesses.map((g, i) => (
-          <div key={i} className="grid grid-cols-6 gap-2 h-14 animate-fade-in-up min-w-[400px]">
-            <div className="col-span-1 flex items-center justify-center bg-black/10 rounded-lg border border-white/5 text-xs font-bold capitalize">
-              {g.move.name.replace('-', ' ')}
-            </div>
-
-            <div
-              className={`col-span-1 flex items-center justify-center rounded-lg border text-[10px] font-bold capitalize ${g.attributes.type === 'correct' ? 'bg-green-500 border-green-400' : 'bg-red-500 border-red-400'}`}
-            >
-              {g.move.type}
-            </div>
-
-            <div
-              className={`col-span-1 flex items-center justify-center rounded-lg border text-[10px] font-bold capitalize ${g.attributes.category === 'correct' ? 'bg-green-500 border-green-400' : 'bg-red-500 border-red-400'}`}
-            >
-              {g.move.category}
-            </div>
-
-            <div
-              className={`col-span-1 flex items-center justify-center rounded-lg border font-bold ${g.attributes.power === 'correct' ? 'bg-green-500 border-green-400' : 'bg-red-500 border-red-400'}`}
-            >
-              {g.move.power || '-'}
-              {g.attributes.power === 'up' && '↑'}
-              {g.attributes.power === 'down' && '↓'}
-            </div>
-
-            <div
-              className={`col-span-1 flex items-center justify-center rounded-lg border font-bold ${g.attributes.accuracy === 'correct' ? 'bg-green-500 border-green-400' : 'bg-red-500 border-red-400'}`}
-            >
-              {g.move.accuracy || '-'}
-              {g.attributes.accuracy === 'up' && '↑'}
-              {g.attributes.accuracy === 'down' && '↓'}
-            </div>
-
-            <div
-              className={`col-span-1 flex items-center justify-center rounded-lg border font-bold ${g.attributes.pp === 'correct' ? 'bg-green-500 border-green-400' : 'bg-red-500 border-red-400'}`}
-            >
-              {g.move.pp}
-              {g.attributes.pp === 'up' && '↑'}
-              {g.attributes.pp === 'down' && '↓'}
-            </div>
-          </div>
-        ))}
-      </div>
-      </div>{/* end overflow-x-auto wrapper */}
+      {/* end overflow-x-auto wrapper */}
     </div>
   );
 };

@@ -1,6 +1,13 @@
 import { get, set, del } from 'idb-keyval';
 import { MAX_POKEMON_ID, POKEAPI_GRAPHQL_URL } from '../constants';
-import { PokemonListItem, PokemonDetails, PokemonMove, PokemonForm, Item, PokemonEncounter } from '../types';
+import {
+  PokemonListItem,
+  PokemonDetails,
+  PokemonMove,
+  PokemonForm,
+  Item,
+  PokemonEncounter,
+} from '../types';
 import { logError, retryApiCall, isNetworkError } from '../utils/errorHandler';
 import {
   sanitizeString,
@@ -679,7 +686,10 @@ interface EncounterLocationsResponse {
   pokemon_v2_encounter: {
     min_level: number;
     max_level: number;
-    pokemon_v2_encounterslots: { rarity: number; pokemon_v2_encountermethod: { name: string } | null }[];
+    pokemon_v2_encounterslots: {
+      rarity: number;
+      pokemon_v2_encountermethod: { name: string } | null;
+    }[];
     pokemon_v2_version: { name: string } | null;
     pokemon_v2_locationarea: { pokemon_v2_location: { name: string } | null } | null;
   }[];
@@ -705,10 +715,12 @@ export const fetchEncounterLocations = async (pokemonId: number): Promise<Pokemo
     });
 
     const encounters: PokemonEncounter[] = data.pokemon_v2_encounter.map((enc) => ({
-      locationName: enc.pokemon_v2_locationarea?.pokemon_v2_location?.name?.replace(/-/g, ' ') ?? 'Unknown',
+      locationName:
+        enc.pokemon_v2_locationarea?.pokemon_v2_location?.name?.replace(/-/g, ' ') ?? 'Unknown',
       gameVersion: enc.pokemon_v2_version?.name?.replace(/-/g, ' ') ?? 'Unknown',
       encounterMethod:
-        enc.pokemon_v2_encounterslots[0]?.pokemon_v2_encountermethod?.name?.replace(/-/g, ' ') ?? 'Unknown',
+        enc.pokemon_v2_encounterslots[0]?.pokemon_v2_encountermethod?.name?.replace(/-/g, ' ') ??
+        'Unknown',
       minLevel: enc.min_level,
       maxLevel: enc.max_level,
       chance: enc.pokemon_v2_encounterslots[0]?.rarity ?? 0,

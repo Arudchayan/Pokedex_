@@ -19,11 +19,12 @@ const METHOD_ICONS: Record<string, string> = {
   gift: '🎁',
   'only one': '⭐',
   pokeradar: '📡',
-  'slot2': '📦',
+  slot2: '📦',
   default: '📍',
 };
 
-const getMethodIcon = (method: string) => METHOD_ICONS[method.toLowerCase()] ?? METHOD_ICONS.default;
+const getMethodIcon = (method: string) =>
+  METHOD_ICONS[method.toLowerCase()] ?? METHOD_ICONS.default;
 
 const formatVersionName = (name: string) =>
   name
@@ -59,8 +60,11 @@ const EncountersTab: React.FC<EncountersTabProps> = ({ pokemonId, theme }) => {
   }, [encounters]);
 
   const filtered = useMemo(
-    () => (selectedGame === 'all' ? encounters : encounters.filter((e) => e.gameVersion === selectedGame)),
-    [encounters, selectedGame],
+    () =>
+      selectedGame === 'all'
+        ? encounters
+        : encounters.filter((e) => e.gameVersion === selectedGame),
+    [encounters, selectedGame]
   );
 
   // Group by game version for display
@@ -104,7 +108,9 @@ const EncountersTab: React.FC<EncountersTabProps> = ({ pokemonId, theme }) => {
 
   if (encounters.length === 0) {
     return (
-      <div className={`rounded-xl p-6 text-center text-sm ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+      <div
+        className={`rounded-xl p-6 text-center text-sm ${isDark ? 'text-slate-400' : 'text-slate-500'}`}
+      >
         No wild encounter data available for this Pokémon.
       </div>
     );
@@ -117,14 +123,17 @@ const EncountersTab: React.FC<EncountersTabProps> = ({ pokemonId, theme }) => {
         <div className="flex flex-wrap gap-2">
           {pill('All Games', selectedGame === 'all', () => setSelectedGame('all'))}
           {gameVersions.map((v) =>
-            pill(formatVersionName(v), selectedGame === v, () => setSelectedGame(v)),
+            pill(formatVersionName(v), selectedGame === v, () => setSelectedGame(v))
           )}
         </div>
       )}
 
       {/* Encounter groups */}
       {Array.from(grouped.entries()).map(([game, encs]) => (
-        <div key={game} className={`rounded-xl border overflow-hidden ${isDark ? 'border-white/10' : 'border-slate-200'}`}>
+        <div
+          key={game}
+          className={`rounded-xl border overflow-hidden ${isDark ? 'border-white/10' : 'border-slate-200'}`}
+        >
           {/* Game header */}
           <div
             className={`px-4 py-2 flex items-center gap-2 text-sm font-bold ${
@@ -161,7 +170,8 @@ const EncountersTab: React.FC<EncountersTabProps> = ({ pokemonId, theme }) => {
                     isDark ? 'bg-white/10 text-slate-400' : 'bg-slate-100 text-slate-500'
                   }`}
                 >
-                  Lv {enc.minLevel === enc.maxLevel ? enc.minLevel : `${enc.minLevel}–${enc.maxLevel}`}
+                  Lv{' '}
+                  {enc.minLevel === enc.maxLevel ? enc.minLevel : `${enc.minLevel}–${enc.maxLevel}`}
                 </span>
 
                 {/* Chance */}
