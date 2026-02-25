@@ -236,7 +236,8 @@ const PokedleGame: React.FC<Props> = ({ onClose, date, seed }) => {
       )}
 
       {/* Header Row */}
-      <div className="grid grid-cols-9 gap-1 text-center text-[10px] font-bold opacity-50 uppercase mb-2">
+      <div className="overflow-x-auto scrollbar-hide -mx-2 px-2">
+      <div className="grid grid-cols-9 gap-1 text-center text-[10px] font-bold opacity-50 uppercase mb-2 min-w-[500px]">
         <div className="col-span-1">Pokemon</div>
         <div className="col-span-1">Type 1</div>
         <div className="col-span-1">Type 2</div>
@@ -251,7 +252,7 @@ const PokedleGame: React.FC<Props> = ({ onClose, date, seed }) => {
       {/* Guesses */}
       <div className="flex-1 overflow-y-auto space-y-2 pr-2">
         {guesses.map((g, i) => (
-          <div key={i} className="grid grid-cols-9 gap-1 h-14 animate-fade-in-up">
+          <div key={i} className="grid grid-cols-9 gap-1 h-14 animate-fade-in-up min-w-[500px]">
             {/* Pokemon Icon */}
             <div className="col-span-1 flex items-center justify-center bg-black/10 rounded-lg border border-white/5">
               <img src={g.pokemon.imageUrl} className="w-8 h-8 object-contain" />
@@ -323,6 +324,7 @@ const PokedleGame: React.FC<Props> = ({ onClose, date, seed }) => {
           </div>
         ))}
       </div>
+      </div>{/* end overflow-x-auto wrapper */}
     </div>
   );
 };

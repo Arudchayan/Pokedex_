@@ -105,7 +105,7 @@ const TrainerCard: React.FC<TrainerCardProps> = ({ onClose }) => {
         </div>
 
         {/* Team Display */}
-        <div className="relative z-10 flex-1 p-6 grid grid-cols-3 grid-rows-2 gap-4">
+        <div className="relative z-10 flex-1 p-3 sm:p-6 grid grid-cols-3 grid-rows-2 gap-2 sm:gap-4">
           {Array.from({ length: 6 }).map((_, i) => {
             const pokemon = team[i];
             return (
@@ -124,7 +124,7 @@ const TrainerCard: React.FC<TrainerCardProps> = ({ onClose }) => {
                     <img
                       src={pokemon.imageUrl}
                       alt={pokemon.name}
-                      className="w-24 h-24 object-contain z-10 drop-shadow-xl"
+                      className="w-16 h-16 sm:w-24 sm:h-24 object-contain z-10 drop-shadow-xl"
                       crossOrigin="anonymous"
                     />
                     <div className="absolute bottom-2 left-2 z-20">
