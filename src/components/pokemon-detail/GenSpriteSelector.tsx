@@ -23,68 +23,62 @@ const GenSpriteSelector: React.FC<GenSpriteSelectorProps> = ({
     onSelectGen(val === '' ? null : val);
   };
 
+  const groupedGens = generations.reduce<Record<string, string[]>>((acc, gen) => {
+    const match = gen.match(/^Gen (\d)/);
+    const group = match ? `Generation ${match[1]}` : 'Other';
+    if (!acc[group]) acc[group] = [];
+    acc[group].push(gen);
+    return acc;
+  }, {});
+
   return (
     <div className="mt-4">
-      <p
-        className={`text-[10px] font-bold uppercase tracking-wider mb-2 opacity-60 ${theme === 'dark' ? 'text-slate-400' : 'text-slate-600'}`}
-      >
-        Sprite Style
-      </p>
-
-      {/* Mobile: compact dropdown */}
-      <div className="sm:hidden">
-        <select
-          value={selectedGen ?? ''}
-          onChange={handleSelectChange}
-          className={`w-full rounded-lg border px-3 py-2.5 text-sm font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 appearance-none ${
-            theme === 'dark'
-              ? 'bg-slate-800 border-white/10 text-white'
-              : 'bg-white border-slate-300 text-slate-900'
-          }`}
-          style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M3 5l3 3 3-3' stroke='%239ca3af' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E")`,
-            backgroundRepeat: 'no-repeat',
-            backgroundPosition: 'right 12px center',
-          }}
+      <div className="flex items-center gap-3">
+        <label
+          htmlFor="sprite-style-select"
+          className={`text-[10px] font-bold uppercase tracking-wider opacity-60 whitespace-nowrap ${theme === 'dark' ? 'text-slate-400' : 'text-slate-600'}`}
         >
-          <option value="">Modern (Default)</option>
-          {generations.map((gen) => (
-            <option key={gen} value={gen}>
-              {gen}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      {/* Desktop: pill buttons */}
-      <div className="hidden sm:flex flex-wrap gap-1.5">
-        <button
-          onClick={() => onSelectGen(null)}
-          className={`px-2.5 py-1 text-[10px] font-bold rounded-full transition-all border ${
-            selectedGen === null
-              ? 'bg-primary-500 border-primary-400 text-white shadow-lg shadow-primary-500/30'
-              : theme === 'dark'
-                ? 'bg-white/5 border-white/10 text-slate-400 hover:bg-white/10'
-                : 'bg-black/5 border-black/5 text-slate-600 hover:bg-black/10'
-          }`}
-        >
-          Modern
-        </button>
-        {generations.map((gen) => (
-          <button
-            key={gen}
-            onClick={() => onSelectGen(gen)}
-            className={`px-2.5 py-1 text-[10px] font-bold rounded-full transition-all border ${
-              selectedGen === gen
-                ? 'bg-primary-500 border-primary-400 text-white shadow-lg shadow-primary-500/30'
+          Sprite Style
+        </label>
+        <div className="relative flex-1 max-w-xs">
+          <select
+            id="sprite-style-select"
+            value={selectedGen ?? ''}
+            onChange={handleSelectChange}
+            className={`w-full rounded-lg border px-3 py-2 text-sm font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 appearance-none pr-8 ${
+              selectedGen
+                ? theme === 'dark'
+                  ? 'bg-primary-500/15 border-primary-400/40 text-primary-300'
+                  : 'bg-primary-50 border-primary-300 text-primary-700'
                 : theme === 'dark'
-                  ? 'bg-white/5 border-white/10 text-slate-400 hover:bg-white/10'
-                  : 'bg-black/5 border-black/5 text-slate-600 hover:bg-black/10'
+                  ? 'bg-slate-800 border-white/10 text-white'
+                  : 'bg-white border-slate-300 text-slate-900'
             }`}
+            style={{
+              backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M3 5l3 3 3-3' stroke='%239ca3af' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E")`,
+              backgroundRepeat: 'no-repeat',
+              backgroundPosition: 'right 10px center',
+            }}
           >
-            {gen}
-          </button>
-        ))}
+            <option value="">Modern (Default)</option>
+            {Object.entries(groupedGens).map(([group, gens]) => (
+              <optgroup key={group} label={group}>
+                {gens.map((gen) => (
+                  <option key={gen} value={gen}>
+                    {gen}
+                  </option>
+                ))}
+              </optgroup>
+            ))}
+            <optgroup label="Special">
+              {generations.filter(g => !g.startsWith('Gen ')).map((gen) => (
+                <option key={gen} value={gen}>
+                  {gen}
+                </option>
+              ))}
+            </optgroup>
+          </select>
+        </div>
       </div>
     </div>
   );
