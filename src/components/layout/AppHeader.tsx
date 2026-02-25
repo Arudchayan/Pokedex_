@@ -163,17 +163,17 @@ const AppHeader: React.FC<AppHeaderProps> = memo(({ onRandomPokemon }) => {
             : 'border-slate-200 bg-white/90'
       }`}
     >
-      <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-6 py-6">
-        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-          <div className="flex items-center gap-4">
+      <div className="mx-auto flex w-full max-w-7xl flex-col gap-3 px-4 py-3 sm:gap-6 sm:px-6 sm:py-6">
+        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+          <div className="flex items-center gap-3 sm:gap-4">
             <img
               src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png"
               alt="Pokeball"
-              className="h-11 w-11 drop-shadow-lg"
+              className="h-8 w-8 sm:h-11 sm:w-11 drop-shadow-lg"
             />
-            <div>
+            <div className="flex-1 min-w-0">
               <h1
-                className={`text-4xl font-black tracking-tight sm:text-5xl ${
+                className={`text-2xl font-black tracking-tight sm:text-4xl md:text-5xl ${
                   isCyberpunk
                     ? 'cyber-title'
                     : theme === 'dark'
@@ -184,7 +184,7 @@ const AppHeader: React.FC<AppHeaderProps> = memo(({ onRandomPokemon }) => {
                 Pokedex
               </h1>
               <p
-                className={`text-sm ${
+                className={`hidden sm:block text-sm ${
                   isCyberpunk
                     ? 'cyber-text opacity-70'
                     : theme === 'dark'
@@ -199,15 +199,17 @@ const AppHeader: React.FC<AppHeaderProps> = memo(({ onRandomPokemon }) => {
             </div>
 
             {/* Utility buttons */}
-            <div className="flex gap-2 items-center">
-              {/* Walkthrough Badge */}
-              <WalkthroughBadge onClick={openWalkthroughModal} />
+            <div className="flex gap-1.5 sm:gap-2 items-center ml-auto">
+              {/* Walkthrough Badge - hidden on mobile */}
+              <div className="hidden sm:block">
+                <WalkthroughBadge onClick={openWalkthroughModal} />
+              </div>
 
               {/* Mobile drawer toggle - visible below md */}
               <button
                 type="button"
                 onClick={() => setMobileDrawerOpen(true)}
-                className={`md:hidden p-2 rounded-lg border transition-all hover:scale-105 focus-visible:ring-2 focus-visible:ring-primary-500 focus:outline-none ${
+                className={`md:hidden p-2.5 rounded-lg border transition-all hover:scale-105 focus-visible:ring-2 focus-visible:ring-primary-500 focus:outline-none ${
                   theme === 'dark'
                     ? 'bg-slate-800 border-slate-700 text-slate-300 hover:text-white'
                     : 'bg-slate-200 border-slate-300 text-slate-600 hover:text-slate-900'
@@ -231,6 +233,8 @@ const AppHeader: React.FC<AppHeaderProps> = memo(({ onRandomPokemon }) => {
                 </svg>
               </button>
 
+              {/* Desktop-only buttons - hidden on mobile */}
+              <div className="hidden md:flex gap-2 items-center">
               <div className="relative" ref={menuRef}>
                 <button
                   type="button"
@@ -565,9 +569,10 @@ const AppHeader: React.FC<AppHeaderProps> = memo(({ onRandomPokemon }) => {
                   />
                 </svg>
               </a>
+              </div>{/* end desktop-only buttons */}
             </div>
           </div>
-          <div className="flex gap-2 w-full max-w-md md:max-w-sm" data-tour="search-bar">
+          <div className="flex gap-2 w-full md:max-w-sm" data-tour="search-bar">
             <SearchBar
               id="main-search"
               value={searchTerm}

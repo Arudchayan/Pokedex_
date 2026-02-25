@@ -38,22 +38,22 @@ const SortingControls: React.FC<SortingControlsProps> = ({
   const isStatSelected = statOptions.some((opt) => opt.value === sortBy);
 
   return (
-    <div className="flex flex-wrap gap-3 items-center">
-      <div className="flex items-center gap-2" role="group" aria-labelledby="sort-label">
+    <div className="flex flex-wrap gap-2 sm:gap-3 items-center w-full sm:w-auto">
+      <div className="flex items-center gap-2 w-full sm:w-auto overflow-x-auto scrollbar-hide" role="group" aria-labelledby="sort-label">
         <label
           id="sort-label"
-          className={`text-sm font-semibold ${theme === 'dark' ? 'text-slate-300' : 'text-slate-600'}`}
+          className={`text-xs sm:text-sm font-semibold whitespace-nowrap flex-shrink-0 ${theme === 'dark' ? 'text-slate-300' : 'text-slate-600'}`}
         >
           Sort by:
         </label>
-        <div className="flex gap-2 flex-wrap">
+        <div className="flex gap-1.5 sm:gap-2 flex-nowrap sm:flex-wrap">
           {sortOptions.map((option) => (
             <button
               key={option.value}
               type="button"
               onClick={() => onSortChange(option.value)}
               aria-pressed={sortBy === option.value}
-              className={`px-3 py-2 rounded-lg text-sm font-semibold transition-all focus:outline-none focus:ring-2 focus:ring-primary-500 ${
+              className={`px-2.5 py-2 rounded-lg text-xs sm:text-sm sm:px-3 font-semibold whitespace-nowrap transition-all focus:outline-none focus:ring-2 focus:ring-primary-500 flex-shrink-0 ${
                 sortBy === option.value
                   ? 'bg-primary-500/30 text-primary-300 border border-primary-400/60 shadow-lg'
                   : theme === 'dark'
@@ -71,7 +71,7 @@ const SortingControls: React.FC<SortingControlsProps> = ({
               value={isStatSelected ? sortBy : ''}
               onChange={(e) => onSortChange(e.target.value as SortOption)}
               aria-label="Sort by Stat"
-              className={`appearance-none pl-3 pr-8 py-2 rounded-lg text-sm font-semibold transition-all focus:outline-none focus:ring-2 focus:ring-primary-500 cursor-pointer ${
+              className={`appearance-none pl-2.5 pr-7 sm:pl-3 sm:pr-8 py-2 rounded-lg text-xs sm:text-sm font-semibold whitespace-nowrap transition-all focus:outline-none focus:ring-2 focus:ring-primary-500 cursor-pointer flex-shrink-0 ${
                 isStatSelected
                   ? 'bg-primary-500/30 text-primary-300 border border-primary-400/60 shadow-lg'
                   : theme === 'dark'

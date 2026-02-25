@@ -119,7 +119,7 @@ function Modal({
   return ReactDOM.createPortal(
     <div
       ref={contentRef}
-      className="fixed inset-0 z-[1050] flex items-center justify-center p-4"
+      className="fixed inset-0 z-[1050] flex items-end sm:items-center justify-center sm:p-4"
       role="dialog"
       aria-modal="true"
       aria-labelledby={titleId}
@@ -132,18 +132,25 @@ function Modal({
         className={[
           'relative w-full',
           sizeClasses[size],
-          'bg-white dark:bg-slate-900 rounded-2xl shadow-xl max-h-[90vh] overflow-y-auto',
-          'animate-modal-enter',
+          'bg-white dark:bg-slate-900 shadow-xl overflow-y-auto',
+          'rounded-t-2xl sm:rounded-2xl',
+          'max-h-[92vh] sm:max-h-[90vh]',
+          'animate-modal-enter-mobile sm:animate-modal-enter',
           className,
         ]
           .filter(Boolean)
           .join(' ')}
       >
+        {/* Mobile drag indicator */}
+        <div className="sm:hidden flex justify-center pt-2 pb-0">
+          <div className="w-10 h-1 rounded-full bg-slate-300 dark:bg-slate-600" />
+        </div>
+
         {/* Header */}
-        <div className="sticky top-0 z-10 flex items-center justify-between gap-4 px-4 sm:px-6 py-4 border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 rounded-t-2xl">
+        <div className="sticky top-0 z-10 flex items-center justify-between gap-3 px-4 sm:px-6 py-3 sm:py-4 border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 sm:rounded-t-2xl">
           <h2
             id={titleId}
-            className="text-lg font-semibold text-slate-900 dark:text-white truncate flex-1"
+            className="text-base sm:text-lg font-semibold text-slate-900 dark:text-white truncate flex-1"
           >
             {title}
           </h2>
@@ -154,7 +161,7 @@ function Modal({
               type="button"
               onClick={onClose}
               aria-label="Close"
-              className="flex-shrink-0 p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+              className="flex-shrink-0 p-2 sm:p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -189,8 +196,21 @@ function Modal({
             transform: scale(1);
           }
         }
+        @keyframes modal-enter-mobile {
+          from {
+            opacity: 0;
+            transform: translateY(100%);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
         .animate-modal-enter {
           animation: modal-enter 0.2s ease-out;
+        }
+        .animate-modal-enter-mobile {
+          animation: modal-enter-mobile 0.3s ease-out;
         }
       `}</style>
     </div>,

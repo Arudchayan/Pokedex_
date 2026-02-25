@@ -312,7 +312,7 @@ const FilterControls: React.FC<FilterControlsProps> = ({
                       key={type}
                       type="button"
                       onClick={() => onTypeToggle(type)}
-                      className={`min-h-[44px] w-[90px] rounded-full px-3 py-1.5 text-xs font-semibold capitalize transition flex items-center justify-center ${baseClass} ${stateClass}`}
+                      className={`min-h-[40px] sm:min-h-[44px] w-[72px] sm:w-[90px] rounded-full px-2 sm:px-3 py-1 sm:py-1.5 text-[11px] sm:text-xs font-semibold capitalize transition flex items-center justify-center ${baseClass} ${stateClass}`}
                       aria-pressed={isSelected}
                     >
                       {type}
