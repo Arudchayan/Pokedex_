@@ -13,6 +13,7 @@ import DetailSection from '../pokemon-detail/DetailSection';
 import InfoPill from '../pokemon-detail/InfoPill';
 import MovesSection from '../pokemon-detail/MovesSection';
 import TypeDefenseSection from '../pokemon-detail/TypeDefenseSection';
+import EncountersTab from '../pokemon-detail/EncountersTab';
 import { TYPE_COLORS, TYPE_RELATIONS, TYPE_COLORS_HEX } from '../../constants';
 import { usePokemon } from '../../context/PokemonContext';
 
@@ -456,6 +457,10 @@ const PokemonDetailView: React.FC<PokemonDetailViewProps> = ({
                   </DetailSection>
 
                   <TypeDefenseSection theme={theme} typeEffectiveness={typeEffectiveness} />
+
+                  <DetailSection title="Encounter Locations" theme={theme}>
+                    <EncountersTab pokemonId={pokemon.id} theme={theme} />
+                  </DetailSection>
 
                   <DetailSection title="Battle Mechanics" theme={theme}>
                     <GameMechanics pokemon={pokemon} />

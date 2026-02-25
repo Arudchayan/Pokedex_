@@ -56,6 +56,8 @@ interface TeamBuilderProps {
   onReorderTeam: (fromIndex: number, toIndex: number) => void;
 }
 
+const TeamCoveragePanel = React.lazy(() => import('./TeamCoveragePanel'));
+
 const TeamBuilder: React.FC<TeamBuilderProps> = ({
   team,
   onRemove,
@@ -355,6 +357,10 @@ const TeamBuilder: React.FC<TeamBuilderProps> = ({
             ))}
           </div>
         )}
+
+        <Suspense fallback={null}>
+          <TeamCoveragePanel team={team} theme={theme} />
+        </Suspense>
       </div>
 
       <div

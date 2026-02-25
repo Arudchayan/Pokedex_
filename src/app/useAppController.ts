@@ -37,6 +37,9 @@ export const useAppController = () => {
     canRedo,
   } = usePokemon();
 
+  const selectedPokedex = usePokemonStore((state) => state.selectedPokedex ?? 'national');
+  const setPokedex = usePokemonStore((state) => state.setPokedex);
+
   const { addToast } = useToast();
   const modalState = useModalState();
 
@@ -116,6 +119,13 @@ export const useAppController = () => {
     usePokemonStore.getState().toggleShiny();
   }, []);
 
+  const handlePokedexChange = useCallback(
+    (pokedex: string) => {
+      setPokedex(pokedex);
+    },
+    [setPokedex]
+  );
+
   const handleRandomPokemon = useCallback(() => {
     const currentFiltered = filteredPokemonRef.current;
     if (currentFiltered.length > 0) {
@@ -145,6 +155,7 @@ export const useAppController = () => {
     comparisonPokemon,
     sortBy,
     sortOrder,
+    selectedPokedex,
     theme,
     isShiny,
     isCyberpunk,
@@ -187,6 +198,7 @@ export const useAppController = () => {
     handleToggleShiny,
     handleRandomPokemon,
     handleFocusSearch,
+    handlePokedexChange,
 
     // Composed controllers
     ...teamController,

@@ -9,4 +9,5 @@ export type SortOption =
   | 'defense'
   | 'special-attack'
   | 'special-defense'
-  | 'speed';
+  | 'speed'
+  | 'regional-dex';

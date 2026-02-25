@@ -57,6 +57,7 @@ export interface PokemonState {
   // Sorting
   sortBy: SortOption;
   sortOrder: 'asc' | 'desc';
+  selectedPokedex?: string;
 
   // UI State
   theme: 'dark' | 'light';
@@ -97,6 +98,7 @@ export type Action =
   | { type: 'CLEAR_COMPARISON' }
   | { type: 'SET_COMPARISON_LIST'; payload: number[] }
   | { type: 'SET_SORT'; payload: { sortBy: SortOption; sortOrder: 'asc' | 'desc' } }
+  | { type: 'SET_POKEDEX'; payload: string }
   | { type: 'TOGGLE_THEME' }
   | { type: 'SET_THEME'; payload: 'dark' | 'light' }
   | { type: 'SET_ACCENT'; payload: AccentColor }

@@ -67,6 +67,17 @@ export interface PokemonMove {
   learnMethod: string;
   level: number;
   priority?: number;
+  versionGroup?: string;
+  isShadow?: boolean;
+}
+
+export interface PokemonEncounter {
+  locationName: string;
+  gameVersion: string;
+  encounterMethod: string;
+  minLevel: number;
+  maxLevel: number;
+  chance: number;
 }
 
 export interface SpriteSet {
@@ -105,6 +116,7 @@ export interface PokemonDetails extends Omit<PokemonListItem, 'abilities'> {
   growthRate: string;
   shape: string;
   moves: PokemonMove[];
+  encounters?: PokemonEncounter[];
   detailImageUrl: string;
   shinyDetailImageUrl: string;
   forms: PokemonForm[];
