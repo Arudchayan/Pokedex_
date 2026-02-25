@@ -384,7 +384,7 @@ const PokemonDetailView: React.FC<PokemonDetailViewProps> = ({
 
                 <div className="flex flex-col gap-6">
                   {pokemon.forms && pokemon.forms.length > 0 && (
-                    <DetailSection title="Forms & Variants" theme={theme}>
+                    <DetailSection title="Forms & Variants" theme={theme} defaultOpen={false}>
                       <FormSelector
                         forms={pokemon.forms}
                         selectedForm={selectedForm}
@@ -431,7 +431,7 @@ const PokemonDetailView: React.FC<PokemonDetailViewProps> = ({
                     </div>
                   </DetailSection>
 
-                  <DetailSection title="Training" theme={theme}>
+                  <DetailSection title="Training" theme={theme} defaultOpen={false}>
                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                       <InfoPill
                         label="Capture Rate"
@@ -447,7 +447,7 @@ const PokemonDetailView: React.FC<PokemonDetailViewProps> = ({
                     </div>
                   </DetailSection>
 
-                  <DetailSection title="Breeding" theme={theme}>
+                  <DetailSection title="Breeding" theme={theme} defaultOpen={false}>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <InfoPill
                         label="Gender"
@@ -468,7 +468,7 @@ const PokemonDetailView: React.FC<PokemonDetailViewProps> = ({
                     <EncountersTab pokemonId={pokemon.id} theme={theme} />
                   </DetailSection>
 
-                  <DetailSection title="Battle Mechanics" theme={theme}>
+                  <DetailSection title="Battle Mechanics" theme={theme} defaultOpen={false}>
                     <GameMechanics pokemon={pokemon} />
                   </DetailSection>
 

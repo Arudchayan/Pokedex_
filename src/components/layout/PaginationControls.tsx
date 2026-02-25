@@ -16,8 +16,8 @@ const PaginationControls: React.FC<PaginationControlsProps> = ({
   if (totalPages <= 1) return null;
 
   return (
-    <div className="flex flex-col items-center gap-4 py-8">
-      <div className="flex items-center gap-4">
+    <div className="flex flex-col items-center gap-3 sm:gap-4 py-6 sm:py-8">
+      <div className="flex items-center gap-2 sm:gap-4">
         <button
           onClick={() => onPageChange(currentPage - 1)}
           disabled={currentPage === 1}
@@ -36,7 +36,7 @@ const PaginationControls: React.FC<PaginationControlsProps> = ({
               d="M15 19l-7-7 7-7"
             />
           </svg>
-          Previous
+          <span className="hidden sm:inline">Previous</span>
         </button>
 
         <span
@@ -58,7 +58,7 @@ const PaginationControls: React.FC<PaginationControlsProps> = ({
           }`}
           aria-label="Next Page"
         >
-          Next
+          <span className="hidden sm:inline">Next</span>
           <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
           </svg>

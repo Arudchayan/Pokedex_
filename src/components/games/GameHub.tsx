@@ -113,38 +113,38 @@ const GameHub: React.FC<GameHubProps> = ({ onClose }) => {
           </button>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
           {/* Battle Button - Featured */}
           <button
             onClick={() =>
               window.open('https://play.pokemonshowdown.com/', '_blank', 'noopener,noreferrer')
             }
-            className={`md:col-span-2 lg:col-span-3 p-8 rounded-xl shadow-lg transition-all hover:scale-[1.01] flex flex-row items-center justify-between gap-6 overflow-hidden relative group ${theme === 'dark' ? 'bg-gradient-to-r from-red-900 to-slate-800 border-red-700' : 'bg-gradient-to-r from-red-100 to-slate-100 border-red-200'} border`}
+            className={`col-span-2 lg:col-span-3 p-4 sm:p-8 rounded-xl shadow-lg transition-all hover:scale-[1.01] flex flex-row items-center justify-between gap-3 sm:gap-6 overflow-hidden relative group ${theme === 'dark' ? 'bg-gradient-to-r from-red-900 to-slate-800 border-red-700' : 'bg-gradient-to-r from-red-100 to-slate-100 border-red-200'} border`}
           >
-            <div className="flex flex-col items-start z-10">
-              <span className="text-xs font-bold uppercase tracking-wider text-red-500 mb-1">
+            <div className="flex flex-col items-start z-10 min-w-0">
+              <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-red-500 mb-1">
                 External Link
               </span>
-              <h3 className="font-black text-3xl">Battle Simulator</h3>
+              <h3 className="font-black text-xl sm:text-3xl">Battle Simulator</h3>
               <p
-                className={`text-sm mt-2 max-w-md text-left ${theme === 'dark' ? 'text-slate-300' : 'text-slate-600'}`}
+                className={`text-xs sm:text-sm mt-1 sm:mt-2 max-w-md text-left ${theme === 'dark' ? 'text-slate-300' : 'text-slate-600'}`}
               >
-                Play on Pokémon Showdown! The ultimate battle simulator.
+                Play on Pokémon Showdown!
               </p>
             </div>
-            <div className="text-6xl animate-bounce-slow">⚔️</div>
+            <div className="text-4xl sm:text-6xl animate-bounce-slow flex-shrink-0">⚔️</div>
             <div className="absolute right-4 bottom-4 opacity-50 text-xs">Opens in new tab ↗</div>
           </button>
 
           <button
             onClick={() => setSelectedGame('pokedle')}
-            className={`relative p-6 rounded-xl shadow-lg transition-all hover:scale-[1.02] flex flex-col items-center justify-center gap-3 ${theme === 'dark' ? 'bg-slate-800 hover:bg-slate-700' : 'bg-white hover:bg-slate-50 border border-slate-100'}`}
+            className={`relative p-4 sm:p-6 rounded-xl shadow-lg transition-all hover:scale-[1.02] flex flex-col items-center justify-center gap-2 sm:gap-3 ${theme === 'dark' ? 'bg-slate-800 hover:bg-slate-700' : 'bg-white hover:bg-slate-50 border border-slate-100'}`}
           >
             <GameBadge id="pokedle" />
-            <span className="text-4xl">🦋</span>
+            <span className="text-3xl sm:text-4xl">🦋</span>
             <div className="text-center">
-              <h3 className="font-bold text-lg">Pokédle</h3>
-              <p className={`text-sm ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>
+              <h3 className="font-bold text-sm sm:text-lg">Pokédle</h3>
+              <p className={`text-xs sm:text-sm ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>
                 Guess the Pokémon properties
               </p>
             </div>
@@ -152,7 +152,7 @@ const GameHub: React.FC<GameHubProps> = ({ onClose }) => {
 
           <button
             onClick={() => setSelectedGame('whosthat')}
-            className={`relative p-6 rounded-xl shadow-lg transition-all hover:scale-[1.02] flex flex-col items-center justify-center gap-3 ${theme === 'dark' ? 'bg-slate-800 hover:bg-slate-700' : 'bg-white hover:bg-slate-50 border border-slate-100'}`}
+            className={`relative p-4 sm:p-6 rounded-xl shadow-lg transition-all hover:scale-[1.02] flex flex-col items-center justify-center gap-2 sm:gap-3 ${theme === 'dark' ? 'bg-slate-800 hover:bg-slate-700' : 'bg-white hover:bg-slate-50 border border-slate-100'}`}
           >
             <GameBadge id="whosthat" />
             <span className="text-4xl">❓</span>
@@ -166,7 +166,7 @@ const GameHub: React.FC<GameHubProps> = ({ onClose }) => {
 
           <button
             onClick={() => setSelectedGame('flavor')}
-            className={`relative p-6 rounded-xl shadow-lg transition-all hover:scale-[1.02] flex flex-col items-center justify-center gap-3 ${theme === 'dark' ? 'bg-slate-800 hover:bg-slate-700' : 'bg-white hover:bg-slate-50 border border-slate-100'}`}
+            className={`relative p-4 sm:p-6 rounded-xl shadow-lg transition-all hover:scale-[1.02] flex flex-col items-center justify-center gap-2 sm:gap-3 ${theme === 'dark' ? 'bg-slate-800 hover:bg-slate-700' : 'bg-white hover:bg-slate-50 border border-slate-100'}`}
           >
             <GameBadge id="flavor" />
             <span className="text-4xl">📜</span>
@@ -180,7 +180,7 @@ const GameHub: React.FC<GameHubProps> = ({ onClose }) => {
 
           <button
             onClick={() => setSelectedGame('cry')}
-            className={`relative p-6 rounded-xl shadow-lg transition-all hover:scale-[1.02] flex flex-col items-center justify-center gap-3 ${theme === 'dark' ? 'bg-slate-800 hover:bg-slate-700' : 'bg-white hover:bg-slate-50 border border-slate-100'}`}
+            className={`relative p-4 sm:p-6 rounded-xl shadow-lg transition-all hover:scale-[1.02] flex flex-col items-center justify-center gap-2 sm:gap-3 ${theme === 'dark' ? 'bg-slate-800 hover:bg-slate-700' : 'bg-white hover:bg-slate-50 border border-slate-100'}`}
           >
             <GameBadge id="cry" />
             <span className="text-4xl">🔊</span>
@@ -194,7 +194,7 @@ const GameHub: React.FC<GameHubProps> = ({ onClose }) => {
 
           <button
             onClick={() => setSelectedGame('stat')}
-            className={`relative p-6 rounded-xl shadow-lg transition-all hover:scale-[1.02] flex flex-col items-center justify-center gap-3 ${theme === 'dark' ? 'bg-slate-800 hover:bg-slate-700' : 'bg-white hover:bg-slate-50 border border-slate-100'}`}
+            className={`relative p-4 sm:p-6 rounded-xl shadow-lg transition-all hover:scale-[1.02] flex flex-col items-center justify-center gap-2 sm:gap-3 ${theme === 'dark' ? 'bg-slate-800 hover:bg-slate-700' : 'bg-white hover:bg-slate-50 border border-slate-100'}`}
           >
             <GameBadge id="stat" />
             <span className="text-4xl">📊</span>
@@ -208,7 +208,7 @@ const GameHub: React.FC<GameHubProps> = ({ onClose }) => {
 
           <button
             onClick={() => setSelectedGame('move')}
-            className={`relative p-6 rounded-xl shadow-lg transition-all hover:scale-[1.02] flex flex-col items-center justify-center gap-3 ${theme === 'dark' ? 'bg-slate-800 hover:bg-slate-700' : 'bg-white hover:bg-slate-50 border border-slate-100'}`}
+            className={`relative p-4 sm:p-6 rounded-xl shadow-lg transition-all hover:scale-[1.02] flex flex-col items-center justify-center gap-2 sm:gap-3 ${theme === 'dark' ? 'bg-slate-800 hover:bg-slate-700' : 'bg-white hover:bg-slate-50 border border-slate-100'}`}
           >
             <GameBadge id="move" />
             <span className="text-4xl">⚔️</span>
@@ -222,7 +222,7 @@ const GameHub: React.FC<GameHubProps> = ({ onClose }) => {
 
           <button
             onClick={() => setSelectedGame('item')}
-            className={`relative p-6 rounded-xl shadow-lg transition-all hover:scale-[1.02] flex flex-col items-center justify-center gap-3 ${theme === 'dark' ? 'bg-slate-800 hover:bg-slate-700' : 'bg-white hover:bg-slate-50 border border-slate-100'}`}
+            className={`relative p-4 sm:p-6 rounded-xl shadow-lg transition-all hover:scale-[1.02] flex flex-col items-center justify-center gap-2 sm:gap-3 ${theme === 'dark' ? 'bg-slate-800 hover:bg-slate-700' : 'bg-white hover:bg-slate-50 border border-slate-100'}`}
           >
             <GameBadge id="item" />
             <span className="text-4xl">🎒</span>
@@ -236,7 +236,7 @@ const GameHub: React.FC<GameHubProps> = ({ onClose }) => {
 
           <button
             onClick={() => setSelectedGame('trainer')}
-            className={`relative p-6 rounded-xl shadow-lg transition-all hover:scale-[1.02] flex flex-col items-center justify-center gap-3 ${theme === 'dark' ? 'bg-slate-800 hover:bg-slate-700' : 'bg-white hover:bg-slate-50 border border-slate-100'}`}
+            className={`relative p-4 sm:p-6 rounded-xl shadow-lg transition-all hover:scale-[1.02] flex flex-col items-center justify-center gap-2 sm:gap-3 ${theme === 'dark' ? 'bg-slate-800 hover:bg-slate-700' : 'bg-white hover:bg-slate-50 border border-slate-100'}`}
           >
             <GameBadge id="trainer" />
             <span className="text-4xl">🧢</span>

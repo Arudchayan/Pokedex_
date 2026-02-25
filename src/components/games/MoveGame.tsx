@@ -177,7 +177,8 @@ const MoveGame: React.FC<Props> = ({ onClose, date, seed }) => {
       )}
 
       {/* Header Row */}
-      <div className="grid grid-cols-6 gap-2 text-center text-xs font-bold opacity-50 uppercase mb-2">
+      <div className="overflow-x-auto scrollbar-hide -mx-2 px-2">
+      <div className="grid grid-cols-6 gap-2 text-center text-xs font-bold opacity-50 uppercase mb-2 min-w-[400px]">
         <div className="col-span-1">Move</div>
         <div className="col-span-1">Type</div>
         <div className="col-span-1">Category</div>
@@ -189,7 +190,7 @@ const MoveGame: React.FC<Props> = ({ onClose, date, seed }) => {
       {/* Guesses */}
       <div className="flex-1 overflow-y-auto space-y-2 pr-2">
         {guesses.map((g, i) => (
-          <div key={i} className="grid grid-cols-6 gap-2 h-14 animate-fade-in-up">
+          <div key={i} className="grid grid-cols-6 gap-2 h-14 animate-fade-in-up min-w-[400px]">
             <div className="col-span-1 flex items-center justify-center bg-black/10 rounded-lg border border-white/5 text-xs font-bold capitalize">
               {g.move.name.replace('-', ' ')}
             </div>
@@ -232,6 +233,7 @@ const MoveGame: React.FC<Props> = ({ onClose, date, seed }) => {
           </div>
         ))}
       </div>
+      </div>{/* end overflow-x-auto wrapper */}
     </div>
   );
 };

@@ -215,7 +215,7 @@ const ComparisonView: React.FC<ComparisonViewProps> = ({ pokemon, onClose, onRem
                       Stat
                     </th>
                     {pokemon.map((p) => (
-                      <th key={p.id} className="px-4 py-3 min-w-[100px] capitalize text-center">
+                      <th key={p.id} className="px-3 sm:px-4 py-3 min-w-[80px] sm:min-w-[100px] capitalize text-center text-xs sm:text-sm">
                         {p.name}
                       </th>
                     ))}

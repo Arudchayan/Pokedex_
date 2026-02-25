@@ -42,7 +42,7 @@ const DetailHeader: React.FC<DetailHeaderProps> = ({
   selectedGen,
   onSelectGen,
 }) => (
-  <div className="relative p-8 rounded-t-2xl overflow-hidden">
+  <div className="relative p-4 sm:p-8 rounded-t-2xl overflow-hidden">
     <div
       className="absolute inset-0 opacity-30"
       style={{
@@ -55,12 +55,12 @@ const DetailHeader: React.FC<DetailHeaderProps> = ({
       alt=""
     />
     <div className="relative z-10">
-      <p className={`text-2xl font-bold ${theme === 'dark' ? 'text-slate-300' : 'text-slate-600'}`}>
+      <p className={`text-lg sm:text-2xl font-bold ${theme === 'dark' ? 'text-slate-300' : 'text-slate-600'}`}>
         #{String(pokemon.id).padStart(4, '0')}
       </p>
-      <div className="flex items-center gap-4 flex-wrap">
+      <div className="flex items-center gap-2 sm:gap-4 flex-wrap">
         <h2
-          className={`text-5xl font-extrabold capitalize ${theme === 'dark' ? 'text-white' : 'text-slate-800'}`}
+          className={`text-3xl sm:text-5xl font-extrabold capitalize ${theme === 'dark' ? 'text-white' : 'text-slate-800'}`}
         >
           {pokemon.name}
         </h2>
@@ -173,7 +173,7 @@ const DetailHeader: React.FC<DetailHeaderProps> = ({
         </p>
       )}
       <p
-        className={`text-xl font-semibold mt-1 ${theme === 'dark' ? 'text-slate-200' : 'text-slate-600'}`}
+        className={`text-base sm:text-xl font-semibold mt-1 ${theme === 'dark' ? 'text-slate-200' : 'text-slate-600'}`}
       >
         {pokemon.genus}
       </p>
