@@ -246,10 +246,11 @@ const PokemonWalkersOverlay: React.FC = () => {
   if (!enabled) return null;
 
   // Keep this overlay below modals (z-50) and header (z-40).
+  // Hidden on small mobile screens to avoid conflicting with Team FAB.
   return (
     <div
       ref={containerRef}
-      className="fixed bottom-0 left-0 right-0 z-30"
+      className="hidden sm:block fixed bottom-0 left-0 right-0 z-30"
       style={{
         height: settings.playgroundHeightPx,
         pointerEvents: 'none',
