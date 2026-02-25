@@ -225,9 +225,16 @@ const MobileDrawer: React.FC<MobileDrawerProps> = ({ isOpen, onClose, onRandomPo
       ? 'bg-slate-950 border-r border-white/10'
       : 'bg-white border-r border-slate-200';
 
-  const drawerClass = `fixed top-0 left-0 bottom-0 z-[1110] w-72 max-w-[85vw] h-full shadow-2xl transform transition-transform duration-300 ease-out md:hidden overflow-y-auto overscroll-contain ${panelBg} ${
+  const drawerClass = `fixed z-[1110] w-72 max-w-[85vw] shadow-2xl transform transition-transform duration-300 ease-out md:hidden overflow-y-auto overscroll-contain ${panelBg} ${
     isOpen ? 'translate-x-0' : '-translate-x-full'
   }`;
+
+  const drawerStyle: React.CSSProperties = {
+    top: 0,
+    left: 0,
+    bottom: 0,
+    height: '100dvh',
+  };
 
   const sectionTitleClass = isCyberpunk
     ? 'text-xs font-bold uppercase tracking-widest text-cyan-400/70 px-3 py-2'
@@ -270,6 +277,7 @@ const MobileDrawer: React.FC<MobileDrawerProps> = ({ isOpen, onClose, onRandomPo
       <div
         ref={drawerRef}
         className={drawerClass}
+        style={drawerStyle}
         role="dialog"
         aria-modal="true"
         aria-label="Navigation menu"
