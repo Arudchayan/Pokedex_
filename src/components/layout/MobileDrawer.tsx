@@ -215,7 +215,7 @@ const MobileDrawer: React.FC<MobileDrawerProps> = ({ isOpen, onClose, onRandomPo
   ];
 
   // Base style classes
-  const backdropClass = `fixed inset-0 z-[60] bg-black/50 backdrop-blur-sm transition-opacity duration-300 md:hidden ${
+  const backdropClass = `fixed inset-0 z-[1100] bg-black/50 backdrop-blur-sm transition-opacity duration-300 md:hidden ${
     isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
   }`;
 
@@ -225,7 +225,7 @@ const MobileDrawer: React.FC<MobileDrawerProps> = ({ isOpen, onClose, onRandomPo
       ? 'bg-slate-950 border-r border-white/10'
       : 'bg-white border-r border-slate-200';
 
-  const drawerClass = `fixed inset-y-0 left-0 z-[70] w-72 max-w-[85vw] shadow-2xl transform transition-transform duration-300 ease-out md:hidden overflow-y-auto overscroll-contain ${panelBg} ${
+  const drawerClass = `fixed inset-y-0 left-0 z-[1110] w-72 max-w-[85vw] shadow-2xl transform transition-transform duration-300 ease-out md:hidden overflow-y-auto overscroll-contain ${panelBg} ${
     isOpen ? 'translate-x-0' : '-translate-x-full'
   }`;
 
