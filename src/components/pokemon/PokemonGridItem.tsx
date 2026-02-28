@@ -41,9 +41,7 @@ const PokemonGridItem: React.FC<PokemonGridItemProps> = ({
   };
 
   return (
-    <div
-      className="relative group"
-    >
+    <div className="relative group">
       {/* Drag handle — only this element is draggable so clicks on the card are never swallowed by a dragstart */}
       <div
         className="absolute top-2 left-2 z-10 p-1 rounded opacity-0 group-hover:opacity-60 cursor-grab active:cursor-grabbing transition-opacity"
