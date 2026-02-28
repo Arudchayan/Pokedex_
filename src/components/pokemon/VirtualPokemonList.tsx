@@ -109,6 +109,7 @@ const VirtualPokemonList: React.FC<VirtualPokemonListProps> = ({
   const [focusedIndex, setFocusedIndex] = useState(-1);
   const containerRef = useRef<HTMLDivElement>(null);
   const focusingProgrammaticallyRef = useRef(false);
+  const focusedByKeyboardRef = useRef(false);
   const activeList = isVirtualized ? pokemonList : itemsToRender;
 
   // Reset focus when the visible list changes
@@ -120,7 +121,8 @@ const VirtualPokemonList: React.FC<VirtualPokemonListProps> = ({
   useEffect(() => {
     if (focusedIndex < 0 || focusedIndex >= activeList.length) return;
 
-    if (isVirtualized) {
+    // Only scroll when navigation happened via keyboard, not mouse click/focus
+    if (focusedByKeyboardRef.current && isVirtualized) {
       const targetRow = viewMode === 'grid' ? Math.floor(focusedIndex / columns) : focusedIndex;
       virtualizer.scrollToIndex(targetRow, { align: 'auto' });
     }
@@ -139,12 +141,14 @@ const VirtualPokemonList: React.FC<VirtualPokemonListProps> = ({
     }, 50);
 
     return () => clearTimeout(timer);
-  }, [focusedIndex]);
+  }, [focusedIndex, isVirtualized, viewMode, columns, activeList, virtualizer]);
 
   /** Sync focusedIndex when a card receives focus via click / tab */
   const handleContainerFocus = useCallback(
     (e: React.FocusEvent) => {
       if (focusingProgrammaticallyRef.current) return;
+      // Mark as mouse/tab focus — should not trigger scroll-to-index
+      focusedByKeyboardRef.current = false;
       const pokeIdEl = (e.target as HTMLElement).closest<HTMLElement>('[data-poke-id]');
       if (pokeIdEl) {
         const pokeId = Number(pokeIdEl.dataset.pokeId);
@@ -187,6 +191,8 @@ const VirtualPokemonList: React.FC<VirtualPokemonListProps> = ({
       }
 
       e.preventDefault();
+      // Mark as keyboard navigation so the effect will scroll to the item
+      focusedByKeyboardRef.current = true;
       setFocusedIndex(next);
     },
     [activeList.length, focusedIndex, columns]
