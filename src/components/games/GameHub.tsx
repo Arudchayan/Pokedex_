@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import { usePokemon } from '../../context/PokemonContext';
 import { useGameStats } from '../../hooks/useGameStats';
 import { dateToSeed } from '../../utils/seededRandom';
@@ -41,11 +41,11 @@ const GameHub: React.FC<GameHubProps> = ({ onClose }) => {
 
   // Date Management
   const [date, setDate] = useState(getTodayDateString());
-  const seed = useMemo(() => dateToSeed(date), [date]);
+
 
   // Components Map
   const renderGame = () => {
-    const props = { onClose: () => setSelectedGame('none'), date, seed };
+    const props = { onClose: () => setSelectedGame('none'), date, seed: dateToSeed(date + '-' + selectedGame) };
     switch (selectedGame) {
       case 'pokedle':
         return <PokedleGame {...props} />;
