@@ -6,6 +6,7 @@ interface MovesSectionProps {
   theme: string;
   moves: PokemonMove[];
   isExpanded: boolean;
+  isLoading?: boolean;
   onToggle: () => void;
   onOpenMoveDex?: (search?: string) => void;
 }
@@ -14,6 +15,7 @@ const MovesSection: React.FC<MovesSectionProps> = ({
   theme,
   moves,
   isExpanded,
+  isLoading = false,
   onToggle,
   onOpenMoveDex,
 }) => {
@@ -65,41 +67,49 @@ const MovesSection: React.FC<MovesSectionProps> = ({
       </button>
       {isExpanded && (
         <div id="moves-list" className="mt-4 space-y-3">
-          {versionGroups.length > 0 && (
-            <div className="flex flex-wrap gap-2 mb-2">
-              <button
-                type="button"
-                onClick={() => setSelectedVersionGroup('all')}
-                className={`px-3 py-1 rounded-full text-xs font-semibold transition-colors ${
-                  selectedVersionGroup === 'all'
-                    ? 'bg-primary-500/30 text-primary-200 border border-primary-400/60'
-                    : theme === 'dark'
-                      ? 'bg-white/5 text-slate-300 border border-white/10 hover:bg-white/10'
-                      : 'bg-slate-100 text-slate-700 border border-slate-200 hover:bg-slate-200'
-                }`}
-              >
-                All Games
-              </button>
-              {versionGroups.map((vg) => (
-                <button
-                  key={vg}
-                  type="button"
-                  onClick={() => setSelectedVersionGroup(vg)}
-                  className={`px-3 py-1 rounded-full text-xs font-semibold capitalize transition-colors ${
-                    selectedVersionGroup === vg
-                      ? 'bg-primary-500/30 text-primary-200 border border-primary-400/60'
-                      : theme === 'dark'
-                        ? 'bg-white/5 text-slate-300 border border-white/10 hover:bg-white/10'
-                        : 'bg-slate-100 text-slate-700 border border-slate-200 hover:bg-slate-200'
-                  }`}
-                >
-                  {vg}
-                </button>
-              ))}
-            </div>
-          )}
+          {isLoading ? (
+            <p className={`text-sm ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>
+              Loading moves…
+            </p>
+          ) : (
+            <>
+              {versionGroups.length > 0 && (
+                <div className="flex flex-wrap gap-2 mb-2">
+                  <button
+                    type="button"
+                    onClick={() => setSelectedVersionGroup('all')}
+                    className={`px-3 py-1 rounded-full text-xs font-semibold transition-colors ${
+                      selectedVersionGroup === 'all'
+                        ? 'bg-primary-500/30 text-primary-200 border border-primary-400/60'
+                        : theme === 'dark'
+                          ? 'bg-white/5 text-slate-300 border border-white/10 hover:bg-white/10'
+                          : 'bg-slate-100 text-slate-700 border border-slate-200 hover:bg-slate-200'
+                    }`}
+                  >
+                    All Games
+                  </button>
+                  {versionGroups.map((vg) => (
+                    <button
+                      key={vg}
+                      type="button"
+                      onClick={() => setSelectedVersionGroup(vg)}
+                      className={`px-3 py-1 rounded-full text-xs font-semibold capitalize transition-colors ${
+                        selectedVersionGroup === vg
+                          ? 'bg-primary-500/30 text-primary-200 border border-primary-400/60'
+                          : theme === 'dark'
+                            ? 'bg-white/5 text-slate-300 border border-white/10 hover:bg-white/10'
+                            : 'bg-slate-100 text-slate-700 border border-slate-200 hover:bg-slate-200'
+                      }`}
+                    >
+                      {vg}
+                    </button>
+                  ))}
+                </div>
+              )}
 
-          <MoveList moves={filteredMoves} onOpenMoveDex={onOpenMoveDex} />
+              <MoveList moves={filteredMoves} onOpenMoveDex={onOpenMoveDex} />
+            </>
+          )}
         </div>
       )}
     </div>

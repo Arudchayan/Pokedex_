@@ -21,6 +21,7 @@ import { scheduleIdleTask } from '../utils/scheduler';
 import { logger } from '../utils/logger';
 import fetchAllPokemonQuery from '../graphql/fetchAllPokemon.graphql?raw';
 import getPokemonDetailsQuery from '../graphql/getPokemonDetails.graphql?raw';
+import getPokemonMovesQuery from '../graphql/getPokemonMoves.graphql?raw';
 import fetchMovesQuery from '../graphql/fetchMoves.graphql?raw';
 import fetchItemsQuery from '../graphql/fetchItems.graphql?raw';
 import fetchMoveDexQuery from '../graphql/fetchMoveDex.graphql?raw';
@@ -35,8 +36,86 @@ import type {
   FetchMoveDexQuery,
   FetchAbilityDexQuery,
   FetchItemDexQuery,
-  GetPokemonDetailsQuery,
 } from '../graphql/generated';
+
+/** Slim details response — moves live in getPokemonMoves (manual typing; avoid regenerating generated.ts). */
+type GetPokemonDetailsQuery = {
+  pokemon_v2_pokemonspecies: Array<{
+    id: number;
+    name: string;
+    capture_rate?: number | null;
+    base_happiness?: number | null;
+    gender_rate?: number | null;
+    pokemon_v2_pokemoncolor?: { name: string } | null;
+    pokemon_v2_pokemonhabitat?: { name: string } | null;
+    pokemon_v2_pokemonspeciesnames: Array<{ genus: string }>;
+    pokemon_v2_growthrate?: { name: string } | null;
+    pokemon_v2_pokemonshape?: { name: string } | null;
+    pokemon_v2_pokemonegggroups: Array<{
+      pokemon_v2_egggroup?: { name: string } | null;
+    }>;
+    pokemon_v2_evolutionchain?: {
+      pokemon_v2_pokemonspecies: Array<{
+        id: number;
+        name: string;
+        evolves_from_species_id?: number | null;
+        pokemon_v2_pokemons: Array<{
+          pokemon_v2_pokemonsprites: Array<{ sprites: unknown }>;
+        }>;
+        pokemon_v2_pokemonevolutions: Array<{
+          min_level?: number | null;
+          min_happiness?: number | null;
+          held_item_id?: number | null;
+          time_of_day?: string | null;
+          pokemon_v2_evolutiontrigger?: { name: string } | null;
+          pokemon_v2_item?: { name: string } | null;
+          pokemon_v2_move?: { name: string } | null;
+          pokemon_v2_location?: { name: string } | null;
+        }>;
+      }>;
+    } | null;
+    pokemon_v2_pokemonspeciesflavortexts: Array<{ flavor_text: string }>;
+    pokemon_v2_pokemons: Array<{
+      id: number;
+      name: string;
+      height?: number | null;
+      weight?: number | null;
+      is_default: boolean;
+      pokemon_v2_pokemonsprites: Array<{ sprites: unknown }>;
+      pokemon_v2_pokemontypes: Array<{
+        pokemon_v2_type?: { name: string } | null;
+      }>;
+      pokemon_v2_pokemonstats: Array<{
+        base_stat: number;
+        pokemon_v2_stat?: { name: string } | null;
+      }>;
+      pokemon_v2_pokemonabilities: Array<{
+        pokemon_v2_ability?: { name: string } | null;
+      }>;
+    }>;
+  }>;
+};
+
+type GetPokemonMovesQuery = {
+  pokemon_v2_pokemon: Array<{
+    id: number;
+    pokemon_v2_pokemonmoves: Array<{
+      level: number;
+      version_group_id?: number | null;
+      pokemon_v2_versiongroup?: { name: string } | null;
+      pokemon_v2_movelearnmethod?: { name: string } | null;
+      pokemon_v2_move?: {
+        name: string;
+        power?: number | null;
+        accuracy?: number | null;
+        pp?: number | null;
+        priority?: number | null;
+        pokemon_v2_type?: { name: string } | null;
+        pokemon_v2_movedamageclass?: { name: string } | null;
+      } | null;
+    }>;
+  }>;
+};
 
 // --- Interfaces for GraphQL Response ---
 
@@ -860,19 +939,6 @@ export const fetchPokemonDetails = async (id: number): Promise<PokemonDetails | 
       ' '
     ) || 'No description available.';
 
-  const moves: PokemonMove[] = (defaultPokemon.pokemon_v2_pokemonmoves || []).map((m) => ({
-    name: m.pokemon_v2_move?.name?.replace(/-/g, ' ') || 'Unknown Move',
-    type: m.pokemon_v2_move?.pokemon_v2_type?.name || 'normal',
-    power: m.pokemon_v2_move?.power ?? null,
-    accuracy: m.pokemon_v2_move?.accuracy ?? null,
-    pp: m.pokemon_v2_move?.pp ?? 0,
-    priority: m.pokemon_v2_move?.priority || 0,
-    damageClass: m.pokemon_v2_move?.pokemon_v2_movedamageclass?.name || 'status',
-    learnMethod: m.pokemon_v2_movelearnmethod?.name?.replace(/-/g, ' ') || 'Unknown',
-    level: m.level,
-    versionGroup: (m as any).pokemon_v2_versiongroup?.name?.replace(/-/g, ' ') || undefined,
-  }));
-
   const forms = species.pokemon_v2_pokemons.map((p): PokemonForm => {
     const { officialUrl, shinyOfficialUrl } = extractSpriteUrls(p.id, p.name);
 
@@ -990,7 +1056,32 @@ export const fetchPokemonDetails = async (id: number): Promise<PokemonDetails | 
       [],
     growthRate: species?.pokemon_v2_growthrate?.name?.replace(/-/g, ' ') || 'Unknown',
     shape: species?.pokemon_v2_pokemonshape?.name || 'Unknown',
-    moves: moves,
+    // Moves are loaded separately via fetchPokemonMoves to keep this query slim.
+    moves: [],
     forms: forms,
   };
+};
+
+const mapPokemonMoves = (
+  rows: GetPokemonMovesQuery['pokemon_v2_pokemon'][number]['pokemon_v2_pokemonmoves']
+): PokemonMove[] =>
+  (rows || []).map((m) => ({
+    name: m.pokemon_v2_move?.name?.replace(/-/g, ' ') || 'Unknown Move',
+    type: m.pokemon_v2_move?.pokemon_v2_type?.name || 'normal',
+    power: m.pokemon_v2_move?.power ?? null,
+    accuracy: m.pokemon_v2_move?.accuracy ?? null,
+    pp: m.pokemon_v2_move?.pp ?? 0,
+    priority: m.pokemon_v2_move?.priority || 0,
+    damageClass: m.pokemon_v2_move?.pokemon_v2_movedamageclass?.name || 'status',
+    learnMethod: m.pokemon_v2_movelearnmethod?.name?.replace(/-/g, ' ') || 'Unknown',
+    level: m.level,
+    versionGroup: m.pokemon_v2_versiongroup?.name?.replace(/-/g, ' ') || undefined,
+  }));
+
+/** Lazy-loaded move list for a single pokemon form id (default form typically). */
+export const fetchPokemonMoves = async (id: number): Promise<PokemonMove[]> => {
+  const data = await queryPokeAPI<GetPokemonMovesQuery>(getPokemonMovesQuery, { id });
+  const pokemon = data.pokemon_v2_pokemon[0];
+  if (!pokemon) return [];
+  return mapPokemonMoves(pokemon.pokemon_v2_pokemonmoves);
 };

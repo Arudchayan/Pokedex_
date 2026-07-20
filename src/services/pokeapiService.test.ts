@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { fetchPokemonDetails } from './pokeapiService';
+import { fetchPokemonDetails, fetchPokemonMoves } from './pokeapiService';
 
 const mockFetchResponse = (data: unknown) => {
   (globalThis.fetch as ReturnType<typeof vi.fn>) = vi.fn().mockResolvedValue(
@@ -43,7 +43,6 @@ const makePokemon = (overrides: Record<string, unknown>) => ({
   pokemon_v2_pokemontypes: [{ pokemon_v2_type: { name: 'grass' } }],
   pokemon_v2_pokemonstats: [{ base_stat: 50, pokemon_v2_stat: { name: 'hp' } }],
   pokemon_v2_pokemonabilities: [{ pokemon_v2_ability: { name: 'overgrow' } }],
-  pokemon_v2_pokemonmoves: [],
   ...overrides,
 });
 
@@ -199,26 +198,11 @@ describe('pokeapiService transformations', () => {
     });
   });
 
-  it('normalizes move names and learn methods', async () => {
+  it('returns empty moves from details (moves load via fetchPokemonMoves)', async () => {
     const defaultPokemon = makePokemon({
       id: 200,
       name: 'move-mon',
       is_default: true,
-      pokemon_v2_pokemonmoves: [
-        {
-          level: 1,
-          pokemon_v2_movelearnmethod: { name: 'level-up' },
-          pokemon_v2_move: {
-            name: 'solar-beam',
-            power: 120,
-            accuracy: 100,
-            pp: 10,
-            priority: null,
-            pokemon_v2_type: { name: 'grass' },
-            pokemon_v2_movedamageclass: null,
-          },
-        },
-      ],
     });
 
     const species = makeSpecies({
@@ -229,12 +213,42 @@ describe('pokeapiService transformations', () => {
     mockFetchResponse({ pokemon_v2_pokemonspecies: [species] });
 
     const result = await fetchPokemonDetails(200);
+    expect(result?.moves).toEqual([]);
+  });
 
-    expect(result?.moves[0]).toMatchObject({
+  it('normalizes move names and learn methods via fetchPokemonMoves', async () => {
+    mockFetchResponse({
+      pokemon_v2_pokemon: [
+        {
+          id: 200,
+          pokemon_v2_pokemonmoves: [
+            {
+              level: 1,
+              pokemon_v2_versiongroup: { name: 'red-blue' },
+              pokemon_v2_movelearnmethod: { name: 'level-up' },
+              pokemon_v2_move: {
+                name: 'solar-beam',
+                power: 120,
+                accuracy: 100,
+                pp: 10,
+                priority: null,
+                pokemon_v2_type: { name: 'grass' },
+                pokemon_v2_movedamageclass: null,
+              },
+            },
+          ],
+        },
+      ],
+    });
+
+    const result = await fetchPokemonMoves(200);
+
+    expect(result[0]).toMatchObject({
       name: 'solar beam',
       learnMethod: 'level up',
       damageClass: 'status',
       priority: 0,
+      versionGroup: 'red blue',
     });
   });
 
