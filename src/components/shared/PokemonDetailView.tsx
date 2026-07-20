@@ -314,7 +314,7 @@ const PokemonDetailView: React.FC<PokemonDetailViewProps> = ({
       tabIndex={-1}
       role="dialog"
       aria-modal="true"
-      {...(pokemon
+      {...(pokemon && selectedForm
         ? { 'aria-labelledby': titleId }
         : { 'aria-label': 'Pokemon details' })}
     >
