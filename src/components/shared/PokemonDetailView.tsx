@@ -1,11 +1,15 @@
 import React, { useState, useEffect, useMemo, useRef, useId } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { PokemonForm, PokemonListItem } from '../../types';
-import { fetchPokemonDetails } from '../../services/pokeapiService';
+import { fetchPokemonDetails, fetchPokemonMoves } from '../../services/pokeapiService';
 import {
   pokemonDetailsQueryKey,
   POKEMON_DETAILS_STALE_TIME,
 } from '../../services/pokemonDetailsQuery';
+import {
+  pokemonMovesQueryKey,
+  POKEMON_MOVES_STALE_TIME,
+} from '../../services/pokemonMovesQuery';
 import Loader from './Loader';
 import StatBar from '../charts/StatBar';
 import FormSelector from '../pokemon/FormSelector';
@@ -101,6 +105,18 @@ const PokemonDetailView: React.FC<PokemonDetailViewProps> = ({
     queryKey: pokemonDetailsQueryKey(pokemonId),
     queryFn: () => fetchPokemonDetails(pokemonId),
     staleTime: POKEMON_DETAILS_STALE_TIME,
+  });
+
+  const movesPokemonId = pokemon?.id ?? pokemonId;
+  const {
+    data: moves = [],
+    isLoading: movesLoading,
+    isFetching: movesFetching,
+  } = useQuery({
+    queryKey: pokemonMovesQueryKey(movesPokemonId),
+    queryFn: () => fetchPokemonMoves(movesPokemonId),
+    enabled: isMovesExpanded && !!pokemon,
+    staleTime: POKEMON_MOVES_STALE_TIME,
   });
 
   const error = queryError
@@ -583,9 +599,9 @@ const PokemonDetailView: React.FC<PokemonDetailViewProps> = ({
                     <GameMechanics pokemon={pokemon} />
                   </DetailSection>
 
-                  {pokemon.moves && pokemon.moves.length > 0 && (
+                  {moves.length > 0 && (
                     <MoveRecommender
-                      moves={pokemon.moves}
+                      moves={moves}
                       stats={selectedForm.stats}
                       types={selectedForm.types}
                     />
@@ -593,15 +609,14 @@ const PokemonDetailView: React.FC<PokemonDetailViewProps> = ({
                 </div>
               </div>
 
-              {pokemon.moves && pokemon.moves.length > 0 && (
-                <MovesSection
-                  theme={theme}
-                  moves={pokemon.moves}
-                  isExpanded={isMovesExpanded}
-                  onToggle={() => setIsMovesExpanded((prev) => !prev)}
-                  onOpenMoveDex={onOpenMoveDex}
-                />
-              )}
+              <MovesSection
+                theme={theme}
+                moves={moves}
+                isExpanded={isMovesExpanded}
+                isLoading={isMovesExpanded && (movesLoading || movesFetching) && moves.length === 0}
+                onToggle={() => setIsMovesExpanded((prev) => !prev)}
+                onOpenMoveDex={onOpenMoveDex}
+              />
             </div>
           </div>
         )}

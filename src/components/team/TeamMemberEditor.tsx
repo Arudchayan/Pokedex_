@@ -3,6 +3,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { TeamMember, PokemonDetails, Item } from '../../types';
 import { fetchAllItems } from '../../services/pokeapiService';
 import { fetchPokemonDetailsQuery } from '../../services/pokemonDetailsQuery';
+import { fetchPokemonMovesQuery } from '../../services/pokemonMovesQuery';
 import { NATURES, STAT_COLORS } from '../../constants';
 import { calculateStat } from '../../utils/damageFormula';
 import { MAX_INPUT_LENGTH } from '../../utils/securityUtils';
@@ -82,7 +83,10 @@ const TeamMemberEditor: React.FC<TeamMemberEditorProps> = ({ member, onClose, on
           return;
         }
 
-        setDetails(pokemonData);
+        const movesData = await fetchPokemonMovesQuery(queryClient, pokemonData.id);
+        if (!isMounted) return;
+
+        setDetails({ ...pokemonData, moves: movesData });
         setItems(itemsData || []);
 
         // Initialize state from existing member data or defaults

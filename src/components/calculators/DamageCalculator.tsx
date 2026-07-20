@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { PokemonMove } from '../../types';
 import { fetchPokemonDetailsQuery } from '../../services/pokemonDetailsQuery';
+import { fetchPokemonMovesQuery } from '../../services/pokemonMovesQuery';
 import { usePokemon } from '../../context/PokemonContext';
 import { NATURES, TYPE_COLORS, BATTLE_ITEMS } from '../../constants';
 import TypeBadge from '../charts/TypeBadge';
@@ -83,6 +84,7 @@ const DamageCalculator: React.FC<DamageCalculatorProps> = ({
     try {
       const details = await fetchPokemonDetailsQuery(queryClient, id);
       if (details) {
+        const moves = await fetchPokemonMovesQuery(queryClient, details.id);
         setter({
           id: details.id,
           name: details.name,
@@ -91,7 +93,7 @@ const DamageCalculator: React.FC<DamageCalculatorProps> = ({
           level: 50,
           selectedMove: null,
           imageUrl: details.imageUrl,
-          moves: details.moves.filter((m) => m.power !== null && m.power > 0),
+          moves: moves.filter((m) => m.power !== null && m.power > 0),
           evs: { ...DEFAULT_EVS },
           ivs: { ...DEFAULT_IVS },
           nature: 'Hardy',

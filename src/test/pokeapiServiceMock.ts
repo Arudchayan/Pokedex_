@@ -119,6 +119,7 @@ const defaultItems: Item[] = [
 
 export const fetchAllPokemonsMock = vi.fn().mockResolvedValue(defaultPokemonList);
 export const fetchPokemonDetailsMock = vi.fn().mockResolvedValue(defaultPokemonDetails);
+export const fetchPokemonMovesMock = vi.fn().mockResolvedValue(defaultPokemonDetails.moves);
 export const fetchAllMovesMock = vi.fn().mockResolvedValue(defaultMoves);
 export const fetchAllItemsMock = vi.fn().mockResolvedValue(defaultItems);
 export const fetchMoveDexMock = vi.fn().mockResolvedValue([]);
@@ -128,6 +129,7 @@ export const fetchItemDexMock = vi.fn().mockResolvedValue([]);
 export type PokeapiServiceMockOverrides = Partial<{
   fetchAllPokemons: PokemonListItem[];
   fetchPokemonDetails: PokemonDetails | null;
+  fetchPokemonMoves: PokemonDetails['moves'];
   fetchAllMoves: Move[];
   fetchAllItems: Item[];
   fetchMoveDex: MoveDexItem[];
@@ -138,6 +140,11 @@ export type PokeapiServiceMockOverrides = Partial<{
 export const setPokeapiServiceMock = (overrides: PokeapiServiceMockOverrides = {}) => {
   fetchAllPokemonsMock.mockResolvedValue(overrides.fetchAllPokemons ?? defaultPokemonList);
   fetchPokemonDetailsMock.mockResolvedValue(overrides.fetchPokemonDetails ?? defaultPokemonDetails);
+  fetchPokemonMovesMock.mockResolvedValue(
+    overrides.fetchPokemonMoves ??
+      overrides.fetchPokemonDetails?.moves ??
+      defaultPokemonDetails.moves
+  );
   fetchAllMovesMock.mockResolvedValue(overrides.fetchAllMoves ?? defaultMoves);
   fetchAllItemsMock.mockResolvedValue(overrides.fetchAllItems ?? defaultItems);
   fetchMoveDexMock.mockResolvedValue(overrides.fetchMoveDex ?? []);
@@ -148,6 +155,7 @@ export const setPokeapiServiceMock = (overrides: PokeapiServiceMockOverrides = {
 export const getPokeapiServiceMockImpl = () => ({
   fetchAllPokemons: (...args: any[]) => fetchAllPokemonsMock(...args),
   fetchPokemonDetails: (...args: any[]) => fetchPokemonDetailsMock(...args),
+  fetchPokemonMoves: (...args: any[]) => fetchPokemonMovesMock(...args),
   fetchAllMoves: (...args: any[]) => fetchAllMovesMock(...args),
   fetchAllItems: (...args: any[]) => fetchAllItemsMock(...args),
   fetchMoveDex: (...args: any[]) => fetchMoveDexMock(...args),

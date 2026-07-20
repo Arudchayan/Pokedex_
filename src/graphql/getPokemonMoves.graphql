@@ -1,0 +1,28 @@
+query getPokemonMoves($id: Int!) {
+  pokemon_v2_pokemon(where: { id: { _eq: $id } }) {
+    id
+    pokemon_v2_pokemonmoves(order_by: { level: asc, move_learn_method_id: asc }) {
+      level
+      version_group_id
+      pokemon_v2_versiongroup {
+        name
+      }
+      pokemon_v2_movelearnmethod {
+        name
+      }
+      pokemon_v2_move {
+        name
+        power
+        accuracy
+        pp
+        priority
+        pokemon_v2_type {
+          name
+        }
+        pokemon_v2_movedamageclass {
+          name
+        }
+      }
+    }
+  }
+}

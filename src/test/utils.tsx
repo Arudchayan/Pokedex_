@@ -136,6 +136,7 @@ const defaultItems: Item[] = [
 
 const fetchAllPokemonsMock = vi.fn().mockResolvedValue(defaultPokemonList);
 const fetchPokemonDetailsMock = vi.fn().mockResolvedValue(defaultPokemonDetails);
+const fetchPokemonMovesMock = vi.fn().mockResolvedValue(defaultPokemonDetails.moves);
 const fetchAllMovesMock = vi.fn().mockResolvedValue(defaultMoves);
 const fetchAllItemsMock = vi.fn().mockResolvedValue(defaultItems);
 const fetchMoveDexMock = vi.fn().mockResolvedValue([]);
@@ -156,6 +157,7 @@ const validatePokemonListItemMock = vi.fn().mockImplementation((data) => {
 vi.mock('../services/pokeapiService', () => ({
   fetchAllPokemons: (...args: any[]) => fetchAllPokemonsMock(...args),
   fetchPokemonDetails: (...args: any[]) => fetchPokemonDetailsMock(...args),
+  fetchPokemonMoves: (...args: any[]) => fetchPokemonMovesMock(...args),
   fetchAllMoves: (...args: any[]) => fetchAllMovesMock(...args),
   fetchAllItems: (...args: any[]) => fetchAllItemsMock(...args),
   fetchMoveDex: (...args: any[]) => fetchMoveDexMock(...args),
@@ -167,6 +169,7 @@ vi.mock('../services/pokeapiService', () => ({
 type PokeapiServiceMockOverrides = Partial<{
   fetchAllPokemons: PokemonListItem[];
   fetchPokemonDetails: PokemonDetails | null;
+  fetchPokemonMoves: PokemonDetails['moves'];
   fetchAllMoves: Move[];
   fetchAllItems: Item[];
   fetchMoveDex: MoveDexItem[];
@@ -177,6 +180,11 @@ type PokeapiServiceMockOverrides = Partial<{
 export const setPokeapiServiceMock = (overrides: PokeapiServiceMockOverrides = {}) => {
   fetchAllPokemonsMock.mockResolvedValue(overrides.fetchAllPokemons ?? defaultPokemonList);
   fetchPokemonDetailsMock.mockResolvedValue(overrides.fetchPokemonDetails ?? defaultPokemonDetails);
+  fetchPokemonMovesMock.mockResolvedValue(
+    overrides.fetchPokemonMoves ??
+      overrides.fetchPokemonDetails?.moves ??
+      defaultPokemonDetails.moves
+  );
   fetchAllMovesMock.mockResolvedValue(overrides.fetchAllMoves ?? defaultMoves);
   fetchAllItemsMock.mockResolvedValue(overrides.fetchAllItems ?? defaultItems);
   fetchMoveDexMock.mockResolvedValue(overrides.fetchMoveDex ?? []);

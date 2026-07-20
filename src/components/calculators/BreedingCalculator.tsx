@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { usePokemon } from '../../context/PokemonContext';
 import { fetchPokemonDetailsQuery } from '../../services/pokemonDetailsQuery';
+import { fetchPokemonMovesQuery } from '../../services/pokemonMovesQuery';
 import { PokemonDetails } from '../../types';
 import {
   calculateBreedingCompatibility,
@@ -44,13 +45,15 @@ const BreedingCalculator: React.FC<BreedingCalculatorProps> = ({ onClose }) => {
   const loadParent = async (id: number, isA: boolean) => {
     const details = await fetchPokemonDetailsQuery(queryClient, id);
     if (details) {
+      const moves = await fetchPokemonMovesQuery(queryClient, details.id);
+      const withMoves = { ...details, moves };
       if (isA) {
-        setParentA(details);
+        setParentA(withMoves);
         const genders = getPossibleGenders(details.genderRate);
         setGenderA(genders[0]);
         setSearchA('');
       } else {
-        setParentB(details);
+        setParentB(withMoves);
         const genders = getPossibleGenders(details.genderRate);
         setGenderB(genders.length > 1 ? genders[1] : genders[0]); // Default to opposite if possible
         setSearchB('');
@@ -76,8 +79,11 @@ const BreedingCalculator: React.FC<BreedingCalculatorProps> = ({ onClose }) => {
         setOffspringDetails(parentB);
       } else {
         setLoadingOffspring(true);
-        fetchPokemonDetailsQuery(queryClient, result.offspringId).then((d) => {
-          setOffspringDetails(d);
+        Promise.all([
+          fetchPokemonDetailsQuery(queryClient, result.offspringId),
+          fetchPokemonMovesQuery(queryClient, result.offspringId),
+        ]).then(([d, moves]) => {
+          setOffspringDetails(d ? { ...d, moves } : null);
           setLoadingOffspring(false);
         });
       }
