@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { PokemonMove } from '../../types';
-import { fetchPokemonDetails } from '../../services/pokeapiService';
+import { fetchPokemonDetailsQuery } from '../../services/pokemonDetailsQuery';
 import { usePokemon } from '../../context/PokemonContext';
 import { NATURES, TYPE_COLORS, BATTLE_ITEMS } from '../../constants';
 import TypeBadge from '../charts/TypeBadge';
@@ -55,6 +56,7 @@ const DamageCalculator: React.FC<DamageCalculatorProps> = ({
   initialDefenderId,
 }) => {
   const { masterPokemonList, theme } = usePokemon();
+  const queryClient = useQueryClient();
 
   const [attackerId, setAttackerId] = useState<number | null>(initialAttackerId || null);
   const [defenderId, setDefenderId] = useState<number | null>(initialDefenderId || null);
@@ -79,7 +81,7 @@ const DamageCalculator: React.FC<DamageCalculatorProps> = ({
 
     loader(true);
     try {
-      const details = await fetchPokemonDetails(id);
+      const details = await fetchPokemonDetailsQuery(queryClient, id);
       if (details) {
         setter({
           id: details.id,

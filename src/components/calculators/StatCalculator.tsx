@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { usePokemon } from '../../context/PokemonContext';
-import { fetchPokemonDetails } from '../../services/pokeapiService';
+import { fetchPokemonDetailsQuery } from '../../services/pokemonDetailsQuery';
 import { NATURES } from '../../constants';
 import { calculateStat } from '../../utils/damageFormula';
 import Loader from '../shared/Loader';
@@ -26,6 +27,7 @@ const STAT_ORDER = ['hp', 'attack', 'defense', 'special-attack', 'special-defens
 
 const StatCalculator: React.FC<StatCalculatorProps> = ({ onClose, initialPokemonId }) => {
   const { masterPokemonList, theme } = usePokemon();
+  const queryClient = useQueryClient();
 
   const [search, setSearch] = useState('');
   const [selectedId, setSelectedId] = useState<number | null>(initialPokemonId || null);
@@ -56,7 +58,7 @@ const StatCalculator: React.FC<StatCalculatorProps> = ({ onClose, initialPokemon
   useEffect(() => {
     if (selectedId) {
       setLoading(true);
-      fetchPokemonDetails(selectedId)
+      fetchPokemonDetailsQuery(queryClient, selectedId)
         .then((details) => {
           if (details) {
             setPokemon(details);
@@ -83,7 +85,7 @@ const StatCalculator: React.FC<StatCalculatorProps> = ({ onClose, initialPokemon
         })
         .finally(() => setLoading(false));
     }
-  }, [selectedId]);
+  }, [selectedId, queryClient]);
 
   const filteredList = useMemo(() => {
     if (!search) return [];

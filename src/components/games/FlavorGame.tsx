@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { usePokemon } from '../../context/PokemonContext';
 import { PokemonListItem, PokemonDetails } from '../../types';
 import { mulberry32, pickRandom } from '../../utils/seededRandom';
-import { fetchPokemonDetails } from '../../services/pokeapiService';
+import { fetchPokemonDetailsQuery } from '../../services/pokemonDetailsQuery';
 
 interface Props {
   onClose: () => void;
@@ -12,6 +13,7 @@ interface Props {
 
 const FlavorGame: React.FC<Props> = ({ onClose, date, seed }) => {
   const { masterPokemonList, theme } = usePokemon();
+  const queryClient = useQueryClient();
   const [target, setTarget] = useState<PokemonDetails | null>(null);
   const [currentGuess, setCurrentGuess] = useState('');
   const [gameState, setGameState] = useState<'playing' | 'won' | 'lost'>('playing');
@@ -30,12 +32,12 @@ const FlavorGame: React.FC<Props> = ({ onClose, date, seed }) => {
 
         // Fetch details to ensure we have flavor text
         try {
-          let details = await fetchPokemonDetails(tBase.id);
+          let details = await fetchPokemonDetailsQuery(queryClient, tBase.id);
           let tries = 0;
           // Ensure it has flavor text
           while ((!details?.flavorText || details.flavorText.length < 10) && tries < 20) {
             tBase = pickRandom(masterPokemonList, rng);
-            details = await fetchPokemonDetails(tBase.id);
+            details = await fetchPokemonDetailsQuery(queryClient, tBase.id);
             tries++;
           }
           setTarget(details);
@@ -45,7 +47,7 @@ const FlavorGame: React.FC<Props> = ({ onClose, date, seed }) => {
       }
     };
     init();
-  }, [masterPokemonList, rng]);
+  }, [masterPokemonList, rng, queryClient]);
 
   // Obfuscate the flavor text by replacing the pokemon name
   const flavorText = useMemo(() => {

@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { TeamMember, PokemonDetails, Item } from '../../types';
-import { fetchPokemonDetails, fetchAllItems } from '../../services/pokeapiService';
+import { fetchAllItems } from '../../services/pokeapiService';
+import { fetchPokemonDetailsQuery } from '../../services/pokemonDetailsQuery';
 import { NATURES, STAT_COLORS } from '../../constants';
 import { calculateStat } from '../../utils/damageFormula';
 import { MAX_INPUT_LENGTH } from '../../utils/securityUtils';
@@ -26,6 +28,7 @@ const STAT_LABELS: Record<string, string> = {
 const STAT_ORDER = ['hp', 'attack', 'defense', 'special-attack', 'special-defense', 'speed'];
 
 const TeamMemberEditor: React.FC<TeamMemberEditorProps> = ({ member, onClose, onSave, theme }) => {
+  const queryClient = useQueryClient();
   const [details, setDetails] = useState<PokemonDetails | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -67,7 +70,7 @@ const TeamMemberEditor: React.FC<TeamMemberEditorProps> = ({ member, onClose, on
       setError(null);
       try {
         const [pokemonData, itemsData] = await Promise.all([
-          fetchPokemonDetails(member.id),
+          fetchPokemonDetailsQuery(queryClient, member.id),
           fetchAllItems(),
         ]);
 
@@ -122,7 +125,7 @@ const TeamMemberEditor: React.FC<TeamMemberEditorProps> = ({ member, onClose, on
     return () => {
       isMounted = false;
     };
-  }, [member.id]);
+  }, [member.id, queryClient]);
 
   const handleSave = () => {
     const cleanMoves = moves.filter((m): m is string => !!m);
