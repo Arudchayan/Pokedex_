@@ -1,6 +1,8 @@
-export const POKEAPI_GRAPHQL_URL =
-  import.meta.env.VITE_POKEAPI_GRAPHQL_URL || 'https://beta.pokeapi.co/graphql/v1beta';
-export const POKEMON_PER_PAGE = 24;
+import { env } from './config/env';
+
+/** GraphQL endpoint — single source of truth is `env.pokeapiUrl`. */
+export const POKEAPI_GRAPHQL_URL = env.pokeapiUrl;
+export const POKEMON_PER_PAGE = env.pokemonPerPage;
 export const MAX_POKEMON_ID = 1025;
 
 // Timeout constants (in milliseconds)
