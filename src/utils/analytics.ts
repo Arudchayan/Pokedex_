@@ -145,15 +145,15 @@ export const trackFilter = (filterType: string, filterValue: string) => {
 };
 
 /**
- * Track battle calculator usage
+ * Track damage calculator usage
  */
-export const trackBattleCalculation = (
+export const trackDamageCalculation = (
   attackType: string,
   defenseTypes: string[],
   effectiveness: number
 ) => {
   trackEvent({
-    category: 'Battle Calculator',
+    category: 'Damage Calculator',
     action: 'Calculate',
     label: `${attackType} vs ${defenseTypes.join('/')}`,
     value: effectiveness,
@@ -200,7 +200,7 @@ export default {
   trackTeamAnalytics,
   trackSearch,
   trackFilter,
-  trackBattleCalculation,
+  trackDamageCalculation,
   trackPerformance,
   trackError,
 };

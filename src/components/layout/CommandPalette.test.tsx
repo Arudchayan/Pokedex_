@@ -9,7 +9,7 @@ vi.mock('../../store/useModalStore', () => ({
     openMoveDex: vi.fn(),
     openAbilityDex: vi.fn(),
     openItemDex: vi.fn(),
-    openBattleCalc: vi.fn(),
+    openDamageCalc: vi.fn(),
     openCatchCalc: vi.fn(),
     openBreedingCalc: vi.fn(),
     openStatCalc: vi.fn(),

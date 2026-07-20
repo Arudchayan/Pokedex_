@@ -123,11 +123,11 @@ export default function CommandPalette({ isOpen, onClose, controller }: CommandP
 
       // Calculators
       {
-        id: 'battle-calc',
+        id: 'damage-calc',
         label: 'Damage Calculator',
         category: 'Calculator',
         action: () => {
-          modalStore.openBattleCalc();
+          modalStore.openDamageCalc();
           onClose();
         },
         icon: <CalculatorIcon />,

@@ -53,7 +53,7 @@ const AppHeader: React.FC<AppHeaderProps> = memo(({ onRandomPokemon }) => {
     openDataManagement,
     openWalkersSettings,
     openGameHub,
-    openBattleCalc,
+    openDamageCalc,
     openStatCalc,
     openShinyCalc,
     openComparison,
@@ -73,7 +73,7 @@ const AppHeader: React.FC<AppHeaderProps> = memo(({ onRandomPokemon }) => {
       openDataManagement: s.openDataManagement,
       openWalkersSettings: s.openWalkersSettings,
       openGameHub: s.openGameHub,
-      openBattleCalc: s.openBattleCalc,
+      openDamageCalc: s.openDamageCalc,
       openStatCalc: s.openStatCalc,
       openShinyCalc: s.openShinyCalc,
       openComparison: s.openComparison,
@@ -134,8 +134,8 @@ const AppHeader: React.FC<AppHeaderProps> = memo(({ onRandomPokemon }) => {
     unlockAchievement('breeder');
   };
 
-  const handleShowBattle = () => {
-    openBattleCalc();
+  const handleShowDamageCalc = () => {
+    openDamageCalc();
     unlockAchievement('strategist');
   };
 
@@ -383,7 +383,7 @@ const AppHeader: React.FC<AppHeaderProps> = memo(({ onRandomPokemon }) => {
                         type="button"
                         role="menuitem"
                         onClick={() => {
-                          handleShowBattle();
+                          handleShowDamageCalc();
                           closeMenu();
                         }}
                         className={`p-2 text-left rounded-lg font-bold focus:outline-none focus:ring-2 focus:ring-primary-500 ${theme === 'dark' ? 'hover:bg-white/10 text-slate-300' : 'hover:bg-slate-100 text-slate-700'}`}
