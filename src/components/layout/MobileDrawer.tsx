@@ -60,7 +60,7 @@ const MobileDrawer: React.FC<MobileDrawerProps> = ({ isOpen, onClose, onRandomPo
     openDataManagement,
     openWalkersSettings,
     openGameHub,
-    openBattleCalc,
+    openDamageCalc,
     openStatCalc,
     openShinyCalc,
     openComparison,
@@ -77,7 +77,7 @@ const MobileDrawer: React.FC<MobileDrawerProps> = ({ isOpen, onClose, onRandomPo
       openDataManagement: s.openDataManagement,
       openWalkersSettings: s.openWalkersSettings,
       openGameHub: s.openGameHub,
-      openBattleCalc: s.openBattleCalc,
+      openDamageCalc: s.openDamageCalc,
       openStatCalc: s.openStatCalc,
       openShinyCalc: s.openShinyCalc,
       openComparison: s.openComparison,
@@ -96,8 +96,8 @@ const MobileDrawer: React.FC<MobileDrawerProps> = ({ isOpen, onClose, onRandomPo
     unlockAchievement('breeder');
   };
 
-  const handleShowBattle = () => {
-    openBattleCalc();
+  const handleShowDamageCalc = () => {
+    openDamageCalc();
     unlockAchievement('strategist');
   };
 
@@ -166,7 +166,7 @@ const MobileDrawer: React.FC<MobileDrawerProps> = ({ isOpen, onClose, onRandomPo
     {
       title: 'Tools',
       items: [
-        { label: 'Damage Calculator', icon: '💥', onClick: handleShowBattle, accent: 'purple' },
+        { label: 'Damage Calculator', icon: '💥', onClick: handleShowDamageCalc, accent: 'purple' },
         { label: 'Stat Calculator', icon: '📊', onClick: openStatCalc, accent: 'blue' },
         { label: 'Catch Calculator', icon: '🎯', onClick: openCatchCalc },
         { label: 'Breeding Calculator', icon: '🥚', onClick: handleShowBreeding },

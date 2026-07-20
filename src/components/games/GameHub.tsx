@@ -22,8 +22,7 @@ type GameType =
   | 'stat'
   | 'move'
   | 'item'
-  | 'trainer'
-  | 'battle';
+  | 'trainer';
 
 const getTodayDateString = () => {
   const d = new Date();

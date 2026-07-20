@@ -39,7 +39,7 @@ export const ACHIEVEMENTS_LIST: Omit<Achievement, 'unlockedAt'>[] = [
   {
     id: 'strategist',
     title: 'Battle Strategist',
-    description: 'Use the Battle Calculator or Type Chart.',
+    description: 'Use the Damage Calculator or Type Chart.',
     icon: '⚔️',
   },
   {
