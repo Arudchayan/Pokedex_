@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { getSavedTeam, getSavedTeamList, saveTeam, saveTeamList, SavedTeam } from './teamStorage';
+import { getSavedTeam, getSavedTeamList, SavedTeam } from './teamStorage';
 import { TeamMember } from '../types';
 
 describe('teamStorage', () => {

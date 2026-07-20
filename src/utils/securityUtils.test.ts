@@ -28,9 +28,9 @@ describe('sanitizeString', () => {
 
   it('should handle undefined or non-string inputs', () => {
     expect(sanitizeString(undefined)).toBe('');
-    // @ts-ignore
+    // @ts-expect-error testing non-string null input
     expect(sanitizeString(null)).toBe('');
-    // @ts-ignore
+    // @ts-expect-error testing non-string number input
     expect(sanitizeString(123)).toBe('');
   });
 });

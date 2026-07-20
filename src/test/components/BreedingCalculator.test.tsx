@@ -2,7 +2,6 @@ import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { vi, describe, it, expect } from 'vitest';
 import BreedingCalculator from '../../components/calculators/BreedingCalculator';
-import { PokemonProvider } from '../../context/PokemonContext';
 
 // Mock Sound Service
 vi.mock('../../services/soundService', () => ({

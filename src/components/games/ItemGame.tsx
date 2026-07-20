@@ -35,7 +35,7 @@ const ItemGame: React.FC<Props> = ({ onClose, date, seed }) => {
         } else {
           setError('Failed to load items. Please check your connection.');
         }
-      } catch (e) {
+      } catch (_e) {
         setError('An error occurred while loading items.');
       } finally {
         setIsLoading(false);

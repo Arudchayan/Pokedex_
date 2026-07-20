@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { usePokemon } from '../../context/PokemonContext';
 import { useGameStats } from '../../hooks/useGameStats';
 import { dateToSeed } from '../../utils/seededRandom';
@@ -11,7 +11,7 @@ import MoveGame from './MoveGame';
 import ItemGame from './ItemGame';
 import TrainerGame from './TrainerGame';
 
-const GameBadge = ({ id }: { id: string }) => null;
+const GameBadge = ({ id: _id }: { id: string }) => null;
 
 type GameType =
   | 'none'
@@ -35,11 +35,11 @@ interface GameHubProps {
 
 const GameHub: React.FC<GameHubProps> = ({ onClose }) => {
   const { theme } = usePokemon();
-  const { getStats, hasPlayedToday } = useGameStats();
+  const { getStats: _getStats, hasPlayedToday: _hasPlayedToday } = useGameStats();
   const [selectedGame, setSelectedGame] = useState<GameType>('none');
 
   // Date Management
-  const [date, setDate] = useState(getTodayDateString());
+  const [date, _setDate] = useState(getTodayDateString());
 
 
   // Components Map

@@ -17,7 +17,7 @@ describe('validateTeamMember Prototype Pollution', () => {
     // Check if the property exists on the object itself
     expect(result?.evs).toBeDefined();
     // Using Object.getOwnPropertyDescriptor to check existence even if non-enumerable
-    const protoDesc = Object.getOwnPropertyDescriptor(result?.evs, '__proto__');
+    const _protoDesc = Object.getOwnPropertyDescriptor(result?.evs, '__proto__');
 
     // Current behavior (vulnerable): it likely exists as a property shadowing the prototype
     // We want to assert it DOES NOT exist after fix.

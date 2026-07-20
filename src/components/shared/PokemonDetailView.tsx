@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { PokemonDetails, PokemonForm, PokemonListItem } from '../../types';
+import { PokemonForm, PokemonListItem } from '../../types';
 import { fetchPokemonDetails } from '../../services/pokeapiService';
 import Loader from './Loader';
 import StatBar from '../charts/StatBar';
@@ -14,7 +14,7 @@ import InfoPill from '../pokemon-detail/InfoPill';
 import MovesSection from '../pokemon-detail/MovesSection';
 import TypeDefenseSection from '../pokemon-detail/TypeDefenseSection';
 import EncountersTab from '../pokemon-detail/EncountersTab';
-import { TYPE_COLORS, TYPE_RELATIONS, TYPE_COLORS_HEX } from '../../constants';
+import { TYPE_RELATIONS, TYPE_COLORS_HEX } from '../../constants';
 import { usePokemon } from '../../context/PokemonContext';
 
 interface PokemonDetailViewProps {
@@ -201,7 +201,7 @@ const PokemonDetailView: React.FC<PokemonDetailViewProps> = ({
     if (e.key === 'Escape') onClose();
   };
 
-  const currentPokemonData = selectedForm || pokemon;
+  const _currentPokemonData = selectedForm || pokemon;
 
   return (
     <div

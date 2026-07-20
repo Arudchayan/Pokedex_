@@ -50,7 +50,7 @@ const MoveGame: React.FC<Props> = ({ onClose, date, seed }) => {
         } else {
           setError('Failed to load moves. Please check your connection.');
         }
-      } catch (e) {
+      } catch (_e) {
         setError('An error occurred while loading moves.');
       } finally {
         setIsLoading(false);

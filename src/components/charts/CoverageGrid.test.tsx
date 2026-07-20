@@ -1,6 +1,6 @@
 import React from 'react';
 import { vi, beforeEach, afterEach } from 'vitest';
-import { screen, fireEvent, act } from '@testing-library/react';
+import { screen, fireEvent } from '@testing-library/react';
 import { renderWithProvider } from '../../test/utils';
 import CoverageGrid from './CoverageGrid';
 import { PokemonListItem } from '../../types';

@@ -181,7 +181,7 @@ export const trackPerformance = (metricName: string, value: number) => {
 /**
  * Track errors
  */
-export const trackError = (errorMessage: string, errorStack?: string) => {
+export const trackError = (errorMessage: string, _errorStack?: string) => {
   trackEvent({
     category: 'Error',
     action: 'Exception',

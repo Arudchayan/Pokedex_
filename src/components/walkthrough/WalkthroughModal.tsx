@@ -12,8 +12,8 @@ export default function WalkthroughModal({ isOpen, onClose }: WalkthroughModalPr
   const {
     progress,
     startTour,
-    isTourCompleted,
-    isTourAvailable,
+    isTourCompleted: _isTourCompleted,
+    isTourAvailable: _isTourAvailable,
     getCompletedToursCount,
     getTotalToursCount,
     resetAll,
@@ -141,7 +141,6 @@ export default function WalkthroughModal({ isOpen, onClose }: WalkthroughModalPr
 
 // Inner component to access tours from context
 function TourList({ onStartTour }: { onStartTour: (tourId: string) => void }) {
-  const { progress } = useWalkthrough();
   const walkthrough = useWalkthrough();
   const theme = usePokemonStore((s) => s.theme);
   const isDark = theme === 'dark';

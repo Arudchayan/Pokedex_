@@ -33,7 +33,7 @@ export default function AppModals({ controller }: Props) {
     selectedPokemonId,
     teamIds,
     teamIsFull,
-    comparisonList,
+    comparisonList: _comparisonList,
     comparisonPokemon,
     dexSearchTerm,
     showComparison,

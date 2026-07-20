@@ -1,7 +1,6 @@
 import React, { memo, useState, useEffect, useRef } from 'react';
 import { PokemonListItem } from '../../types';
 import TypeBadge from '../charts/TypeBadge';
-import { TYPE_COLORS_HEX } from '../../constants';
 import { playPokemonCry } from '../../services/soundService';
 
 interface PokemonListRowProps {

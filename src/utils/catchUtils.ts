@@ -87,7 +87,7 @@ export const calculateCatchProbability = ({
   // P(Catch) ≈ (X / 255)^0.75  <-- Historically decent approximation, but let's use the shake formula for better accuracy.
 
   try {
-    const shakeProbability = Math.pow(255 / X, -0.1875); // Equivalent to (X/255)^0.1875 ? No, wait.
+    const _shakeProbability = Math.pow(255 / X, -0.1875); // Equivalent to (X/255)^0.1875 ? No, wait.
     // b = 65536 * (X/255)^0.1875
     // P(one shake) = (X/255)^0.1875
     // P(catch) = ((X/255)^0.1875)^4 = (X/255)^0.75
@@ -106,7 +106,7 @@ export const calculateCatchProbability = ({
 
     const probability = (X / 255) * 100;
     return Math.min(Math.max(probability, 0), 100);
-  } catch (e) {
+  } catch (_e) {
     return 0;
   }
 };

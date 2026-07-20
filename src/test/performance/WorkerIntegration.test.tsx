@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, afterEach, beforeEach } from 'vitest';
+import { describe, it, expect, afterEach, beforeEach } from 'vitest';
 import { renderHook, waitFor } from '@testing-library/react';
 import { usePokemonStoreEffects } from '../../hooks/usePokemonStoreEffects';
 import { usePokemonStore } from '../../store/usePokemonStore';
@@ -33,7 +33,7 @@ describe('usePokemonStoreEffects with Worker', () => {
   const originalWorker = window.Worker;
 
   beforeEach(() => {
-    // @ts-ignore
+    // @ts-expect-error WorkerMock is a test stub, not a full Worker
     window.Worker = WorkerMock;
     usePokemonStore.setState({
       masterPokemonList: [],
