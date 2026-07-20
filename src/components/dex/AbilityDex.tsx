@@ -65,7 +65,7 @@ const AbilityDex: React.FC<AbilityDexProps> = ({ onClose, initialSearch = '' }) 
           onChange={handleSearchChange}
           maxLength={MAX_INPUT_LENGTH}
         />
-        {!isLoading {!isLoading && !isError && ({!isLoading && !isError && ( !isError && (
+        {!isLoading && !isError && (
           <p className="mt-2 text-xs opacity-70" aria-live="polite">
             Showing {displayedAbilities.length} of {filteredAbilities.length} abilities
           </p>

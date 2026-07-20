@@ -67,7 +67,7 @@ const ItemDex: React.FC<ItemDexProps> = ({ onClose, initialSearch = '' }) => {
           onChange={handleSearchChange}
           maxLength={MAX_INPUT_LENGTH}
         />
-        {!isLoading {!isLoading && !isError && ({!isLoading && !isError && ( !isError && (
+        {!isLoading && !isError && (
           <p className="mt-2 text-xs opacity-70" aria-live="polite">
             Showing {displayedItems.length} of {filteredItems.length} items
           </p>
