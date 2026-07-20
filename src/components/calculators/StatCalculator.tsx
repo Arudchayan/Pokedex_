@@ -8,6 +8,7 @@ import Loader from '../shared/Loader';
 import TypeBadge from '../charts/TypeBadge';
 import { PokemonDetails } from '../../types';
 import Modal from '../base/Modal';
+import PokemonAutocomplete from '../shared/PokemonAutocomplete';
 
 interface StatCalculatorProps {
   onClose: () => void;
@@ -29,7 +30,6 @@ const StatCalculator: React.FC<StatCalculatorProps> = ({ onClose, initialPokemon
   const { masterPokemonList, theme } = usePokemon();
   const queryClient = useQueryClient();
 
-  const [search, setSearch] = useState('');
   const [selectedId, setSelectedId] = useState<number | null>(initialPokemonId || null);
   const [pokemon, setPokemon] = useState<PokemonDetails | null>(null);
   const [loading, setLoading] = useState(false);
@@ -86,14 +86,6 @@ const StatCalculator: React.FC<StatCalculatorProps> = ({ onClose, initialPokemon
         .finally(() => setLoading(false));
     }
   }, [selectedId, queryClient]);
-
-  const filteredList = useMemo(() => {
-    if (!search) return [];
-    const searchLower = search.toLowerCase();
-    return masterPokemonList
-      .filter((p) => (p.nameLower || p.name.toLowerCase()).includes(searchLower))
-      .slice(0, 5);
-  }, [search, masterPokemonList]);
 
   // Calculations
   const results = useMemo(() => {
@@ -178,52 +170,19 @@ const StatCalculator: React.FC<StatCalculatorProps> = ({ onClose, initialPokemon
     <Modal isOpen={true} onClose={onClose} title="Stat Calculator" size="lg">
       {/* Search */}
       {!pokemon ? (
-        <div className="relative z-20 max-w-md mx-auto mt-10">
-          <label
-            htmlFor="pokemon-search"
-            className="block text-sm font-bold mb-2 uppercase tracking-wider text-slate-500"
-          >
-            Select Pokemon
-          </label>
-          <input
-            id="pokemon-search"
-            type="text"
-            placeholder="Search Pokemon..."
-            className={`w-full p-4 text-lg rounded-xl bg-transparent border focus:outline-none focus:border-primary-500 ${theme === 'dark' ? 'border-white/20' : 'border-slate-300'}`}
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
+        <>
+          <PokemonAutocomplete
+            pokemonList={masterPokemonList}
+            theme={theme}
+            onSelect={(p) => setSelectedId(p.id)}
             autoFocus
           />
-          {filteredList.length > 0 && (
-            <div
-              className={`absolute top-full left-0 w-full z-10 rounded-b-xl shadow-xl max-h-60 overflow-y-auto mt-1 border ${theme === 'dark' ? 'bg-slate-800 border-white/10' : 'bg-white border-slate-200'}`}
-            >
-              {filteredList.map((p) => (
-                <div
-                  key={p.id}
-                  className="p-3 hover:bg-primary-500/20 cursor-pointer flex items-center gap-3 transition-colors"
-                  onClick={() => {
-                    setSelectedId(p.id);
-                    setSearch('');
-                  }}
-                >
-                  <img src={p.imageUrl} className="w-10 h-10" />
-                  <span className="font-bold">{p.name}</span>
-                  <div className="flex gap-1 ml-auto">
-                    {p.types.map((t) => (
-                      <TypeBadge key={t} type={t} size="sm" />
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
           {loading && (
             <div className="mt-4 flex justify-center">
               <Loader />
             </div>
           )}
-        </div>
+        </>
       ) : (
         <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
           {/* Pokemon Header */}
