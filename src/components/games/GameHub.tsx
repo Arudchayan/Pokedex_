@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { usePokemon } from '../../context/PokemonContext';
+import { usePokemonUI } from '../../context/PokemonContext';
 import { useGameStats } from '../../hooks/useGameStats';
 import { dateToSeed } from '../../utils/seededRandom';
 import PokedleGame from './PokedleGame';
@@ -34,7 +34,7 @@ interface GameHubProps {
 }
 
 const GameHub: React.FC<GameHubProps> = ({ onClose }) => {
-  const { theme } = usePokemon();
+  const { theme } = usePokemonUI();
   const { getStats: _getStats, hasPlayedToday: _hasPlayedToday } = useGameStats();
   const [selectedGame, setSelectedGame] = useState<GameType>('none');
 

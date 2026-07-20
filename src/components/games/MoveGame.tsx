@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { usePokemon } from '../../context/PokemonContext';
+import { usePokemonUI } from '../../context/PokemonContext';
 import { fetchAllMoves, Move } from '../../services/pokeapiService';
 import { mulberry32, pickRandom } from '../../utils/seededRandom';
 
@@ -22,7 +22,7 @@ interface GuessResult {
 }
 
 const MoveGame: React.FC<Props> = ({ onClose, date, seed }) => {
-  const { theme } = usePokemon();
+  const { theme } = usePokemonUI();
   const [moves, setMoves] = useState<Move[]>([]);
   const [target, setTarget] = useState<Move | null>(null);
   const [guesses, setGuesses] = useState<GuessResult[]>([]);
