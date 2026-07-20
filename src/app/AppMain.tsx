@@ -54,7 +54,7 @@ export default function AppMain({ controller }: Props) {
     handleRemoveFromTeam,
     handleToggleFavorite,
     handleAddToComparison,
-    handleRemoveFromComparison,
+    handleRemoveFromComparison: _handleRemoveFromComparison,
     handleClearTeam,
     handleUpdateTeamMember,
     handleLoadTeam,

@@ -7,7 +7,7 @@ import App from '../App';
 // Mock IntersectionObserver
 beforeAll(() => {
   global.IntersectionObserver = class IntersectionObserver {
-    constructor(callback: IntersectionObserverCallback, options?: IntersectionObserverInit) {}
+    constructor(_callback: IntersectionObserverCallback, _options?: IntersectionObserverInit) {}
     root: Element | Document | null = null;
     rootMargin: string = '';
     thresholds: ReadonlyArray<number> = [];
@@ -21,7 +21,7 @@ beforeAll(() => {
 });
 
 // Mock TeamBuilder to track renders
-const TeamBuilderMock = vi.fn((props) => <div data-testid="team-builder-mock">TeamBuilder</div>);
+const TeamBuilderMock = vi.fn((_props) => <div data-testid="team-builder-mock">TeamBuilder</div>);
 
 vi.mock('../components/team/TeamBuilder', () => ({
   default: React.memo((props: any) => {

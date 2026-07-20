@@ -54,7 +54,7 @@ const DataManagement: React.FC<DataManagementProps> = ({ onClose }) => {
 
       navigator.clipboard.writeText(finalUrl);
       addToast('Link generated and copied to clipboard!', 'success');
-    } catch (e) {
+    } catch (_e) {
       addToast('Failed to generate link.', 'error');
     }
   };
@@ -166,7 +166,7 @@ const DataManagement: React.FC<DataManagementProps> = ({ onClose }) => {
 
       unlockAchievement('data_hoarder');
       addToast('Data imported successfully! (Team, Favorites & Saved Teams updated)', 'success');
-    } catch (e) {
+    } catch (_e) {
       addToast('Invalid JSON data.', 'error');
       setImportSummary(null);
     } finally {

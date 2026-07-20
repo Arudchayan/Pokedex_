@@ -105,7 +105,7 @@ describe('EntryHazardAnalysis', () => {
     render(<EntryHazardAnalysis team={mockTeam} theme="light" />);
 
     // Charizard (Flying) -> Immune
-    const charizardRow = screen.getByText('Charizard').closest('tr');
+    const _charizardRow = screen.getByText('Charizard').closest('tr');
     // We need to be specific about which column, but text check in row works if unique enough
     // Spikes is the 2nd column.
     // Let's rely on multiple checks or exact content if possible.
@@ -128,7 +128,7 @@ describe('EntryHazardAnalysis', () => {
     render(<EntryHazardAnalysis team={mockTeam} theme="light" />);
 
     // Lucario (Steel) -> Immune
-    const lucarioRow = screen.getByText('Lucario').closest('tr');
+    const _lucarioRow = screen.getByText('Lucario').closest('tr');
     // Since Immune appears for T.Spikes, check existence.
     // Hard to distinguish columns by text alone without stricter selectors,
     // but we can trust the component logic if we check the combination of values.

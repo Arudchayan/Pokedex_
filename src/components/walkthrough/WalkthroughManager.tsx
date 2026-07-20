@@ -7,7 +7,7 @@ import WalkthroughModal from './WalkthroughModal';
 export default function WalkthroughManager() {
   const {
     isActive,
-    currentTour,
+    currentTour: _currentTour,
     currentStep,
     currentStepIndex,
     totalSteps,

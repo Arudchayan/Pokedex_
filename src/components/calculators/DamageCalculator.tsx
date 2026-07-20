@@ -3,7 +3,6 @@ import { PokemonMove } from '../../types';
 import { fetchPokemonDetails } from '../../services/pokeapiService';
 import { usePokemon } from '../../context/PokemonContext';
 import { NATURES, TYPE_COLORS, BATTLE_ITEMS } from '../../constants';
-import Loader from '../shared/Loader';
 import TypeBadge from '../charts/TypeBadge';
 import { calculateDamage, BattleContext, BattleStat } from '../../utils/damageFormula';
 import Modal from '../base/Modal';
@@ -63,8 +62,8 @@ const DamageCalculator: React.FC<DamageCalculatorProps> = ({
   const [attacker, setAttacker] = useState<ExtendedBattlePokemon | null>(null);
   const [defender, setDefender] = useState<ExtendedBattlePokemon | null>(null);
 
-  const [loadingAttacker, setLoadingAttacker] = useState(false);
-  const [loadingDefender, setLoadingDefender] = useState(false);
+  const [_loadingAttacker, setLoadingAttacker] = useState(false);
+  const [_loadingDefender, setLoadingDefender] = useState(false);
 
   // UI Toggles
   const [showAttackerStats, setShowAttackerStats] = useState(false);

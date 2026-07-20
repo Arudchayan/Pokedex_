@@ -1,5 +1,4 @@
 import React, { forwardRef, HTMLAttributes } from 'react';
-import { cn } from '../../utils/cn';
 
 // Card variant types
 export type CardVariant = 'elevated' | 'outlined' | 'filled';

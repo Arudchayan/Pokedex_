@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest';
+import { compressToEncodedURIComponent } from 'lz-string';
 import { compressTeam, decompressTeam } from '../../utils/urlCompression';
 import { PokemonListItem, TeamMember } from '../../types';
 
@@ -46,7 +47,7 @@ describe('urlCompression', () => {
     // Create a malicious string that expands to 100 Pikachus
     const maliciousTeam = Array(100).fill({ id: 25 });
     const jsonString = JSON.stringify(maliciousTeam);
-    const compressed = require('lz-string').compressToEncodedURIComponent(jsonString);
+    const compressed = compressToEncodedURIComponent(jsonString);
 
     const decompressed = decompressTeam(compressed, mockMasterList);
 
@@ -66,7 +67,7 @@ describe('urlCompression', () => {
       },
     ];
     const jsonString = JSON.stringify(maliciousTeam);
-    const compressed = require('lz-string').compressToEncodedURIComponent(jsonString);
+    const compressed = compressToEncodedURIComponent(jsonString);
 
     const decompressed = decompressTeam(compressed, mockMasterList);
 

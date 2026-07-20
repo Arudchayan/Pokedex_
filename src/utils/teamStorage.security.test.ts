@@ -1,6 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { getSavedTeam, getSavedTeamList, saveTeam, saveTeamList, SavedTeam } from './teamStorage';
-import { TeamMember } from '../types';
+import { getSavedTeam, getSavedTeamList } from './teamStorage';
 import { UI_CONSTANTS } from '../constants';
 
 // Mock localStorage

@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { fetchPokemonDetails, fetchAllPokemons } from './pokeapiService';
+import { fetchPokemonDetails } from './pokeapiService';
 
 const mockFetchResponse = (data: unknown) => {
   (globalThis.fetch as ReturnType<typeof vi.fn>) = vi.fn().mockResolvedValue(
