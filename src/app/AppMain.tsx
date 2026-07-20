@@ -1,11 +1,12 @@
-import { useState } from 'react';
+import { useState, Suspense, lazy } from 'react';
 import FilterControls from '../components/layout/FilterControls';
 import { PokemonGridSkeleton } from '../components/base/SkeletonComposites';
 import SortingControls from '../components/layout/SortingControls';
 import VirtualPokemonList from '../components/pokemon/VirtualPokemonList';
-import TeamBuilder from '../components/team/TeamBuilder';
 import MobileTeamSheet from '../components/team/MobileTeamSheet';
 import type { AppController } from './useAppController';
+
+const TeamBuilder = lazy(() => import('../components/team/TeamBuilder'));
 
 type Props = {
   controller: AppController;
@@ -450,26 +451,40 @@ export default function AppMain({ controller }: Props) {
 
         {/* Desktop team builder sidebar - hidden on mobile */}
         <div className="hidden lg:block w-full lg:w-72 xl:w-80">
-          <TeamBuilder
-            team={teamPokemon}
-            onRemove={handleRemoveFromTeam}
-            onClear={handleClearTeam}
-            onSelect={handleSelectPokemon}
-            teamCapacity={TEAM_CAPACITY}
-            theme={theme}
-            onUpdateTeamMember={handleUpdateTeamMember}
-            onLoadTeam={handleLoadTeam}
-            onRandomize={handleRandomizeTeam}
-            hasFilteredPokemon={filteredPokemon.length > 0}
-            isCyberpunk={isCyberpunk}
-            onAddPokemon={handleFocusSearch}
-            onAddToTeam={handleAddToTeam}
-            undo={undo}
-            redo={redo}
-            canUndo={canUndo}
-            canRedo={canRedo}
-            onReorderTeam={handleReorderTeam}
-          />
+          <Suspense
+            fallback={
+              <div
+                className={`rounded-2xl border p-4 text-sm ${
+                  theme === 'dark'
+                    ? 'border-white/10 bg-black/20 text-slate-400'
+                    : 'border-slate-200 bg-white text-slate-500'
+                }`}
+              >
+                Loading team builder…
+              </div>
+            }
+          >
+            <TeamBuilder
+              team={teamPokemon}
+              onRemove={handleRemoveFromTeam}
+              onClear={handleClearTeam}
+              onSelect={handleSelectPokemon}
+              teamCapacity={TEAM_CAPACITY}
+              theme={theme}
+              onUpdateTeamMember={handleUpdateTeamMember}
+              onLoadTeam={handleLoadTeam}
+              onRandomize={handleRandomizeTeam}
+              hasFilteredPokemon={filteredPokemon.length > 0}
+              isCyberpunk={isCyberpunk}
+              onAddPokemon={handleFocusSearch}
+              onAddToTeam={handleAddToTeam}
+              undo={undo}
+              redo={redo}
+              canUndo={canUndo}
+              canRedo={canRedo}
+              onReorderTeam={handleReorderTeam}
+            />
+          </Suspense>
         </div>
 
         {/* Mobile team builder - FAB + bottom sheet */}
