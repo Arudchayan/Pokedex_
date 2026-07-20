@@ -863,9 +863,9 @@ export const fetchPokemonDetails = async (id: number): Promise<PokemonDetails | 
   const moves: PokemonMove[] = (defaultPokemon.pokemon_v2_pokemonmoves || []).map((m) => ({
     name: m.pokemon_v2_move?.name?.replace(/-/g, ' ') || 'Unknown Move',
     type: m.pokemon_v2_move?.pokemon_v2_type?.name || 'normal',
-    power: m.pokemon_v2_move?.power,
-    accuracy: m.pokemon_v2_move?.accuracy,
-    pp: m.pokemon_v2_move?.pp,
+    power: m.pokemon_v2_move?.power ?? null,
+    accuracy: m.pokemon_v2_move?.accuracy ?? null,
+    pp: m.pokemon_v2_move?.pp ?? 0,
     priority: m.pokemon_v2_move?.priority || 0,
     damageClass: m.pokemon_v2_move?.pokemon_v2_movedamageclass?.name || 'status',
     learnMethod: m.pokemon_v2_movelearnmethod?.name?.replace(/-/g, ' ') || 'Unknown',
@@ -888,8 +888,8 @@ export const fetchPokemonDetails = async (id: number): Promise<PokemonDetails | 
       types: p.pokemon_v2_pokemontypes.map((t) => t.pokemon_v2_type?.name || 'unknown'),
       imageUrl: officialUrl,
       shinyImageUrl: shinyOfficialUrl,
-      height: p.height,
-      weight: p.weight,
+      height: p.height ?? 0,
+      weight: p.weight ?? 0,
       stats: (p.pokemon_v2_pokemonstats || []).map((s) => ({
         name: s.pokemon_v2_stat?.name || 'unknown',
         value: s.base_stat,
@@ -955,7 +955,7 @@ export const fetchPokemonDetails = async (id: number): Promise<PokemonDetails | 
           !heldItemId
         ) {
           // Sometimes level-up is default but condition is hidden or it's base form
-          if (e.id !== species.pokemon_v2_evolutionchain.pokemon_v2_pokemonspecies[0].id) {
+          if (e.id !== species.pokemon_v2_evolutionchain?.pokemon_v2_pokemonspecies[0]?.id) {
             trigger = 'Special Condition';
           } else {
             trigger = undefined; // Base form
@@ -967,21 +967,21 @@ export const fetchPokemonDetails = async (id: number): Promise<PokemonDetails | 
           name: e.name,
           imageUrl: evoOfficial || evoSprite,
           trigger: trigger?.replace(/-/g, ' '),
-          minLevel: minLevel,
+          minLevel: minLevel ?? undefined,
           item: item?.replace(/-/g, ' '),
           heldItem: heldItem,
-          timeOfDay: timeOfDay,
+          timeOfDay: timeOfDay || undefined,
           knownMove: knownMove?.replace(/-/g, ' '),
-          minHappiness: minHappiness,
+          minHappiness: minHappiness ?? undefined,
           location: location?.replace(/-/g, ' '),
           evolvesFromId: e.evolves_from_species_id,
         };
       }) || [],
     color: species?.pokemon_v2_pokemoncolor?.name || 'gray',
     habitat: species?.pokemon_v2_pokemonhabitat?.name || 'Unknown',
-    captureRate: species?.capture_rate,
-    baseHappiness: species?.base_happiness,
-    genderRate: species?.gender_rate,
+    captureRate: species?.capture_rate ?? 0,
+    baseHappiness: species?.base_happiness ?? 0,
+    genderRate: species?.gender_rate ?? -1,
     genus: species?.pokemon_v2_pokemonspeciesnames[0]?.genus || 'Unknown',
     flavorText: flavorText,
     weaknesses: [], // Will be calculated on the client

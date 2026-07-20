@@ -102,8 +102,8 @@ const MoveList: React.FC<MoveListProps> = ({ moves, onOpenMoveDex }) => {
       const aVal = a[sortConfig.key];
       const bVal = b[sortConfig.key];
 
-      if (aVal === null) return 1;
-      if (bVal === null) return -1;
+      if (aVal == null) return 1;
+      if (bVal == null) return -1;
 
       if (aVal < bVal) {
         return sortConfig.direction === 'asc' ? -1 : 1;

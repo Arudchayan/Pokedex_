@@ -9,7 +9,7 @@ interface SearchBarProps {
   isCyberpunk?: boolean;
   theme?: 'dark' | 'light';
   id?: string;
-  inputRef?: React.RefObject<HTMLInputElement>;
+  inputRef?: React.RefObject<HTMLInputElement | null>;
 }
 
 const SearchBar: React.FC<SearchBarProps> = ({

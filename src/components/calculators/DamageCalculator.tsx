@@ -141,7 +141,12 @@ const DamageCalculator: React.FC<DamageCalculatorProps> = ({
         ability: defender.selectedAbility,
         moves: undefined,
       } as any,
-      move: attacker.selectedMove,
+      move: {
+        name: attacker.selectedMove.name,
+        power: attacker.selectedMove.power ?? 0,
+        type: attacker.selectedMove.type,
+        damageClass: attacker.selectedMove.damageClass,
+      },
     };
 
     return calculateDamage(ctx);
