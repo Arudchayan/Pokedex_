@@ -13,6 +13,7 @@ import { registerServiceWorker } from './utils/registerSW';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { queryClient } from './config/queryClient';
+import { env } from './config/env';
 import { ALL_TOURS } from './data/tours';
 import './index.css';
 import './styles/global.css';
@@ -40,8 +41,12 @@ root.render(
         {import.meta.env.DEV && <ReactQueryDevtools initialIsOpen={false} />}
       </QueryClientProvider>
     </ErrorBoundary>
-    <Analytics />
-    <SpeedInsights />
+    {env.enableAnalytics && (
+      <>
+        <Analytics />
+        <SpeedInsights />
+      </>
+    )}
   </React.StrictMode>
 );
 

@@ -95,7 +95,7 @@ cd graphql-pokedex
 # Install dependencies
 npm install
 
-# Start dev server (http://localhost:5173)
+# Start dev server (http://localhost:3000)
 npm run dev
 
 # Build for production
@@ -114,7 +114,7 @@ npm run preview      # Preview production build
 npm run test         # Run unit tests
 npm run test:watch   # Run tests in watch mode
 npm run typecheck    # TypeScript type checking
-npm run check        # Full validation (types + tests + build)
+npm run check        # Full validation (types + lint + boundaries + tests + build)
 npm run codegen      # Generate GraphQL types
 ```
 
@@ -139,7 +139,7 @@ src/
 
 - **Web Workers**: Offloads filtering to background threads
 - **Virtual Scrolling**: Renders only visible cards
-- **Code Splitting**: Route-based lazy loading
+- **Code Splitting**: Modal-based lazy loading for tools and detail views
 - **PWA Caching**: Offline-first with service worker
 - **Memoization**: Optimized re-renders with React.memo and useMemo
 - **IndexedDB**: Fast local persistence
