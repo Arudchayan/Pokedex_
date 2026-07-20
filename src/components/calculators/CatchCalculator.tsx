@@ -6,8 +6,9 @@ import {
   calculateCatchProbability,
   getBallMultiplier,
 } from '../../utils/catchUtils';
+import { useQueryClient } from '@tanstack/react-query';
 import { usePokemon } from '../../context/PokemonContext';
-import { fetchPokemonDetails } from '../../services/pokeapiService';
+import { fetchPokemonDetailsQuery } from '../../services/pokemonDetailsQuery';
 import Loader from '../shared/Loader';
 import TypeBadge from '../charts/TypeBadge';
 import Modal from '../base/Modal';
@@ -19,6 +20,7 @@ interface CatchCalculatorProps {
 
 const CatchCalculator: React.FC<CatchCalculatorProps> = ({ onClose, initialPokemonId }) => {
   const { masterPokemonList, theme } = usePokemon();
+  const queryClient = useQueryClient();
 
   // Selection State
   const [search, setSearch] = useState('');
@@ -37,7 +39,7 @@ const CatchCalculator: React.FC<CatchCalculatorProps> = ({ onClose, initialPokem
   useEffect(() => {
     if (selectedId) {
       setLoading(true);
-      fetchPokemonDetails(selectedId)
+      fetchPokemonDetailsQuery(queryClient, selectedId)
         .then((details) => {
           if (details) {
             setPokemon(details);
@@ -49,7 +51,7 @@ const CatchCalculator: React.FC<CatchCalculatorProps> = ({ onClose, initialPokem
         })
         .finally(() => setLoading(false));
     }
-  }, [selectedId]);
+  }, [selectedId, queryClient]);
 
   const filteredList = useMemo(() => {
     if (!search) return [];

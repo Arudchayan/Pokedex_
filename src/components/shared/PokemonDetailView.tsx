@@ -2,6 +2,10 @@ import React, { useState, useEffect, useMemo, useRef, useId } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { PokemonForm, PokemonListItem } from '../../types';
 import { fetchPokemonDetails } from '../../services/pokeapiService';
+import {
+  pokemonDetailsQueryKey,
+  POKEMON_DETAILS_STALE_TIME,
+} from '../../services/pokemonDetailsQuery';
 import Loader from './Loader';
 import StatBar from '../charts/StatBar';
 import FormSelector from '../pokemon/FormSelector';
@@ -94,9 +98,9 @@ const PokemonDetailView: React.FC<PokemonDetailViewProps> = ({
     isLoading: loading,
     error: queryError,
   } = useQuery({
-    queryKey: ['pokemonDetails', pokemonId],
+    queryKey: pokemonDetailsQueryKey(pokemonId),
     queryFn: () => fetchPokemonDetails(pokemonId),
-    staleTime: 24 * 60 * 60 * 1000,
+    staleTime: POKEMON_DETAILS_STALE_TIME,
   });
 
   const error = queryError
@@ -232,7 +236,7 @@ const PokemonDetailView: React.FC<PokemonDetailViewProps> = ({
 
   const { megaForm, defaultForm } = useMemo(() => {
     if (!pokemon) return { megaForm: null, defaultForm: null };
-    const mega = pokemon.forms.find((f) => f.name.includes('-mega'));
+    const mega = pokemon.forms.find((f) => f.name.includes('-mega')) ?? null;
     const def = pokemon.forms.find((f) => f.isDefault) || pokemon.forms[0];
     return { megaForm: mega, defaultForm: def };
   }, [pokemon]);

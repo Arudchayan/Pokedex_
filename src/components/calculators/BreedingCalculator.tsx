@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { usePokemon } from '../../context/PokemonContext';
-import { fetchPokemonDetails } from '../../services/pokeapiService';
+import { fetchPokemonDetailsQuery } from '../../services/pokemonDetailsQuery';
 import { PokemonDetails } from '../../types';
 import {
   calculateBreedingCompatibility,
@@ -17,6 +18,7 @@ interface BreedingCalculatorProps {
 
 const BreedingCalculator: React.FC<BreedingCalculatorProps> = ({ onClose }) => {
   const { masterPokemonList, theme } = usePokemon();
+  const queryClient = useQueryClient();
 
   // Parent State
   const [parentA, setParentA] = useState<PokemonDetails | null>(null);
@@ -40,7 +42,7 @@ const BreedingCalculator: React.FC<BreedingCalculatorProps> = ({ onClose }) => {
 
   // Load Parent Data
   const loadParent = async (id: number, isA: boolean) => {
-    const details = await fetchPokemonDetails(id);
+    const details = await fetchPokemonDetailsQuery(queryClient, id);
     if (details) {
       if (isA) {
         setParentA(details);
@@ -74,7 +76,7 @@ const BreedingCalculator: React.FC<BreedingCalculatorProps> = ({ onClose }) => {
         setOffspringDetails(parentB);
       } else {
         setLoadingOffspring(true);
-        fetchPokemonDetails(result.offspringId).then((d) => {
+        fetchPokemonDetailsQuery(queryClient, result.offspringId).then((d) => {
           setOffspringDetails(d);
           setLoadingOffspring(false);
         });
@@ -82,7 +84,7 @@ const BreedingCalculator: React.FC<BreedingCalculatorProps> = ({ onClose }) => {
     } else {
       setOffspringDetails(null);
     }
-  }, [result, parentA, parentB]);
+  }, [result, parentA, parentB, queryClient]);
 
   const filteredListA = useMemo(
     () =>

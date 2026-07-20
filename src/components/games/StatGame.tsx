@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { usePokemon } from '../../context/PokemonContext';
 import { PokemonListItem, PokemonDetails } from '../../types';
 import { mulberry32, pickRandom } from '../../utils/seededRandom';
 import RadarChart from '../charts/RadarChart';
-import { fetchPokemonDetails } from '../../services/pokeapiService';
+import { fetchPokemonDetailsQuery } from '../../services/pokemonDetailsQuery';
 
 interface Props {
   onClose: () => void;
@@ -13,6 +14,7 @@ interface Props {
 
 const StatGame: React.FC<Props> = ({ onClose, date, seed }) => {
   const { masterPokemonList, theme } = usePokemon();
+  const queryClient = useQueryClient();
   const [target, setTarget] = useState<PokemonDetails | null>(null);
   const [currentGuess, setCurrentGuess] = useState('');
   const [gameState, setGameState] = useState<'playing' | 'won' | 'lost'>('playing');
@@ -28,7 +30,7 @@ const StatGame: React.FC<Props> = ({ onClose, date, seed }) => {
       if (masterPokemonList.length > 0) {
         const tBase = pickRandom(masterPokemonList, rng);
         try {
-          const details = await fetchPokemonDetails(tBase.id);
+          const details = await fetchPokemonDetailsQuery(queryClient, tBase.id);
           setTarget(details);
         } catch (e) {
           console.error('Failed to load stat game target', e);
@@ -36,7 +38,7 @@ const StatGame: React.FC<Props> = ({ onClose, date, seed }) => {
       }
     };
     init();
-  }, [masterPokemonList, rng]);
+  }, [masterPokemonList, rng, queryClient]);
 
   const handleSearch = (term: string) => {
     setCurrentGuess(term);
