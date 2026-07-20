@@ -144,6 +144,9 @@ const PokemonListRow: React.FC<PokemonListRowProps> = ({
           })()}
           onError={() => setImgError(true)}
           alt={pokemon.name}
+          width={64}
+          height={64}
+          decoding="async"
           className="h-16 w-16 object-contain pixelated"
           loading="lazy"
         />

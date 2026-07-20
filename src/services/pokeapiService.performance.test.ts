@@ -61,20 +61,21 @@ describe('fetchAllPokemons Performance', () => {
 
     expect(result).toHaveLength(3);
 
-    // 1. Bulbasaur (Has sprites) -> Expect Showdown URL
-    expect(result[0].imageUrl).toBe('https://play.pokemonshowdown.com/sprites/ani/bulbasaur.gif');
+    // Catalog list always uses static PokeAPI sprites (not animated Showdown GIFs)
+    expect(result[0].imageUrl).toBe(
+      'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1.png'
+    );
+    expect(result[0].shinyImageUrl).toBe(
+      'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/1.png'
+    );
 
-    // 2. Pikachu (No sprites) -> Expect Generic URL
     expect(result[1].imageUrl).toBe(
       'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/25.png'
     );
 
-    // 3. Mewtwo (Invalid JSON sprites)
-    // CURRENT BEHAVIOR: extractSpriteUrls fails parsing -> returns fallback image (poke-ball.png) which then might fall back to generic?
-    // Wait, extractSpriteUrls returns fallbackImage if !sprites.
-    // imageUrl = showdownUrl || genericSprite.
-    // If extractSpriteUrls returns fallbackImage as showdownUrl, then imageUrl is fallbackImage.
-    // Let's see what happens in the run.
+    expect(result[2].imageUrl).toBe(
+      'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/150.png'
+    );
   });
 
   it('should avoid JSON.parse on sprite strings', async () => {
