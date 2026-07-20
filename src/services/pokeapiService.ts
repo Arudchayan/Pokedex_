@@ -44,7 +44,7 @@ interface GraphQLResponse<T> {
 const FLAVOR_TEXT_SANITIZATION_REGEX = /[\n\f]/g;
 const CACHE_TTL = 24 * 60 * 60 * 1000; // 24 hours
 const CACHE_TIMESTAMP_KEY = 'pokedex_master_list_timestamp';
-const CACHE_KEY = 'pokedex_master_list_v1';
+const CACHE_KEY = 'pokedex_master_list_v2';
 const MOVES_CACHE_KEY = 'pokedex_moves';
 const MOVES_CACHE_TIMESTAMP_KEY = 'pokedex_moves_timestamp';
 const ITEMS_CACHE_KEY = 'pokedex_items';
