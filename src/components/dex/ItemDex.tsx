@@ -1,74 +1,36 @@
-import React, { useState, useMemo, useEffect, useCallback } from 'react';
-import { POKEAPI_GRAPHQL_URL } from '../../constants';
+import React, { useState, useMemo, useEffect } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import Loader from '../shared/Loader';
-import { usePokemon } from '../../context/PokemonContext';
+import { usePokemonUI } from '../../context/PokemonContext';
 import { MAX_INPUT_LENGTH } from '../../utils/securityUtils';
-import fetchItemDexQuery from '../../graphql/fetchItemDex.graphql?raw';
-import { FetchItemDexQuery } from '../../graphql/generated';
+import { fetchItemDex } from '../../services/pokeapiService';
 import Modal from '../base/Modal';
-import { logger } from '../../utils/logger';
 
 interface ItemDexProps {
   onClose: () => void;
   initialSearch?: string;
 }
 
-interface Item {
-  name: string;
-  category: string;
-  effect: string;
-  sprite: string;
-}
-
 const ItemDex: React.FC<ItemDexProps> = ({ onClose, initialSearch = '' }) => {
-  const { theme } = usePokemon();
-  const [items, setItems] = useState<Item[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { theme } = usePokemonUI();
   const [search, setSearch] = useState(initialSearch);
   const [page, setPage] = useState(0);
   const PAGE_SIZE = 50;
 
-  const fetchItems = useCallback(async (signal?: AbortSignal) => {
-    setLoading(true);
-    setError(null);
-    try {
-      const response = await fetch(POKEAPI_GRAPHQL_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query: fetchItemDexQuery }),
-        signal,
-      });
+  const {
+    data: items = [],
+    isLoading,
+    isFetching,
+    isError,
+    error: queryError,
+    refetch,
+  } = useQuery({
+    queryKey: ['itemDex'],
+    queryFn: ({ signal }) => fetchItemDex(signal),
+    staleTime: 24 * 60 * 60 * 1000,
+  });
 
-      if (!response.ok) {
-        throw new Error(`Unable to load items (${response.status})`);
-      }
-
-      const json = (await response.json()) as { data?: FetchItemDexQuery };
-      const fetchedItems: Item[] =
-        json.data?.pokemon_v2_item.map((item) => ({
-          name: item.name,
-          category: item.pokemon_v2_itemcategory?.name || 'Misc',
-          effect: item.pokemon_v2_itemeffecttexts[0]?.effect || 'No description available.',
-          sprite: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/${encodeURIComponent(item.name)}.png`,
-        })) ?? [];
-      setItems(fetchedItems);
-    } catch (e) {
-      if ((e as Error).name === 'AbortError') return;
-      logger.warn('ItemDex fetch failed', e);
-      setError('Unable to load items. Please try again.');
-    } finally {
-      if (!signal?.aborted) {
-        setLoading(false);
-      }
-    }
-  }, []);
-
-  useEffect(() => {
-    const controller = new AbortController();
-    void fetchItems(controller.signal);
-    return () => controller.abort();
-  }, [fetchItems]);
+  const error = queryError ? 'Unable to load items. Please try again.' : null;
 
   useEffect(() => {
     setPage(0);
@@ -105,21 +67,21 @@ const ItemDex: React.FC<ItemDexProps> = ({ onClose, initialSearch = '' }) => {
           onChange={handleSearchChange}
           maxLength={MAX_INPUT_LENGTH}
         />
-        {!loading && !error && (
+        {!isLoading {!isLoading && !isError && ({!isLoading && !isError && ( !isError && (
           <p className="mt-2 text-xs opacity-70" aria-live="polite">
             Showing {displayedItems.length} of {filteredItems.length} items
           </p>
         )}
       </div>
 
-      {loading ? (
+      {isLoading || (isFetching && isError) ? (
         <Loader message="Loading Items..." />
       ) : error ? (
         <div className="grid place-items-center gap-3 rounded-xl border border-red-500/30 bg-red-500/10 p-6 text-center">
           <p className="text-sm">{error}</p>
           <button
             type="button"
-            onClick={() => void fetchItems()}
+            onClick={() => void refetch()}
             className="rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-500"
           >
             Retry

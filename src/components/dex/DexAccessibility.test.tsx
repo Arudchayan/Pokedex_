@@ -4,27 +4,20 @@ import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 import AbilityDex from './AbilityDex';
 import ItemDex from './ItemDex';
 import MoveDex from './MoveDex';
-import { renderWithProvider } from '../../test/utils';
-
-// Mock global fetch
-const globalFetch = global.fetch;
+import { renderWithProvider, setPokeapiServiceMock } from '../../test/utils';
 
 describe('Dex Components Accessibility', () => {
   beforeEach(() => {
-    global.fetch = vi.fn().mockResolvedValue({
-      json: async () => ({
-        data: {
-          pokemon_v2_ability: [],
-          pokemon_v2_item: [],
-          pokemon_v2_move: [],
-        },
-      }),
+    setPokeapiServiceMock({
+      fetchMoveDex: [],
+      fetchAbilityDex: [],
+      fetchItemDex: [],
     });
   });
 
   afterEach(() => {
-    global.fetch = globalFetch;
-    vi.restoreAllMocks();
+    setPokeapiServiceMock();
+    vi.clearAllMocks();
   });
 
   describe('AbilityDex', () => {

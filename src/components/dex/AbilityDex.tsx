@@ -1,71 +1,36 @@
-import React, { useState, useMemo, useEffect, useCallback } from 'react';
-import { POKEAPI_GRAPHQL_URL } from '../../constants';
+import React, { useState, useMemo, useEffect } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import Loader from '../shared/Loader';
-import { usePokemon } from '../../context/PokemonContext';
+import { usePokemonUI } from '../../context/PokemonContext';
 import { MAX_INPUT_LENGTH } from '../../utils/securityUtils';
-import fetchAbilityDexQuery from '../../graphql/fetchAbilityDex.graphql?raw';
-import { FetchAbilityDexQuery } from '../../graphql/generated';
+import { fetchAbilityDex } from '../../services/pokeapiService';
 import Modal from '../base/Modal';
-import { logger } from '../../utils/logger';
 
 interface AbilityDexProps {
   onClose: () => void;
   initialSearch?: string;
 }
 
-interface Ability {
-  name: string;
-  effect: string;
-}
-
 const AbilityDex: React.FC<AbilityDexProps> = ({ onClose, initialSearch = '' }) => {
-  const { theme } = usePokemon();
-  const [abilities, setAbilities] = useState<Ability[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { theme } = usePokemonUI();
   const [search, setSearch] = useState(initialSearch);
   const [page, setPage] = useState(0);
   const PAGE_SIZE = 50;
 
-  const fetchAbilities = useCallback(async (signal?: AbortSignal) => {
-    setLoading(true);
-    setError(null);
+  const {
+    data: abilities = [],
+    isLoading,
+    isFetching,
+    isError,
+    error: queryError,
+    refetch,
+  } = useQuery({
+    queryKey: ['abilityDex'],
+    queryFn: ({ signal }) => fetchAbilityDex(signal),
+    staleTime: 24 * 60 * 60 * 1000,
+  });
 
-    try {
-      const response = await fetch(POKEAPI_GRAPHQL_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query: fetchAbilityDexQuery }),
-        signal,
-      });
-
-      if (!response.ok) {
-        throw new Error(`Unable to load abilities (${response.status})`);
-      }
-
-      const json = (await response.json()) as { data?: FetchAbilityDexQuery };
-      const fetchedAbilities: Ability[] =
-        json.data?.pokemon_v2_ability.map((a) => ({
-          name: a.name,
-          effect: a.pokemon_v2_abilityeffecttexts[0]?.effect || 'No description available.',
-        })) ?? [];
-      setAbilities(fetchedAbilities);
-    } catch (e) {
-      if ((e as Error).name === 'AbortError') return;
-      logger.warn('AbilityDex fetch failed', e);
-      setError('Unable to load abilities. Please try again.');
-    } finally {
-      if (!signal?.aborted) {
-        setLoading(false);
-      }
-    }
-  }, []);
-
-  useEffect(() => {
-    const controller = new AbortController();
-    void fetchAbilities(controller.signal);
-    return () => controller.abort();
-  }, [fetchAbilities]);
+  const error = queryError ? 'Unable to load abilities. Please try again.' : null;
 
   useEffect(() => {
     setPage(0);
@@ -100,21 +65,21 @@ const AbilityDex: React.FC<AbilityDexProps> = ({ onClose, initialSearch = '' }) 
           onChange={handleSearchChange}
           maxLength={MAX_INPUT_LENGTH}
         />
-        {!loading && !error && (
+        {!isLoading {!isLoading && !isError && ({!isLoading && !isError && ( !isError && (
           <p className="mt-2 text-xs opacity-70" aria-live="polite">
             Showing {displayedAbilities.length} of {filteredAbilities.length} abilities
           </p>
         )}
       </div>
 
-      {loading ? (
+      {isLoading || (isFetching && isError) ? (
         <Loader message="Loading Abilities..." />
       ) : error ? (
         <div className="grid place-items-center gap-3 rounded-xl border border-red-500/30 bg-red-500/10 p-6 text-center">
           <p className="text-sm">{error}</p>
           <button
             type="button"
-            onClick={() => void fetchAbilities()}
+            onClick={() => void refetch()}
             className="rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-500"
           >
             Retry
