@@ -1,7 +1,7 @@
 import React from 'react';
 import { PokemonMove, PokemonStat } from '../../types';
 import { getRecommendedMoves } from '../../utils/moveLogic';
-import { usePokemon } from '../../context/PokemonContext';
+import { usePokemonUI } from '../../context/PokemonContext';
 import { TYPE_COLORS_HEX } from '../../constants';
 
 interface MoveRecommenderProps {
@@ -11,7 +11,7 @@ interface MoveRecommenderProps {
 }
 
 const MoveRecommender: React.FC<MoveRecommenderProps> = ({ moves, stats, types }) => {
-  const { theme } = usePokemon();
+  const { theme } = usePokemonUI();
   const recommendedMoves = getRecommendedMoves(moves, stats, types);
 
   if (recommendedMoves.length === 0) return null;

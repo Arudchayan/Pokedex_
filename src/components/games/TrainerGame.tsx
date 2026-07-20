@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { usePokemon } from '../../context/PokemonContext';
+import { usePokemonUI } from '../../context/PokemonContext';
 import { TRAINERS, Trainer } from '../../data/trainers';
 import { mulberry32, pickRandom } from '../../utils/seededRandom';
 import { fetchPokemonDetailsQuery } from '../../services/pokemonDetailsQuery';
@@ -12,7 +12,7 @@ interface Props {
 }
 
 const TrainerGame: React.FC<Props> = ({ onClose, date, seed }) => {
-  const { theme } = usePokemon();
+  const { theme } = usePokemonUI();
   const queryClient = useQueryClient();
   const [target, setTarget] = useState<Trainer | null>(null);
   const [teamDetails, setTeamDetails] = useState<any[]>([]); // URLs/Names of pokemon
