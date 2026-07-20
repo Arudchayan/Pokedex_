@@ -1,5 +1,5 @@
 import { get, set, del } from 'idb-keyval';
-import { MAX_POKEMON_ID, POKEAPI_GRAPHQL_URL } from '../constants';
+import { MAX_POKEMON_ID } from '../constants';
 import {
   PokemonListItem,
   PokemonDetails,
@@ -8,7 +8,7 @@ import {
   Item,
   PokemonEncounter,
 } from '../types';
-import { logError, retryApiCall, isNetworkError } from '../utils/errorHandler';
+import { retryApiCall } from '../utils/errorHandler';
 import {
   sanitizeString,
   validateSafeNumber,
@@ -19,6 +19,7 @@ import {
 } from '../utils/securityUtils';
 import { scheduleIdleTask } from '../utils/scheduler';
 import { logger } from '../utils/logger';
+import { queryPokeAPI } from './pokeapiClient';
 import fetchAllPokemonQuery from '../graphql/fetchAllPokemon.graphql?raw';
 import getPokemonDetailsQuery from '../graphql/getPokemonDetails.graphql?raw';
 import getPokemonMovesQuery from '../graphql/getPokemonMoves.graphql?raw';
@@ -116,15 +117,6 @@ type GetPokemonMovesQuery = {
     }>;
   }>;
 };
-
-// --- Interfaces for GraphQL Response ---
-
-interface GraphQLResponse<T> {
-  data: T;
-  errors?: { message: string }[];
-}
-
-// --- End Interfaces ---
 
 const FLAVOR_TEXT_SANITIZATION_REGEX = /[\n\f]/g;
 const CACHE_TTL = 24 * 60 * 60 * 1000; // 24 hours
@@ -255,64 +247,6 @@ const extractSpriteUrls = (pokemonId: number, pokemonName: string) => {
     shinyDefaultUrl: genericShinySprite,
   };
 };
-
-async function queryPokeAPI<T>(
-  query: string,
-  variables: Record<string, any> = {},
-  options: { signal?: AbortSignal } = {}
-): Promise<T> {
-  try {
-    const timeoutSignal = AbortSignal.timeout(30000);
-    const combinedSignal = options.signal
-      ? AbortSignal.any
-        ? AbortSignal.any([options.signal, timeoutSignal])
-        : options.signal
-      : timeoutSignal;
-    const response = await fetch(POKEAPI_GRAPHQL_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
-      },
-      body: JSON.stringify({ query, variables }),
-      // Add timeout
-      signal: combinedSignal, // 30 second timeout
-    });
-
-    if (!response.ok) {
-      const error = new Error(`HTTP Error: ${response.status} ${response.statusText}`);
-      logError(error, { endpoint: POKEAPI_GRAPHQL_URL, status: response.status });
-      throw error;
-    }
-
-    const json = (await response.json()) as GraphQLResponse<T>;
-
-    if (json.errors) {
-      logger.debug('GraphQL Errors:', json.errors);
-      const error = new Error(`GraphQL Error: ${json.errors[0]?.message || 'Unknown error'}`);
-      logError(error, { graphqlErrors: json.errors });
-      throw error;
-    }
-
-    return json.data;
-  } catch (error) {
-    // Handle timeout errors
-    if (error instanceof Error && error.name === 'TimeoutError') {
-      const timeoutError = new Error('Request timed out. Please try again.');
-      logError(timeoutError, { context: 'API Timeout' });
-      throw timeoutError;
-    }
-
-    // Handle network errors
-    if (error instanceof Error && isNetworkError(error)) {
-      const networkError = new Error('Network error. Please check your connection.');
-      logError(networkError, { context: 'Network Error' });
-      throw networkError;
-    }
-
-    throw error;
-  }
-}
 
 export const isPokemonListItemValid = (data: any): data is PokemonListItem => {
   if (!data || typeof data !== 'object') return false;

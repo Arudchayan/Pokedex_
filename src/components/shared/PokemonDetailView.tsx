@@ -22,7 +22,8 @@ import InfoPill from '../pokemon-detail/InfoPill';
 import MovesSection from '../pokemon-detail/MovesSection';
 import TypeDefenseSection from '../pokemon-detail/TypeDefenseSection';
 import EncountersTab from '../pokemon-detail/EncountersTab';
-import { TYPE_RELATIONS, TYPE_COLORS_HEX } from '../../constants';
+import { TYPE_COLORS_HEX } from '../../constants';
+import { calculateTypeEffectiveness } from '../../domain/typeEffectiveness';
 import { usePokemon } from '../../context/PokemonContext';
 import { DEFAULT_DOCUMENT_TITLE } from '../../hooks/usePokemonDetailSharer';
 
@@ -42,33 +43,6 @@ interface PokemonDetailViewProps {
   isInTeam?: boolean;
   teamIsFull?: boolean;
 }
-
-interface TypeEffectiveness {
-  [multiplier: string]: string[];
-}
-
-const calculateTypeEffectiveness = (types: string[]): TypeEffectiveness => {
-  const effectiveness: { [type: string]: number } = {};
-  const allTypes = Object.keys(TYPE_RELATIONS);
-
-  allTypes.forEach((attackType) => {
-    let multiplier = 1;
-    types.forEach((defenseType) => {
-      multiplier *= TYPE_RELATIONS[attackType][defenseType] ?? 1;
-    });
-    effectiveness[attackType] = multiplier;
-  });
-
-  const grouped: TypeEffectiveness = {};
-  Object.entries(effectiveness).forEach(([type, multiplier]) => {
-    const key = multiplier.toString();
-    if (!grouped[key]) {
-      grouped[key] = [];
-    }
-    grouped[key].push(type);
-  });
-  return grouped;
-};
 
 const PokemonDetailView: React.FC<PokemonDetailViewProps> = ({
   pokemonId,
