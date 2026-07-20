@@ -84,7 +84,7 @@ const TeamMemberEditor: React.FC<TeamMemberEditorProps> = ({ member, onClose, on
 
         // Initialize state from existing member data or defaults
         if (member.selectedMoves) {
-          const newMoves = [...member.selectedMoves];
+          const newMoves: (string | null)[] = [...member.selectedMoves];
           while (newMoves.length < 4) newMoves.push(null);
           setMoves(newMoves);
         }

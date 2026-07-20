@@ -102,7 +102,7 @@ const DataManagement: React.FC<DataManagementProps> = ({ onClose }) => {
         // SECURITY: Batch update team to prevent multiple storage writes
         const validTeam = data.team
           .map((p: any) => validateTeamMember(p))
-          .filter((p: any) => p !== null);
+          .filter((p): p is NonNullable<typeof p> => p !== null);
 
         // setTeam handles slicing to capacity and saving to storage
         usePokemonStore.getState().setTeam(validTeam);

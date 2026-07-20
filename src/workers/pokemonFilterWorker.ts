@@ -66,7 +66,8 @@ function sanitizeWorkerRequest(data: unknown): WorkerRequest | null {
   if (!data || typeof data !== 'object') return null;
   const candidate = data as Partial<WorkerRequest>;
 
-  if (!Number.isInteger(candidate.requestId)) return null;
+  const requestId = candidate.requestId;
+  if (!Number.isInteger(requestId) || requestId === undefined) return null;
   if (candidate.sortOrder !== 'asc' && candidate.sortOrder !== 'desc') return null;
   if (!candidate.options || typeof candidate.options !== 'object') return null;
   if (!candidate.sortBy || typeof candidate.sortBy !== 'string') return null;
@@ -89,6 +90,6 @@ function sanitizeWorkerRequest(data: unknown): WorkerRequest | null {
     sortBy: candidate.sortBy as SortOption,
     sortOrder: candidate.sortOrder,
     favorites: safeFavorites,
-    requestId: candidate.requestId,
+    requestId,
   };
 }

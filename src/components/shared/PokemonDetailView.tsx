@@ -232,7 +232,7 @@ const PokemonDetailView: React.FC<PokemonDetailViewProps> = ({
 
   const { megaForm, defaultForm } = useMemo(() => {
     if (!pokemon) return { megaForm: null, defaultForm: null };
-    const mega = pokemon.forms.find((f) => f.name.includes('-mega'));
+    const mega = pokemon.forms.find((f) => f.name.includes('-mega')) ?? null;
     const def = pokemon.forms.find((f) => f.isDefault) || pokemon.forms[0];
     return { megaForm: mega, defaultForm: def };
   }, [pokemon]);

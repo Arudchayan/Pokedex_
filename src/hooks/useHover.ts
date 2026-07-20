@@ -24,7 +24,9 @@ import { useState, useEffect, RefObject, useRef } from 'react';
  * };
  * ```
  */
-export function useHover<T extends HTMLElement = HTMLElement>(elementRef: RefObject<T>): boolean {
+export function useHover<T extends HTMLElement = HTMLElement>(
+  elementRef: RefObject<T | null>
+): boolean {
   const [isHovered, setIsHovered] = useState(false);
 
   useEffect(() => {
@@ -66,7 +68,10 @@ export function useHover<T extends HTMLElement = HTMLElement>(elementRef: RefObj
  * };
  * ```
  */
-export function useHoverRef<T extends HTMLElement = HTMLElement>(): [RefObject<T>, boolean] {
+export function useHoverRef<T extends HTMLElement = HTMLElement>(): [
+  RefObject<T | null>,
+  boolean,
+] {
   const ref = useRef<T>(null);
   const isHovered = useHover(ref);
   return [ref, isHovered];
