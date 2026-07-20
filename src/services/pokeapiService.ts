@@ -393,16 +393,7 @@ export const fetchAllPokemons = async (signal?: AbortSignal): Promise<PokemonLis
       return true;
     })
     .map((p) => {
-      // Optimization: Directly construct Showdown URLs to avoid parsing JSON sprites for every Pokemon
-      // We only fetch ID to check existence, saving bandwidth by avoiding the large 'sprites' JSON string
-      const hasSprites = p.pokemon_v2_pokemonsprites && p.pokemon_v2_pokemonsprites.length > 0;
-      let showdownUrl, shinyShowdownUrl;
-      if (hasSprites) {
-        const showdownName = getShowdownName(p.name);
-        showdownUrl = `https://play.pokemonshowdown.com/sprites/ani/${showdownName}.gif`;
-        shinyShowdownUrl = `https://play.pokemonshowdown.com/sprites/ani-shiny/${showdownName}.gif`;
-      }
-
+      // Prefer static PokeAPI sprites for the catalog list (animated Showdown GIFs are reserved for detail).
       const genericSprite = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${p.id}.png`;
       const genericShinySprite = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/${p.id}.png`;
       const flavorText =
@@ -420,8 +411,8 @@ export const fetchAllPokemons = async (signal?: AbortSignal): Promise<PokemonLis
       return {
         id: p.id,
         name: p.name,
-        imageUrl: showdownUrl || genericSprite,
-        shinyImageUrl: shinyShowdownUrl || genericShinySprite,
+        imageUrl: genericSprite,
+        shinyImageUrl: genericShinySprite,
         types,
         flavorText: flavorText,
         stats: stats,

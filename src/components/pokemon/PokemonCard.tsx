@@ -260,6 +260,9 @@ const PokemonCard: React.FC<PokemonCardProps> = ({
             onError={() => setImgError(true)}
             onLoad={() => setImgLoaded(true)}
             alt={pokemon.name}
+            width={160}
+            height={160}
+            decoding="async"
             className={`w-full h-full object-contain drop-shadow-2xl pixelated transition-all duration-300 group-hover:scale-110 group-hover:drop-shadow-[0_0_30px_rgba(255,255,255,0.5)] ${!imgLoaded ? 'opacity-0' : 'opacity-100'}`}
             loading="lazy"
           />
