@@ -23,12 +23,18 @@ import fetchAllPokemonQuery from '../graphql/fetchAllPokemon.graphql?raw';
 import getPokemonDetailsQuery from '../graphql/getPokemonDetails.graphql?raw';
 import fetchMovesQuery from '../graphql/fetchMoves.graphql?raw';
 import fetchItemsQuery from '../graphql/fetchItems.graphql?raw';
+import fetchMoveDexQuery from '../graphql/fetchMoveDex.graphql?raw';
+import fetchAbilityDexQuery from '../graphql/fetchAbilityDex.graphql?raw';
+import fetchItemDexQuery from '../graphql/fetchItemDex.graphql?raw';
 import getEncounterLocationsQuery from '../graphql/getEncounterLocations.graphql?raw';
 import getRegionalDexQuery from '../graphql/getRegionalDex.graphql?raw';
 import type {
   FetchAllPokemonQuery,
   FetchMovesQuery,
   FetchItemsQuery,
+  FetchMoveDexQuery,
+  FetchAbilityDexQuery,
+  FetchItemDexQuery,
   GetPokemonDetailsQuery,
 } from '../graphql/generated';
 
@@ -666,6 +672,64 @@ export const fetchAllItems = async (): Promise<Item[]> => {
     console.error('Failed to fetch items', e);
     return [];
   }
+};
+
+export interface MoveDexItem extends PokemonMove {
+  nameLower: string;
+  typeLower: string;
+}
+
+export interface AbilityDexItem {
+  name: string;
+  effect: string;
+}
+
+export interface ItemDexItem {
+  name: string;
+  category: string;
+  effect: string;
+  sprite: string;
+}
+
+/** Throws on failure so React Query can retry. */
+export const fetchMoveDex = async (signal?: AbortSignal): Promise<MoveDexItem[]> => {
+  const data = await queryPokeAPI<FetchMoveDexQuery>(fetchMoveDexQuery, {}, { signal });
+  return data.pokemon_v2_move.map((m) => {
+    const name = m.name;
+    const type = m.pokemon_v2_type?.name || 'normal';
+    return {
+      name,
+      type,
+      damageClass: m.pokemon_v2_movedamageclass?.name || 'status',
+      power: m.power ?? null,
+      accuracy: m.accuracy ?? null,
+      pp: m.pp ?? 0,
+      learnMethod: '',
+      level: 0,
+      nameLower: name.toLowerCase().replace(/-/g, ' '),
+      typeLower: type.toLowerCase().replace(/-/g, ' '),
+    };
+  });
+};
+
+/** Throws on failure so React Query can retry. */
+export const fetchAbilityDex = async (signal?: AbortSignal): Promise<AbilityDexItem[]> => {
+  const data = await queryPokeAPI<FetchAbilityDexQuery>(fetchAbilityDexQuery, {}, { signal });
+  return data.pokemon_v2_ability.map((a) => ({
+    name: a.name,
+    effect: a.pokemon_v2_abilityeffecttexts[0]?.effect || 'No description available.',
+  }));
+};
+
+/** Throws on failure so React Query can retry. */
+export const fetchItemDex = async (signal?: AbortSignal): Promise<ItemDexItem[]> => {
+  const data = await queryPokeAPI<FetchItemDexQuery>(fetchItemDexQuery, {}, { signal });
+  return data.pokemon_v2_item.map((item) => ({
+    name: item.name,
+    category: item.pokemon_v2_itemcategory?.name || 'Misc',
+    effect: item.pokemon_v2_itemeffecttexts[0]?.effect || 'No description available.',
+    sprite: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/${encodeURIComponent(item.name)}.png`,
+  }));
 };
 
 const ENCOUNTER_CACHE_PREFIX = 'pokemon_encounters_';

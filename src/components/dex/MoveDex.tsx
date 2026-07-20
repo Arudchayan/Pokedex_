@@ -1,19 +1,11 @@
-import React, { useState, useMemo, useEffect, useCallback } from 'react';
-import { PokemonMove } from '../../types';
+import React, { useState, useMemo, useEffect } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import TypeBadge from '../charts/TypeBadge';
-
-interface MoveDexItem extends PokemonMove {
-  nameLower: string;
-  typeLower: string;
-}
-import { POKEAPI_GRAPHQL_URL } from '../../constants';
 import Loader from '../shared/Loader';
-import { usePokemon } from '../../context/PokemonContext';
+import { usePokemonUI } from '../../context/PokemonContext';
 import { MAX_INPUT_LENGTH } from '../../utils/securityUtils';
-import fetchMoveDexQuery from '../../graphql/fetchMoveDex.graphql?raw';
-import { FetchMoveDexQuery } from '../../graphql/generated';
+import { fetchMoveDex } from '../../services/pokeapiService';
 import Modal from '../base/Modal';
-import { logger } from '../../utils/logger';
 
 interface MoveDexProps {
   onClose: () => void;
@@ -21,64 +13,23 @@ interface MoveDexProps {
 }
 
 const MoveDex: React.FC<MoveDexProps> = ({ onClose, initialSearch = '' }) => {
-  const { theme } = usePokemon();
-  const [moves, setMoves] = useState<MoveDexItem[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { theme } = usePokemonUI();
   const [search, setSearch] = useState(initialSearch);
   const [page, setPage] = useState(0);
   const PAGE_SIZE = 50;
 
-  const fetchMoves = useCallback(async (signal?: AbortSignal) => {
-    setLoading(true);
-    setError(null);
-    try {
-      const response = await fetch(POKEAPI_GRAPHQL_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query: fetchMoveDexQuery }),
-        signal,
-      });
+  const {
+    data: moves = [],
+    isLoading: loading,
+    error: queryError,
+    refetch,
+  } = useQuery({
+    queryKey: ['moveDex'],
+    queryFn: ({ signal }) => fetchMoveDex(signal),
+    staleTime: 24 * 60 * 60 * 1000,
+  });
 
-      if (!response.ok) {
-        throw new Error(`Unable to load moves (${response.status})`);
-      }
-
-      const json = (await response.json()) as { data?: FetchMoveDexQuery };
-      const fetchedMoves: MoveDexItem[] =
-        json.data?.pokemon_v2_move.map((m) => {
-          const name = m.name;
-          const type = m.pokemon_v2_type?.name || 'normal';
-          return {
-            name,
-            type,
-            damageClass: m.pokemon_v2_movedamageclass?.name || 'status',
-            power: m.power,
-            accuracy: m.accuracy,
-            pp: m.pp,
-            learnMethod: '',
-            level: 0,
-            nameLower: name.toLowerCase().replace(/-/g, ' '),
-            typeLower: type.toLowerCase().replace(/-/g, ' '),
-          };
-        }) ?? [];
-      setMoves(fetchedMoves);
-    } catch (e) {
-      if ((e as Error).name === 'AbortError') return;
-      logger.warn('MoveDex fetch failed', e);
-      setError('Unable to load moves. Please try again.');
-    } finally {
-      if (!signal?.aborted) {
-        setLoading(false);
-      }
-    }
-  }, []);
-
-  useEffect(() => {
-    const controller = new AbortController();
-    void fetchMoves(controller.signal);
-    return () => controller.abort();
-  }, [fetchMoves]);
+  const error = queryError ? 'Unable to load moves. Please try again.' : null;
 
   useEffect(() => {
     setPage(0);
@@ -127,7 +78,7 @@ const MoveDex: React.FC<MoveDexProps> = ({ onClose, initialSearch = '' }) => {
           <p className="text-sm">{error}</p>
           <button
             type="button"
-            onClick={() => void fetchMoves()}
+            onClick={() => void refetch()}
             className="rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-500"
           >
             Retry
