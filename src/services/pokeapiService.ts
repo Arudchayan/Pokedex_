@@ -733,7 +733,49 @@ export const fetchItemDex = async (signal?: AbortSignal): Promise<ItemDexItem[]>
 };
 
 const ENCOUNTER_CACHE_PREFIX = 'pokemon_encounters_';
+/** Tracks LRU order of pokemon IDs with encounter cache entries (most recent last). */
+const ENCOUNTER_LRU_KEY = 'pokemon_encounters_lru';
+/** Cap IndexedDB encounter cache size (mirrors soundService audio cache). */
+const ENCOUNTER_CACHE_MAX_ENTRIES = 50;
 const REGIONAL_DEX_CACHE_PREFIX = 'pokedex_regional_';
+
+const encounterCacheKey = (pokemonId: number) => `${ENCOUNTER_CACHE_PREFIX}${pokemonId}`;
+const encounterTsKey = (pokemonId: number) => `${ENCOUNTER_CACHE_PREFIX}${pokemonId}_ts`;
+
+/** Exported for tests. */
+export const getEncounterCacheMaxEntries = () => ENCOUNTER_CACHE_MAX_ENTRIES;
+
+/**
+ * Marks `pokemonId` as most-recently-used and evicts least-recent entries when over max.
+ * Deletes both data and timestamp keys for evicted IDs.
+ */
+const touchEncounterCacheLru = async (pokemonId: number): Promise<void> => {
+  let order: number[] = [];
+  try {
+    const stored = await get(ENCOUNTER_LRU_KEY);
+    if (Array.isArray(stored)) {
+      order = stored.filter((id): id is number => typeof id === 'number');
+    }
+  } catch {
+    order = [];
+  }
+
+  order = order.filter((id) => id !== pokemonId);
+  order.push(pokemonId);
+
+  while (order.length > ENCOUNTER_CACHE_MAX_ENTRIES) {
+    const evictId = order.shift();
+    if (evictId === undefined) break;
+    try {
+      await del(encounterCacheKey(evictId));
+      await del(encounterTsKey(evictId));
+    } catch {
+      // Best-effort eviction
+    }
+  }
+
+  await set(ENCOUNTER_LRU_KEY, order);
+};
 
 // --- Encounter Locations ---
 
@@ -751,17 +793,23 @@ interface EncounterLocationsResponse {
 }
 
 export const fetchEncounterLocations = async (pokemonId: number): Promise<PokemonEncounter[]> => {
-  const cacheKey = `${ENCOUNTER_CACHE_PREFIX}${pokemonId}`;
-  const tsKey = `${cacheKey}_ts`;
+  const cacheKey = encounterCacheKey(pokemonId);
+  const tsKey = encounterTsKey(pokemonId);
 
   try {
     const cached = await get(cacheKey);
     const ts = await get(tsKey);
     if (cached && ts && Date.now() - Number(ts) < CACHE_TTL) {
+      scheduleIdleTask(() => {
+        void touchEncounterCacheLru(pokemonId).catch(() => {
+          // Best-effort LRU touch
+        });
+      });
       return cached as PokemonEncounter[];
     }
   } catch {
     await del(cacheKey);
+    await del(tsKey);
   }
 
   try {
@@ -785,6 +833,7 @@ export const fetchEncounterLocations = async (pokemonId: number): Promise<Pokemo
       try {
         await set(cacheKey, encounters);
         await set(tsKey, Date.now());
+        await touchEncounterCacheLru(pokemonId);
       } catch (e) {
         console.error('Failed to cache encounter locations', e);
       }
