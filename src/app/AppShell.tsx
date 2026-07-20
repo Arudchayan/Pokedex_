@@ -13,11 +13,15 @@ import { useAppController } from './useAppController';
 import { useComparisonSharer } from '../hooks/useComparisonSharer';
 import { usePokemonDetailSharer } from '../hooks/usePokemonDetailSharer';
 import { useToast } from '../context/ToastContext';
+import { usePokemonStore } from '../store/usePokemonStore';
 import {
   SW_OFFLINE_READY_EVENT,
   SW_UPDATE_AVAILABLE_EVENT,
   type ServiceWorkerUpdateEventDetail,
 } from '../utils/swEvents';
+
+/** Approx ComparisonBar height (padding + sprite row) excluding safe-area. */
+const COMPARISON_BAR_HEIGHT = '5.5rem';
 
 export default function AppShell() {
   const controller = useAppController();
@@ -27,6 +31,7 @@ export default function AppShell() {
   const [isApplyingUpdate, setIsApplyingUpdate] = useState(false);
   const updateRef = useRef<(() => Promise<void>) | null>(null);
   const { addToast } = useToast();
+  const hasComparisonBar = usePokemonStore((s) => s.comparisonList.length > 0);
 
   // Handle shareable comparison and detail URLs
   useComparisonSharer();
@@ -81,11 +86,16 @@ export default function AppShell() {
     }
   };
 
+  const chromeBottomOffset = hasComparisonBar
+    ? `calc(${COMPARISON_BAR_HEIGHT} + env(safe-area-inset-bottom, 0px))`
+    : '0px';
+
   return (
     <div
       className={`min-h-screen ${
         theme === 'dark' ? 'bg-slate-950 text-white' : 'bg-slate-100 text-slate-900'
       } ${isCyberpunk ? 'cyber-scanlines' : ''}`}
+      style={{ ['--chrome-bottom-offset' as string]: chromeBottomOffset }}
     >
       <a
         href="#main-content"
