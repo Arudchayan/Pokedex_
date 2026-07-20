@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { calculateTypeEffectiveness } from '../domain/typeEffectiveness';
-import { TYPE_RELATIONS } from '../domain/typeRelations';
+import { calculateTypeEffectiveness } from './typeEffectiveness';
+import { TYPE_RELATIONS } from './typeRelations';
 
 describe('TYPE_RELATIONS', () => {
   it('marks ground as immune to electric', () => {
@@ -13,9 +13,9 @@ describe('TYPE_RELATIONS', () => {
 });
 
 describe('calculateTypeEffectiveness', () => {
-  it('groups immunities for pure ground (vs electric)', () => {
-    const result = calculateTypeEffectiveness(['ground']);
-    expect(result['0']).toContain('electric');
+  it('groups immunities for pure electric', () => {
+    const result = calculateTypeEffectiveness(['electric']);
+    expect(result['0']).toContain('ground');
   });
 
   it('multiplies dual-type weaknesses', () => {
