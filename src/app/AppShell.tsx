@@ -11,6 +11,7 @@ import ComparisonBar from '../components/compare/ComparisonBar';
 import { WalkthroughManager } from '../components/walkthrough';
 import { useAppController } from './useAppController';
 import { useComparisonSharer } from '../hooks/useComparisonSharer';
+import { usePokemonDetailSharer } from '../hooks/usePokemonDetailSharer';
 import { useToast } from '../context/ToastContext';
 import {
   SW_OFFLINE_READY_EVENT,
@@ -27,8 +28,12 @@ export default function AppShell() {
   const updateRef = useRef<(() => Promise<void>) | null>(null);
   const { addToast } = useToast();
 
-  // Handle shareable comparison URLs
+  // Handle shareable comparison and detail URLs
   useComparisonSharer();
+  usePokemonDetailSharer({
+    selectedPokemonId: controller.selectedPokemonId,
+    onSelect: controller.handleSelectPokemon,
+  });
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
