@@ -19,7 +19,9 @@ const AbilityDex: React.FC<AbilityDexProps> = ({ onClose, initialSearch = '' }) 
 
   const {
     data: abilities = [],
-    isLoading: loading,
+    isLoading,
+    isFetching,
+    isError,
     error: queryError,
     refetch,
   } = useQuery({
@@ -63,14 +65,14 @@ const AbilityDex: React.FC<AbilityDexProps> = ({ onClose, initialSearch = '' }) 
           onChange={handleSearchChange}
           maxLength={MAX_INPUT_LENGTH}
         />
-        {!loading && !error && (
+        {!isLoading {!isLoading && !isError && ({!isLoading && !isError && ( !isError && (
           <p className="mt-2 text-xs opacity-70" aria-live="polite">
             Showing {displayedAbilities.length} of {filteredAbilities.length} abilities
           </p>
         )}
       </div>
 
-      {loading ? (
+      {isLoading || (isFetching && isError) ? (
         <Loader message="Loading Abilities..." />
       ) : error ? (
         <div className="grid place-items-center gap-3 rounded-xl border border-red-500/30 bg-red-500/10 p-6 text-center">

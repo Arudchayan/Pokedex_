@@ -20,7 +20,9 @@ const MoveDex: React.FC<MoveDexProps> = ({ onClose, initialSearch = '' }) => {
 
   const {
     data: moves = [],
-    isLoading: loading,
+    isLoading,
+    isFetching,
+    isError,
     error: queryError,
     refetch,
   } = useQuery({
@@ -64,14 +66,14 @@ const MoveDex: React.FC<MoveDexProps> = ({ onClose, initialSearch = '' }) => {
           onChange={handleSearchChange}
           maxLength={MAX_INPUT_LENGTH}
         />
-        {!loading && !error && (
+        {!isLoading {!isLoading && !isError && ({!isLoading && !isError && ( !isError && (
           <p className="mt-2 text-xs opacity-70" aria-live="polite">
             Showing {displayedMoves.length} of {filteredMoves.length} moves
           </p>
         )}
       </div>
 
-      {loading ? (
+      {isLoading || (isFetching && isError) ? (
         <Loader message="Loading Moves..." />
       ) : error ? (
         <div className="grid place-items-center gap-3 rounded-xl border border-red-500/30 bg-red-500/10 p-6 text-center">
