@@ -1,6 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
 
-const DEFAULT_DOCUMENT_TITLE = 'Pokedex - Explore All Pokemon with Advanced Features';
+export const DEFAULT_DOCUMENT_TITLE = 'Pokedex - Explore All Pokemon with Advanced Features';
+
+function parsePokemonId(raw: string | null): number | null {
+  if (!raw || !/^\d+$/.test(raw)) return null;
+  const id = parseInt(raw, 10);
+  return Number.isFinite(id) && id > 0 ? id : null;
+}
 
 /**
  * Hydrate and sync Pokemon detail selection with `?pokemon=<id>`.
@@ -19,13 +25,10 @@ export function usePokemonDetailSharer({
   // Hydrate once from the URL
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    const raw = params.get('pokemon');
-    if (raw) {
-      const id = parseInt(raw, 10);
-      if (Number.isFinite(id) && id > 0) {
-        hydratedFromUrlRef.current = id;
-        onSelect(id);
-      }
+    const id = parsePokemonId(params.get('pokemon'));
+    if (id != null) {
+      hydratedFromUrlRef.current = id;
+      onSelect(id);
     }
     setReady(true);
     // Intentionally run once on mount
@@ -36,12 +39,17 @@ export function usePokemonDetailSharer({
   useEffect(() => {
     if (!ready) return;
 
-    if (
-      hydratedFromUrlRef.current != null &&
-      selectedPokemonId === hydratedFromUrlRef.current
-    ) {
+    const pendingHydrateId = hydratedFromUrlRef.current;
+
+    // Wait for selection to catch up after URL hydrate — never wipe ?pokemon early
+    if (pendingHydrateId != null) {
+      if (selectedPokemonId == null) return;
+      if (selectedPokemonId === pendingHydrateId) {
+        hydratedFromUrlRef.current = null;
+        return;
+      }
+      // User selected a different Pokémon before hydrate applied — clear pending
       hydratedFromUrlRef.current = null;
-      return;
     }
 
     const params = new URLSearchParams(window.location.search);
@@ -61,5 +69,3 @@ export function usePokemonDetailSharer({
     window.history.replaceState(null, '', newUrl);
   }, [selectedPokemonId, ready]);
 }
-
-export { DEFAULT_DOCUMENT_TITLE };

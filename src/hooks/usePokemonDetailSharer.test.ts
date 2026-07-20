@@ -6,7 +6,6 @@ describe('usePokemonDetailSharer', () => {
   const originalLocation = window.location;
 
   beforeEach(() => {
-    // Replace location with a mutable stub
     // @ts-expect-error — stub location for URL sync tests
     delete window.location;
     // @ts-expect-error — stub location for URL sync tests
@@ -20,7 +19,7 @@ describe('usePokemonDetailSharer', () => {
       const next = String(url ?? '');
       const qIndex = next.indexOf('?');
       window.location.search = qIndex >= 0 ? next.slice(qIndex) : '';
-      window.location.pathname = qIndex >= 0 ? next.slice(0, qIndex) : next || '/';
+      window.location.pathname = qIndex >= 0 ? next.slice(0, qIndex) || '/' : next || '/';
     });
   });
 
@@ -34,9 +33,7 @@ describe('usePokemonDetailSharer', () => {
     window.location.search = '?pokemon=25';
     const onSelect = vi.fn();
 
-    renderHook(() =>
-      usePokemonDetailSharer({ selectedPokemonId: null, onSelect })
-    );
+    renderHook(() => usePokemonDetailSharer({ selectedPokemonId: null, onSelect }));
 
     expect(onSelect).toHaveBeenCalledWith(25);
   });
@@ -45,11 +42,21 @@ describe('usePokemonDetailSharer', () => {
     window.location.search = '?pokemon=abc';
     const onSelect = vi.fn();
 
-    renderHook(() =>
-      usePokemonDetailSharer({ selectedPokemonId: null, onSelect })
-    );
+    renderHook(() => usePokemonDetailSharer({ selectedPokemonId: null, onSelect }));
 
     expect(onSelect).not.toHaveBeenCalled();
+  });
+
+  it('does not strip ?pokemon while waiting for selection after hydrate', () => {
+    window.location.search = '?pokemon=25&compare=1';
+    const onSelect = vi.fn();
+
+    renderHook(() => usePokemonDetailSharer({ selectedPokemonId: null, onSelect }));
+
+    expect(onSelect).toHaveBeenCalledWith(25);
+    expect(window.location.search).toContain('pokemon=25');
+    expect(window.location.search).toContain('compare=1');
+    expect(window.history.replaceState).not.toHaveBeenCalled();
   });
 
   it('writes ?pokemon= when selection changes after hydrate', () => {

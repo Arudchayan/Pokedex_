@@ -116,34 +116,55 @@ const PokemonDetailView: React.FC<PokemonDetailViewProps> = ({
     };
   }, []);
 
-  // Document-level Escape + arrow navigation; Tab focus trap; autofocus close
+  // Keep keyboard handlers current without re-binding the trap / re-autofocusing
+  const onCloseRef = useRef(onClose);
+  const onNextRef = useRef(onNext);
+  const onPreviousRef = useRef(onPrevious);
+  onCloseRef.current = onClose;
+  onNextRef.current = onNext;
+  onPreviousRef.current = onPrevious;
+
+  // Document-level Escape + arrow navigation; Tab focus trap; autofocus close once
   useEffect(() => {
     const dialog = dialogRef.current;
     if (!dialog) return;
 
-    const focusableSelectors =
-      'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])';
+    const isVisibleFocusable = (el: Element): el is HTMLElement => {
+      if (!(el instanceof HTMLElement)) return false;
+      if ('disabled' in el && Boolean((el as HTMLButtonElement).disabled)) return false;
+      if (typeof el.checkVisibility === 'function') {
+        return el.checkVisibility({ checkOpacity: true, checkVisibilityCSS: true });
+      }
+      return el.getClientRects().length > 0;
+    };
+
+    const getFocusable = () =>
+      Array.from(
+        dialog.querySelectorAll<HTMLElement>(
+          'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+        )
+      ).filter(isVisibleFocusable);
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
-        onClose();
+        onCloseRef.current();
         return;
       }
       if (e.key === 'ArrowLeft') {
-        onPrevious();
+        onPreviousRef.current();
         return;
       }
       if (e.key === 'ArrowRight') {
-        onNext();
+        onNextRef.current();
         return;
       }
       if (e.key !== 'Tab') return;
 
-      const focusableElements = dialog.querySelectorAll(focusableSelectors);
+      const focusableElements = getFocusable();
       if (focusableElements.length === 0) return;
 
-      const firstElement = focusableElements[0] as HTMLElement;
-      const lastElement = focusableElements[focusableElements.length - 1] as HTMLElement;
+      const firstElement = focusableElements[0];
+      const lastElement = focusableElements[focusableElements.length - 1];
 
       if (e.shiftKey) {
         if (document.activeElement === firstElement) {
@@ -158,21 +179,28 @@ const PokemonDetailView: React.FC<PokemonDetailViewProps> = ({
 
     document.addEventListener('keydown', handleKeyDown);
 
-    const firstFocusable = dialog.querySelector(focusableSelectors) as HTMLElement | null;
-    if (firstFocusable) {
-      const timer = window.setTimeout(() => firstFocusable.focus(), 50);
-      return () => {
-        window.clearTimeout(timer);
-        document.removeEventListener('keydown', handleKeyDown);
-      };
-    }
+    const closeButton = dialog.querySelector<HTMLElement>('button[aria-label="Close"]');
+    const timer = window.setTimeout(() => {
+      (closeButton && isVisibleFocusable(closeButton)
+        ? closeButton
+        : getFocusable()[0]
+      )?.focus();
+    }, 50);
 
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [onClose, onNext, onPrevious]);
+    return () => {
+      window.clearTimeout(timer);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, []);
 
   // Sync document title with open Pokémon
   useEffect(() => {
-    if (!pokemon) return;
+    if (!pokemon) {
+      document.title = 'Pokemon details · Pokedex';
+      return () => {
+        document.title = DEFAULT_DOCUMENT_TITLE;
+      };
+    }
     const name = pokemon.name.charAt(0).toUpperCase() + pokemon.name.slice(1);
     document.title = `${name} · Pokedex`;
     return () => {
@@ -286,7 +314,9 @@ const PokemonDetailView: React.FC<PokemonDetailViewProps> = ({
       tabIndex={-1}
       role="dialog"
       aria-modal="true"
-      aria-labelledby={titleId}
+      {...(pokemon
+        ? { 'aria-labelledby': titleId }
+        : { 'aria-label': 'Pokemon details' })}
     >
       <div
         className={`backdrop-blur-2xl w-full max-w-4xl overflow-y-auto relative shadow-2xl border rounded-t-2xl sm:rounded-2xl max-h-[95vh] sm:max-h-[90vh] ${
