@@ -6,7 +6,7 @@
 [![PWA](https://img.shields.io/badge/PWA-Ready-green?logo=pwa)](https://web.dev/progressive-web-apps/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-A modern Pokédex web app with team building, battle calculator, mini-games, and complete reference data.
+A modern Pokédex web app with team building, damage calculator, mini-games, and complete reference data.
 
 **[🔴 Live Demo](https://pokedex.arudchayan.com/)**
 
@@ -36,7 +36,7 @@ A modern Pokédex web app with team building, battle calculator, mini-games, and
 
 ![Team Builder](assets/screenshots/team-builder.png)
 
-### Battle Calculator
+### Damage Calculator
 
 - **Advanced Damage Calculator**: Simulate battles with real stats
 - **Customization**: Adjust EVs (0-252), IVs (0-31), natures, and held items
