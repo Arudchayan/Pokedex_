@@ -69,17 +69,18 @@ const MobileTeamSheet: React.FC<MobileTeamSheetProps> = ({
 
   return (
     <>
-      {/* Floating Action Button - only on mobile */}
+      {/* Floating Action Button - only on mobile; lifts above ComparisonBar via --chrome-bottom-offset */}
       <button
         type="button"
         onClick={handleFabClick}
-        className={`lg:hidden fixed bottom-20 right-4 z-[55] flex items-center gap-2 rounded-2xl px-4 py-3.5 shadow-2xl transition-all active:scale-95 ${
+        className={`lg:hidden fixed right-4 z-[55] flex items-center gap-2 rounded-2xl px-4 py-3.5 shadow-2xl transition-all active:scale-95 ${
           safeTeam.length > 0 ? 'animate-fab-pulse' : ''
         } ${
           isDark
             ? 'bg-indigo-600 text-white hover:bg-indigo-500 border border-indigo-400/30'
             : 'bg-indigo-600 text-white hover:bg-indigo-500 border border-indigo-400/30'
         }`}
+        style={{ bottom: 'calc(5rem + var(--chrome-bottom-offset, 0px))' }}
         aria-label={`Team: ${safeTeam.length}/${teamCapacity}. Tap to manage team.`}
       >
         <svg
