@@ -1,4 +1,4 @@
-import { useState, useEffect, Suspense, lazy } from 'react';
+import { useState, useEffect, Suspense, lazy, useCallback, useMemo } from 'react';
 import ReactDOM from 'react-dom';
 import FilterControls from '../components/layout/FilterControls';
 import { PokemonGridSkeleton } from '../components/base/SkeletonComposites';
@@ -77,32 +77,63 @@ export default function AppMain({ controller }: Props) {
     };
   }, [mobileFullBuilderOpen]);
 
-  const teamBuilderProps = {
-    team: teamPokemon,
-    onRemove: handleRemoveFromTeam,
-    onClear: handleClearTeam,
-    onSelect: (id: number) => {
+  const handleTeamSelect = useCallback(
+    (id: number) => {
       setMobileFullBuilderOpen(false);
       handleSelectPokemon(id);
     },
-    teamCapacity: TEAM_CAPACITY,
-    theme,
-    onUpdateTeamMember: handleUpdateTeamMember,
-    onLoadTeam: handleLoadTeam,
-    onRandomize: handleRandomizeTeam,
-    hasFilteredPokemon: filteredPokemon.length > 0,
-    isCyberpunk,
-    onAddPokemon: () => {
-      setMobileFullBuilderOpen(false);
-      handleFocusSearch();
-    },
-    onAddToTeam: handleAddToTeam,
-    undo,
-    redo,
-    canUndo,
-    canRedo,
-    onReorderTeam: handleReorderTeam,
-  };
+    [handleSelectPokemon]
+  );
+
+  const handleTeamAddPokemon = useCallback(() => {
+    setMobileFullBuilderOpen(false);
+    handleFocusSearch();
+  }, [handleFocusSearch]);
+
+  const hasFilteredPokemon = filteredPokemon.length > 0;
+
+  const teamBuilderProps = useMemo(
+    () => ({
+      team: teamPokemon,
+      onRemove: handleRemoveFromTeam,
+      onClear: handleClearTeam,
+      onSelect: handleTeamSelect,
+      teamCapacity: TEAM_CAPACITY,
+      theme,
+      onUpdateTeamMember: handleUpdateTeamMember,
+      onLoadTeam: handleLoadTeam,
+      onRandomize: handleRandomizeTeam,
+      hasFilteredPokemon,
+      isCyberpunk,
+      onAddPokemon: handleTeamAddPokemon,
+      onAddToTeam: handleAddToTeam,
+      undo,
+      redo,
+      canUndo,
+      canRedo,
+      onReorderTeam: handleReorderTeam,
+    }),
+    [
+      teamPokemon,
+      handleRemoveFromTeam,
+      handleClearTeam,
+      handleTeamSelect,
+      TEAM_CAPACITY,
+      theme,
+      handleUpdateTeamMember,
+      handleLoadTeam,
+      handleRandomizeTeam,
+      hasFilteredPokemon,
+      isCyberpunk,
+      handleTeamAddPokemon,
+      handleAddToTeam,
+      undo,
+      redo,
+      canUndo,
+      canRedo,
+      handleReorderTeam,
+    ]
+  );
 
   return (
     <main

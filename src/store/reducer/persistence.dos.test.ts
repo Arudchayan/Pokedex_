@@ -19,6 +19,7 @@ describe('PokemonStore Persistence DoS Vulnerability', () => {
     filteredPokemon: [],
     isFiltering: false,
     team: [],
+    teamCustomizations: {},
     favorites: new Set(),
     history: [],
     future: [],

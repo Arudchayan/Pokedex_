@@ -6,6 +6,7 @@ import { mulberry32, pickRandom } from '../../utils/seededRandom';
 import RadarChart from '../charts/RadarChart';
 import { fetchPokemonDetailsQuery } from '../../services/pokemonDetailsQuery';
 import { DailyGameAttempts, DailyGameResultBanner, DailyGameShell } from './DailyGameShell';
+import { useGameStats } from '../../hooks/useGameStats';
 
 interface Props {
   onClose: () => void;
@@ -17,6 +18,7 @@ const StatGame: React.FC<Props> = ({ onClose, date, seed }) => {
   const { masterPokemonList } = usePokemonData();
   const { theme } = usePokemonUI();
   const queryClient = useQueryClient();
+  const { recordResult } = useGameStats();
   const [target, setTarget] = useState<PokemonDetails | null>(null);
   const [currentGuess, setCurrentGuess] = useState('');
   const [gameState, setGameState] = useState<'playing' | 'won' | 'lost'>('playing');
@@ -64,11 +66,13 @@ const StatGame: React.FC<Props> = ({ onClose, date, seed }) => {
 
     if (pokemon.id === target.id) {
       setGameState('won');
+      recordResult('stat', true);
     } else {
       const newAttempts = attempts + 1;
       setAttempts(newAttempts);
       if (newAttempts >= MAX_ATTEMPTS) {
         setGameState('lost');
+        recordResult('stat', false);
       }
     }
     setCurrentGuess('');

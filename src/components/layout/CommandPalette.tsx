@@ -316,10 +316,14 @@ export default function CommandPalette({ isOpen, onClose, controller }: CommandP
     <div
       className="fixed inset-0 z-[2000] flex items-start justify-center pt-[15vh] px-4"
       onClick={onClose}
+      role="presentation"
     >
       <div className="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity" />
 
       <div
+        role="dialog"
+        aria-modal="true"
+        aria-label="Command palette"
         className={twMerge(
           'relative w-full max-w-xl overflow-hidden rounded-xl shadow-2xl transition-all animate-in fade-in zoom-in-95 duration-200',
           theme === 'dark'

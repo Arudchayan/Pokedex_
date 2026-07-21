@@ -15,6 +15,10 @@ import type {
 } from './pokemonStoreTypes';
 import { reducePokemonStore } from './pokemonStoreReducer';
 import { validateSavedTeam } from '../utils/teamStorage';
+import {
+  extractTeamCustomization,
+  type TeamMemberCustomization,
+} from './teamCustomization';
 
 // Cyberpunk Mode Detection
 const CYBERPUNK_ACCENTS: AccentColor[] = [
@@ -112,6 +116,7 @@ const initialState: PokemonState = {
   filteredPokemon: [],
   isFiltering: false,
   team: [],
+  teamCustomizations: {},
   favorites: new Set(),
   history: [],
   future: [],
@@ -131,6 +136,7 @@ const initialState: PokemonState = {
 
 type PersistedPokemonStorage = {
   team?: unknown;
+  teamCustomizations?: unknown;
   favorites?: unknown;
   theme?: unknown;
   accent?: unknown;
@@ -161,13 +167,47 @@ function normalizeTeam(value: unknown, fallback: number[]): number[] {
         item &&
         typeof item === 'object' &&
         'id' in item &&
-        typeof (item as any).id === 'number'
+        typeof (item as { id: unknown }).id === 'number'
       ) {
-        return (item as any).id;
+        return (item as { id: number }).id;
       }
       return undefined;
     })
     .filter((id): id is number => id !== undefined);
+}
+
+function normalizeTeamCustomizations(
+  value: unknown,
+  teamIds: number[],
+  fallback: Record<number, TeamMemberCustomization>,
+  legacyTeamValue?: unknown
+): Record<number, TeamMemberCustomization> {
+  const result: Record<number, TeamMemberCustomization> = {};
+  const allowed = new Set(teamIds);
+
+  const ingest = (id: number, raw: unknown) => {
+    if (!allowed.has(id)) return;
+    const customization = extractTeamCustomization(raw);
+    if (customization) result[id] = customization;
+  };
+
+  if (value && typeof value === 'object' && !Array.isArray(value)) {
+    for (const [key, entry] of Object.entries(value as Record<string, unknown>)) {
+      const id = Number(key);
+      if (Number.isFinite(id)) ingest(id, entry);
+    }
+  }
+
+  // Recover customizations from legacy full-object team arrays.
+  if (Object.keys(result).length === 0 && Array.isArray(legacyTeamValue)) {
+    for (const item of legacyTeamValue.slice(0, TEAM_CAPACITY)) {
+      if (!item || typeof item !== 'object') continue;
+      const id = (item as { id?: unknown }).id;
+      if (typeof id === 'number') ingest(id, item);
+    }
+  }
+
+  return Object.keys(result).length > 0 ? result : fallback;
 }
 
 function normalizeFavorites(value: unknown, fallback: Set<number>): Set<number> {
@@ -412,6 +452,7 @@ export const usePokemonStore = create<PokemonState & PokemonActions>()(
         name: 'pokedex-storage',
         partialize: (state) => ({
           team: state.team,
+          teamCustomizations: state.teamCustomizations,
           favorites: Array.from(state.favorites),
           theme: state.theme,
           accent: state.accent,
@@ -425,9 +466,13 @@ export const usePokemonStore = create<PokemonState & PokemonActions>()(
           const hasNewStorage = Boolean(persisted && (persisted.team || persisted.favorites));
           const legacy = hasNewStorage ? {} : readLegacyStorage();
 
-          const team = normalizeTeam(
-            hasNewStorage ? persisted.team : legacy.team,
-            currentState.team
+          const rawTeamSource = hasNewStorage ? persisted.team : legacy.team;
+          const team = normalizeTeam(rawTeamSource, currentState.team);
+          const teamCustomizations = normalizeTeamCustomizations(
+            hasNewStorage ? persisted.teamCustomizations : undefined,
+            team,
+            currentState.teamCustomizations,
+            rawTeamSource
           );
           const favorites = normalizeFavorites(
             hasNewStorage ? persisted.favorites : legacy.favorites,
@@ -473,6 +518,7 @@ export const usePokemonStore = create<PokemonState & PokemonActions>()(
             ...currentState,
             ...persisted,
             team,
+            teamCustomizations,
             favorites,
             theme,
             accent,
@@ -492,15 +538,23 @@ export const usePokemonStore = create<PokemonState & PokemonActions>()(
 // These are the primary way consumers should read team/comparison data.
 // ---------------------------------------------------------------------------
 
-/** Resolve team ID array to full PokemonListItem objects. */
-export const useTeamPokemon = (): PokemonListItem[] => {
+/** Resolve team ID array to full TeamMember objects (species + customizations). */
+export const useTeamPokemon = (): TeamMember[] => {
   const teamIds = usePokemonStore((s) => s.team);
+  const customizations = usePokemonStore((s) => s.teamCustomizations);
   const masterList = usePokemonStore((s) => s.masterPokemonList);
   return useMemo(() => {
     if (teamIds.length === 0) return [];
     const map = new Map(masterList.map((p) => [p.id, p]));
-    return teamIds.map((id) => map.get(id)).filter((p): p is PokemonListItem => p !== undefined);
-  }, [teamIds, masterList]);
+    return teamIds
+      .map((id) => {
+        const base = map.get(id);
+        if (!base) return undefined;
+        const customization = customizations[id];
+        return customization ? { ...base, ...customization } : base;
+      })
+      .filter((p): p is TeamMember => p !== undefined);
+  }, [teamIds, customizations, masterList]);
 };
 
 /** Resolve comparison ID array to full PokemonListItem objects. */

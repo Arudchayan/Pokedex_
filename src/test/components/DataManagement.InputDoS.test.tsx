@@ -6,9 +6,11 @@ import { AchievementProvider } from '../../context/AchievementContext';
 import DataManagement from '../../components/shared/DataManagement';
 import { MAX_INPUT_LENGTH } from '../../utils/securityUtils';
 
-const { setTeamMock, setFavoritesMock } = vi.hoisted(() => ({
+const { setTeamMock, setFavoritesMock, setSavedTeamsMock, saveTeamEntryMock } = vi.hoisted(() => ({
   setTeamMock: vi.fn(),
   setFavoritesMock: vi.fn(),
+  setSavedTeamsMock: vi.fn(),
+  saveTeamEntryMock: vi.fn(),
 }));
 
 vi.mock('../../context/PokemonContext', () => ({
@@ -25,6 +27,8 @@ vi.mock('../../store/usePokemonStore', () => {
   const mockStoreState: Record<string, any> = {
     setTeam: (...args: any[]) => setTeamMock(...args),
     setFavorites: (...args: any[]) => setFavoritesMock(...args),
+    setSavedTeams: (...args: any[]) => setSavedTeamsMock(...args),
+    saveTeamEntry: (...args: any[]) => saveTeamEntryMock(...args),
     achievements: {},
     unlockAchievement: vi.fn(),
     theme: 'dark',
@@ -57,6 +61,7 @@ vi.mock('../../utils/teamStorage', () => ({
   getSavedTeam: vi.fn(() => []),
   saveTeam: vi.fn(),
   validateTeamMember: vi.fn((x) => x),
+  validateSavedTeam: vi.fn((x) => x),
   getSavedTeamList: vi.fn(() => []),
   saveTeamList: vi.fn(),
 }));

@@ -4,6 +4,7 @@ import { usePokemonUI } from '../../context/PokemonContext';
 import { TRAINERS, Trainer } from '../../data/trainers';
 import { mulberry32, pickRandom } from '../../utils/seededRandom';
 import { fetchPokemonDetailsQuery } from '../../services/pokemonDetailsQuery';
+import { useGameStats } from '../../hooks/useGameStats';
 
 interface Props {
   onClose: () => void;
@@ -14,6 +15,7 @@ interface Props {
 const TrainerGame: React.FC<Props> = ({ onClose, date, seed }) => {
   const { theme } = usePokemonUI();
   const queryClient = useQueryClient();
+  const { recordResult } = useGameStats();
   const [target, setTarget] = useState<Trainer | null>(null);
   const [teamDetails, setTeamDetails] = useState<any[]>([]); // URLs/Names of pokemon
   const [revealedCount, setRevealedCount] = useState(1);
@@ -65,12 +67,14 @@ const TrainerGame: React.FC<Props> = ({ onClose, date, seed }) => {
 
     if (trainer.id === target.id) {
       setGameState('won');
+      recordResult('trainer', true);
     } else {
       // Wrong guess reveals another pokemon
       if (revealedCount < target.team.length) {
         setRevealedCount((prev) => prev + 1);
       } else {
         setGameState('lost');
+        recordResult('trainer', false);
       }
     }
     setCurrentGuess('');

@@ -1,4 +1,5 @@
 import { POKEAPI_GRAPHQL_URL } from '../constants';
+import { env } from '../config/env';
 import { logError, isNetworkError } from '../utils/errorHandler';
 import { logger } from '../utils/logger';
 
@@ -16,7 +17,7 @@ export async function queryPokeAPI<T>(
   options: { signal?: AbortSignal } = {}
 ): Promise<T> {
   try {
-    const timeoutSignal = AbortSignal.timeout(30000);
+    const timeoutSignal = AbortSignal.timeout(env.apiTimeout);
     const combinedSignal = options.signal
       ? AbortSignal.any
         ? AbortSignal.any([options.signal, timeoutSignal])

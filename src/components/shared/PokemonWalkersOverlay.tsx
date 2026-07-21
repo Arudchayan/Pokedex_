@@ -130,32 +130,44 @@ const PokemonWalkersOverlay: React.FC = () => {
     return () => window.removeEventListener('resize', onResize);
   }, []);
 
+  const settings = loadWalkersSettings();
+  const enabled = settings.enabled && !prefersReducedMotion();
+
   useEffect(() => {
+    if (!enabled) {
+      if (rafRef.current) {
+        cancelAnimationFrame(rafRef.current);
+        rafRef.current = null;
+      }
+      return;
+    }
+
     const loop = (ts: number) => {
       const container = containerRef.current;
       const engine = engineRef.current;
       if (!container || !engine) {
+        // Container/engine not ready yet (e.g. first enable frame) — retry briefly.
         rafRef.current = requestAnimationFrame(loop);
         return;
       }
 
-      const settings = loadWalkersSettings();
-      if (!settings.enabled || prefersReducedMotion()) {
-        rafRef.current = requestAnimationFrame(loop);
+      const liveSettings = loadWalkersSettings();
+      if (!liveSettings.enabled || prefersReducedMotion()) {
+        rafRef.current = null;
         return;
       }
 
       engine.setConfig({
-        playgroundHeightPx: settings.playgroundHeightPx,
-        speedPxPerSec: settings.speedPxPerSec,
-        spriteSizePx: settings.spriteSizePx,
+        playgroundHeightPx: liveSettings.playgroundHeightPx,
+        speedPxPerSec: liveSettings.speedPxPerSec,
+        spriteSizePx: liveSettings.spriteSizePx,
       });
 
       const rect = container.getBoundingClientRect();
       engine.tick(ts, { width: rect.width, height: rect.height });
 
-      const baseUrl = settings.assetBaseUrl;
-      const spriteSizePx = settings.spriteSizePx;
+      const baseUrl = liveSettings.assetBaseUrl;
+      const spriteSizePx = liveSettings.spriteSizePx;
       for (const w of walkersRef.current) {
         const el = walkerElsRef.current.get(w.id);
         if (!el) continue;
@@ -170,7 +182,7 @@ const PokemonWalkersOverlay: React.FC = () => {
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
       rafRef.current = null;
     };
-  }, []);
+  }, [enabled, settingsRev]);
 
   const onPointerDown = (w: WalkerInstance) => (e: React.PointerEvent<HTMLImageElement>) => {
     const settings = loadWalkersSettings();
@@ -239,9 +251,6 @@ const PokemonWalkersOverlay: React.FC = () => {
 
     dragRef.current = null;
   };
-
-  const settings = loadWalkersSettings();
-  const enabled = settings.enabled && !prefersReducedMotion();
 
   if (!enabled) return null;
 

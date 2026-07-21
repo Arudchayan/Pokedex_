@@ -5,6 +5,7 @@ import { PokemonListItem, PokemonDetails } from '../../types';
 import { mulberry32, pickRandom } from '../../utils/seededRandom';
 import { fetchPokemonDetailsQuery } from '../../services/pokemonDetailsQuery';
 import { mapWithConcurrency } from '../../utils/mapWithConcurrency';
+import { useGameStats } from '../../hooks/useGameStats';
 
 interface Props {
   onClose: () => void;
@@ -17,6 +18,7 @@ const FLAVOR_FETCH_CONCURRENCY = 5;
 
 const FlavorGame: React.FC<Props> = ({ onClose, date, seed }) => {
   const { masterPokemonList, theme } = usePokemon();
+  const { recordResult } = useGameStats();
   const queryClient = useQueryClient();
   const [target, setTarget] = useState<PokemonDetails | null>(null);
   const [currentGuess, setCurrentGuess] = useState('');
@@ -86,11 +88,13 @@ const FlavorGame: React.FC<Props> = ({ onClose, date, seed }) => {
 
     if (pokemon.id === target.id) {
       setGameState('won');
+      recordResult('flavor', true);
     } else {
       const newAttempts = attempts + 1;
       setAttempts(newAttempts);
       if (newAttempts >= MAX_ATTEMPTS) {
         setGameState('lost');
+        recordResult('flavor', false);
       }
     }
     setCurrentGuess('');

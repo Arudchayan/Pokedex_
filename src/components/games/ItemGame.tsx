@@ -3,6 +3,7 @@ import { usePokemonUI } from '../../context/PokemonContext';
 import { fetchAllItems, Item } from '../../services/pokeapiService';
 import { mulberry32, pickRandom } from '../../utils/seededRandom';
 import { DailyGameAttempts, DailyGameResultBanner, DailyGameShell } from './DailyGameShell';
+import { useGameStats } from '../../hooks/useGameStats';
 
 interface Props {
   onClose: () => void;
@@ -12,6 +13,7 @@ interface Props {
 
 const ItemGame: React.FC<Props> = ({ onClose, date, seed }) => {
   const { theme } = usePokemonUI();
+  const { recordResult } = useGameStats();
   const [items, setItems] = useState<Item[]>([]);
   const [target, setTarget] = useState<Item | null>(null);
   const [currentGuess, setCurrentGuess] = useState('');
@@ -62,11 +64,13 @@ const ItemGame: React.FC<Props> = ({ onClose, date, seed }) => {
 
     if (item.id === target.id) {
       setGameState('won');
+      recordResult('item', true);
     } else {
       const newAttempts = attempts + 1;
       setAttempts(newAttempts);
       if (newAttempts >= MAX_ATTEMPTS) {
         setGameState('lost');
+        recordResult('item', false);
       }
     }
     setCurrentGuess('');
