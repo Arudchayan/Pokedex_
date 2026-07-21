@@ -383,12 +383,12 @@ export default function CommandPalette({ isOpen, onClose, controller }: CommandP
         </div>
 
         <ul
-            ref={listRef}
-            id="command-palette-listbox"
-            role="listbox"
-            aria-label="Commands"
-            className="max-h-[50vh] overflow-y-auto py-2 scroll-py-2"
-          >
+          ref={listRef}
+          id="command-palette-listbox"
+          role="listbox"
+          aria-label="Commands"
+          className="max-h-[50vh] overflow-y-auto py-2 scroll-py-2"
+        >
           {filteredCommands.length === 0 ? (
             <div className="px-4 py-8 text-center text-slate-500">No commands found.</div>
           ) : (

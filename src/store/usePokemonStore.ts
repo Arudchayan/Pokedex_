@@ -15,11 +15,8 @@ import type {
 } from './pokemonStoreTypes';
 import { reducePokemonStore } from './pokemonStoreReducer';
 import { validateSavedTeam } from '../utils/teamStorage';
-import { sanitizeFavoriteIds } from '../utils/favorites';
-import {
-  extractTeamCustomization,
-  type TeamMemberCustomization,
-} from './teamCustomization';
+import { sanitizeFavoriteIds, saveFavorites } from '../utils/favorites';
+import { extractTeamCustomization, type TeamMemberCustomization } from './teamCustomization';
 
 // Cyberpunk Mode Detection
 const CYBERPUNK_ACCENTS: AccentColor[] = [
@@ -372,7 +369,7 @@ function readLegacyStorage(): Partial<
 export const usePokemonStore = create<PokemonState & PokemonActions>()(
   devtools(
     persist(
-      (set) => {
+      (set, get) => {
         const dispatchAction = (action: Action) => {
           // Name actions in Zustand devtools for debuggability.
           set((state) => reducePokemonStore(state, action, reducerContext), false, action.type);
@@ -414,9 +411,15 @@ export const usePokemonStore = create<PokemonState & PokemonActions>()(
           clearTeam: () => dispatchAction({ type: 'CLEAR_TEAM' }),
           setTeam: (team) => dispatchAction({ type: 'SET_TEAM', payload: team }),
 
-          setFavorites: (favorites) =>
-            dispatchAction({ type: 'SET_FAVORITES', payload: favorites }),
-          toggleFavorite: (id) => dispatchAction({ type: 'TOGGLE_FAVORITE', payload: id }),
+          setFavorites: (favorites) => {
+            dispatchAction({ type: 'SET_FAVORITES', payload: favorites });
+            // Keep legacy key in sync so empty Zustand favorites are not re-seeded from stale storage.
+            saveFavorites(get().favorites);
+          },
+          toggleFavorite: (id) => {
+            dispatchAction({ type: 'TOGGLE_FAVORITE', payload: id });
+            saveFavorites(get().favorites);
+          },
 
           addToComparison: (pokemon) =>
             dispatchAction({ type: 'ADD_TO_COMPARISON', payload: pokemon }),

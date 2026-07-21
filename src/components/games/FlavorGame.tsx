@@ -45,9 +45,7 @@ const FlavorGame: React.FC<Props> = ({ onClose, date, seed }) => {
             FLAVOR_FETCH_CONCURRENCY,
             (candidate) => fetchPokemonDetailsQuery(queryClient, candidate.id)
           );
-          const withFlavor = detailsList.find(
-            (d) => d?.flavorText && d.flavorText.length >= 10
-          );
+          const withFlavor = detailsList.find((d) => d?.flavorText && d.flavorText.length >= 10);
           setTarget(withFlavor ?? detailsList.find((d) => d != null) ?? null);
         } catch (e) {
           console.error('Error fetching flavor text target', e);

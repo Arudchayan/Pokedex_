@@ -88,11 +88,7 @@ describe('reducePokemonStoreTeam customizations', () => {
       selectedItem: 'Charcoal',
     };
 
-    const next = reducePokemonStoreTeam(
-      emptyState(),
-      { type: 'SET_TEAM', payload: [member] },
-      ctx
-    );
+    const next = reducePokemonStoreTeam(emptyState(), { type: 'SET_TEAM', payload: [member] }, ctx);
 
     expect(next).toMatchObject({
       team: [6],

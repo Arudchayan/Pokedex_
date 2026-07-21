@@ -1,8 +1,5 @@
 import type { Action, PokemonState, ReducerContext } from '../pokemonStoreTypes';
-import {
-  extractTeamCustomization,
-  mergeTeamCustomization,
-} from '../teamCustomization';
+import { extractTeamCustomization, mergeTeamCustomization } from '../teamCustomization';
 
 export function pushHistory(history: number[][], currentTeam: number[], maxHistory: number) {
   const next = [...history, currentTeam];

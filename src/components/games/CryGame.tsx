@@ -101,10 +101,22 @@ const CryGame: React.FC<Props> = ({ onClose, date, seed }) => {
       >
         {isPlaying ? (
           <div className="flex gap-1 items-end h-12">
-            <div className="w-2 bg-white animate-bounce" style={{ animationDuration: '0.4s' }}></div>
-            <div className="w-2 bg-white animate-bounce" style={{ animationDuration: '0.6s' }}></div>
-            <div className="w-2 bg-white animate-bounce" style={{ animationDuration: '0.3s' }}></div>
-            <div className="w-2 bg-white animate-bounce" style={{ animationDuration: '0.5s' }}></div>
+            <div
+              className="w-2 bg-white animate-bounce"
+              style={{ animationDuration: '0.4s' }}
+            ></div>
+            <div
+              className="w-2 bg-white animate-bounce"
+              style={{ animationDuration: '0.6s' }}
+            ></div>
+            <div
+              className="w-2 bg-white animate-bounce"
+              style={{ animationDuration: '0.3s' }}
+            ></div>
+            <div
+              className="w-2 bg-white animate-bounce"
+              style={{ animationDuration: '0.5s' }}
+            ></div>
           </div>
         ) : (
           <svg

@@ -26,9 +26,7 @@ const CUSTOMIZATION_KEYS = [
   'imageUrl',
 ] as const satisfies ReadonlyArray<keyof TeamMemberCustomization>;
 
-export function extractTeamCustomization(
-  value: unknown
-): TeamMemberCustomization | null {
+export function extractTeamCustomization(value: unknown): TeamMemberCustomization | null {
   if (!value || typeof value !== 'object') return null;
 
   const source = value as Record<string, unknown>;
