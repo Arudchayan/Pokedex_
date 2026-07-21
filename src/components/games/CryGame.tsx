@@ -3,6 +3,7 @@ import { usePokemonData, usePokemonUI } from '../../context/PokemonContext';
 import { PokemonListItem } from '../../types';
 import { mulberry32, pickRandom } from '../../utils/seededRandom';
 import { DailyGameAttempts, DailyGameResultBanner, DailyGameShell } from './DailyGameShell';
+import { useGameStats } from '../../hooks/useGameStats';
 
 interface Props {
   onClose: () => void;
@@ -13,6 +14,7 @@ interface Props {
 const CryGame: React.FC<Props> = ({ onClose, date, seed }) => {
   const { masterPokemonList } = usePokemonData();
   const { theme } = usePokemonUI();
+  const { recordResult } = useGameStats();
   const [target, setTarget] = useState<PokemonListItem | null>(null);
   const [currentGuess, setCurrentGuess] = useState('');
   const [gameState, setGameState] = useState<'playing' | 'won' | 'lost'>('playing');
@@ -70,11 +72,13 @@ const CryGame: React.FC<Props> = ({ onClose, date, seed }) => {
 
     if (pokemon.id === target.id) {
       setGameState('won');
+      recordResult('cry', true);
     } else {
       const newAttempts = attempts + 1;
       setAttempts(newAttempts);
       if (newAttempts >= MAX_ATTEMPTS) {
         setGameState('lost');
+        recordResult('cry', false);
       }
     }
     setCurrentGuess('');
@@ -97,10 +101,22 @@ const CryGame: React.FC<Props> = ({ onClose, date, seed }) => {
       >
         {isPlaying ? (
           <div className="flex gap-1 items-end h-12">
-            <div className="w-2 bg-white animate-bounce" style={{ animationDuration: '0.4s' }}></div>
-            <div className="w-2 bg-white animate-bounce" style={{ animationDuration: '0.6s' }}></div>
-            <div className="w-2 bg-white animate-bounce" style={{ animationDuration: '0.3s' }}></div>
-            <div className="w-2 bg-white animate-bounce" style={{ animationDuration: '0.5s' }}></div>
+            <div
+              className="w-2 bg-white animate-bounce"
+              style={{ animationDuration: '0.4s' }}
+            ></div>
+            <div
+              className="w-2 bg-white animate-bounce"
+              style={{ animationDuration: '0.6s' }}
+            ></div>
+            <div
+              className="w-2 bg-white animate-bounce"
+              style={{ animationDuration: '0.3s' }}
+            ></div>
+            <div
+              className="w-2 bg-white animate-bounce"
+              style={{ animationDuration: '0.5s' }}
+            ></div>
           </div>
         ) : (
           <svg

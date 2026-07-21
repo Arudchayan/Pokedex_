@@ -65,8 +65,9 @@ const DamageCalculator: React.FC<DamageCalculatorProps> = ({
   const [attacker, setAttacker] = useState<ExtendedBattlePokemon | null>(null);
   const [defender, setDefender] = useState<ExtendedBattlePokemon | null>(null);
 
-  const [_loadingAttacker, setLoadingAttacker] = useState(false);
-  const [_loadingDefender, setLoadingDefender] = useState(false);
+  const [loadingAttacker, setLoadingAttacker] = useState(false);
+  const [loadingDefender, setLoadingDefender] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   // UI Toggles
   const [showAttackerStats, setShowAttackerStats] = useState(false);
@@ -81,6 +82,7 @@ const DamageCalculator: React.FC<DamageCalculatorProps> = ({
     const loader = isAttacker ? setLoadingAttacker : setLoadingDefender;
 
     loader(true);
+    setLoadError(null);
     try {
       const details = await fetchPokemonDetailsQuery(queryClient, id);
       if (details) {
@@ -101,9 +103,12 @@ const DamageCalculator: React.FC<DamageCalculatorProps> = ({
           abilities: details.abilities.map((a) => a.name),
           selectedAbility: details.abilities[0]?.name || 'None',
         });
+      } else {
+        setLoadError(`Could not load Pokémon #${id}.`);
       }
     } catch (e) {
       console.error(e);
+      setLoadError('Failed to load Pokémon data. Check your connection and try again.');
     } finally {
       loader(false);
     }
@@ -221,6 +226,32 @@ const DamageCalculator: React.FC<DamageCalculatorProps> = ({
   return (
     <Modal isOpen={true} onClose={onClose} title="Damage Calculator" size="xl">
       <div className="flex-1 overflow-y-auto p-6">
+        {loadError && (
+          <div
+            role="alert"
+            className="mb-4 rounded-lg border border-red-500/40 bg-red-500/10 px-4 py-3 text-sm text-red-300"
+          >
+            <div className="flex items-center justify-between gap-3">
+              <span>{loadError}</span>
+              <button
+                type="button"
+                className="rounded-md px-2 py-1 text-xs font-semibold underline"
+                onClick={() => {
+                  setLoadError(null);
+                  if (attackerId) fetchPokemonData(attackerId, true);
+                  if (defenderId) fetchPokemonData(defenderId, false);
+                }}
+              >
+                Retry
+              </button>
+            </div>
+          </div>
+        )}
+        {(loadingAttacker || loadingDefender) && (
+          <div className="mb-4 text-sm opacity-70" role="status" aria-live="polite">
+            Loading Pokémon data...
+          </div>
+        )}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Attacker Column */}
           <div
@@ -252,17 +283,18 @@ const DamageCalculator: React.FC<DamageCalculatorProps> = ({
                     className={`absolute top-full left-0 w-full z-10 rounded-b shadow-xl max-h-60 overflow-y-auto ${theme === 'dark' ? 'bg-slate-800' : 'bg-white'}`}
                   >
                     {filteredAttackerList.map((p) => (
-                      <div
+                      <button
+                        type="button"
                         key={p.id}
-                        className="p-2 hover:bg-primary-500/20 cursor-pointer flex items-center gap-2"
+                        className="w-full p-2 hover:bg-primary-500/20 cursor-pointer flex items-center gap-2 text-left"
                         onClick={() => {
                           setAttackerId(p.id);
                           setAttackerSearch('');
                         }}
                       >
-                        <img src={p.imageUrl} className="w-8 h-8" />
+                        <img src={p.imageUrl} alt="" className="w-8 h-8" />
                         <span>{p.name}</span>
-                      </div>
+                      </button>
                     ))}
                   </div>
                 )}
@@ -465,17 +497,18 @@ const DamageCalculator: React.FC<DamageCalculatorProps> = ({
                     className={`absolute top-full left-0 w-full z-10 rounded-b shadow-xl max-h-60 overflow-y-auto ${theme === 'dark' ? 'bg-slate-800' : 'bg-white'}`}
                   >
                     {filteredDefenderList.map((p) => (
-                      <div
+                      <button
+                        type="button"
                         key={p.id}
-                        className="p-2 hover:bg-red-900/20 cursor-pointer flex items-center gap-2"
+                        className="w-full p-2 hover:bg-red-900/20 cursor-pointer flex items-center gap-2 text-left"
                         onClick={() => {
                           setDefenderId(p.id);
                           setDefenderSearch('');
                         }}
                       >
-                        <img src={p.imageUrl} className="w-8 h-8" />
+                        <img src={p.imageUrl} alt="" className="w-8 h-8" />
                         <span>{p.name}</span>
-                      </div>
+                      </button>
                     ))}
                   </div>
                 )}

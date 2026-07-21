@@ -1,8 +1,22 @@
 import type { Action, PokemonState, ReducerContext } from '../pokemonStoreTypes';
+import { extractTeamCustomization, mergeTeamCustomization } from '../teamCustomization';
 
 export function pushHistory(history: number[][], currentTeam: number[], maxHistory: number) {
   const next = [...history, currentTeam];
   if (next.length > maxHistory) next.shift();
+  return next;
+}
+
+function pruneCustomizations(
+  customizations: PokemonState['teamCustomizations'],
+  teamIds: number[]
+): PokemonState['teamCustomizations'] {
+  const keep = new Set(teamIds);
+  const next: PokemonState['teamCustomizations'] = {};
+  for (const [key, value] of Object.entries(customizations)) {
+    const id = Number(key);
+    if (keep.has(id)) next[id] = value;
+  }
   return next;
 }
 
@@ -17,27 +31,35 @@ export function reducePokemonStoreTeam(
       if (state.team.length >= ctx.teamCapacity || state.team.includes(id)) {
         return state;
       }
+      const customization = extractTeamCustomization(action.payload);
       return {
         team: [...state.team, id],
+        teamCustomizations: customization
+          ? { ...state.teamCustomizations, [id]: customization }
+          : state.teamCustomizations,
         history: pushHistory(state.history, state.team, ctx.maxHistory),
         future: [],
       };
     }
 
-    case 'REMOVE_FROM_TEAM':
+    case 'REMOVE_FROM_TEAM': {
+      const team = state.team.filter((tid) => tid !== action.payload);
       return {
-        team: state.team.filter((tid) => tid !== action.payload),
+        team,
+        teamCustomizations: pruneCustomizations(state.teamCustomizations, team),
         history: pushHistory(state.history, state.team, ctx.maxHistory),
         future: [],
       };
+    }
 
     case 'UPDATE_TEAM_MEMBER': {
-      // UPDATE_TEAM_MEMBER is a no-op for the ID array (TeamMember
-      // customisations like EVs/IVs/moves are stored elsewhere).
-      // We still push history so undo reverts the action that triggered this.
+      const { id, updates } = action.payload;
+      if (!state.team.includes(id)) return state;
       return {
-        history: pushHistory(state.history, state.team, ctx.maxHistory),
-        future: [],
+        teamCustomizations: {
+          ...state.teamCustomizations,
+          [id]: mergeTeamCustomization(state.teamCustomizations[id], updates),
+        },
       };
     }
 
@@ -65,18 +87,40 @@ export function reducePokemonStoreTeam(
     case 'CLEAR_TEAM':
       return {
         team: [],
+        teamCustomizations: {},
         history: pushHistory(state.history, state.team, ctx.maxHistory),
         future: [],
       };
 
     case 'SET_TEAM': {
-      const teamIds = action.payload.slice(0, ctx.teamCapacity).map((p) => p.id);
-      // Cheap comparison for 0-6 numbers.
-      if (teamIds.length === state.team.length && teamIds.every((id, i) => id === state.team[i])) {
+      const limited = action.payload.slice(0, ctx.teamCapacity);
+      const seen = new Set<number>();
+      const uniqueMembers = limited.filter((member) => {
+        if (seen.has(member.id)) return false;
+        seen.add(member.id);
+        return true;
+      });
+      const teamIds = uniqueMembers.map((p) => p.id);
+      const teamCustomizations: PokemonState['teamCustomizations'] = {};
+      for (const member of uniqueMembers) {
+        const customization = extractTeamCustomization(member);
+        if (customization) teamCustomizations[member.id] = customization;
+      }
+      const sameIds =
+        teamIds.length === state.team.length && teamIds.every((id, i) => id === state.team[i]);
+      const sameCustomizations =
+        sameIds &&
+        Object.keys(teamCustomizations).length === Object.keys(state.teamCustomizations).length &&
+        Object.entries(teamCustomizations).every(
+          ([id, value]) =>
+            JSON.stringify(state.teamCustomizations[Number(id)] ?? null) === JSON.stringify(value)
+        );
+      if (sameIds && sameCustomizations) {
         return state;
       }
       return {
         team: teamIds,
+        teamCustomizations,
         history: pushHistory(state.history, state.team, ctx.maxHistory),
         future: [],
       };

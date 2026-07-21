@@ -1,8 +1,7 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, lazy, Suspense } from 'react';
 import AppHeader from '../components/layout/AppHeader';
 import AnnouncementBanner from '../components/layout/AnnouncementBanner';
 import KeyboardShortcuts from '../components/layout/KeyboardShortcuts';
-import PokemonWalkersOverlay from '../components/shared/PokemonWalkersOverlay';
 import ScrollToTop from '../components/layout/ScrollToTop';
 import CommandPalette from '../components/layout/CommandPalette';
 import AppMain from './AppMain';
@@ -19,6 +18,25 @@ import {
   SW_UPDATE_AVAILABLE_EVENT,
   type ServiceWorkerUpdateEventDetail,
 } from '../utils/swEvents';
+import { loadWalkersSettings } from '../pets/walkersSettings';
+import { onWalkersSettingsChanged } from '../pets/walkersEvents';
+
+const PokemonWalkersOverlay = lazy(() => import('../components/shared/PokemonWalkersOverlay'));
+
+/** Mount walkers only when enabled so the sprite pack stays out of the initial bundle. */
+function WalkersHost() {
+  const [enabled, setEnabled] = useState(() => loadWalkersSettings().enabled);
+
+  useEffect(() => onWalkersSettingsChanged(() => setEnabled(loadWalkersSettings().enabled)), []);
+
+  if (!enabled) return null;
+
+  return (
+    <Suspense fallback={null}>
+      <PokemonWalkersOverlay />
+    </Suspense>
+  );
+}
 
 /** Approx ComparisonBar height (padding + sprite row) excluding safe-area. */
 const COMPARISON_BAR_HEIGHT = '5.5rem';
@@ -142,7 +160,7 @@ export default function AppShell() {
       )}
 
       <ScrollToTop />
-      <PokemonWalkersOverlay />
+      <WalkersHost />
       <AppModals controller={controller} />
       <ComparisonBar />
       <CommandPalette

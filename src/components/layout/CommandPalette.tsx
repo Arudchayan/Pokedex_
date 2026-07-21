@@ -316,10 +316,14 @@ export default function CommandPalette({ isOpen, onClose, controller }: CommandP
     <div
       className="fixed inset-0 z-[2000] flex items-start justify-center pt-[15vh] px-4"
       onClick={onClose}
+      role="presentation"
     >
       <div className="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity" />
 
       <div
+        role="dialog"
+        aria-modal="true"
+        aria-label="Command palette"
         className={twMerge(
           'relative w-full max-w-xl overflow-hidden rounded-xl shadow-2xl transition-all animate-in fade-in zoom-in-95 duration-200',
           theme === 'dark'
@@ -344,6 +348,15 @@ export default function CommandPalette({ isOpen, onClose, controller }: CommandP
           <input
             ref={inputRef}
             type="text"
+            role="combobox"
+            aria-expanded="true"
+            aria-controls="command-palette-listbox"
+            aria-autocomplete="list"
+            aria-activedescendant={
+              filteredCommands[selectedIndex]
+                ? `command-option-${filteredCommands[selectedIndex].id}`
+                : undefined
+            }
             className={twMerge(
               'flex-1 bg-transparent border-none outline-none text-lg placeholder-slate-500',
               theme === 'dark' ? 'text-white' : 'text-slate-900',
@@ -369,13 +382,22 @@ export default function CommandPalette({ isOpen, onClose, controller }: CommandP
           </div>
         </div>
 
-        <ul ref={listRef} className="max-h-[50vh] overflow-y-auto py-2 scroll-py-2">
+        <ul
+          ref={listRef}
+          id="command-palette-listbox"
+          role="listbox"
+          aria-label="Commands"
+          className="max-h-[50vh] overflow-y-auto py-2 scroll-py-2"
+        >
           {filteredCommands.length === 0 ? (
             <div className="px-4 py-8 text-center text-slate-500">No commands found.</div>
           ) : (
             filteredCommands.map((command, index) => (
               <li
                 key={command.id}
+                id={`command-option-${command.id}`}
+                role="option"
+                aria-selected={index === selectedIndex}
                 className={twMerge(
                   'mx-2 px-4 py-3 rounded-lg flex items-center justify-between cursor-pointer transition-colors scroll-my-2',
                   index === selectedIndex

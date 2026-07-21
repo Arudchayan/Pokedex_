@@ -1,20 +1,8 @@
 import { test, expect } from '@playwright/test';
-
-async function dismissWelcomeModal(page: import('@playwright/test').Page) {
-  const welcomeModal = page
-    .locator('div[role="dialog"]')
-    .filter({ hasText: /Welcome to Pokédex/i });
-  try {
-    await welcomeModal.waitFor({ state: 'visible', timeout: 3000 });
-    const skipButton = welcomeModal.locator('button', { hasText: /Skip for now/i });
-    await skipButton.click();
-    await welcomeModal.waitFor({ state: 'hidden', timeout: 3000 });
-  } catch {
-    // Modal didn't appear, continue
-  }
-}
+import { skipWalkthroughOnboarding, dismissWelcomeModal } from './helpers';
 
 test('Detail deep-link opens Pikachu from ?pokemon=25', async ({ page }) => {
+  await skipWalkthroughOnboarding(page);
   await page.goto('/?pokemon=25');
   await dismissWelcomeModal(page);
 
@@ -38,6 +26,7 @@ test('Detail deep-link opens Pikachu from ?pokemon=25', async ({ page }) => {
 });
 
 test('Compare deep-link opens comparison from ?compare=1,4', async ({ page }) => {
+  await skipWalkthroughOnboarding(page);
   await page.goto('/?compare=1,4');
   await dismissWelcomeModal(page);
 

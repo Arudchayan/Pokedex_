@@ -4,8 +4,8 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import DataManagement from '../../components/shared/DataManagement';
 import { renderWithProvider } from '../utils';
 import { MAX_INPUT_LENGTH } from '../../utils/securityUtils';
-import * as teamStorage from '../../utils/teamStorage';
 import * as teamExport from '../../utils/teamExport';
+import { usePokemonStore } from '../../store/usePokemonStore';
 
 // Mock scrollTo to prevent JSDOM errors
 window.scrollTo = vi.fn();
@@ -14,16 +14,6 @@ window.scrollTo = vi.fn();
 global.URL.createObjectURL = vi.fn(() => 'mock-url');
 global.URL.revokeObjectURL = vi.fn();
 
-// Mock dependencies
-vi.mock('../../utils/teamStorage', async (importOriginal) => {
-  const actual = await importOriginal<typeof teamStorage>();
-  return {
-    ...actual,
-    getSavedTeamList: vi.fn(),
-    saveTeamList: vi.fn(),
-  };
-});
-
 vi.mock('../../utils/teamExport', () => ({
   importFromShowdown: vi.fn(),
 }));
@@ -31,6 +21,14 @@ vi.mock('../../utils/teamExport', () => ({
 describe('DataManagement', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    localStorage.clear();
+    usePokemonStore.setState({
+      savedTeams: [],
+      team: [],
+      teamCustomizations: {},
+      favorites: new Set(),
+      masterPokemonList: [],
+    });
   });
 
   it('renders correctly', () => {
@@ -45,30 +43,27 @@ describe('DataManagement', () => {
     expect(textarea).toHaveAttribute('maxLength', String(MAX_INPUT_LENGTH));
   });
 
-  it('exports saved teams', () => {
-    const mockSavedTeams = [{ id: '123', name: 'My Team', team: [], updatedAt: 12345 }];
-    vi.mocked(teamStorage.getSavedTeamList).mockReturnValue(mockSavedTeams as any);
+  it('exports saved teams from the Zustand store', () => {
+    usePokemonStore.setState({
+      savedTeams: [{ id: '123', name: 'My Team', team: [], updatedAt: 12345 }],
+    });
 
     renderWithProvider(<DataManagement onClose={() => {}} />);
 
     const downloadBtn = screen.getByText('Download JSON');
     fireEvent.click(downloadBtn);
 
-    // Verify getSavedTeamList was called
-    expect(teamStorage.getSavedTeamList).toHaveBeenCalled();
+    expect(global.URL.createObjectURL).toHaveBeenCalled();
   });
 
-  it('imports saved teams and merges them', async () => {
-    vi.mocked(teamStorage.getSavedTeamList).mockReturnValue([]);
-
+  it('imports saved teams and merges them into the store', async () => {
     renderWithProvider(<DataManagement onClose={() => {}} />);
 
-    // We need a valid team structure because validateSavedTeam checks it
     const savedTeamsPayload = [
       {
         id: 'new-team',
         name: 'Imported Team',
-        team: [], // Empty team array is valid per validateSavedTeam check if it's an array
+        team: [],
         updatedAt: 123456,
       },
     ];
@@ -89,7 +84,7 @@ describe('DataManagement', () => {
     fireEvent.click(importBtn);
 
     await waitFor(() => {
-      expect(teamStorage.saveTeamList).toHaveBeenCalledWith(
+      expect(usePokemonStore.getState().savedTeams).toEqual(
         expect.arrayContaining([expect.objectContaining({ id: 'new-team', name: 'Imported Team' })])
       );
     });
@@ -97,9 +92,8 @@ describe('DataManagement', () => {
 
   it('handles ID collision by generating new ID', async () => {
     const existingTeam = { id: 'collision-id', name: 'Existing Team', team: [], updatedAt: 111 };
-    vi.mocked(teamStorage.getSavedTeamList).mockReturnValue([existingTeam as any]);
+    usePokemonStore.setState({ savedTeams: [existingTeam] });
 
-    // Mock crypto.randomUUID
     const newUUID = 'new-unique-id';
     const originalRandomUUID = crypto.randomUUID;
     Object.defineProperty(crypto, 'randomUUID', { value: vi.fn(() => newUUID), writable: true });
@@ -131,8 +125,7 @@ describe('DataManagement', () => {
     fireEvent.click(importBtn);
 
     await waitFor(() => {
-      // Should have called saveTeamList with existing team AND imported team with NEW ID
-      expect(teamStorage.saveTeamList).toHaveBeenCalledWith(
+      expect(usePokemonStore.getState().savedTeams).toEqual(
         expect.arrayContaining([
           expect.objectContaining({ id: 'collision-id', name: 'Existing Team' }),
           expect.objectContaining({ id: newUUID, name: 'Imported Collision Team' }),
@@ -140,18 +133,14 @@ describe('DataManagement', () => {
       );
     });
 
-    // Cleanup
     if (originalRandomUUID)
       Object.defineProperty(crypto, 'randomUUID', { value: originalRandomUUID });
   });
 
   it('imports Showdown team to saved teams', async () => {
-    vi.mocked(teamStorage.getSavedTeamList).mockReturnValue([]);
-    // Mock valid team return
     const mockTeam = [{ id: 25, name: 'Pikachu', types: ['electric'], imageUrl: 'url' }];
     vi.mocked(teamExport.importFromShowdown).mockReturnValue(mockTeam as any);
 
-    // Mock crypto.randomUUID
     const newUUID = 'showdown-team-id';
     const originalRandomUUID = crypto.randomUUID;
     Object.defineProperty(crypto, 'randomUUID', { value: vi.fn(() => newUUID), writable: true });
@@ -169,7 +158,7 @@ describe('DataManagement', () => {
 
     await waitFor(() => {
       expect(teamExport.importFromShowdown).toHaveBeenCalled();
-      expect(teamStorage.saveTeamList).toHaveBeenCalledWith(
+      expect(usePokemonStore.getState().savedTeams).toEqual(
         expect.arrayContaining([
           expect.objectContaining({
             id: newUUID,

@@ -31,7 +31,7 @@ export default defineConfig(() => {
       react(),
       VitePWA({
         registerType: 'prompt',
-        includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'mask-icon.svg'],
+        includeAssets: ['favicon.ico', 'favicon.png', 'apple-touch-icon.png', 'mask-icon.svg'],
         workbox: {
           runtimeCaching: [
             {
@@ -46,6 +46,21 @@ export default defineConfig(() => {
                 cacheableResponse: { statuses: [0, 200] },
                 expiration: {
                   maxEntries: 250,
+                  maxAgeSeconds: 60 * 60 * 24 * 30, // 30 days
+                },
+              },
+            },
+            {
+              // Core PokeAPI sprites (pokemon + items) for repeat visits / offline polish.
+              urlPattern: ({ url }) =>
+                url.origin === 'https://raw.githubusercontent.com' &&
+                url.pathname.includes('/PokeAPI/sprites/'),
+              handler: 'CacheFirst',
+              options: {
+                cacheName: 'pokeapi-sprites',
+                cacheableResponse: { statuses: [0, 200] },
+                expiration: {
+                  maxEntries: 800,
                   maxAgeSeconds: 60 * 60 * 24 * 30, // 30 days
                 },
               },

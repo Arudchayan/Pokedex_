@@ -1,10 +1,15 @@
-// Team persistence management using localStorage
+// Team persistence helpers.
+// NOTE: Active saved-team persistence is owned by Zustand (`usePokemonStore.savedTeams`).
+// The get/save helpers below are legacy localStorage adapters kept for migration/tests.
+// Prefer validateTeamMember / validateSavedTeam for shared sanitization.
 import { TeamMember } from '../types';
 import { sanitizeString, validateSafeNumber, sanitizeUrl } from './securityUtils';
 import { UI_CONSTANTS } from '../constants';
 import { logger } from './logger';
 
+/** @deprecated Prefer Zustand savedTeams; kept for legacy migration/tests. */
 const TEAM_KEY = 'pokedex_team';
+/** @deprecated Prefer Zustand savedTeams; kept for legacy migration/tests. */
 const SAVED_TEAMS_KEY = 'pokedex_saved_teams';
 
 export interface SavedTeam {

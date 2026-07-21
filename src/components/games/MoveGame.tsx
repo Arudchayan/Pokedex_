@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { usePokemonUI } from '../../context/PokemonContext';
 import { fetchAllMoves, Move } from '../../services/pokeapiService';
 import { mulberry32, pickRandom } from '../../utils/seededRandom';
+import { useGameStats } from '../../hooks/useGameStats';
 
 interface Props {
   onClose: () => void;
@@ -23,6 +24,7 @@ interface GuessResult {
 
 const MoveGame: React.FC<Props> = ({ onClose, date, seed }) => {
   const { theme } = usePokemonUI();
+  const { recordResult } = useGameStats();
   const [moves, setMoves] = useState<Move[]>([]);
   const [target, setTarget] = useState<Move | null>(null);
   const [guesses, setGuesses] = useState<GuessResult[]>([]);
@@ -95,8 +97,10 @@ const MoveGame: React.FC<Props> = ({ onClose, date, seed }) => {
 
     if (result.correct) {
       setGameState('won');
+      recordResult('move', true);
     } else if (guesses.length >= 5) {
       setGameState('lost');
+      recordResult('move', false);
     }
   };
 

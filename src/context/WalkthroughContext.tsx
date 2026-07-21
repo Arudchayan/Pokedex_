@@ -303,7 +303,11 @@ export const WalkthroughProvider: React.FC<{ children: ReactNode; tours: TourDef
   }, [addToast]);
 
   const markFirstVisitComplete = useCallback(() => {
-    setProgress((prev) => ({ ...prev, isFirstVisit: false }));
+    setProgress((prev) => ({
+      ...prev,
+      isFirstVisit: false,
+      hasSkippedOnboarding: true,
+    }));
   }, []);
 
   const reopenWelcome = useCallback(() => {

@@ -164,9 +164,12 @@ const parseGenSprites = (
     // Helper to add if exists
     const addIfExist = (key: string, data: any) => {
       if (data && data.front_default) {
+        const defaultUrl = sanitizeUrl(String(data.front_default));
+        if (!defaultUrl) return;
+        const shinyUrl = data.front_shiny ? sanitizeUrl(String(data.front_shiny)) : undefined;
         genSprites[key] = {
-          default: data.front_default,
-          shiny: data.front_shiny || undefined,
+          default: defaultUrl,
+          shiny: shinyUrl || undefined,
         };
       }
     };

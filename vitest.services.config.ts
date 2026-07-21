@@ -9,7 +9,7 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: './src/test/setup.services.ts',
     css: false,
-    include: ['services/pokeapiService*.test.ts'],
+    include: ['src/services/pokeapiService*.test.ts'],
     exclude: [
       '**/node_modules/**',
       '**/dist/**',

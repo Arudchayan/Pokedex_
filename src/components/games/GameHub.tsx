@@ -1,17 +1,39 @@
-import React, { useState } from 'react';
+import { lazy, Suspense, useEffect, useId, useRef, useState, type FC } from 'react';
 import { usePokemonUI } from '../../context/PokemonContext';
 import { useGameStats } from '../../hooks/useGameStats';
 import { dateToSeed } from '../../utils/seededRandom';
-import PokedleGame from './PokedleGame';
-import WhosThatPokemonGame from './WhosThatPokemonGame';
-import FlavorGame from './FlavorGame';
-import CryGame from './CryGame';
-import StatGame from './StatGame';
-import MoveGame from './MoveGame';
-import ItemGame from './ItemGame';
-import TrainerGame from './TrainerGame';
 
-const GameBadge = ({ id: _id }: { id: string }) => null;
+const PokedleGame = lazy(() => import('./PokedleGame'));
+const WhosThatPokemonGame = lazy(() => import('./WhosThatPokemonGame'));
+const FlavorGame = lazy(() => import('./FlavorGame'));
+const CryGame = lazy(() => import('./CryGame'));
+const StatGame = lazy(() => import('./StatGame'));
+const MoveGame = lazy(() => import('./MoveGame'));
+const ItemGame = lazy(() => import('./ItemGame'));
+const TrainerGame = lazy(() => import('./TrainerGame'));
+
+const GameBadge = ({ id }: { id: string }) => {
+  const { getStats, hasPlayedToday } = useGameStats();
+  const stats = getStats(id);
+
+  if (hasPlayedToday(id)) {
+    return (
+      <span className="absolute top-2 right-2 rounded-md bg-emerald-500/20 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-emerald-400">
+        Done
+      </span>
+    );
+  }
+
+  if (stats.currentStreak > 0) {
+    return (
+      <span className="absolute top-2 right-2 rounded-md bg-orange-500/20 px-1.5 py-0.5 text-[10px] font-bold text-orange-400">
+        {stats.currentStreak} streak
+      </span>
+    );
+  }
+
+  return null;
+};
 
 type GameType =
   | 'none'
@@ -33,18 +55,61 @@ interface GameHubProps {
   onClose: () => void;
 }
 
-const GameHub: React.FC<GameHubProps> = ({ onClose }) => {
+const GameHub: FC<GameHubProps> = ({ onClose }) => {
   const { theme } = usePokemonUI();
-  const { getStats: _getStats, hasPlayedToday: _hasPlayedToday } = useGameStats();
   const [selectedGame, setSelectedGame] = useState<GameType>('none');
+  const titleId = useId();
+  const dialogRef = useRef<HTMLDivElement>(null);
 
   // Date Management
-  const [date, _setDate] = useState(getTodayDateString());
+  const [date] = useState(getTodayDateString());
 
+  useEffect(() => {
+    if (selectedGame !== 'none') return;
+
+    const previous = document.activeElement;
+    const dialog = dialogRef.current;
+    const focusableSelectors =
+      'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])';
+
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        onClose();
+        return;
+      }
+      if (e.key !== 'Tab' || !dialog) return;
+
+      const focusable = dialog.querySelectorAll(focusableSelectors);
+      if (focusable.length === 0) return;
+      const first = focusable[0] as HTMLElement;
+      const last = focusable[focusable.length - 1] as HTMLElement;
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    };
+
+    document.addEventListener('keydown', onKeyDown);
+    const firstFocusable = dialog?.querySelector(focusableSelectors) as HTMLElement | null;
+    firstFocusable?.focus();
+
+    return () => {
+      document.removeEventListener('keydown', onKeyDown);
+      if (previous instanceof HTMLElement) previous.focus();
+    };
+  }, [selectedGame, onClose]);
 
   // Components Map
   const renderGame = () => {
-    const props = { onClose: () => setSelectedGame('none'), date, seed: dateToSeed(date + '-' + selectedGame) };
+    const props = {
+      onClose: () => setSelectedGame('none'),
+      date,
+      seed: dateToSeed(date + '-' + selectedGame),
+    };
     switch (selectedGame) {
       case 'pokedle':
         return <PokedleGame {...props} />;
@@ -62,8 +127,12 @@ const GameHub: React.FC<GameHubProps> = ({ onClose }) => {
         return <ItemGame {...props} />;
       case 'trainer':
         return <TrainerGame {...props} />;
-      default:
+      case 'none':
         return null;
+      default: {
+        const _exhaustive: never = selectedGame;
+        return _exhaustive;
+      }
     }
   };
 
@@ -72,7 +141,11 @@ const GameHub: React.FC<GameHubProps> = ({ onClose }) => {
       <div
         className={`fixed inset-0 z-[1050] flex flex-col ${theme === 'dark' ? 'bg-slate-950' : 'bg-slate-50'}`}
       >
-        <div className="flex-1 overflow-hidden p-4">{renderGame()}</div>
+        <div className="flex-1 overflow-hidden p-4">
+          <Suspense fallback={<div className="p-8 text-center">Loading game...</div>}>
+            {renderGame()}
+          </Suspense>
+        </div>
       </div>
     );
   }
@@ -81,14 +154,20 @@ const GameHub: React.FC<GameHubProps> = ({ onClose }) => {
     <div
       className={`fixed inset-0 z-[1050] flex items-center justify-center p-4 backdrop-blur-sm ${theme === 'dark' ? 'bg-black/80' : 'bg-slate-500/50'}`}
       onClick={onClose}
+      role="presentation"
     >
       <div
+        ref={dialogRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={titleId}
         className={`relative w-full max-w-5xl max-h-[90vh] overflow-y-auto rounded-2xl p-6 shadow-2xl animate-fade-in-up ${theme === 'dark' ? 'bg-slate-900 border border-white/10' : 'bg-white'}`}
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex justify-between items-center mb-6">
           <div>
             <h2
+              id={titleId}
               className={`text-3xl font-black ${theme === 'dark' ? 'text-white' : 'text-slate-800'}`}
             >
               Game Suite
@@ -98,7 +177,9 @@ const GameHub: React.FC<GameHubProps> = ({ onClose }) => {
             </p>
           </div>
           <button
+            type="button"
             onClick={onClose}
+            aria-label="Close game suite"
             className={`p-2 rounded-full transition-colors ${theme === 'dark' ? 'hover:bg-white/10 text-slate-300 hover:text-white' : 'hover:bg-black/5 text-slate-400 hover:text-slate-800'}`}
           >
             <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -115,6 +196,7 @@ const GameHub: React.FC<GameHubProps> = ({ onClose }) => {
         <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
           {/* Battle Button - Featured */}
           <button
+            type="button"
             onClick={() =>
               window.open('https://play.pokemonshowdown.com/', '_blank', 'noopener,noreferrer')
             }
@@ -136,6 +218,7 @@ const GameHub: React.FC<GameHubProps> = ({ onClose }) => {
           </button>
 
           <button
+            type="button"
             onClick={() => setSelectedGame('pokedle')}
             className={`relative p-4 sm:p-6 rounded-xl shadow-lg transition-all hover:scale-[1.02] flex flex-col items-center justify-center gap-2 sm:gap-3 ${theme === 'dark' ? 'bg-slate-800 hover:bg-slate-700' : 'bg-white hover:bg-slate-50 border border-slate-100'}`}
           >
@@ -152,6 +235,7 @@ const GameHub: React.FC<GameHubProps> = ({ onClose }) => {
           </button>
 
           <button
+            type="button"
             onClick={() => setSelectedGame('whosthat')}
             className={`relative p-4 sm:p-6 rounded-xl shadow-lg transition-all hover:scale-[1.02] flex flex-col items-center justify-center gap-2 sm:gap-3 ${theme === 'dark' ? 'bg-slate-800 hover:bg-slate-700' : 'bg-white hover:bg-slate-50 border border-slate-100'}`}
           >
@@ -166,6 +250,7 @@ const GameHub: React.FC<GameHubProps> = ({ onClose }) => {
           </button>
 
           <button
+            type="button"
             onClick={() => setSelectedGame('flavor')}
             className={`relative p-4 sm:p-6 rounded-xl shadow-lg transition-all hover:scale-[1.02] flex flex-col items-center justify-center gap-2 sm:gap-3 ${theme === 'dark' ? 'bg-slate-800 hover:bg-slate-700' : 'bg-white hover:bg-slate-50 border border-slate-100'}`}
           >
@@ -180,6 +265,7 @@ const GameHub: React.FC<GameHubProps> = ({ onClose }) => {
           </button>
 
           <button
+            type="button"
             onClick={() => setSelectedGame('cry')}
             className={`relative p-4 sm:p-6 rounded-xl shadow-lg transition-all hover:scale-[1.02] flex flex-col items-center justify-center gap-2 sm:gap-3 ${theme === 'dark' ? 'bg-slate-800 hover:bg-slate-700' : 'bg-white hover:bg-slate-50 border border-slate-100'}`}
           >
@@ -194,6 +280,7 @@ const GameHub: React.FC<GameHubProps> = ({ onClose }) => {
           </button>
 
           <button
+            type="button"
             onClick={() => setSelectedGame('stat')}
             className={`relative p-4 sm:p-6 rounded-xl shadow-lg transition-all hover:scale-[1.02] flex flex-col items-center justify-center gap-2 sm:gap-3 ${theme === 'dark' ? 'bg-slate-800 hover:bg-slate-700' : 'bg-white hover:bg-slate-50 border border-slate-100'}`}
           >
@@ -208,6 +295,7 @@ const GameHub: React.FC<GameHubProps> = ({ onClose }) => {
           </button>
 
           <button
+            type="button"
             onClick={() => setSelectedGame('move')}
             className={`relative p-4 sm:p-6 rounded-xl shadow-lg transition-all hover:scale-[1.02] flex flex-col items-center justify-center gap-2 sm:gap-3 ${theme === 'dark' ? 'bg-slate-800 hover:bg-slate-700' : 'bg-white hover:bg-slate-50 border border-slate-100'}`}
           >
@@ -222,6 +310,7 @@ const GameHub: React.FC<GameHubProps> = ({ onClose }) => {
           </button>
 
           <button
+            type="button"
             onClick={() => setSelectedGame('item')}
             className={`relative p-4 sm:p-6 rounded-xl shadow-lg transition-all hover:scale-[1.02] flex flex-col items-center justify-center gap-2 sm:gap-3 ${theme === 'dark' ? 'bg-slate-800 hover:bg-slate-700' : 'bg-white hover:bg-slate-50 border border-slate-100'}`}
           >
@@ -236,6 +325,7 @@ const GameHub: React.FC<GameHubProps> = ({ onClose }) => {
           </button>
 
           <button
+            type="button"
             onClick={() => setSelectedGame('trainer')}
             className={`relative p-4 sm:p-6 rounded-xl shadow-lg transition-all hover:scale-[1.02] flex flex-col items-center justify-center gap-2 sm:gap-3 ${theme === 'dark' ? 'bg-slate-800 hover:bg-slate-700' : 'bg-white hover:bg-slate-50 border border-slate-100'}`}
           >

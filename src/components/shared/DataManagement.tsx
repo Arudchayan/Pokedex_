@@ -4,13 +4,7 @@ import { usePokemonStore } from '../../store/usePokemonStore';
 import { useToast } from '../../context/ToastContext';
 import { useAchievements } from '../../context/AchievementContext';
 import { buildPersistenceData, isPersistenceData } from '../../utils/persistenceSchema';
-import {
-  validateTeamMember,
-  getSavedTeamList,
-  saveTeamList,
-  validateSavedTeam,
-  SavedTeam,
-} from '../../utils/teamStorage';
+import { validateTeamMember, validateSavedTeam, SavedTeam } from '../../utils/teamStorage';
 import { importFromShowdown } from '../../utils/teamExport';
 import { saveFavorites } from '../../utils/favorites';
 import { MAX_INPUT_LENGTH } from '../../utils/securityUtils';
@@ -39,7 +33,7 @@ const DataManagement: React.FC<DataManagementProps> = ({ onClose }) => {
   const [showdownImportText, setShowdownImportText] = useState('');
   const [importTeamName, setImportTeamName] = useState('Imported Team');
 
-  const handleGenerateLink = () => {
+  const handleGenerateLink = async () => {
     try {
       if (team.length === 0) {
         addToast('Team is empty. Add Pokemon to share.', 'error');
@@ -52,15 +46,19 @@ const DataManagement: React.FC<DataManagementProps> = ({ onClose }) => {
       const finalUrl = url.toString();
       setShareLink(finalUrl);
 
-      navigator.clipboard.writeText(finalUrl);
-      addToast('Link generated and copied to clipboard!', 'success');
+      try {
+        await navigator.clipboard.writeText(finalUrl);
+        addToast('Link generated and copied to clipboard!', 'success');
+      } catch {
+        addToast('Link generated. Copy it manually from the box below.', 'info');
+      }
     } catch (_e) {
       addToast('Failed to generate link.', 'error');
     }
   };
 
   const handleExport = () => {
-    const savedTeams = getSavedTeamList();
+    const savedTeams = usePokemonStore.getState().savedTeams;
     const data = buildPersistenceData({ team, favorites, savedTeams, theme });
     const json = JSON.stringify(data, null, 2);
 
@@ -71,6 +69,7 @@ const DataManagement: React.FC<DataManagementProps> = ({ onClose }) => {
     link.href = url;
     link.download = `pokedex_data_${new Date().toISOString().slice(0, 10)}.json`;
     link.click();
+    URL.revokeObjectURL(url);
 
     addToast('Data exported successfully!', 'success');
   };
@@ -132,7 +131,7 @@ const DataManagement: React.FC<DataManagementProps> = ({ onClose }) => {
       }
 
       if (data.savedTeams && Array.isArray(data.savedTeams)) {
-        const currentSavedTeams = getSavedTeamList();
+        const currentSavedTeams = usePokemonStore.getState().savedTeams;
         const existingIds = new Set(currentSavedTeams.map((t) => t.id));
         const importedTeams: SavedTeam[] = [];
 
@@ -148,7 +147,7 @@ const DataManagement: React.FC<DataManagementProps> = ({ onClose }) => {
         });
 
         if (importedTeams.length > 0) {
-          saveTeamList([...currentSavedTeams, ...importedTeams]);
+          usePokemonStore.getState().setSavedTeams([...currentSavedTeams, ...importedTeams]);
         }
 
         setImportSummary({
@@ -206,9 +205,8 @@ const DataManagement: React.FC<DataManagementProps> = ({ onClose }) => {
         updatedAt: Date.now(),
       };
 
-      // Save
-      const currentSavedTeams = getSavedTeamList();
-      saveTeamList([...currentSavedTeams, newSavedTeam]);
+      // Save into Zustand-persisted savedTeams (single source of truth)
+      usePokemonStore.getState().saveTeamEntry(newSavedTeam);
 
       unlockAchievement('data_hoarder');
       addToast(`Successfully saved "${newSavedTeam.name}" to My Teams!`, 'success');
