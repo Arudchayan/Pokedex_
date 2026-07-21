@@ -127,4 +127,28 @@ describe('reducePokemonStoreTeam customizations', () => {
       undefined
     );
   });
+
+  it('dedupes species ids when setting a team', () => {
+    const memberA: TeamMember = {
+      ...basePokemon(25, 'pikachu'),
+      selectedNature: 'Timid',
+    };
+    const memberB: TeamMember = {
+      ...basePokemon(25, 'pikachu'),
+      selectedNature: 'Jolly',
+    };
+
+    const next = reducePokemonStoreTeam(
+      emptyState(),
+      { type: 'SET_TEAM', payload: [memberA, memberB] },
+      ctx
+    );
+
+    expect(next).toMatchObject({
+      team: [25],
+      teamCustomizations: {
+        25: { selectedNature: 'Timid' },
+      },
+    });
+  });
 });

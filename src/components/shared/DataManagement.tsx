@@ -33,7 +33,7 @@ const DataManagement: React.FC<DataManagementProps> = ({ onClose }) => {
   const [showdownImportText, setShowdownImportText] = useState('');
   const [importTeamName, setImportTeamName] = useState('Imported Team');
 
-  const handleGenerateLink = () => {
+  const handleGenerateLink = async () => {
     try {
       if (team.length === 0) {
         addToast('Team is empty. Add Pokemon to share.', 'error');
@@ -46,8 +46,12 @@ const DataManagement: React.FC<DataManagementProps> = ({ onClose }) => {
       const finalUrl = url.toString();
       setShareLink(finalUrl);
 
-      navigator.clipboard.writeText(finalUrl);
-      addToast('Link generated and copied to clipboard!', 'success');
+      try {
+        await navigator.clipboard.writeText(finalUrl);
+        addToast('Link generated and copied to clipboard!', 'success');
+      } catch {
+        addToast('Link generated. Copy it manually from the box below.', 'info');
+      }
     } catch (_e) {
       addToast('Failed to generate link.', 'error');
     }
@@ -65,6 +69,7 @@ const DataManagement: React.FC<DataManagementProps> = ({ onClose }) => {
     link.href = url;
     link.download = `pokedex_data_${new Date().toISOString().slice(0, 10)}.json`;
     link.click();
+    URL.revokeObjectURL(url);
 
     addToast('Data exported successfully!', 'success');
   };

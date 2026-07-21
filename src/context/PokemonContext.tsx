@@ -38,7 +38,6 @@ const usePokemonQuerySync = () => {
 
   const reload = useCallback(async () => {
     await refetch();
-    usePokemonStore.getState().setFavorites(getFavorites());
   }, [refetch]);
 
   useEffect(() => {
@@ -46,6 +45,9 @@ const usePokemonQuerySync = () => {
   }, [reload]);
 
   useEffect(() => {
+    // One-time legacy migration: only seed from pokedex_favorites when Zustand has none.
+    const current = usePokemonStore.getState().favorites;
+    if (current.size > 0) return;
     const storedFavorites = getFavorites();
     if (storedFavorites.size > 0) {
       usePokemonStore.getState().setFavorites(storedFavorites);

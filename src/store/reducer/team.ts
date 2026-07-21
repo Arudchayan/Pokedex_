@@ -63,8 +63,6 @@ export function reducePokemonStoreTeam(
           ...state.teamCustomizations,
           [id]: mergeTeamCustomization(state.teamCustomizations[id], updates),
         },
-        history: pushHistory(state.history, state.team, ctx.maxHistory),
-        future: [],
       };
     }
 
@@ -99,9 +97,15 @@ export function reducePokemonStoreTeam(
 
     case 'SET_TEAM': {
       const limited = action.payload.slice(0, ctx.teamCapacity);
-      const teamIds = limited.map((p) => p.id);
+      const seen = new Set<number>();
+      const uniqueMembers = limited.filter((member) => {
+        if (seen.has(member.id)) return false;
+        seen.add(member.id);
+        return true;
+      });
+      const teamIds = uniqueMembers.map((p) => p.id);
       const teamCustomizations: PokemonState['teamCustomizations'] = {};
-      for (const member of limited) {
+      for (const member of uniqueMembers) {
         const customization = extractTeamCustomization(member);
         if (customization) teamCustomizations[member.id] = customization;
       }

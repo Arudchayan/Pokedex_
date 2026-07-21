@@ -18,11 +18,23 @@ export async function queryPokeAPI<T>(
 ): Promise<T> {
   try {
     const timeoutSignal = AbortSignal.timeout(env.apiTimeout);
-    const combinedSignal = options.signal
-      ? AbortSignal.any
-        ? AbortSignal.any([options.signal, timeoutSignal])
-        : options.signal
-      : timeoutSignal;
+    let combinedSignal: AbortSignal = timeoutSignal;
+    if (options.signal) {
+      if (typeof AbortSignal.any === 'function') {
+        combinedSignal = AbortSignal.any([options.signal, timeoutSignal]);
+      } else {
+        // Fallback for environments without AbortSignal.any: abort on either signal.
+        const controller = new AbortController();
+        const abortFromEither = () => controller.abort();
+        if (options.signal.aborted || timeoutSignal.aborted) {
+          controller.abort();
+        } else {
+          options.signal.addEventListener('abort', abortFromEither, { once: true });
+          timeoutSignal.addEventListener('abort', abortFromEither, { once: true });
+        }
+        combinedSignal = controller.signal;
+      }
+    }
     const response = await fetch(POKEAPI_GRAPHQL_URL, {
       method: 'POST',
       headers: {

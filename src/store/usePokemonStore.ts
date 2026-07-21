@@ -15,6 +15,7 @@ import type {
 } from './pokemonStoreTypes';
 import { reducePokemonStore } from './pokemonStoreReducer';
 import { validateSavedTeam } from '../utils/teamStorage';
+import { sanitizeFavoriteIds } from '../utils/favorites';
 import {
   extractTeamCustomization,
   type TeamMemberCustomization,
@@ -211,8 +212,8 @@ function normalizeTeamCustomizations(
 }
 
 function normalizeFavorites(value: unknown, fallback: Set<number>): Set<number> {
-  if (value instanceof Set) return value;
-  if (Array.isArray(value)) return new Set(value.filter((n) => typeof n === 'number'));
+  if (value instanceof Set) return sanitizeFavoriteIds(value);
+  if (Array.isArray(value)) return sanitizeFavoriteIds(value);
   return fallback;
 }
 
