@@ -6,10 +6,7 @@ import {
   pokemonDetailsQueryKey,
   POKEMON_DETAILS_STALE_TIME,
 } from '../../services/pokemonDetailsQuery';
-import {
-  pokemonMovesQueryKey,
-  POKEMON_MOVES_STALE_TIME,
-} from '../../services/pokemonMovesQuery';
+import { pokemonMovesQueryKey, POKEMON_MOVES_STALE_TIME } from '../../services/pokemonMovesQuery';
 import Loader from './Loader';
 import StatBar from '../charts/StatBar';
 import FormSelector from '../pokemon/FormSelector';
@@ -175,10 +172,7 @@ const PokemonDetailView: React.FC<PokemonDetailViewProps> = ({
 
     const closeButton = dialog.querySelector<HTMLElement>('button[aria-label="Close"]');
     const timer = window.setTimeout(() => {
-      (closeButton && isVisibleFocusable(closeButton)
-        ? closeButton
-        : getFocusable()[0]
-      )?.focus();
+      (closeButton && isVisibleFocusable(closeButton) ? closeButton : getFocusable()[0])?.focus();
     }, 50);
 
     return () => {

@@ -71,9 +71,7 @@ export const DailyGameResultBanner: React.FC<DailyGameResultBannerProps> = ({
   <div
     className={`p-6 rounded-xl text-center w-full ${gameState === 'won' ? 'bg-green-500/20 border-green-500' : 'bg-red-500/20 border-red-500'} border-2`}
   >
-    <h3 className="text-2xl font-black mb-2">
-      {gameState === 'won' ? 'Correct!' : 'Game Over!'}
-    </h3>
+    <h3 className="text-2xl font-black mb-2">{gameState === 'won' ? 'Correct!' : 'Game Over!'}</h3>
     <div className="flex flex-col items-center gap-4">
       <img src={imageUrl} className={imageClassName} alt={name} />
       <div className="text-xl font-bold capitalize">{name}</div>

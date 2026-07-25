@@ -68,10 +68,7 @@ export function useHover<T extends HTMLElement = HTMLElement>(
  * };
  * ```
  */
-export function useHoverRef<T extends HTMLElement = HTMLElement>(): [
-  RefObject<T | null>,
-  boolean,
-] {
+export function useHoverRef<T extends HTMLElement = HTMLElement>(): [RefObject<T | null>, boolean] {
   const ref = useRef<T>(null);
   const isHovered = useHover(ref);
   return [ref, isHovered];
