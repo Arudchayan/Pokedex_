@@ -1,9 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { get, clear } from 'idb-keyval';
-import {
-  fetchEncounterLocations,
-  getEncounterCacheMaxEntries,
-} from './pokeapiService';
+import { fetchEncounterLocations, getEncounterCacheMaxEntries } from './pokeapiService';
 
 describe('pokeapiService encounter cache LRU', () => {
   beforeEach(async () => {
