@@ -1,6 +1,6 @@
 import React, { useEffect, useCallback } from 'react';
 import { Toast as ToastType } from '../../context/ToastContext';
-import { usePokemon } from '../../context/PokemonContext';
+import { usePokemonUI } from '../../context/PokemonContext';
 
 interface ToastProps {
   toast: ToastType;
@@ -8,14 +8,14 @@ interface ToastProps {
 }
 
 const Toast: React.FC<ToastProps> = ({ toast, onRemove }) => {
-  const { theme } = usePokemon();
+  const { theme } = usePokemonUI();
 
-  // Escape key to dismiss
+  // Escape dismisses toast only when no modal dialog is open (modals own Escape)
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        onRemove(toast.id);
-      }
+      if (e.key !== 'Escape') return;
+      if (document.querySelector('[role="dialog"][aria-modal="true"]')) return;
+      onRemove(toast.id);
     },
     [onRemove, toast.id]
   );

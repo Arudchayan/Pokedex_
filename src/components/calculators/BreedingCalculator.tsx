@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { usePokemon } from '../../context/PokemonContext';
-import { fetchPokemonDetails } from '../../services/pokeapiService';
+import { fetchPokemonDetailsQuery } from '../../services/pokemonDetailsQuery';
+import { fetchPokemonMovesQuery } from '../../services/pokemonMovesQuery';
 import { PokemonDetails } from '../../types';
 import {
   calculateBreedingCompatibility,
@@ -17,6 +19,7 @@ interface BreedingCalculatorProps {
 
 const BreedingCalculator: React.FC<BreedingCalculatorProps> = ({ onClose }) => {
   const { masterPokemonList, theme } = usePokemon();
+  const queryClient = useQueryClient();
 
   // Parent State
   const [parentA, setParentA] = useState<PokemonDetails | null>(null);
@@ -40,15 +43,17 @@ const BreedingCalculator: React.FC<BreedingCalculatorProps> = ({ onClose }) => {
 
   // Load Parent Data
   const loadParent = async (id: number, isA: boolean) => {
-    const details = await fetchPokemonDetails(id);
+    const details = await fetchPokemonDetailsQuery(queryClient, id);
     if (details) {
+      const moves = await fetchPokemonMovesQuery(queryClient, details.id);
+      const withMoves = { ...details, moves };
       if (isA) {
-        setParentA(details);
+        setParentA(withMoves);
         const genders = getPossibleGenders(details.genderRate);
         setGenderA(genders[0]);
         setSearchA('');
       } else {
-        setParentB(details);
+        setParentB(withMoves);
         const genders = getPossibleGenders(details.genderRate);
         setGenderB(genders.length > 1 ? genders[1] : genders[0]); // Default to opposite if possible
         setSearchB('');
@@ -74,15 +79,18 @@ const BreedingCalculator: React.FC<BreedingCalculatorProps> = ({ onClose }) => {
         setOffspringDetails(parentB);
       } else {
         setLoadingOffspring(true);
-        fetchPokemonDetails(result.offspringId).then((d) => {
-          setOffspringDetails(d);
+        Promise.all([
+          fetchPokemonDetailsQuery(queryClient, result.offspringId),
+          fetchPokemonMovesQuery(queryClient, result.offspringId),
+        ]).then(([d, moves]) => {
+          setOffspringDetails(d ? { ...d, moves } : null);
           setLoadingOffspring(false);
         });
       }
     } else {
       setOffspringDetails(null);
     }
-  }, [result, parentA, parentB]);
+  }, [result, parentA, parentB, queryClient]);
 
   const filteredListA = useMemo(
     () =>

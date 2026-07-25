@@ -71,7 +71,7 @@ export function calculateShinyOdds(
   if (!method) return { odds: 0, text: 'Unknown Method' };
 
   let odds = method.odds;
-  let rolls = 1;
+  let _rolls = 1;
 
   // Base odds adjustments based on method
   // Note: This is a simplification. Actual mechanics are rolls.

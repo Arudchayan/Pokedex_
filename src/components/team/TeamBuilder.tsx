@@ -1,4 +1,4 @@
-import React, { useMemo, useState, memo, useCallback, useEffect, Suspense, useRef } from 'react';
+import React, { useMemo, useState, memo, useEffect, Suspense, useRef } from 'react';
 import { TeamMember, PokemonListItem } from '../../types';
 import TypeBadge from '../charts/TypeBadge';
 import SpeedTierAnalysis from '../calculators/SpeedTierAnalysis';
@@ -513,7 +513,7 @@ const TeamBuilder: React.FC<TeamBuilderProps> = ({
                       {(Object.entries(teamWeaknesses) as Array<[string, number]>)
                         .sort(([, a], [, b]) => b - a)
                         .slice(0, 5)
-                        .map(([type, count]) => (
+                        .map(([type, _count]) => (
                           <TypeBadge key={type} type={type} />
                         ))}
                     </div>
@@ -533,7 +533,7 @@ const TeamBuilder: React.FC<TeamBuilderProps> = ({
                       {(Object.entries(teamResistances) as Array<[string, number]>)
                         .sort(([, a], [, b]) => b - a)
                         .slice(0, 5)
-                        .map(([type, count]) => (
+                        .map(([type, _count]) => (
                           <TypeBadge key={type} type={type} />
                         ))}
                     </div>

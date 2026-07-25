@@ -59,7 +59,11 @@ const SortingControls: React.FC<SortingControlsProps> = ({
 
   return (
     <div className="flex flex-wrap gap-2 sm:gap-3 items-center w-full sm:w-auto">
-      <div className="flex items-center gap-2 w-full sm:w-auto overflow-x-auto scrollbar-hide" role="group" aria-labelledby="sort-label">
+      <div
+        className="flex items-center gap-2 w-full sm:w-auto overflow-x-auto scrollbar-hide"
+        role="group"
+        aria-labelledby="sort-label"
+      >
         <label
           id="sort-label"
           className={`text-xs sm:text-sm font-semibold whitespace-nowrap flex-shrink-0 ${theme === 'dark' ? 'text-slate-300' : 'text-slate-600'}`}
@@ -132,7 +136,9 @@ const SortingControls: React.FC<SortingControlsProps> = ({
 
       <div className="flex items-center gap-3">
         <div className="flex items-center gap-2" aria-label="Dex order">
-          <span className={`text-sm font-semibold ${theme === 'dark' ? 'text-slate-300' : 'text-slate-600'}`}>
+          <span
+            className={`text-sm font-semibold ${theme === 'dark' ? 'text-slate-300' : 'text-slate-600'}`}
+          >
             Dex:
           </span>
           <select
@@ -160,7 +166,9 @@ const SortingControls: React.FC<SortingControlsProps> = ({
               <option
                 key={option.value}
                 value={option.value}
-                className={theme === 'dark' ? 'bg-slate-800 text-slate-300' : 'bg-white text-slate-700'}
+                className={
+                  theme === 'dark' ? 'bg-slate-800 text-slate-300' : 'bg-white text-slate-700'
+                }
               >
                 {option.label}
               </option>
@@ -169,45 +177,45 @@ const SortingControls: React.FC<SortingControlsProps> = ({
         </div>
 
         <button
-        type="button"
-        onClick={() => onOrderChange(sortOrder === 'asc' ? 'desc' : 'asc')}
-        className={`p-2 rounded-lg transition-all focus:outline-none focus:ring-2 focus:ring-primary-500 ${
-          theme === 'dark'
-            ? 'bg-white/5 border border-white/10 hover:bg-white/10'
-            : 'bg-slate-100 border border-slate-200 hover:bg-slate-200'
-        }`}
-        title={`Sort ${sortOrder === 'asc' ? 'Descending' : 'Ascending'}`}
-        aria-label={`Switch to ${sortOrder === 'asc' ? 'descending' : 'ascending'} sort`}
-      >
-        {sortOrder === 'asc' ? (
-          <svg
-            className={`w-5 h-5 ${theme === 'dark' ? 'text-slate-300' : 'text-slate-600'}`}
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M7 11l5-5m0 0l5 5m-5-5v12"
-            />
-          </svg>
-        ) : (
-          <svg
-            className={`w-5 h-5 ${theme === 'dark' ? 'text-slate-300' : 'text-slate-600'}`}
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M17 13l-5 5m0 0l-5-5m5 5V6"
-            />
-          </svg>
-        )}
+          type="button"
+          onClick={() => onOrderChange(sortOrder === 'asc' ? 'desc' : 'asc')}
+          className={`p-2 rounded-lg transition-all focus:outline-none focus:ring-2 focus:ring-primary-500 ${
+            theme === 'dark'
+              ? 'bg-white/5 border border-white/10 hover:bg-white/10'
+              : 'bg-slate-100 border border-slate-200 hover:bg-slate-200'
+          }`}
+          title={`Sort ${sortOrder === 'asc' ? 'Descending' : 'Ascending'}`}
+          aria-label={`Switch to ${sortOrder === 'asc' ? 'descending' : 'ascending'} sort`}
+        >
+          {sortOrder === 'asc' ? (
+            <svg
+              className={`w-5 h-5 ${theme === 'dark' ? 'text-slate-300' : 'text-slate-600'}`}
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M7 11l5-5m0 0l5 5m-5-5v12"
+              />
+            </svg>
+          ) : (
+            <svg
+              className={`w-5 h-5 ${theme === 'dark' ? 'text-slate-300' : 'text-slate-600'}`}
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M17 13l-5 5m0 0l-5-5m5 5V6"
+              />
+            </svg>
+          )}
         </button>
       </div>
     </div>

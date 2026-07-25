@@ -5,7 +5,7 @@ import { useEffect, RefObject } from 'react';
  * Useful for closing dropdowns, modals, etc.
  */
 export function useClickOutside<T extends HTMLElement = HTMLElement>(
-  ref: RefObject<T>,
+  ref: RefObject<T | null>,
   handler: (event: MouseEvent | TouchEvent) => void,
   enabled: boolean = true
 ): void {

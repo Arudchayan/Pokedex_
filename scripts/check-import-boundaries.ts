@@ -12,6 +12,12 @@ type Layer =
   | 'services'
   | 'utils'
   | 'types'
+  | 'hooks'
+  | 'workers'
+  | 'pets'
+  | 'graphql'
+  | 'config'
+  | 'design-system'
   | 'other';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -47,6 +53,12 @@ function layerForFile(absPath: string): Layer {
   if (rel.startsWith('services/')) return 'services';
   if (rel.startsWith('utils/')) return 'utils';
   if (rel.startsWith('types/')) return 'types';
+  if (rel.startsWith('hooks/')) return 'hooks';
+  if (rel.startsWith('workers/')) return 'workers';
+  if (rel.startsWith('pets/')) return 'pets';
+  if (rel.startsWith('graphql/')) return 'graphql';
+  if (rel.startsWith('config/')) return 'config';
+  if (rel.startsWith('design-system/')) return 'design-system';
   return 'other';
 }
 
@@ -86,18 +98,41 @@ function resolveImport(fromFile: string, spec: string): string | null {
 
 const disallow: Record<Layer, Layer[]> = {
   // Store should be pure state + reducers, never UI/integration.
-  store: ['components', 'app', 'context', 'services'],
+  store: ['components', 'app', 'context', 'services', 'hooks', 'pets', 'graphql', 'workers'],
 
   // Domain should be pure logic, no UI or integration.
-  domain: ['components', 'app', 'context', 'services'],
+  domain: [
+    'components',
+    'app',
+    'context',
+    'services',
+    'hooks',
+    'pets',
+    'graphql',
+    'workers',
+    'config',
+    'design-system',
+  ],
+
+  // Workers: compute-only (domain/types/utils OK).
+  workers: ['components', 'app', 'context', 'services', 'hooks', 'pets', 'graphql'],
+
+  // Utils stay free of UI layers.
+  utils: ['components', 'app', 'context', 'hooks', 'pets'],
+
+  // Components talk to data via services/hooks, not raw GraphQL docs/types.
+  components: ['graphql'],
 
   // Integration layers can depend on domain/store/etc.
   context: [],
   app: [],
-  components: [],
   services: [],
-  utils: [],
   types: [],
+  hooks: [],
+  pets: [],
+  graphql: [],
+  config: [],
+  'design-system': [],
   other: [],
 };
 

@@ -71,11 +71,13 @@ const GenSpriteSelector: React.FC<GenSpriteSelectorProps> = ({
               </optgroup>
             ))}
             <optgroup label="Special">
-              {generations.filter(g => !g.startsWith('Gen ')).map((gen) => (
-                <option key={gen} value={gen}>
-                  {gen}
-                </option>
-              ))}
+              {generations
+                .filter((g) => !g.startsWith('Gen '))
+                .map((gen) => (
+                  <option key={gen} value={gen}>
+                    {gen}
+                  </option>
+                ))}
             </optgroup>
           </select>
         </div>

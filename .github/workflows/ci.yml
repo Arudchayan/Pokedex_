@@ -65,6 +65,9 @@ jobs:
       - name: Import boundaries
         run: npm run check:boundaries
 
+      - name: Domain test coverage gate
+        run: npm run check:domain-tests
+
       - name: Unit tests
         run: npm test
 

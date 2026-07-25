@@ -3,7 +3,7 @@ import { usePokemonStore } from '../../store/usePokemonStore';
 import { PokemonListItem } from '../../types';
 
 describe('PokemonStore', () => {
-  const createPokemon = (id: number, name: string): PokemonListItem =>
+  const _createPokemon = (id: number, name: string): PokemonListItem =>
     ({
       id,
       name,

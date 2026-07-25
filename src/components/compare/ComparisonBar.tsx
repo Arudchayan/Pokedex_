@@ -12,7 +12,7 @@ const ComparisonBar: React.FC = () => {
 
   return (
     <aside
-      className={`fixed bottom-0 left-0 right-0 z-[100] border-t p-4 transition-all duration-300 ${
+      className={`fixed bottom-0 left-0 right-0 z-[100] border-t px-4 pt-4 pb-[max(1rem,env(safe-area-inset-bottom,0px))] transition-all duration-300 ${
         theme === 'dark'
           ? 'bg-slate-900/95 border-white/10 text-white shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.5)]'
           : 'bg-white/95 border-slate-200 text-slate-900 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]'

@@ -2,38 +2,23 @@ import React from 'react';
 import { screen, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import AbilityDex from './AbilityDex';
-import { renderWithProvider } from '../../test/utils';
+import { renderWithProvider, setPokeapiServiceMock } from '../../test/utils';
 
-// Mock fetch for the specific GraphQL query
-const mockAbilities = {
-  data: {
-    pokemon_v2_ability: [
-      {
-        id: 1,
-        name: 'stench',
-        pokemon_v2_abilityeffecttexts: [{ effect: 'Helps repel wild Pokemon.' }],
-      },
-      {
-        id: 2,
-        name: 'drizzle',
-        pokemon_v2_abilityeffecttexts: [{ effect: 'Summons rain.' }],
-      },
-    ],
-  },
-};
+const mockAbilities = [
+  { name: 'stench', effect: 'Helps repel wild Pokemon.' },
+  { name: 'drizzle', effect: 'Summons rain.' },
+];
 
 describe('AbilityDex', () => {
   const onClose = vi.fn();
 
   beforeEach(() => {
-    global.fetch = vi.fn().mockResolvedValue({
-      ok: true,
-      json: () => Promise.resolve(mockAbilities),
-    } as Response);
+    setPokeapiServiceMock({ fetchAbilityDex: mockAbilities });
   });
 
   afterEach(() => {
-    vi.restoreAllMocks();
+    setPokeapiServiceMock();
+    vi.clearAllMocks();
   });
 
   it('renders correctly and loads data', async () => {

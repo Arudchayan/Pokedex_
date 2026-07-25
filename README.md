@@ -6,7 +6,7 @@
 [![PWA](https://img.shields.io/badge/PWA-Ready-green?logo=pwa)](https://web.dev/progressive-web-apps/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-A modern Pokédex web app with team building, battle calculator, mini-games, and complete reference data.
+A modern Pokédex web app with team building, damage calculator, mini-games, and complete reference data.
 
 **[🔴 Live Demo](https://pokedex.arudchayan.com/)**
 
@@ -36,7 +36,7 @@ A modern Pokédex web app with team building, battle calculator, mini-games, and
 
 ![Team Builder](assets/screenshots/team-builder.png)
 
-### Battle Calculator
+### Damage Calculator
 
 - **Advanced Damage Calculator**: Simulate battles with real stats
 - **Customization**: Adjust EVs (0-252), IVs (0-31), natures, and held items
@@ -95,7 +95,7 @@ cd graphql-pokedex
 # Install dependencies
 npm install
 
-# Start dev server (http://localhost:5173)
+# Start dev server (http://localhost:3000)
 npm run dev
 
 # Build for production
@@ -114,7 +114,7 @@ npm run preview      # Preview production build
 npm run test         # Run unit tests
 npm run test:watch   # Run tests in watch mode
 npm run typecheck    # TypeScript type checking
-npm run check        # Full validation (types + tests + build)
+npm run check        # Full validation (types + lint + boundaries + tests + build)
 npm run codegen      # Generate GraphQL types
 ```
 
@@ -139,7 +139,7 @@ src/
 
 - **Web Workers**: Offloads filtering to background threads
 - **Virtual Scrolling**: Renders only visible cards
-- **Code Splitting**: Route-based lazy loading
+- **Code Splitting**: Modal-based lazy loading for tools and detail views
 - **PWA Caching**: Offline-first with service worker
 - **Memoization**: Optimized re-renders with React.memo and useMemo
 - **IndexedDB**: Fast local persistence

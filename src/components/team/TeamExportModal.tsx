@@ -27,9 +27,13 @@ const TeamExportModal: React.FC<TeamExportModalProps> = ({ isOpen, onClose, team
     };
   }, []);
 
-  const handleCopy = () => {
-    navigator.clipboard.writeText(exportText);
-    addToast('Copied to clipboard!', 'success');
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(exportText);
+      addToast('Copied to clipboard!', 'success');
+    } catch {
+      addToast('Could not copy automatically. Select the text and copy manually.', 'info');
+    }
   };
 
   const handleImport = () => {

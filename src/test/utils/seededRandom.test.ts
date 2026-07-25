@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import { mulberry32, dateToSeed } from '../../utils/seededRandom';
 
 describe('Seeded Random', () => {

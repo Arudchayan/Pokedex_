@@ -1,7 +1,15 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef, useId } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { PokemonDetails, PokemonForm, PokemonListItem } from '../../types';
-import { fetchPokemonDetails } from '../../services/pokeapiService';
+import { PokemonForm, PokemonListItem } from '../../types';
+import { fetchPokemonDetails, fetchPokemonMoves } from '../../services/pokeapiService';
+import {
+  pokemonDetailsQueryKey,
+  POKEMON_DETAILS_STALE_TIME,
+} from '../../services/pokemonDetailsQuery';
+import {
+  pokemonMovesQueryKey,
+  POKEMON_MOVES_STALE_TIME,
+} from '../../services/pokemonMovesQuery';
 import Loader from './Loader';
 import StatBar from '../charts/StatBar';
 import FormSelector from '../pokemon/FormSelector';
@@ -14,8 +22,10 @@ import InfoPill from '../pokemon-detail/InfoPill';
 import MovesSection from '../pokemon-detail/MovesSection';
 import TypeDefenseSection from '../pokemon-detail/TypeDefenseSection';
 import EncountersTab from '../pokemon-detail/EncountersTab';
-import { TYPE_COLORS, TYPE_RELATIONS, TYPE_COLORS_HEX } from '../../constants';
+import { TYPE_COLORS_HEX } from '../../constants';
+import { calculateTypeEffectiveness } from '../../domain/typeEffectiveness';
 import { usePokemon } from '../../context/PokemonContext';
+import { DEFAULT_DOCUMENT_TITLE } from '../../hooks/usePokemonDetailSharer';
 
 interface PokemonDetailViewProps {
   pokemonId: number;
@@ -34,33 +44,6 @@ interface PokemonDetailViewProps {
   teamIsFull?: boolean;
 }
 
-interface TypeEffectiveness {
-  [multiplier: string]: string[];
-}
-
-const calculateTypeEffectiveness = (types: string[]): TypeEffectiveness => {
-  const effectiveness: { [type: string]: number } = {};
-  const allTypes = Object.keys(TYPE_RELATIONS);
-
-  allTypes.forEach((attackType) => {
-    let multiplier = 1;
-    types.forEach((defenseType) => {
-      multiplier *= TYPE_RELATIONS[attackType][defenseType] ?? 1;
-    });
-    effectiveness[attackType] = multiplier;
-  });
-
-  const grouped: TypeEffectiveness = {};
-  Object.entries(effectiveness).forEach(([type, multiplier]) => {
-    const key = multiplier.toString();
-    if (!grouped[key]) {
-      grouped[key] = [];
-    }
-    grouped[key].push(type);
-  });
-  return grouped;
-};
-
 const PokemonDetailView: React.FC<PokemonDetailViewProps> = ({
   pokemonId,
   onClose,
@@ -77,6 +60,9 @@ const PokemonDetailView: React.FC<PokemonDetailViewProps> = ({
   isInTeam = false,
   teamIsFull = false,
 }) => {
+  const titleId = useId();
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const previousFocusRef = useRef<Element | null>(null);
   const { theme, isShiny: globalShiny } = usePokemon();
   const [selectedForm, setSelectedForm] = useState<PokemonForm | null>(null);
   const [showShiny, setShowShiny] = useState(false);
@@ -90,9 +76,21 @@ const PokemonDetailView: React.FC<PokemonDetailViewProps> = ({
     isLoading: loading,
     error: queryError,
   } = useQuery({
-    queryKey: ['pokemonDetails', pokemonId],
+    queryKey: pokemonDetailsQueryKey(pokemonId),
     queryFn: () => fetchPokemonDetails(pokemonId),
-    staleTime: 24 * 60 * 60 * 1000,
+    staleTime: POKEMON_DETAILS_STALE_TIME,
+  });
+
+  const movesPokemonId = pokemon?.id ?? pokemonId;
+  const {
+    data: moves = [],
+    isLoading: movesLoading,
+    isFetching: movesFetching,
+  } = useQuery({
+    queryKey: pokemonMovesQueryKey(movesPokemonId),
+    queryFn: () => fetchPokemonMoves(movesPokemonId),
+    enabled: isMovesExpanded && !!pokemon,
+    staleTime: POKEMON_MOVES_STALE_TIME,
   });
 
   const error = queryError
@@ -100,6 +98,109 @@ const PokemonDetailView: React.FC<PokemonDetailViewProps> = ({
     : pokemon === null && !loading
       ? 'Could not find details for this Pokemon.'
       : null;
+
+  // Capture / restore focus when the detail dialog mounts
+  useEffect(() => {
+    previousFocusRef.current = document.activeElement;
+    return () => {
+      const el = previousFocusRef.current;
+      if (el instanceof HTMLElement) {
+        el.focus();
+      }
+    };
+  }, []);
+
+  // Keep keyboard handlers current without re-binding the trap / re-autofocusing
+  const onCloseRef = useRef(onClose);
+  const onNextRef = useRef(onNext);
+  const onPreviousRef = useRef(onPrevious);
+  onCloseRef.current = onClose;
+  onNextRef.current = onNext;
+  onPreviousRef.current = onPrevious;
+
+  // Document-level Escape + arrow navigation; Tab focus trap; autofocus close once
+  useEffect(() => {
+    const dialog = dialogRef.current;
+    if (!dialog) return;
+
+    const isVisibleFocusable = (el: Element): el is HTMLElement => {
+      if (!(el instanceof HTMLElement)) return false;
+      if ('disabled' in el && Boolean((el as HTMLButtonElement).disabled)) return false;
+      if (typeof el.checkVisibility === 'function') {
+        return el.checkVisibility({ checkOpacity: true, checkVisibilityCSS: true });
+      }
+      return el.getClientRects().length > 0;
+    };
+
+    const getFocusable = () =>
+      Array.from(
+        dialog.querySelectorAll<HTMLElement>(
+          'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+        )
+      ).filter(isVisibleFocusable);
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onCloseRef.current();
+        return;
+      }
+      if (e.key === 'ArrowLeft') {
+        onPreviousRef.current();
+        return;
+      }
+      if (e.key === 'ArrowRight') {
+        onNextRef.current();
+        return;
+      }
+      if (e.key !== 'Tab') return;
+
+      const focusableElements = getFocusable();
+      if (focusableElements.length === 0) return;
+
+      const firstElement = focusableElements[0];
+      const lastElement = focusableElements[focusableElements.length - 1];
+
+      if (e.shiftKey) {
+        if (document.activeElement === firstElement) {
+          e.preventDefault();
+          lastElement.focus();
+        }
+      } else if (document.activeElement === lastElement) {
+        e.preventDefault();
+        firstElement.focus();
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+
+    const closeButton = dialog.querySelector<HTMLElement>('button[aria-label="Close"]');
+    const timer = window.setTimeout(() => {
+      (closeButton && isVisibleFocusable(closeButton)
+        ? closeButton
+        : getFocusable()[0]
+      )?.focus();
+    }, 50);
+
+    return () => {
+      window.clearTimeout(timer);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, []);
+
+  // Sync document title with open Pokémon
+  useEffect(() => {
+    if (!pokemon) {
+      document.title = 'Pokemon details · Pokedex';
+      return () => {
+        document.title = DEFAULT_DOCUMENT_TITLE;
+      };
+    }
+    const name = pokemon.name.charAt(0).toUpperCase() + pokemon.name.slice(1);
+    document.title = `${name} · Pokedex`;
+    return () => {
+      document.title = DEFAULT_DOCUMENT_TITLE;
+    };
+  }, [pokemon]);
 
   // Sync local shiny state with global shiny state when opening
   useEffect(() => {
@@ -125,7 +226,7 @@ const PokemonDetailView: React.FC<PokemonDetailViewProps> = ({
 
   const { megaForm, defaultForm } = useMemo(() => {
     if (!pokemon) return { megaForm: null, defaultForm: null };
-    const mega = pokemon.forms.find((f) => f.name.includes('-mega'));
+    const mega = pokemon.forms.find((f) => f.name.includes('-mega')) ?? null;
     const def = pokemon.forms.find((f) => f.isDefault) || pokemon.forms[0];
     return { megaForm: mega, defaultForm: def };
   }, [pokemon]);
@@ -195,24 +296,21 @@ const PokemonDetailView: React.FC<PokemonDetailViewProps> = ({
     );
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'ArrowLeft') onPrevious();
-    if (e.key === 'ArrowRight') onNext();
-    if (e.key === 'Escape') onClose();
-  };
-
-  const currentPokemonData = selectedForm || pokemon;
+  const _currentPokemonData = selectedForm || pokemon;
 
   return (
     <div
+      ref={dialogRef}
       className={`fixed inset-0 backdrop-blur-sm flex items-end sm:items-center justify-center z-[1050] sm:p-4 ${
         theme === 'dark' ? 'bg-black/70' : 'bg-slate-500/50'
       }`}
       onClick={onClose}
-      onKeyDown={handleKeyDown}
       tabIndex={-1}
       role="dialog"
       aria-modal="true"
+      {...(pokemon && selectedForm
+        ? { 'aria-labelledby': titleId }
+        : { 'aria-label': 'Pokemon details' })}
     >
       <div
         className={`backdrop-blur-2xl w-full max-w-4xl overflow-y-auto relative shadow-2xl border rounded-t-2xl sm:rounded-2xl max-h-[95vh] sm:max-h-[90vh] ${
@@ -224,7 +322,9 @@ const PokemonDetailView: React.FC<PokemonDetailViewProps> = ({
       >
         {/* Mobile drag indicator */}
         <div className="sm:hidden flex justify-center pt-2 pb-0 sticky top-0 z-30">
-          <div className={`w-10 h-1 rounded-full ${theme === 'dark' ? 'bg-white/30' : 'bg-slate-300'}`} />
+          <div
+            className={`w-10 h-1 rounded-full ${theme === 'dark' ? 'bg-white/30' : 'bg-slate-300'}`}
+          />
         </div>
 
         {/* Navigation arrows - hidden on mobile to save space */}
@@ -311,6 +411,7 @@ const PokemonDetailView: React.FC<PokemonDetailViewProps> = ({
               onMegaToggle={handleMegaToggle}
               selectedGen={selectedGen}
               onSelectGen={setSelectedGen}
+              titleId={titleId}
             />
 
             <div className="p-4 sm:p-8">
@@ -472,9 +573,9 @@ const PokemonDetailView: React.FC<PokemonDetailViewProps> = ({
                     <GameMechanics pokemon={pokemon} />
                   </DetailSection>
 
-                  {pokemon.moves && pokemon.moves.length > 0 && (
+                  {moves.length > 0 && (
                     <MoveRecommender
-                      moves={pokemon.moves}
+                      moves={moves}
                       stats={selectedForm.stats}
                       types={selectedForm.types}
                     />
@@ -482,15 +583,14 @@ const PokemonDetailView: React.FC<PokemonDetailViewProps> = ({
                 </div>
               </div>
 
-              {pokemon.moves && pokemon.moves.length > 0 && (
-                <MovesSection
-                  theme={theme}
-                  moves={pokemon.moves}
-                  isExpanded={isMovesExpanded}
-                  onToggle={() => setIsMovesExpanded((prev) => !prev)}
-                  onOpenMoveDex={onOpenMoveDex}
-                />
-              )}
+              <MovesSection
+                theme={theme}
+                moves={moves}
+                isExpanded={isMovesExpanded}
+                isLoading={isMovesExpanded && (movesLoading || movesFetching) && moves.length === 0}
+                onToggle={() => setIsMovesExpanded((prev) => !prev)}
+                onOpenMoveDex={onOpenMoveDex}
+              />
             </div>
           </div>
         )}

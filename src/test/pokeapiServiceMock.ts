@@ -1,6 +1,12 @@
 import { vi } from 'vitest';
 import type { PokemonDetails, PokemonListItem } from '../types';
-import type { Item, Move } from '../services/pokeapiService';
+import type {
+  AbilityDexItem,
+  Item,
+  ItemDexItem,
+  Move,
+  MoveDexItem,
+} from '../services/pokeapiService';
 
 const defaultPokemonList: PokemonListItem[] = [
   {
@@ -113,26 +119,46 @@ const defaultItems: Item[] = [
 
 export const fetchAllPokemonsMock = vi.fn().mockResolvedValue(defaultPokemonList);
 export const fetchPokemonDetailsMock = vi.fn().mockResolvedValue(defaultPokemonDetails);
+export const fetchPokemonMovesMock = vi.fn().mockResolvedValue(defaultPokemonDetails.moves);
 export const fetchAllMovesMock = vi.fn().mockResolvedValue(defaultMoves);
 export const fetchAllItemsMock = vi.fn().mockResolvedValue(defaultItems);
+export const fetchMoveDexMock = vi.fn().mockResolvedValue([]);
+export const fetchAbilityDexMock = vi.fn().mockResolvedValue([]);
+export const fetchItemDexMock = vi.fn().mockResolvedValue([]);
 
 export type PokeapiServiceMockOverrides = Partial<{
   fetchAllPokemons: PokemonListItem[];
   fetchPokemonDetails: PokemonDetails | null;
+  fetchPokemonMoves: PokemonDetails['moves'];
   fetchAllMoves: Move[];
   fetchAllItems: Item[];
+  fetchMoveDex: MoveDexItem[];
+  fetchAbilityDex: AbilityDexItem[];
+  fetchItemDex: ItemDexItem[];
 }>;
 
 export const setPokeapiServiceMock = (overrides: PokeapiServiceMockOverrides = {}) => {
   fetchAllPokemonsMock.mockResolvedValue(overrides.fetchAllPokemons ?? defaultPokemonList);
   fetchPokemonDetailsMock.mockResolvedValue(overrides.fetchPokemonDetails ?? defaultPokemonDetails);
+  fetchPokemonMovesMock.mockResolvedValue(
+    overrides.fetchPokemonMoves ??
+      overrides.fetchPokemonDetails?.moves ??
+      defaultPokemonDetails.moves
+  );
   fetchAllMovesMock.mockResolvedValue(overrides.fetchAllMoves ?? defaultMoves);
   fetchAllItemsMock.mockResolvedValue(overrides.fetchAllItems ?? defaultItems);
+  fetchMoveDexMock.mockResolvedValue(overrides.fetchMoveDex ?? []);
+  fetchAbilityDexMock.mockResolvedValue(overrides.fetchAbilityDex ?? []);
+  fetchItemDexMock.mockResolvedValue(overrides.fetchItemDex ?? []);
 };
 
 export const getPokeapiServiceMockImpl = () => ({
   fetchAllPokemons: (...args: any[]) => fetchAllPokemonsMock(...args),
   fetchPokemonDetails: (...args: any[]) => fetchPokemonDetailsMock(...args),
+  fetchPokemonMoves: (...args: any[]) => fetchPokemonMovesMock(...args),
   fetchAllMoves: (...args: any[]) => fetchAllMovesMock(...args),
   fetchAllItems: (...args: any[]) => fetchAllItemsMock(...args),
+  fetchMoveDex: (...args: any[]) => fetchMoveDexMock(...args),
+  fetchAbilityDex: (...args: any[]) => fetchAbilityDexMock(...args),
+  fetchItemDex: (...args: any[]) => fetchItemDexMock(...args),
 });

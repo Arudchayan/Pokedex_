@@ -41,11 +41,19 @@ const PokemonGridItem: React.FC<PokemonGridItemProps> = ({
   };
 
   return (
-    <div
-      className="relative group cursor-grab active:cursor-grabbing"
-      draggable
-      onDragStart={handleDragStart}
-    >
+    <div className="relative group">
+      {/* Drag handle — only this element is draggable so clicks on the card are never swallowed by a dragstart */}
+      <div
+        className="absolute top-2 left-2 z-10 p-1 rounded opacity-0 group-hover:opacity-60 cursor-grab active:cursor-grabbing transition-opacity"
+        draggable
+        onDragStart={handleDragStart}
+        title="Drag to team"
+        aria-label={`Drag ${pokemon.name} to team`}
+      >
+        <svg className="h-4 w-4 text-white drop-shadow" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M8 6a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm0 6a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm0 6a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm8-12a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm0 6a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm0 6a2 2 0 1 1-4 0 2 2 0 0 1 4 0z" />
+        </svg>
+      </div>
       <PokemonCard
         pokemon={pokemon}
         onSelect={onSelect}

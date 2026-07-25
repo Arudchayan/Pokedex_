@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { screen, fireEvent, waitFor } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import React from 'react';
 import { renderWithProvider, setPokeapiServiceMock } from './utils';
 import MoveGame from '../components/games/MoveGame';

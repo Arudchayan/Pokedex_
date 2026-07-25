@@ -131,7 +131,9 @@ export const applySort = (
           break;
         }
         const getDex = (id: number) =>
-          regionalDexMap instanceof Map ? regionalDexMap.get(id) ?? Infinity : regionalDexMap[id] ?? Infinity;
+          regionalDexMap instanceof Map
+            ? (regionalDexMap.get(id) ?? Infinity)
+            : (regionalDexMap[id] ?? Infinity);
         const aDex = getDex(a.id);
         const bDex = getDex(b.id);
         comparison = aDex - bDex;

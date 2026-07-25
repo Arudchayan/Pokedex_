@@ -1,7 +1,6 @@
 import React, { memo, useState, useEffect, useRef } from 'react';
 import { PokemonListItem } from '../../types';
 import TypeBadge from '../charts/TypeBadge';
-import { TYPE_COLORS_HEX } from '../../constants';
 import { playPokemonCry } from '../../services/soundService';
 
 interface PokemonListRowProps {
@@ -112,18 +111,29 @@ const PokemonListRow: React.FC<PokemonListRowProps> = ({
       role="button"
       tabIndex={0}
       aria-label={`View details for ${pokemon.name}`}
-      draggable
-      onDragStart={handleDragStart}
       onKeyDown={handleKeyDown}
       onClick={() => onSelect(pokemon.id)}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
-      className={`group relative flex items-center gap-4 rounded-lg border p-2 transition-all hover:scale-[1.01] cursor-grab active:cursor-grabbing ${
+      className={`group relative flex items-center gap-4 rounded-lg border p-2 transition-all hover:scale-[1.01] cursor-pointer ${
         theme === 'dark'
           ? 'border-white/10 bg-white/5 hover:bg-white/10'
           : 'border-slate-200 bg-white hover:shadow-md'
       } ${isInTeam ? 'ring-1 ring-primary-500 border-primary-500/50' : ''}`}
     >
+      {/* Drag handle — only this element is draggable so clicks on the row are never swallowed */}
+      <div
+        className="flex-shrink-0 px-1 opacity-30 hover:opacity-80 cursor-grab active:cursor-grabbing transition-opacity"
+        draggable
+        onDragStart={handleDragStart}
+        title="Drag to team"
+        aria-label={`Drag ${pokemon.name} to team`}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M8 6a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm0 6a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm0 6a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm8-12a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm0 6a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm0 6a2 2 0 1 1-4 0 2 2 0 0 1 4 0z" />
+        </svg>
+      </div>
       {/* Favorite Button (Top Left absolute or inline?) - Inline for Row is better or absolute left */}
       <div className="relative flex-shrink-0">
         <img
@@ -134,6 +144,9 @@ const PokemonListRow: React.FC<PokemonListRowProps> = ({
           })()}
           onError={() => setImgError(true)}
           alt={pokemon.name}
+          width={64}
+          height={64}
+          decoding="async"
           className="h-16 w-16 object-contain pixelated"
           loading="lazy"
         />

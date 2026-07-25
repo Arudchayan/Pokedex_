@@ -3,7 +3,6 @@ import { usePokemon } from '../../context/PokemonContext';
 import { useToast } from '../../context/ToastContext';
 import { sanitizeString } from '../../utils/securityUtils';
 import { TYPE_COLORS_HEX, UI_CONSTANTS } from '../../constants';
-import TypeBadge from '../charts/TypeBadge';
 import Modal from '../base/Modal';
 
 interface TrainerCardProps {
