@@ -9,9 +9,10 @@ interface Props {
   onClose: () => void;
   date: string;
   seed: number;
+  onReady?: () => void;
 }
 
-const ItemGame: React.FC<Props> = ({ onClose, date, seed }) => {
+const ItemGame: React.FC<Props> = ({ onClose, date, seed, onReady }) => {
   const { theme } = usePokemonUI();
   const { recordResult } = useGameStats();
   const [items, setItems] = useState<Item[]>([]);
@@ -46,6 +47,10 @@ const ItemGame: React.FC<Props> = ({ onClose, date, seed }) => {
     };
     init();
   }, [rng]);
+
+  useEffect(() => {
+    if (!isLoading) onReady?.();
+  }, [isLoading, onReady]);
 
   const handleSearch = (term: string) => {
     setCurrentGuess(term);

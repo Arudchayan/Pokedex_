@@ -10,6 +10,7 @@ interface Props {
   onClose: () => void;
   date: string;
   seed: number;
+  onReady?: () => void;
 }
 
 interface GuessResult {
@@ -27,7 +28,7 @@ interface GuessResult {
   };
 }
 
-const PokedleGame: React.FC<Props> = ({ onClose, date, seed }) => {
+const PokedleGame: React.FC<Props> = ({ onClose, date, seed, onReady }) => {
   const { masterPokemonList, theme } = usePokemon();
   const queryClient = useQueryClient();
   const [targetPokemon, setTargetPokemon] = useState<PokemonDetails | null>(null);
@@ -57,6 +58,10 @@ const PokedleGame: React.FC<Props> = ({ onClose, date, seed }) => {
     };
     init();
   }, [masterPokemonList, rng, queryClient]);
+
+  useEffect(() => {
+    if (targetPokemon) onReady?.();
+  }, [targetPokemon, onReady]);
 
   const handleSearch = (term: string) => {
     setCurrentGuess(term);
