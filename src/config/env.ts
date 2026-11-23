@@ -54,14 +54,45 @@ const parseInteger = (value: string | undefined, defaultValue: number): number =
   return Number.isNaN(parsed) ? defaultValue : parsed;
 };
 
+/** Supported PokeAPI GraphQL endpoint (v1beta2 schema). */
+export const DEFAULT_POKEAPI_GRAPHQL_URL = 'https://graphql.pokeapi.co/v1beta2';
+
+/**
+ * Hosts that used to serve the GraphQL API but now reject requests (HTTP 401 with no CORS
+ * headers). A deployment may still have `VITE_POKEAPI_GRAPHQL_URL` pointing at one of these,
+ * so ignore it instead of shipping an app that cannot load any data.
+ */
+export const RETIRED_POKEAPI_GRAPHQL_HOSTS = ['beta.pokeapi.co'] as const;
+
+const isRetiredPokeapiGraphqlHost = (url: string): boolean => {
+  try {
+    return (RETIRED_POKEAPI_GRAPHQL_HOSTS as readonly string[]).includes(
+      new URL(url).hostname.toLowerCase()
+    );
+  } catch {
+    return false;
+  }
+};
+
+/**
+ * Resolve the configured GraphQL URL, falling back to the supported endpoint when the value is
+ * empty or points at a retired host.
+ */
+export const resolvePokeapiGraphqlUrl = (configuredUrl: string | undefined): string => {
+  const candidate = configuredUrl?.trim();
+  if (!candidate || isRetiredPokeapiGraphqlHost(candidate)) {
+    return DEFAULT_POKEAPI_GRAPHQL_URL;
+  }
+  return candidate;
+};
+
 /**
  * Get environment configuration
  */
 export const getEnvConfig = (): EnvConfig => {
   return {
     // API
-    pokeapiUrl:
-      import.meta.env.VITE_POKEAPI_GRAPHQL_URL || 'https://beta.pokeapi.co/graphql/v1beta',
+    pokeapiUrl: resolvePokeapiGraphqlUrl(import.meta.env.VITE_POKEAPI_GRAPHQL_URL),
     apiTimeout: parseInteger(import.meta.env.VITE_API_TIMEOUT, 30000),
     maxRetries: parseInteger(import.meta.env.VITE_MAX_RETRIES, 3),
 

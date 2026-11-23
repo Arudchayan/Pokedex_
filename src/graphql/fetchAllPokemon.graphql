@@ -1,29 +1,29 @@
 query fetchAllPokemon($limit: Int!) {
-  pokemon_v2_pokemon(order_by: { id: asc }, where: { id: { _lte: $limit } }) {
+  pokemon(order_by: { id: asc }, where: { id: { _lte: $limit } }) {
     id
     name
-    pokemon_v2_pokemontypes {
-      pokemon_v2_type {
+    pokemontypes(order_by: { slot: asc }) {
+      type {
         name
       }
     }
-    pokemon_v2_pokemonspecy {
-      pokemon_v2_pokemonspeciesflavortexts(
-        where: { pokemon_v2_language: { name: { _eq: "en" } } }
+    pokemonspecy {
+      pokemonspeciesflavortexts(
+        where: { language: { name: { _eq: "en" } } }
         limit: 1
         order_by: { version_id: desc }
       ) {
         flavor_text
       }
     }
-    pokemon_v2_pokemonstats {
+    pokemonstats {
       base_stat
-      pokemon_v2_stat {
+      stat {
         name
       }
     }
-    pokemon_v2_pokemonabilities {
-      pokemon_v2_ability {
+    pokemonabilities {
+      ability {
         name
       }
     }
