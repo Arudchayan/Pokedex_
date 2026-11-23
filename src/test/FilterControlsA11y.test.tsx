@@ -50,15 +50,16 @@ describe('FilterControls Accessibility', () => {
     // Generation section is open by default
     const generationToggle = screen.getByRole('button', { name: /Generation/i });
     expect(generationToggle).toHaveAttribute('aria-expanded', 'true');
-    expect(generationToggle).toHaveAttribute('aria-controls', 'filter-section-generation');
+    const controlsId = generationToggle.getAttribute('aria-controls');
+    expect(controlsId).toBeTruthy();
 
-    const generationSection = document.getElementById('filter-section-generation');
+    const generationSection = document.getElementById(controlsId!);
     expect(generationSection).toBeInTheDocument();
 
     // Toggle it closed
     fireEvent.click(generationToggle);
     expect(generationToggle).toHaveAttribute('aria-expanded', 'false');
     // Content should be removed (conditionally rendered)
-    expect(document.getElementById('filter-section-generation')).not.toBeInTheDocument();
+    expect(document.getElementById(controlsId!)).not.toBeInTheDocument();
   });
 });
