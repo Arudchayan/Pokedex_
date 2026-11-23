@@ -35,9 +35,10 @@ const MobileTeamSheet: React.FC<MobileTeamSheetProps> = ({
   const isDark = theme === 'dark' || isCyberpunk;
 
   const safeTeam = team ?? [];
-  const { typeCounts, majorThreats } = useTeamAnalytics(safeTeam);
+  const analyzableTeam = safeTeam.filter((member) => !member.detailsUnavailable);
+  const { typeCounts, majorThreats } = useTeamAnalytics(analyzableTeam);
   const uniqueTypes = Object.keys(typeCounts);
-  const unavailableCount = safeTeam.filter((member) => member.detailsUnavailable).length;
+  const unavailableCount = safeTeam.length - analyzableTeam.length;
 
   useEffect(() => {
     if (isOpen) {
@@ -358,35 +359,51 @@ const MobileTeamSheet: React.FC<MobileTeamSheetProps> = ({
                   >
                     Type Coverage
                   </p>
-                  <div className="flex flex-wrap gap-1.5">
-                    {uniqueTypes.map((type) => (
-                      <span
-                        key={type}
-                        className={`rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${
-                          isDark
-                            ? 'border-white/10 bg-white/10 text-slate-100'
-                            : 'border-slate-200 bg-white text-slate-700'
-                        }`}
-                      >
-                        {type}{' '}
-                        <span className={isDark ? 'text-primary-300' : 'text-primary-600'}>
-                          x{typeCounts[type]}
-                        </span>
-                      </span>
-                    ))}
-                  </div>
-
-                  {majorThreats.length > 0 && (
-                    <div className="mt-2 pt-2 border-t border-white/10">
-                      <p className="text-[10px] font-bold text-red-500 uppercase tracking-wide mb-1">
-                        Major Threats
-                      </p>
-                      <div className="flex flex-wrap gap-1">
-                        {majorThreats.map(([type]) => (
-                          <TypeBadge key={type} type={type} />
+                  {analyzableTeam.length === 0 ? (
+                    <p className={`text-xs ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+                      Analytics unavailable until team details load.
+                    </p>
+                  ) : (
+                    <>
+                      {unavailableCount > 0 && (
+                        <p
+                          className={`mb-2 text-xs ${isDark ? 'text-slate-400' : 'text-slate-500'}`}
+                        >
+                          Based on {analyzableTeam.length} of {safeTeam.length} Pokémon with
+                          available details.
+                        </p>
+                      )}
+                      <div className="flex flex-wrap gap-1.5">
+                        {uniqueTypes.map((type) => (
+                          <span
+                            key={type}
+                            className={`rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${
+                              isDark
+                                ? 'border-white/10 bg-white/10 text-slate-100'
+                                : 'border-slate-200 bg-white text-slate-700'
+                            }`}
+                          >
+                            {type}{' '}
+                            <span className={isDark ? 'text-primary-300' : 'text-primary-600'}>
+                              x{typeCounts[type]}
+                            </span>
+                          </span>
                         ))}
                       </div>
-                    </div>
+
+                      {majorThreats.length > 0 && (
+                        <div className="mt-2 pt-2 border-t border-white/10">
+                          <p className="text-[10px] font-bold text-red-500 uppercase tracking-wide mb-1">
+                            Major Threats
+                          </p>
+                          <div className="flex flex-wrap gap-1">
+                            {majorThreats.map(([type]) => (
+                              <TypeBadge key={type} type={type} />
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </>
                   )}
                 </div>
               )}

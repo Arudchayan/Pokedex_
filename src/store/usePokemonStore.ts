@@ -16,7 +16,11 @@ import type {
 import { reducePokemonStore } from './pokemonStoreReducer';
 import { validateSavedTeam } from '../utils/teamStorage';
 import { sanitizeFavoriteIds, saveFavorites } from '../utils/favorites';
-import { extractTeamCustomization, type TeamMemberCustomization } from './teamCustomization';
+import {
+  applyTeamCustomization,
+  extractTeamCustomization,
+  type TeamMemberCustomization,
+} from './teamCustomization';
 
 // Cyberpunk Mode Detection
 const CYBERPUNK_ACCENTS: AccentColor[] = [
@@ -576,9 +580,9 @@ export const useTeamPokemon = (): TeamMember[] => {
       const customization = customizations[id];
       const base = map.get(id);
       if (!base) {
-        return { ...createUnavailableTeamMember(id), ...(customization ?? {}) };
+        return applyTeamCustomization(createUnavailableTeamMember(id), customization);
       }
-      return customization ? { ...base, ...customization } : base;
+      return applyTeamCustomization(base, customization);
     });
   }, [teamIds, customizations, masterList]);
 };

@@ -72,7 +72,10 @@ export interface PokemonUIContextType {
 }
 
 export interface PokemonDataContextType extends Omit<PokemonState, 'theme' | 'accent' | 'isShiny'> {
-  /** Resolved team objects from masterPokemonList (derived from team ID array). */
+  /**
+   * One entry per persisted team ID. Unresolved IDs are labelled placeholders
+   * (`detailsUnavailable`), so membership/counts never depend on species data.
+   */
   teamPokemon: TeamMember[];
   /** Resolved comparison objects from masterPokemonList (derived from comparisonList ID array). */
   comparisonPokemon: PokemonListItem[];

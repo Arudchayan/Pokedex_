@@ -1,16 +1,43 @@
 import React from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { fireEvent, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, screen, waitFor } from '@testing-library/react';
 import { renderWithProvider, setPokeapiServiceMock } from '../utils';
 import TeamBuilder from '../../components/team/TeamBuilder';
 import MobileTeamSheet from '../../components/team/MobileTeamSheet';
+import SavedTeamsModal from '../../components/team/SavedTeamsModal';
 import { usePokemon } from '../../context/PokemonContext';
 import { usePokemonStore } from '../../store/usePokemonStore';
 import { decompressTeam } from '../../utils/urlCompression';
-import type { PokemonListItem } from '../../types';
+import type { PokemonListItem, TeamMember } from '../../types';
 
 const noop = () => {};
 const SAVED_ID = 672;
+const UNAVAILABLE_EXPORT = `#${SAVED_ID} (details unavailable)`;
+
+const resolvedPokemon = (overrides: Partial<PokemonListItem> = {}): PokemonListItem => ({
+  id: SAVED_ID,
+  name: 'mewtwo',
+  imageUrl: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/150.png',
+  shinyImageUrl:
+    'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/150.png',
+  types: ['psychic'],
+  flavorText: '',
+  stats: [],
+  abilities: [],
+  ...overrides,
+});
+
+const unavailableMember = (id: number): TeamMember => ({
+  id,
+  name: `Pokémon #${id}`,
+  imageUrl: '',
+  shinyImageUrl: '',
+  types: [],
+  flavorText: '',
+  stats: [],
+  abilities: [],
+  detailsUnavailable: true,
+});
 
 const TeamBuilderHarness = () => {
   const { teamPokemon, theme } = usePokemon();
@@ -46,6 +73,20 @@ const MobileTeamSheetHarness = () => {
       onClear={noop}
       onSelect={noop}
       teamCapacity={6}
+      theme={theme}
+    />
+  );
+};
+
+const SavedTeamsModalHarness = () => {
+  const { teamPokemon, theme } = usePokemon();
+
+  return (
+    <SavedTeamsModal
+      isOpen
+      onClose={noop}
+      currentTeam={teamPokemon}
+      onLoadTeam={noop}
       theme={theme}
     />
   );
@@ -105,14 +146,14 @@ describe('saved team resolution', () => {
     const exportButton = screen.getByRole('button', { name: 'Export team' });
     expect(exportButton).toBeEnabled();
     fireEvent.click(exportButton);
-    expect(await screen.findByDisplayValue(new RegExp(String(SAVED_ID)))).toBeInTheDocument();
+    const exportField = await screen.findByDisplayValue(new RegExp(String(SAVED_ID)));
+    expect(exportField).toHaveValue(UNAVAILABLE_EXPORT);
+    expect((exportField as HTMLTextAreaElement).value).not.toContain(`Pokémon #${SAVED_ID}`);
 
     const copyButton = screen.getByRole('button', { name: 'Copy team to clipboard' });
     expect(copyButton).toBeEnabled();
     fireEvent.click(copyButton);
-    await waitFor(() =>
-      expect(writeText).toHaveBeenCalledWith(expect.stringContaining(String(SAVED_ID)))
-    );
+    await waitFor(() => expect(writeText).toHaveBeenCalledWith(UNAVAILABLE_EXPORT));
 
     writeText.mockClear();
     const shareButton = screen.getByRole('button', { name: 'Share team link' });
@@ -151,6 +192,92 @@ describe('saved team resolution', () => {
     expect(screen.getByText(`Pokémon #${SAVED_ID}`)).toBeInTheDocument();
     expect(screen.getByTestId('team-details-unavailable')).toBeInTheDocument();
     expect(usePokemonStore.getState().team).toEqual([1, SAVED_ID]);
+  });
+
+  it('resolves a placeholder when species data arrives and ignores blank image overrides', async () => {
+    setPokeapiServiceMock({ fetchAllPokemons: [] });
+    usePokemonStore.getState().setTeam([unavailableMember(SAVED_ID)]);
+    expect(usePokemonStore.getState().teamCustomizations[SAVED_ID]?.imageUrl).toBeUndefined();
+
+    // Simulate legacy/corrupt persisted customization from an earlier placeholder save.
+    usePokemonStore.setState({
+      teamCustomizations: { [SAVED_ID]: { imageUrl: '' } },
+    });
+
+    renderWithProvider(<TeamBuilderHarness />);
+
+    expect(await screen.findByText(`Pokémon #${SAVED_ID}`)).toBeInTheDocument();
+
+    await act(async () => {
+      usePokemonStore.getState().setMasterPokemonList([resolvedPokemon()]);
+    });
+
+    expect(await screen.findByText('mewtwo')).toBeInTheDocument();
+    expect(screen.queryByText(`Pokémon #${SAVED_ID}`)).not.toBeInTheDocument();
+    expect(screen.queryByText('Details unavailable')).not.toBeInTheDocument();
+    expect(screen.getByAltText('mewtwo')).toHaveAttribute('src', resolvedPokemon().imageUrl);
+    expect(usePokemonStore.getState().team).toEqual([SAVED_ID]);
+  });
+
+  it('unlocks Full Squad from six persisted IDs without details', async () => {
+    setPokeapiServiceMock({ fetchAllPokemons: [] });
+    usePokemonStore.setState({ team: [1, 2, 3, 4, 5, 6] });
+
+    renderWithProvider(<TeamBuilderHarness />);
+
+    expect(await screen.findByText('6/6')).toBeInTheDocument();
+    await waitFor(() => {
+      const achievements = usePokemonStore.getState().achievements;
+      expect(achievements.novice_trainer).toBeTypeOf('number');
+      expect(achievements.full_squad).toBeTypeOf('number');
+    });
+  });
+
+  it('blocks saving the current team while member details are unavailable', async () => {
+    setPokeapiServiceMock({ fetchAllPokemons: [] });
+    usePokemonStore.setState({ team: [SAVED_ID] });
+
+    renderWithProvider(<SavedTeamsModalHarness />);
+
+    expect(await screen.findByText(/Some team details are unavailable/i)).toBeInTheDocument();
+    const saveButton = screen.getByRole('button', { name: 'Save' });
+    expect(saveButton).toBeDisabled();
+
+    fireEvent.change(screen.getByLabelText('New team name'), {
+      target: { value: 'Broken team' },
+    });
+    fireEvent.click(saveButton);
+    expect(usePokemonStore.getState().savedTeams).toHaveLength(0);
+  });
+
+  it('renders an id tile for saved members without a sprite', () => {
+    usePokemonStore.setState({
+      savedTeams: [
+        {
+          id: 'saved-1',
+          name: 'Legacy team',
+          team: [{ ...unavailableMember(SAVED_ID), detailsUnavailable: undefined }],
+          updatedAt: Date.now(),
+        },
+      ],
+    });
+
+    renderWithProvider(<SavedTeamsModalHarness />);
+
+    expect(screen.getByLabelText(`Pokémon #${SAVED_ID}, image unavailable`)).toBeInTheDocument();
+    expect(screen.queryByAltText(`Pokémon #${SAVED_ID}`)).not.toBeInTheDocument();
+  });
+
+  it('reports analytics as unavailable instead of claiming empty coverage', async () => {
+    setPokeapiServiceMock({ fetchAllPokemons: [] });
+    usePokemonStore.setState({ team: [SAVED_ID] });
+
+    renderWithProvider(<TeamBuilderHarness />);
+
+    expect(await screen.findByText('Analytics unavailable')).toBeInTheDocument();
+    expect(screen.queryByText('Offensive Type Coverage')).not.toBeInTheDocument();
+    expect(screen.queryByText('No common weaknesses!')).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /Show Details/i })).not.toBeInTheDocument();
   });
 
   it('shows the empty-team copy only when the persisted team is empty', () => {
