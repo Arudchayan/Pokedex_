@@ -9,7 +9,7 @@ export function useModalState() {
 
   const modals = {
     comparison: { show: store.showComparison, setShow: store.setShowComparison },
-    battleCalc: { show: store.showBattleCalc, setShow: store.setShowBattleCalc },
+    damageCalc: { show: store.showDamageCalc, setShow: store.setShowDamageCalc },
     statCalc: { show: store.showStatCalc, setShow: store.setShowStatCalc },
     breedingCalc: { show: store.showBreedingCalc, setShow: store.setShowBreedingCalc },
     catchCalc: { show: store.showCatchCalc, setShow: store.setShowCatchCalc },
@@ -32,8 +32,8 @@ export function useModalState() {
     // Individual getters and setters for convenience
     showComparison: store.showComparison,
     setShowComparison: store.setShowComparison,
-    showBattleCalc: store.showBattleCalc,
-    setShowBattleCalc: store.setShowBattleCalc,
+    showDamageCalc: store.showDamageCalc,
+    setShowDamageCalc: store.setShowDamageCalc,
     showStatCalc: store.showStatCalc,
     setShowStatCalc: store.setShowStatCalc,
     showBreedingCalc: store.showBreedingCalc,
@@ -66,7 +66,7 @@ export function useModalState() {
     setDexSearchTerm: store.setDexSearchTerm,
     // Stable handlers
     openComparison: store.openComparison,
-    openBattleCalc: store.openBattleCalc,
+    openDamageCalc: store.openDamageCalc,
     openStatCalc: store.openStatCalc,
     openBreedingCalc: store.openBreedingCalc,
     openCatchCalc: store.openCatchCalc,

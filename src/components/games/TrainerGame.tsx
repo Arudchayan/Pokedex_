@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { usePokemon } from '../../context/PokemonContext';
+import { useQueryClient } from '@tanstack/react-query';
+import { usePokemonUI } from '../../context/PokemonContext';
 import { TRAINERS, Trainer } from '../../data/trainers';
 import { mulberry32, pickRandom } from '../../utils/seededRandom';
-import { fetchPokemonDetails } from '../../services/pokeapiService';
+import { fetchPokemonDetailsQuery } from '../../services/pokemonDetailsQuery';
+import { useGameStats } from '../../hooks/useGameStats';
 
 interface Props {
   onClose: () => void;
@@ -11,7 +13,9 @@ interface Props {
 }
 
 const TrainerGame: React.FC<Props> = ({ onClose, date, seed }) => {
-  const { theme } = usePokemon();
+  const { theme } = usePokemonUI();
+  const queryClient = useQueryClient();
+  const { recordResult } = useGameStats();
   const [target, setTarget] = useState<Trainer | null>(null);
   const [teamDetails, setTeamDetails] = useState<any[]>([]); // URLs/Names of pokemon
   const [revealedCount, setRevealedCount] = useState(1);
@@ -33,7 +37,7 @@ const TrainerGame: React.FC<Props> = ({ onClose, date, seed }) => {
       const teamData = await Promise.all(
         t.team.map(async (id) => {
           try {
-            const details = await fetchPokemonDetails(id);
+            const details = await fetchPokemonDetailsQuery(queryClient, id);
             return details;
           } catch {
             return null;
@@ -44,7 +48,7 @@ const TrainerGame: React.FC<Props> = ({ onClose, date, seed }) => {
       setRevealedCount(1);
     };
     init();
-  }, [rng]);
+  }, [rng, queryClient]);
 
   const handleSearch = (term: string) => {
     setCurrentGuess(term);
@@ -63,12 +67,14 @@ const TrainerGame: React.FC<Props> = ({ onClose, date, seed }) => {
 
     if (trainer.id === target.id) {
       setGameState('won');
+      recordResult('trainer', true);
     } else {
       // Wrong guess reveals another pokemon
       if (revealedCount < target.team.length) {
         setRevealedCount((prev) => prev + 1);
       } else {
         setGameState('lost');
+        recordResult('trainer', false);
       }
     }
     setCurrentGuess('');

@@ -11,7 +11,7 @@ import {
 import type { Action } from '../store/usePokemonStore';
 import { usePokemonStoreEffects } from '../hooks/usePokemonStoreEffects';
 import { AccentColor } from '../constants';
-import type { PokemonListItem } from '../types';
+import type { PokemonListItem, TeamMember } from '../types';
 import { fetchAllPokemons } from '../services/pokeapiService';
 import { getFavorites } from '../utils/favorites';
 
@@ -38,7 +38,6 @@ const usePokemonQuerySync = () => {
 
   const reload = useCallback(async () => {
     await refetch();
-    usePokemonStore.getState().setFavorites(getFavorites());
   }, [refetch]);
 
   useEffect(() => {
@@ -46,6 +45,9 @@ const usePokemonQuerySync = () => {
   }, [reload]);
 
   useEffect(() => {
+    // One-time legacy migration: only seed from pokedex_favorites when Zustand has none.
+    const current = usePokemonStore.getState().favorites;
+    if (current.size > 0) return;
     const storedFavorites = getFavorites();
     if (storedFavorites.size > 0) {
       usePokemonStore.getState().setFavorites(storedFavorites);
@@ -71,7 +73,7 @@ export interface PokemonUIContextType {
 
 export interface PokemonDataContextType extends Omit<PokemonState, 'theme' | 'accent' | 'isShiny'> {
   /** Resolved team objects from masterPokemonList (derived from team ID array). */
-  teamPokemon: PokemonListItem[];
+  teamPokemon: TeamMember[];
   /** Resolved comparison objects from masterPokemonList (derived from comparisonList ID array). */
   comparisonPokemon: PokemonListItem[];
   canUndo: boolean;
@@ -121,12 +123,14 @@ export const usePokemonData = (): PokemonDataContextType => {
       isMonoType: state.isMonoType,
       minBST: state.minBST,
       team: state.team,
+      teamCustomizations: state.teamCustomizations,
       favorites: state.favorites,
       history: state.history,
       future: state.future,
       comparisonList: state.comparisonList,
       sortBy: state.sortBy,
       sortOrder: state.sortOrder,
+      selectedPokedex: state.selectedPokedex,
       filteredPokemon: state.filteredPokemon,
       isFiltering: state.isFiltering,
       canUndo: state.history.length > 0,

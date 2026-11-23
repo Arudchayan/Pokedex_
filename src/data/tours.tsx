@@ -1,7 +1,7 @@
 import type { TourDefinition } from '../context/WalkthroughContext';
 
 // Helper to open a modal programmatically
-const openModal = (modalId: string) => {
+const _openModal = (modalId: string) => {
   const event = new CustomEvent('open-modal', { detail: { modalId } });
   window.dispatchEvent(event);
 };

@@ -2,9 +2,6 @@ query fetchAllPokemon($limit: Int!) {
   pokemon_v2_pokemon(order_by: { id: asc }, where: { id: { _lte: $limit } }) {
     id
     name
-    pokemon_v2_pokemonsprites {
-      id
-    }
     pokemon_v2_pokemontypes {
       pokemon_v2_type {
         name

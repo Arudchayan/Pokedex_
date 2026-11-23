@@ -1,11 +1,13 @@
-import { useEffect, useRef, useState } from 'react';
+import { useState, useEffect, useRef, Suspense, lazy, useCallback, useMemo } from 'react';
+import ReactDOM from 'react-dom';
 import FilterControls from '../components/layout/FilterControls';
 import { PokemonGridSkeleton } from '../components/base/SkeletonComposites';
 import SortingControls from '../components/layout/SortingControls';
 import VirtualPokemonList from '../components/pokemon/VirtualPokemonList';
-import TeamBuilder from '../components/team/TeamBuilder';
 import MobileTeamSheet from '../components/team/MobileTeamSheet';
 import type { AppController } from './useAppController';
+
+const TeamBuilder = lazy(() => import('../components/team/TeamBuilder'));
 
 type Props = {
   controller: AppController;
@@ -54,7 +56,7 @@ export default function AppMain({ controller }: Props) {
     handleRemoveFromTeam,
     handleToggleFavorite,
     handleAddToComparison,
-    handleRemoveFromComparison,
+    handleRemoveFromComparison: _handleRemoveFromComparison,
     handleClearTeam,
     handleUpdateTeamMember,
     handleLoadTeam,
@@ -64,6 +66,74 @@ export default function AppMain({ controller }: Props) {
   } = controller;
 
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
+  const [mobileFullBuilderOpen, setMobileFullBuilderOpen] = useState(false);
+
+  useEffect(() => {
+    if (!mobileFullBuilderOpen) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [mobileFullBuilderOpen]);
+
+  const handleTeamSelect = useCallback(
+    (id: number) => {
+      setMobileFullBuilderOpen(false);
+      handleSelectPokemon(id);
+    },
+    [handleSelectPokemon]
+  );
+
+  const handleTeamAddPokemon = useCallback(() => {
+    setMobileFullBuilderOpen(false);
+    handleFocusSearch();
+  }, [handleFocusSearch]);
+
+  const hasFilteredPokemon = filteredPokemon.length > 0;
+
+  const teamBuilderProps = useMemo(
+    () => ({
+      team: teamPokemon,
+      onRemove: handleRemoveFromTeam,
+      onClear: handleClearTeam,
+      onSelect: handleTeamSelect,
+      teamCapacity: TEAM_CAPACITY,
+      theme,
+      onUpdateTeamMember: handleUpdateTeamMember,
+      onLoadTeam: handleLoadTeam,
+      onRandomize: handleRandomizeTeam,
+      hasFilteredPokemon,
+      isCyberpunk,
+      onAddPokemon: handleTeamAddPokemon,
+      onAddToTeam: handleAddToTeam,
+      undo,
+      redo,
+      canUndo,
+      canRedo,
+      onReorderTeam: handleReorderTeam,
+    }),
+    [
+      teamPokemon,
+      handleRemoveFromTeam,
+      handleClearTeam,
+      handleTeamSelect,
+      TEAM_CAPACITY,
+      theme,
+      handleUpdateTeamMember,
+      handleLoadTeam,
+      handleRandomizeTeam,
+      hasFilteredPokemon,
+      isCyberpunk,
+      handleTeamAddPokemon,
+      handleAddToTeam,
+      undo,
+      redo,
+      canUndo,
+      canRedo,
+      handleReorderTeam,
+    ]
+  );
 
   const loadingStatusRef = useRef<HTMLParagraphElement>(null);
   const resultsRef = useRef<HTMLDivElement>(null);
@@ -504,26 +574,21 @@ export default function AppMain({ controller }: Props) {
 
         {/* Desktop team builder sidebar - hidden on mobile */}
         <div className="hidden lg:block w-full lg:w-72 xl:w-80">
-          <TeamBuilder
-            team={teamPokemon}
-            onRemove={handleRemoveFromTeam}
-            onClear={handleClearTeam}
-            onSelect={handleSelectPokemon}
-            teamCapacity={TEAM_CAPACITY}
-            theme={theme}
-            onUpdateTeamMember={handleUpdateTeamMember}
-            onLoadTeam={handleLoadTeam}
-            onRandomize={handleRandomizeTeam}
-            hasFilteredPokemon={filteredPokemon.length > 0}
-            isCyberpunk={isCyberpunk}
-            onAddPokemon={handleFocusSearch}
-            onAddToTeam={handleAddToTeam}
-            undo={undo}
-            redo={redo}
-            canUndo={canUndo}
-            canRedo={canRedo}
-            onReorderTeam={handleReorderTeam}
-          />
+          <Suspense
+            fallback={
+              <div
+                className={`rounded-2xl border p-4 text-sm ${
+                  theme === 'dark'
+                    ? 'border-white/10 bg-black/20 text-slate-400'
+                    : 'border-slate-200 bg-white text-slate-500'
+                }`}
+              >
+                Loading team builder…
+              </div>
+            }
+          >
+            <TeamBuilder {...teamBuilderProps} />
+          </Suspense>
         </div>
 
         {/* Mobile team builder - FAB + bottom sheet */}
@@ -537,7 +602,61 @@ export default function AppMain({ controller }: Props) {
           isCyberpunk={isCyberpunk}
           onAddPokemon={handleFocusSearch}
           onAddToTeam={handleAddToTeam}
+          onOpenFullBuilder={() => setMobileFullBuilderOpen(true)}
         />
+
+        {/* Full TeamBuilder as a mobile-only fullscreen modal */}
+        {mobileFullBuilderOpen &&
+          ReactDOM.createPortal(
+            <div className="fixed inset-0 z-[1070] lg:hidden flex flex-col">
+              <div
+                className={`flex items-center justify-between gap-3 px-4 py-3 border-b shrink-0 ${
+                  theme === 'dark' || isCyberpunk
+                    ? 'bg-slate-950 border-white/10 text-white'
+                    : 'bg-white border-slate-200 text-slate-900'
+                }`}
+              >
+                <h2 className="text-base font-bold">Team Builder</h2>
+                <button
+                  type="button"
+                  onClick={() => setMobileFullBuilderOpen(false)}
+                  className={`rounded-lg px-3 py-1.5 text-sm font-semibold transition-colors ${
+                    theme === 'dark' || isCyberpunk
+                      ? 'text-slate-300 hover:bg-white/10 hover:text-white'
+                      : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+                  }`}
+                  aria-label="Close full team builder"
+                >
+                  Done
+                </button>
+              </div>
+              <div
+                className={`flex-1 overflow-y-auto overscroll-contain p-3 ${
+                  theme === 'dark' || isCyberpunk ? 'bg-slate-950' : 'bg-slate-50'
+                }`}
+                role="dialog"
+                aria-modal="true"
+                aria-label="Full team builder"
+              >
+                <Suspense
+                  fallback={
+                    <div
+                      className={`rounded-2xl border p-4 text-sm ${
+                        theme === 'dark'
+                          ? 'border-white/10 bg-black/20 text-slate-400'
+                          : 'border-slate-200 bg-white text-slate-500'
+                      }`}
+                    >
+                      Loading team builder…
+                    </div>
+                  }
+                >
+                  <TeamBuilder {...teamBuilderProps} />
+                </Suspense>
+              </div>
+            </div>,
+            document.body
+          )}
       </div>
     </main>
   );

@@ -1,6 +1,7 @@
 import type { AccentColor } from '../constants';
 import type { PokemonListItem, TeamMember } from '../types';
 import type { SortOption } from '../types/sorting';
+import type { TeamMemberCustomization } from './teamCustomization';
 
 // ---------------------------------------------------------------------------
 // Consolidated persistence types (previously scattered across multiple files)
@@ -45,6 +46,8 @@ export interface PokemonState {
 
   // User Data (normalized: store IDs, resolve to objects via selectors)
   team: number[];
+  /** Per-species team slot customizations (moves/EVs/etc). Keyed by pokemon id. */
+  teamCustomizations: Record<number, TeamMemberCustomization>;
   favorites: Set<number>;
 
   // Team History for Undo/Redo (normalized: ID arrays)

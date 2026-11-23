@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import { PokemonListItem } from '../../types';
 import TypeBadge from './TypeBadge';
 import { TYPE_COLORS_HEX, TYPE_RELATIONS, STAT_COLORS } from '../../constants';
@@ -61,7 +61,7 @@ const ComparisonView: React.FC<ComparisonViewProps> = ({ pokemon, onClose, onRem
       url.searchParams.set('compare', ids);
       await navigator.clipboard.writeText(url.toString());
       addToast('Comparison link copied to clipboard!', 'success');
-    } catch (err) {
+    } catch (_err) {
       addToast('Failed to copy link.', 'error');
     }
   };
@@ -145,7 +145,7 @@ const ComparisonView: React.FC<ComparisonViewProps> = ({ pokemon, onClose, onRem
         {/* Header / Avatars */}
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {pokemon.map((p) => {
-            const primaryType = p.types[0];
+            const _primaryType = p.types[0];
             return (
               <div
                 key={p.id}

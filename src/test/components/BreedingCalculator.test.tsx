@@ -1,8 +1,8 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { vi, describe, it, expect } from 'vitest';
 import BreedingCalculator from '../../components/calculators/BreedingCalculator';
-import { PokemonProvider } from '../../context/PokemonContext';
 
 // Mock Sound Service
 vi.mock('../../services/soundService', () => ({
@@ -60,7 +60,14 @@ vi.mock('../../services/pokeapiService', () => ({
 describe('BreedingCalculator', () => {
   it('renders and filters parents correctly', async () => {
     const onClose = vi.fn();
-    render(<BreedingCalculator onClose={onClose} />);
+    const queryClient = new QueryClient({
+      defaultOptions: { queries: { retry: false } },
+    });
+    render(
+      <QueryClientProvider client={queryClient}>
+        <BreedingCalculator onClose={onClose} />
+      </QueryClientProvider>
+    );
 
     // Check header
     expect(screen.getByText('Breeding Calculator')).toBeInTheDocument();

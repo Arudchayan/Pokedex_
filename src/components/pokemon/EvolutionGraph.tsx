@@ -43,7 +43,7 @@ const TriggerLabel: React.FC<{
   direction: 'vertical' | 'horizontal';
   onOpenItemDex?: (search?: string) => void;
 }> = ({ evo, theme, direction, onOpenItemDex }) => {
-  const elements = [];
+  const elements: React.ReactNode[] = [];
   if (evo.minLevel) elements.push(<span key="lvl">Lvl {evo.minLevel}</span>);
   if (evo.trigger === 'trade') elements.push(<span key="trade">Trade</span>);
   if (evo.item) {

@@ -21,6 +21,7 @@ interface DetailHeaderProps {
   onMegaToggle: () => void;
   selectedGen: string | null;
   onSelectGen: (gen: string | null) => void;
+  titleId?: string;
 }
 
 const DetailHeader: React.FC<DetailHeaderProps> = ({
@@ -41,6 +42,7 @@ const DetailHeader: React.FC<DetailHeaderProps> = ({
   onMegaToggle,
   selectedGen,
   onSelectGen,
+  titleId,
 }) => (
   <div className="relative p-4 sm:p-8 rounded-t-2xl overflow-hidden">
     <div
@@ -62,6 +64,7 @@ const DetailHeader: React.FC<DetailHeaderProps> = ({
       </p>
       <div className="flex items-center gap-2 sm:gap-4 flex-wrap">
         <h2
+          id={titleId}
           className={`text-3xl sm:text-5xl font-extrabold capitalize ${theme === 'dark' ? 'text-white' : 'text-slate-800'}`}
         >
           {pokemon.name}

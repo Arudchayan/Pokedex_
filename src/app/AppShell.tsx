@@ -1,8 +1,7 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, lazy, Suspense } from 'react';
 import AppHeader from '../components/layout/AppHeader';
 import AnnouncementBanner from '../components/layout/AnnouncementBanner';
 import KeyboardShortcuts from '../components/layout/KeyboardShortcuts';
-import PokemonWalkersOverlay from '../components/shared/PokemonWalkersOverlay';
 import ScrollToTop from '../components/layout/ScrollToTop';
 import CommandPalette from '../components/layout/CommandPalette';
 import AppMain from './AppMain';
@@ -11,12 +10,36 @@ import ComparisonBar from '../components/compare/ComparisonBar';
 import { WalkthroughManager } from '../components/walkthrough';
 import { useAppController } from './useAppController';
 import { useComparisonSharer } from '../hooks/useComparisonSharer';
+import { usePokemonDetailSharer } from '../hooks/usePokemonDetailSharer';
 import { useToast } from '../context/ToastContext';
+import { usePokemonStore } from '../store/usePokemonStore';
 import {
   SW_OFFLINE_READY_EVENT,
   SW_UPDATE_AVAILABLE_EVENT,
   type ServiceWorkerUpdateEventDetail,
 } from '../utils/swEvents';
+import { loadWalkersSettings } from '../pets/walkersSettings';
+import { onWalkersSettingsChanged } from '../pets/walkersEvents';
+
+const PokemonWalkersOverlay = lazy(() => import('../components/shared/PokemonWalkersOverlay'));
+
+/** Mount walkers only when enabled so the sprite pack stays out of the initial bundle. */
+function WalkersHost() {
+  const [enabled, setEnabled] = useState(() => loadWalkersSettings().enabled);
+
+  useEffect(() => onWalkersSettingsChanged(() => setEnabled(loadWalkersSettings().enabled)), []);
+
+  if (!enabled) return null;
+
+  return (
+    <Suspense fallback={null}>
+      <PokemonWalkersOverlay />
+    </Suspense>
+  );
+}
+
+/** Approx ComparisonBar height (padding + sprite row) excluding safe-area. */
+const COMPARISON_BAR_HEIGHT = '5.5rem';
 
 export default function AppShell() {
   const controller = useAppController();
@@ -26,9 +49,14 @@ export default function AppShell() {
   const [isApplyingUpdate, setIsApplyingUpdate] = useState(false);
   const updateRef = useRef<(() => Promise<void>) | null>(null);
   const { addToast } = useToast();
+  const hasComparisonBar = usePokemonStore((s) => s.comparisonList.length > 0);
 
-  // Handle shareable comparison URLs
+  // Handle shareable comparison and detail URLs
   useComparisonSharer();
+  usePokemonDetailSharer({
+    selectedPokemonId: controller.selectedPokemonId,
+    onSelect: controller.handleSelectPokemon,
+  });
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -76,11 +104,16 @@ export default function AppShell() {
     }
   };
 
+  const chromeBottomOffset = hasComparisonBar
+    ? `calc(${COMPARISON_BAR_HEIGHT} + env(safe-area-inset-bottom, 0px))`
+    : '0px';
+
   return (
     <div
       className={`min-h-screen ${
         theme === 'dark' ? 'bg-slate-950 text-white' : 'bg-slate-100 text-slate-900'
       } ${isCyberpunk ? 'cyber-scanlines' : ''}`}
+      style={{ ['--chrome-bottom-offset' as string]: chromeBottomOffset }}
     >
       <a
         href="#main-content"
@@ -127,7 +160,7 @@ export default function AppShell() {
       )}
 
       <ScrollToTop />
-      <PokemonWalkersOverlay />
+      <WalkersHost />
       <AppModals controller={controller} />
       <ComparisonBar />
       <CommandPalette

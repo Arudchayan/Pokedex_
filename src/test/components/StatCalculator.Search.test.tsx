@@ -1,6 +1,6 @@
 import React from 'react';
 import { screen, fireEvent, waitFor } from '@testing-library/react';
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import StatCalculator from '../../components/calculators/StatCalculator';
 import { renderWithProvider } from '../utils'; // Import helper but not the mock setter
 import { PokemonListItem } from '../../types';

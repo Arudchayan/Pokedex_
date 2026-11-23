@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { usePokemon } from '../../context/PokemonContext';
 import { useGameStats } from '../../hooks/useGameStats';
 import { PokemonListItem, PokemonDetails } from '../../types';
-import { fetchPokemonDetails } from '../../services/pokeapiService';
+import { fetchPokemonDetailsQuery } from '../../services/pokemonDetailsQuery';
 import { mulberry32, pickRandom } from '../../utils/seededRandom';
 
 interface Props {
@@ -28,6 +29,7 @@ interface GuessResult {
 
 const PokedleGame: React.FC<Props> = ({ onClose, date, seed }) => {
   const { masterPokemonList, theme } = usePokemon();
+  const queryClient = useQueryClient();
   const [targetPokemon, setTargetPokemon] = useState<PokemonDetails | null>(null);
   const [guesses, setGuesses] = useState<GuessResult[]>([]);
   const [currentGuess, setCurrentGuess] = useState('');
@@ -47,14 +49,14 @@ const PokedleGame: React.FC<Props> = ({ onClose, date, seed }) => {
       // Pick target
       const targetBasic = pickRandom(masterPokemonList, rng);
       try {
-        const details = await fetchPokemonDetails(targetBasic.id);
+        const details = await fetchPokemonDetailsQuery(queryClient, targetBasic.id);
         setTargetPokemon(details);
       } catch (e) {
         console.error('Failed to load target pokemon', e);
       }
     };
     init();
-  }, [masterPokemonList, rng]);
+  }, [masterPokemonList, rng, queryClient]);
 
   const handleSearch = (term: string) => {
     setCurrentGuess(term);
@@ -93,7 +95,7 @@ const PokedleGame: React.FC<Props> = ({ onClose, date, seed }) => {
     if (guesses.some((g) => g.pokemon.id === pokemonId)) return;
 
     try {
-      const guessDetails = await fetchPokemonDetails(pokemonId);
+      const guessDetails = await fetchPokemonDetailsQuery(queryClient, pokemonId);
       if (!guessDetails) return;
 
       // Compare attributes

@@ -1,5 +1,4 @@
 import { PokemonMove, PokemonStat } from '../types';
-import { TYPE_RELATIONS } from '../constants';
 
 interface ScoredMove extends PokemonMove {
   score: number;
@@ -23,8 +22,8 @@ export const getRecommendedMoves = (
   // Identify key stats
   const attackStat = stats.find((s) => s.name === 'attack')?.value || 0;
   const spAttackStat = stats.find((s) => s.name === 'special-attack')?.value || 0;
-  const isPhysicalAttacker = attackStat > spAttackStat;
-  const isMixedAttacker = Math.abs(attackStat - spAttackStat) < 20; // Close stats
+  const _isPhysicalAttacker = attackStat > spAttackStat;
+  const _isMixedAttacker = Math.abs(attackStat - spAttackStat) < 20; // Close stats
 
   return dedupedMoves
     .filter((move) => move.power && move.power > 0) // Only damaging moves for now

@@ -1,8 +1,11 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { usePokemon } from '../../context/PokemonContext';
 import { PokemonListItem, PokemonDetails } from '../../types';
 import { mulberry32, pickRandom } from '../../utils/seededRandom';
-import { fetchPokemonDetails } from '../../services/pokeapiService';
+import { fetchPokemonDetailsQuery } from '../../services/pokemonDetailsQuery';
+import { mapWithConcurrency } from '../../utils/mapWithConcurrency';
+import { useGameStats } from '../../hooks/useGameStats';
 
 interface Props {
   onClose: () => void;
@@ -10,8 +13,13 @@ interface Props {
   seed: number;
 }
 
+const FLAVOR_CANDIDATE_TRIES = 20;
+const FLAVOR_FETCH_CONCURRENCY = 5;
+
 const FlavorGame: React.FC<Props> = ({ onClose, date, seed }) => {
   const { masterPokemonList, theme } = usePokemon();
+  const { recordResult } = useGameStats();
+  const queryClient = useQueryClient();
   const [target, setTarget] = useState<PokemonDetails | null>(null);
   const [currentGuess, setCurrentGuess] = useState('');
   const [gameState, setGameState] = useState<'playing' | 'won' | 'lost'>('playing');
@@ -25,27 +33,27 @@ const FlavorGame: React.FC<Props> = ({ onClose, date, seed }) => {
   useEffect(() => {
     const init = async () => {
       if (masterPokemonList.length > 0) {
-        // Pick a random pokemon
-        let tBase = pickRandom(masterPokemonList, rng);
+        // Pre-pick candidates (same rng stream as sequential retries), then fetch in parallel.
+        const candidates: PokemonListItem[] = [];
+        for (let i = 0; i < FLAVOR_CANDIDATE_TRIES; i++) {
+          candidates.push(pickRandom(masterPokemonList, rng));
+        }
 
-        // Fetch details to ensure we have flavor text
         try {
-          let details = await fetchPokemonDetails(tBase.id);
-          let tries = 0;
-          // Ensure it has flavor text
-          while ((!details?.flavorText || details.flavorText.length < 10) && tries < 20) {
-            tBase = pickRandom(masterPokemonList, rng);
-            details = await fetchPokemonDetails(tBase.id);
-            tries++;
-          }
-          setTarget(details);
+          const detailsList = await mapWithConcurrency(
+            candidates,
+            FLAVOR_FETCH_CONCURRENCY,
+            (candidate) => fetchPokemonDetailsQuery(queryClient, candidate.id)
+          );
+          const withFlavor = detailsList.find((d) => d?.flavorText && d.flavorText.length >= 10);
+          setTarget(withFlavor ?? detailsList.find((d) => d != null) ?? null);
         } catch (e) {
           console.error('Error fetching flavor text target', e);
         }
       }
     };
     init();
-  }, [masterPokemonList, rng]);
+  }, [masterPokemonList, rng, queryClient]);
 
   // Obfuscate the flavor text by replacing the pokemon name
   const flavorText = useMemo(() => {
@@ -78,11 +86,13 @@ const FlavorGame: React.FC<Props> = ({ onClose, date, seed }) => {
 
     if (pokemon.id === target.id) {
       setGameState('won');
+      recordResult('flavor', true);
     } else {
       const newAttempts = attempts + 1;
       setAttempts(newAttempts);
       if (newAttempts >= MAX_ATTEMPTS) {
         setGameState('lost');
+        recordResult('flavor', false);
       }
     }
     setCurrentGuess('');

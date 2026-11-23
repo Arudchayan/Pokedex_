@@ -7,7 +7,8 @@ const MAX_FAVORITES = 5000;
 const isValidFavoriteId = (value: unknown): value is number =>
   typeof value === 'number' && Number.isInteger(value) && value > 0 && value <= MAX_POKEMON_ID;
 
-const normalizeFavorites = (values: Iterable<unknown>): Set<number> => {
+/** Shared favorite ID sanitizer (cap + range checks). */
+export const sanitizeFavoriteIds = (values: Iterable<unknown>): Set<number> => {
   const result = new Set<number>();
   for (const value of values) {
     if (!isValidFavoriteId(value)) continue;
@@ -23,7 +24,7 @@ export const getFavorites = (): Set<number> => {
     if (stored) {
       const parsed = JSON.parse(stored);
       if (Array.isArray(parsed)) {
-        return normalizeFavorites(parsed);
+        return sanitizeFavoriteIds(parsed);
       }
     }
   } catch (error) {
@@ -34,7 +35,7 @@ export const getFavorites = (): Set<number> => {
 
 export const saveFavorites = (favorites: Set<number>): void => {
   try {
-    const array = Array.from(normalizeFavorites(favorites));
+    const array = Array.from(sanitizeFavoriteIds(favorites));
     localStorage.setItem(FAVORITES_KEY, JSON.stringify(array));
   } catch (error) {
     console.error('Error saving favorites:', error);

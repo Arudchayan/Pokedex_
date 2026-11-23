@@ -30,7 +30,7 @@ const TeamBuilderActions: React.FC<TeamBuilderActionsProps> = memo(
   ({
     team,
     theme,
-    isCyberpunk,
+    isCyberpunk: _isCyberpunk,
     copyStatus,
     shareLinkStatus,
     onCopyStatusChange,
@@ -81,7 +81,7 @@ const TeamBuilderActions: React.FC<TeamBuilderActionsProps> = memo(
 
         await navigator.clipboard.writeText(url.toString());
         onShareLinkStatusChange('success');
-      } catch (e) {
+      } catch (_e) {
         onShareLinkStatusChange('error');
       }
       if (shareTimeoutRef.current) clearTimeout(shareTimeoutRef.current);

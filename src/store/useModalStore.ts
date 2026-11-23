@@ -2,7 +2,7 @@ import { create } from 'zustand';
 
 interface ModalStoreState {
   showComparison: boolean;
-  showBattleCalc: boolean;
+  showDamageCalc: boolean;
   showStatCalc: boolean;
   showBreedingCalc: boolean;
   showCatchCalc: boolean;
@@ -22,7 +22,7 @@ interface ModalStoreState {
 
 interface ModalStoreActions {
   setShowComparison: (v: boolean) => void;
-  setShowBattleCalc: (v: boolean) => void;
+  setShowDamageCalc: (v: boolean) => void;
   setShowStatCalc: (v: boolean) => void;
   setShowBreedingCalc: (v: boolean) => void;
   setShowCatchCalc: (v: boolean) => void;
@@ -40,7 +40,7 @@ interface ModalStoreActions {
   setDexSearchTerm: (v: string) => void;
   closeAll: () => void;
   openComparison: () => void;
-  openBattleCalc: () => void;
+  openDamageCalc: () => void;
   openStatCalc: () => void;
   openBreedingCalc: () => void;
   openCatchCalc: () => void;
@@ -61,7 +61,7 @@ interface ModalStoreActions {
 
 const initialState: ModalStoreState = {
   showComparison: false,
-  showBattleCalc: false,
+  showDamageCalc: false,
   showStatCalc: false,
   showBreedingCalc: false,
   showCatchCalc: false,
@@ -83,7 +83,7 @@ export const useModalStore = create<ModalStoreState & ModalStoreActions>((set) =
   ...initialState,
 
   setShowComparison: (v) => set({ showComparison: v }),
-  setShowBattleCalc: (v) => set({ showBattleCalc: v }),
+  setShowDamageCalc: (v) => set({ showDamageCalc: v }),
   setShowStatCalc: (v) => set({ showStatCalc: v }),
   setShowBreedingCalc: (v) => set({ showBreedingCalc: v }),
   setShowCatchCalc: (v) => set({ showCatchCalc: v }),
@@ -103,7 +103,7 @@ export const useModalStore = create<ModalStoreState & ModalStoreActions>((set) =
   closeAll: () => set(initialState),
 
   openComparison: () => set({ showComparison: true }),
-  openBattleCalc: () => set({ showBattleCalc: true }),
+  openDamageCalc: () => set({ showDamageCalc: true }),
   openStatCalc: () => set({ showStatCalc: true }),
   openBreedingCalc: () => set({ showBreedingCalc: true }),
   openCatchCalc: () => set({ showCatchCalc: true }),

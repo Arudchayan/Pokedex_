@@ -1,24 +1,12 @@
 import { test, expect } from '@playwright/test';
+import { skipWalkthroughOnboarding, dismissWelcomeModal } from './helpers';
 
 test('Full Team Builder Flow: Search, Add, DnD, Undo, Export', async ({ page }) => {
   page.on('console', (msg) => console.log('PAGE LOG:', msg.text()));
 
-  // 1. Navigate
+  await skipWalkthroughOnboarding(page);
   await page.goto('/');
-
-  // Handle walkthrough welcome modal (auto-opens on first visit)
-  const welcomeModal = page
-    .locator('div[role="dialog"]')
-    .filter({ hasText: /Welcome to Pokédex/i });
-  try {
-    await welcomeModal.waitFor({ state: 'visible', timeout: 3000 });
-    // Close the welcome modal by clicking "Skip for now"
-    const skipButton = welcomeModal.locator('button', { hasText: /Skip for now/i });
-    await skipButton.click();
-    await welcomeModal.waitFor({ state: 'hidden', timeout: 3000 });
-  } catch {
-    // Modal didn't appear, continue with test
-  }
+  await dismissWelcomeModal(page);
 
   // Wait for app to load
   await expect(page.locator('input[type="search"]')).toBeVisible({ timeout: 10000 });

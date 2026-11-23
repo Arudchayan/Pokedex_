@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, act, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -60,7 +60,7 @@ vi.mock('../domain/pokemonList', async (importOriginal) => {
 
 // Test Component
 const TestComponent = () => {
-  const { filteredPokemon, favorites } = usePokemon();
+  const { filteredPokemon } = usePokemon();
 
   return (
     <div>
@@ -97,7 +97,7 @@ describe('PokemonContext Performance Optimization', () => {
 
     // Initial load calls applySort
     expect(applySortSpy).toHaveBeenCalled();
-    const initialCallCount = applySortSpy.mock.calls.length;
+    const _initialCallCount = applySortSpy.mock.calls.length;
 
     // Clear calls to focus on update behavior
     applySortSpy.mockClear();

@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { reducePokemonStorePersistence } from './persistence';
-import { PokemonState, Action, SavedTeamEntry } from '../pokemonStoreTypes';
+import { PokemonState, SavedTeamEntry } from '../pokemonStoreTypes';
 import { UI_CONSTANTS } from '../../constants';
 
 describe('PokemonStore Persistence DoS Vulnerability', () => {
@@ -19,6 +19,7 @@ describe('PokemonStore Persistence DoS Vulnerability', () => {
     filteredPokemon: [],
     isFiltering: false,
     team: [],
+    teamCustomizations: {},
     favorites: new Set(),
     history: [],
     future: [],

@@ -33,13 +33,13 @@ export default function AppModals({ controller }: Props) {
     selectedPokemonId,
     teamIds,
     teamIsFull,
-    comparisonList,
+    comparisonList: _comparisonList,
     comparisonPokemon,
     dexSearchTerm,
     showComparison,
     setShowComparison,
-    showBattleCalc,
-    setShowBattleCalc,
+    showDamageCalc,
+    setShowDamageCalc,
     showStatCalc,
     setShowStatCalc,
     showBreedingCalc,
@@ -73,7 +73,7 @@ export default function AppModals({ controller }: Props) {
     handleAddToTeam,
     handleRemoveFromTeam,
     handleRemoveFromComparison,
-    openBattleCalc,
+    openDamageCalc,
     openCatchCalc,
     openMoveDex,
     openAbilityDex,
@@ -113,7 +113,7 @@ export default function AppModals({ controller }: Props) {
               onSelect={handleSelectPokemon}
               onAddToTeam={handleAddToTeam}
               onRemoveFromTeam={handleRemoveFromTeam}
-              onOpenDamageCalc={openBattleCalc}
+              onOpenDamageCalc={openDamageCalc}
               onOpenCatchCalc={openCatchCalc}
               onOpenMoveDex={openMoveDex}
               onOpenAbilityDex={openAbilityDex}
@@ -149,9 +149,9 @@ export default function AppModals({ controller }: Props) {
             />
           )}
 
-          {showBattleCalc && (
+          {showDamageCalc && (
             <DamageCalculator
-              onClose={() => setShowBattleCalc(false)}
+              onClose={() => setShowDamageCalc(false)}
               initialAttackerId={selectedPokemonId}
             />
           )}

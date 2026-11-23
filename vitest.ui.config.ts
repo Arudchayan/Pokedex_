@@ -19,6 +19,8 @@ export default defineConfig({
       '**/.codex_tmp/**',
       // Service-layer tests must run against the real implementation (no global mock).
       'services/pokeapiService*.test.ts',
+      'src/services/pokeapiService*.test.ts',
+      '**/services/pokeapiService*.test.ts',
     ],
   },
 });

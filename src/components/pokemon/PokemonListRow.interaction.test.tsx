@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, fireEvent } from '@testing-library/react';
 import PokemonListRow from './PokemonListRow';
 import * as soundService from '../../services/soundService';
 import { PokemonListItem } from '../../types';
