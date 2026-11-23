@@ -17,8 +17,8 @@ describe('pokeapiService security', () => {
       ok: true,
       json: async () => ({
         data: {
-          pokemon_v2_move: [],
-          pokemon_v2_item: [],
+          move: [],
+          item: [],
         },
       }),
     } as any);
