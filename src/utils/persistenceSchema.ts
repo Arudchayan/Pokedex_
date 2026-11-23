@@ -52,6 +52,8 @@ const isPokemonListItem = (value: unknown): value is PokemonListItem => {
 
   return (
     typeof record.id === 'number' &&
+    Number.isSafeInteger(record.id) &&
+    record.id > 0 &&
     typeof record.name === 'string' &&
     typeof record.imageUrl === 'string' &&
     typeof record.shinyImageUrl === 'string' &&
@@ -67,6 +69,7 @@ const isSavedTeam = (value: unknown): value is SavedTeam => {
     typeof record.id === 'string' &&
     typeof record.name === 'string' &&
     typeof record.updatedAt === 'number' &&
+    Number.isFinite(record.updatedAt) &&
     Array.isArray(record.team)
   );
 };

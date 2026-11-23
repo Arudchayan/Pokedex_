@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { usePokemon } from '../../context/PokemonContext';
 import { usePokemonStore } from '../../store/usePokemonStore';
 import { useToast } from '../../context/ToastContext';
@@ -45,18 +45,92 @@ const DataManagement: React.FC<DataManagementProps> = ({ onClose }) => {
   } | null>(null);
 
   const restoreButtonRef = useRef<HTMLButtonElement>(null);
+  const cancelButtonRef = useRef<HTMLButtonElement>(null);
   const confirmPanelRef = useRef<HTMLDivElement>(null);
-  const confirmTitleRef = useRef<HTMLHeadingElement>(null);
+  const confirmWasOpenRef = useRef(false);
+  const restoreFocusAfterConfirmRef = useRef(false);
   const successRef = useRef<HTMLParagraphElement>(null);
 
   // Showdown Import State
   const [showdownImportText, setShowdownImportText] = useState('');
   const [importTeamName, setImportTeamName] = useState('Imported Team');
 
+  const showdownPreview = useMemo(() => {
+    if (!showdownImportText.trim()) {
+      return { status: 'empty' as const, team: null };
+    }
+
+    const parsed = importFromShowdown(showdownImportText, masterPokemonList);
+    const importedTeam = Array.isArray(parsed) ? parsed : [];
+
+    return importedTeam.length > 0
+      ? { status: 'valid' as const, team: importedTeam }
+      : { status: 'invalid' as const, team: null };
+  }, [showdownImportText, masterPokemonList]);
+
+  useEffect(() => {
+    if (isConfirmingRestore) {
+      confirmWasOpenRef.current = true;
+      cancelButtonRef.current?.focus();
+      confirmPanelRef.current?.scrollIntoView?.({ block: 'center' });
+      return;
+    }
+
+    if (!confirmWasOpenRef.current) return;
+    confirmWasOpenRef.current = false;
+    if (!restoreFocusAfterConfirmRef.current) return;
+    restoreFocusAfterConfirmRef.current = false;
+    restoreButtonRef.current?.focus();
+  }, [isConfirmingRestore]);
+
+  // Keep Tab focus inside the confirmation and let Escape cancel only the
+  // confirmation, before the outer modal's focus trap sees the event.
   useEffect(() => {
     if (!isConfirmingRestore) return;
-    confirmTitleRef.current?.focus();
-    confirmPanelRef.current?.scrollIntoView?.({ block: 'center' });
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      const panel = confirmPanelRef.current;
+      if (!panel) return;
+
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        event.stopPropagation();
+        restoreFocusAfterConfirmRef.current = true;
+        setIsConfirmingRestore(false);
+        return;
+      }
+
+      if (event.key !== 'Tab') return;
+
+      const focusable = Array.from(
+        panel.querySelectorAll<HTMLElement>(
+          'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+        )
+      ).filter((element) => element.tabIndex >= 0);
+
+      if (focusable.length === 0) {
+        event.preventDefault();
+        panel.focus();
+        return;
+      }
+
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      const active = document.activeElement;
+
+      if (event.shiftKey && (active === first || !panel.contains(active))) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && (active === last || !panel.contains(active))) {
+        event.preventDefault();
+        first.focus();
+      }
+
+      event.stopPropagation();
+    };
+
+    document.addEventListener('keydown', handleKeyDown, true);
+    return () => document.removeEventListener('keydown', handleKeyDown, true);
   }, [isConfirmingRestore]);
 
   useEffect(() => {
@@ -111,6 +185,7 @@ const DataManagement: React.FC<DataManagementProps> = ({ onClose }) => {
 
     setImportData(value);
     setImportSummary(null);
+    restoreFocusAfterConfirmRef.current = false;
     setIsConfirmingRestore(false);
 
     const result = parsePersistenceBackup(value);
@@ -126,12 +201,13 @@ const DataManagement: React.FC<DataManagementProps> = ({ onClose }) => {
   const handleReviewRestore = () => {
     if (!parsedBackup) return;
     setImportSummary(null);
+    restoreFocusAfterConfirmRef.current = false;
     setIsConfirmingRestore(true);
   };
 
   const handleCancelRestore = () => {
+    restoreFocusAfterConfirmRef.current = true;
     setIsConfirmingRestore(false);
-    restoreButtonRef.current?.focus();
   };
 
   const handleConfirmRestore = () => {
@@ -153,6 +229,7 @@ const DataManagement: React.FC<DataManagementProps> = ({ onClose }) => {
     setParsedBackup(null);
     setBackupError(null);
     setImportData('');
+    restoreFocusAfterConfirmRef.current = false;
     setIsConfirmingRestore(false);
 
     unlockAchievement('data_hoarder');
@@ -167,20 +244,15 @@ const DataManagement: React.FC<DataManagementProps> = ({ onClose }) => {
       return;
     }
 
-    if (!showdownImportText.trim()) {
-      addToast('Please paste a team first.', 'error');
+    if (showdownPreview.status !== 'valid' || !showdownPreview.team) {
+      addToast('No valid Pokemon found in text.', 'error');
       return;
     }
 
     setIsImportingShowdown(true);
 
     try {
-      const importedTeam = importFromShowdown(showdownImportText, masterPokemonList);
-
-      if (importedTeam.length === 0) {
-        addToast('No valid Pokemon found in text.', 'error');
-        return;
-      }
+      const importedTeam = showdownPreview.team;
 
       // Create SavedTeam
       const normalizedName = importTeamName.trim();
@@ -311,6 +383,7 @@ const DataManagement: React.FC<DataManagementProps> = ({ onClose }) => {
               role="alertdialog"
               aria-labelledby="restore-confirm-title"
               aria-describedby="restore-confirm-warning"
+              tabIndex={-1}
               className={`mt-4 rounded-xl border p-4 ${
                 theme === 'dark'
                   ? 'border-amber-500/40 bg-amber-500/10'
@@ -319,8 +392,6 @@ const DataManagement: React.FC<DataManagementProps> = ({ onClose }) => {
             >
               <h4
                 id="restore-confirm-title"
-                ref={confirmTitleRef}
-                tabIndex={-1}
                 className="text-base font-bold mb-2 focus:outline-none"
               >
                 Confirm restore
@@ -364,6 +435,7 @@ const DataManagement: React.FC<DataManagementProps> = ({ onClose }) => {
                   Confirm Restore
                 </button>
                 <button
+                  ref={cancelButtonRef}
                   onClick={handleCancelRestore}
                   className={`px-4 py-2 rounded-lg font-bold transition-colors ${
                     theme === 'dark'
@@ -438,14 +510,34 @@ const DataManagement: React.FC<DataManagementProps> = ({ onClose }) => {
                   }
                 }}
                 maxLength={MAX_INPUT_LENGTH}
-                className={`w-full h-32 p-3 rounded-lg border text-sm font-mono ${theme === 'dark' ? 'bg-black/30 border-white/20 text-white' : 'bg-white border-slate-300'}`}
+                aria-invalid={showdownPreview.status === 'invalid' ? true : undefined}
+                aria-describedby={
+                  showdownPreview.status === 'invalid' ? 'showdown-validation' : undefined
+                }
+                className={`w-full h-32 p-3 rounded-lg border text-sm font-mono ${
+                  showdownPreview.status === 'invalid'
+                    ? 'border-red-500/70'
+                    : theme === 'dark'
+                      ? 'border-white/20'
+                      : 'border-slate-300'
+                } ${theme === 'dark' ? 'bg-black/30 text-white' : 'bg-white'}`}
                 placeholder={`Pikachu @ Light Ball\nAbility: Static\nEVs: 252 Atk / 252 Spe\n...`}
               />
+              {showdownPreview.status === 'invalid' && (
+                <p
+                  id="showdown-validation"
+                  role="status"
+                  className="mt-2 text-sm font-medium text-red-600 dark:text-red-400"
+                >
+                  No valid Pokémon found. Paste a Showdown export such as &quot;Pikachu @ Light
+                  Ball&quot;.
+                </p>
+              )}
             </div>
 
             <button
               onClick={handleShowdownImport}
-              disabled={!showdownImportText.trim() || isImportingShowdown}
+              disabled={showdownPreview.status !== 'valid' || isImportingShowdown}
               className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg font-bold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isImportingShowdown ? 'Saving...' : 'Save to My Teams'}

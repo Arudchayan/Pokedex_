@@ -39,6 +39,7 @@ const makeBackup = (overrides: Record<string, unknown> = {}) => ({
         'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/25.png',
       types: ['electric'],
       flavorText: 'Mouse Pokemon',
+      isShiny: true,
     },
   ],
   favorites: [25, 133],
@@ -161,17 +162,19 @@ describe('DataManagement', () => {
     expect(state.theme).toBe('dark');
   });
 
-  it('leaves current data untouched when the restore is cancelled', () => {
+  it('leaves current data untouched when the restore is cancelled and restores focus to Restore', async () => {
     seedCurrentData();
     const textarea = openImport();
     const backupJson = JSON.stringify(makeBackup());
+    const restoreButton = screen.getByRole('button', { name: 'Restore Backup' });
 
     fireEvent.change(textarea, { target: { value: backupJson } });
-    fireEvent.click(screen.getByRole('button', { name: 'Restore Backup' }));
+    fireEvent.click(restoreButton);
     fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
 
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
     expect(textarea).toHaveValue(backupJson);
+    await waitFor(() => expect(document.activeElement).toBe(restoreButton));
 
     const state = usePokemonStore.getState();
     expect(state.team).toEqual([1]);
@@ -195,7 +198,15 @@ describe('DataManagement', () => {
       expect(Array.from(state.favorites)).toEqual([25, 133]);
       expect(state.savedTeams).toEqual(backup.savedTeams);
       expect(state.theme).toBe('light');
+      expect(state.teamCustomizations[25]?.isShiny).toBe(true);
     });
+
+    const persisted = JSON.parse(localStorage.getItem('pokedex-storage') ?? '{}');
+    expect(persisted.state.team).toEqual([25]);
+    expect(persisted.state.favorites).toEqual([25, 133]);
+    expect(persisted.state.savedTeams).toEqual(backup.savedTeams);
+    expect(persisted.state.theme).toBe('light');
+    expect(persisted.state.teamCustomizations[25]?.isShiny).toBe(true);
 
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
     expect(screen.getByRole('status')).toHaveTextContent(
@@ -237,6 +248,30 @@ describe('DataManagement', () => {
     expect(Array.from(state.favorites)).toEqual([1]);
     expect(state.savedTeams).toEqual([existingSavedTeam]);
     expect(state.theme).toBe('dark');
+  });
+
+  it('keeps Showdown import disabled until the text parses to a valid team', () => {
+    vi.mocked(teamExport.importFromShowdown).mockReturnValue([]);
+    renderWithProvider(<DataManagement onClose={() => {}} />);
+
+    const textarea = screen.getByLabelText('Paste Showdown Text');
+    const saveBtn = screen.getByRole('button', { name: 'Save to My Teams' });
+
+    expect(saveBtn).toBeDisabled();
+
+    fireEvent.change(textarea, { target: { value: 'not a showdown team' } });
+
+    const modal = screen.getByRole('dialog', { name: 'Data Management' });
+    expect(saveBtn).toBeDisabled();
+    expect(within(modal).getByRole('status')).toHaveTextContent(/no valid pokémon found/i);
+
+    vi.mocked(teamExport.importFromShowdown).mockReturnValue([
+      { id: 25, name: 'Pikachu', types: ['electric'], imageUrl: 'url' },
+    ] as any);
+    fireEvent.change(textarea, { target: { value: 'Pikachu @ Light Ball' } });
+
+    expect(saveBtn).toBeEnabled();
+    expect(within(modal).queryByText(/no valid pokémon found/i)).not.toBeInTheDocument();
   });
 
   it('imports Showdown team to saved teams', async () => {

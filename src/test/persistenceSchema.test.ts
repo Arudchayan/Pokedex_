@@ -16,6 +16,7 @@ describe('persistenceSchema', () => {
       shinyImageUrl: 'shiny-url',
       types: ['electric'],
       flavorText: 'mouse pokemon',
+      isShiny: true,
     },
   ];
 
@@ -51,7 +52,7 @@ describe('persistenceSchema', () => {
         team: sampleTeam,
         favorites: [25, 1337, 0],
         savedTeams: [
-          { id: 'team-1', name: 'Team One', team: [], updatedAt: 1 },
+          { id: 'team-1', name: 'Team One', team: [sampleTeam[0]], updatedAt: 1 },
           { id: 'team-1', name: 'Duplicate', team: [], updatedAt: 2 },
         ],
         theme: 'light' as const,
@@ -66,8 +67,10 @@ describe('persistenceSchema', () => {
       expect(result.ok).toBe(true);
       if (!result.ok) return;
       expect(result.backup.team.map((member) => member.id)).toEqual([25]);
+      expect(result.backup.team[0]?.isShiny).toBe(true);
       expect(result.backup.favorites).toEqual([25]);
       expect(result.backup.savedTeams).toHaveLength(1);
+      expect(result.backup.savedTeams[0]?.team[0]?.isShiny).toBe(true);
       expect(result.backup.theme).toBe('light');
       expect(result.backup).not.toHaveProperty('unknownKey');
     });
@@ -97,6 +100,17 @@ describe('persistenceSchema', () => {
       expect(result.ok).toBe(false);
       if (result.ok) return;
       expect(result.error).toContain('does not match the expected schema');
+    });
+
+    it('rejects unsafe team IDs and non-finite saved-team timestamps', () => {
+      const unsafeTeamId = { ...validBackup(), team: [{ ...sampleTeam[0], id: 0 }] };
+      expect(isPersistenceData(unsafeTeamId)).toBe(false);
+
+      const unsafeSavedTeam = {
+        ...validBackup(),
+        savedTeams: [{ id: 'team-1', name: 'Team One', team: [], updatedAt: Number.NaN }],
+      };
+      expect(isPersistenceData(unsafeSavedTeam)).toBe(false);
     });
   });
 });
