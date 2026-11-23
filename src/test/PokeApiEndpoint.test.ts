@@ -72,11 +72,12 @@ describe('PokeAPI GraphQL endpoint', () => {
     expect(codegenConfig).not.toContain('beta.pokeapi.co');
   });
 
-  it('requests a 100-item held-item pool without a price filter', () => {
+  it('requests the full held-item pool without any price filter', () => {
     const document = fs.readFileSync(path.join(graphqlDir, 'fetchItems.graphql'), 'utf8');
 
-    expect(document).toContain('limit: 100');
-    expect(document).toContain('holdable');
-    expect(document).not.toMatch(/purchase_price:\s*\{\s*_gt/);
+    expect(document).not.toMatch(/itemprices\s*:\s*\{/);
+    expect(document).not.toMatch(/purchase_price\s*:\s*\{/);
+    expect(document).toContain('holdable-active');
+    expect(document).toContain('itemcategory');
   });
 });

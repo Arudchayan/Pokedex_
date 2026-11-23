@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { clear, set } from 'idb-keyval';
 import { fetchAllMoves, fetchAllItems } from './pokeapiService';
 
 // Mock console.error/warn to avoid noise
@@ -6,8 +7,9 @@ const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
 
 describe('pokeapiService data validation', () => {
-  beforeEach(() => {
+  beforeEach(async () => {
     localStorage.clear();
+    await clear();
     vi.restoreAllMocks();
     consoleSpy.mockClear();
     consoleWarnSpy.mockClear();
@@ -114,5 +116,40 @@ describe('pokeapiService data validation', () => {
     expect(items).toHaveLength(2);
     expect(items[0]).toMatchObject({ name: 'leftovers', cost: 0 });
     expect(items[1]).toMatchObject({ name: 'ultra-ball', cost: 1200 });
+  });
+
+  it('fetchAllItems: ignores the legacy v1 items cache', async () => {
+    const staleV1Item = {
+      id: 999,
+      name: 'stale-v1-item',
+      cost: 0,
+      flavorText: 'Cached before the item pool fix.',
+      imageUrl:
+        'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/stale-v1-item.png',
+      nameLower: 'stale-v1-item',
+    };
+    await set('pokedex_items', [staleV1Item]);
+    await set('pokedex_items_timestamp', Date.now());
+
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        data: {
+          item: [
+            {
+              id: 211,
+              name: 'leftovers',
+              itemprices: [],
+              itemflavortexts: [{ flavor_text: 'Slowly restores HP.' }],
+            },
+          ],
+        },
+      }),
+    } as any);
+
+    const items = await fetchAllItems();
+
+    expect(global.fetch).toHaveBeenCalled();
+    expect(items.map((item) => item.name)).toEqual(['leftovers']);
   });
 });
