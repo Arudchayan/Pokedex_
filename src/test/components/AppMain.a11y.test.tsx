@@ -1,5 +1,6 @@
 import React from 'react';
-import { fireEvent, render, screen, within } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi } from 'vitest';
 import AppMain from '../../app/AppMain';
 import type { AppController } from '../../app/useAppController';
@@ -12,7 +13,14 @@ vi.mock('../../components/pokemon/VirtualPokemonList', () => ({
 }));
 
 vi.mock('../../components/team/TeamBuilder', () => ({
-  default: () => <div data-testid="team-builder">Team Builder</div>,
+  default: ({ onAddPokemon }: { onAddPokemon?: () => void }) => (
+    <div data-testid="team-builder">
+      Team Builder
+      <button type="button" onClick={onAddPokemon}>
+        Add Pokemon
+      </button>
+    </div>
+  ),
 }));
 
 vi.mock('../../components/layout/SortingControls', () => ({
@@ -121,6 +129,54 @@ describe('AppMain Accessibility', () => {
     expect(statusContainer).toHaveAttribute('role', 'status');
     expect(statusContainer).toHaveAttribute('aria-live', 'polite');
     expect(statusContainer).toHaveAttribute('aria-atomic', 'true');
+  });
+
+  it('moves focus into the full team builder and restores it to the FAB on Escape', async () => {
+    const user = userEvent.setup();
+    render(<AppMain controller={mockController} />);
+
+    const fab = screen.getByRole('button', { name: /Team: 0\/6/i });
+    await user.click(fab);
+
+    const sheet = screen.getByRole('dialog', { name: 'Team Builder' });
+    await user.click(within(sheet).getByRole('button', { name: /Open full team builder/i }));
+
+    const fullBuilder = await screen.findByRole('dialog', { name: 'Team Builder' });
+    expect(fullBuilder).not.toBe(sheet);
+    await waitFor(() =>
+      expect(within(fullBuilder).getByRole('heading', { name: 'Team Builder' })).toHaveFocus()
+    );
+
+    await user.keyboard('{Escape}');
+
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+    expect(fab).toHaveFocus();
+  });
+
+  it('focuses search after choosing an empty slot in the full builder', async () => {
+    const user = userEvent.setup({ delay: null });
+    const searchInputRef = React.createRef<HTMLInputElement>();
+    const controllerWithSearch = {
+      ...mockController,
+      handleFocusSearch: () => searchInputRef.current?.focus(),
+    } as AppController;
+
+    render(
+      <>
+        <input ref={searchInputRef} aria-label="Search Pokemon" />
+        <AppMain controller={controllerWithSearch} />
+      </>
+    );
+
+    await user.click(screen.getByRole('button', { name: /Team: 0\/6/i }));
+    const sheet = screen.getByRole('dialog', { name: 'Team Builder' });
+    await user.click(within(sheet).getByRole('button', { name: /Open full team builder/i }));
+
+    const fullBuilder = await screen.findByRole('dialog', { name: 'Team Builder' });
+    await user.click(within(fullBuilder).getByRole('button', { name: 'Add Pokemon' }));
+
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+    expect(searchInputRef.current).toHaveFocus();
   });
 
   it('exposes exactly one loading status and hides the decorative skeleton', () => {
