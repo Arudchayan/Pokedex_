@@ -1,5 +1,17 @@
 query FetchItems {
-  item(limit: 100, order_by: { id: asc }, where: { itemprices: { purchase_price: { _gt: 0 } } }) {
+  item(
+    order_by: { id: asc }
+    where: {
+      _or: [
+        {
+          itemattributemaps: {
+            itemattribute: { name: { _in: ["holdable", "holdable-passive", "holdable-active"] } }
+          }
+        }
+        { itemcategory: { name: { _eq: "held-items" } } }
+      ]
+    }
+  ) {
     id
     name
     itemprices(limit: 1, order_by: { purchase_price: desc_nulls_last }) {
