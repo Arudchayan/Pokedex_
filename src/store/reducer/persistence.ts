@@ -74,6 +74,8 @@ export function reducePokemonStorePersistence(
     }
 
     case 'SAVE_TEAM_ENTRY': {
+      // Never persist presentation placeholders as saved-team members.
+      if (action.payload.team.some((member) => member.detailsUnavailable)) return state;
       const newTeams = [action.payload, ...state.savedTeams];
       // SECURITY: Enforce limit to prevent DoS
       if (newTeams.length > UI_CONSTANTS.MAX_SAVED_TEAMS) {

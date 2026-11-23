@@ -114,6 +114,7 @@ export function useTeamAnalytics(team: TeamMember[]) {
 
     let count = 0;
     team.forEach((p) => {
+      if (p.detailsUnavailable) return;
       if (p.stats) {
         p.stats.forEach((s) => {
           if (stats[s.name as keyof typeof stats] !== undefined) {

@@ -49,8 +49,9 @@ const CACHE_TIMESTAMP_KEY = 'pokedex_master_list_timestamp';
 const CACHE_KEY = 'pokedex_master_list_v2';
 const MOVES_CACHE_KEY = 'pokedex_moves';
 const MOVES_CACHE_TIMESTAMP_KEY = 'pokedex_moves_timestamp';
-const ITEMS_CACHE_KEY = 'pokedex_items';
-const ITEMS_CACHE_TIMESTAMP_KEY = 'pokedex_items_timestamp';
+// v2 invalidates pre-migration v1 caches that only held the 16 price-filtered items.
+const ITEMS_CACHE_KEY = 'pokedex_items_v2';
+const ITEMS_CACHE_TIMESTAMP_KEY = 'pokedex_items_v2_timestamp';
 
 const EVOLUTION_ITEM_MAP: Record<number, string> = {
   198: "King's Rock",
