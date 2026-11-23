@@ -17,6 +17,21 @@ describe('AppHeader', () => {
     useModalStore.getState().closeAll();
   });
 
+  it('keeps the brand wordmark intact and hides the subtitle until large screens', () => {
+    renderWithProvider(<AppHeader onRandomPokemon={vi.fn()} />);
+
+    const wordmark = screen.getByRole('heading', { level: 1, name: 'Pokédex' });
+    expect(wordmark).toHaveClass('whitespace-nowrap', 'sm:text-4xl', 'lg:text-5xl');
+
+    const brand = wordmark.parentElement?.parentElement;
+    expect(brand).toHaveClass('md:shrink-0', 'lg:shrink');
+
+    const subtitle = screen.getByText(
+      'Explore every species with instant filtering, encounter data, and team analytics.'
+    );
+    expect(subtitle).toHaveClass('hidden', 'lg:block');
+  });
+
   it('renders the Random Pokemon button with correct accessibility attributes', () => {
     renderWithProvider(<AppHeader onRandomPokemon={vi.fn()} />);
 
