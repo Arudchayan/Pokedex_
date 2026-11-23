@@ -5,6 +5,7 @@ import { usePokemonUI } from '../../context/PokemonContext';
 import { usePokemonStore } from '../../store/usePokemonStore';
 import { useModalStore } from '../../store/useModalStore';
 import { useAchievements } from '../../context/AchievementContext';
+import { useFocusTrap } from '../../hooks';
 import ThemeSelector from './ThemeSelector';
 import { openWalkthroughModal } from '../walkthrough/WalkthroughManager';
 import {
@@ -115,29 +116,13 @@ const MobileDrawer: React.FC<MobileDrawerProps> = ({ isOpen, onClose, onRandomPo
     unlockAchievement('knowledge_seeker');
   };
 
-  // Close on Escape
-  useEffect(() => {
-    if (!isOpen) return;
-
-    const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        e.preventDefault();
-        onClose();
-      }
-    };
-
-    window.addEventListener('keydown', onKeyDown);
-    return () => window.removeEventListener('keydown', onKeyDown);
-  }, [isOpen, onClose]);
-
-  // Focus management: move focus into drawer when opened
-  useEffect(() => {
-    if (isOpen) {
-      requestAnimationFrame(() => {
-        firstItemRef.current?.focus();
-      });
-    }
-  }, [isOpen]);
+  // Trap focus inside the open drawer and restore it to the trigger on close.
+  useFocusTrap({
+    active: isOpen,
+    containerRef: drawerRef,
+    initialFocusRef: firstItemRef,
+    onEscape: onClose,
+  });
 
   // Lock body scroll when drawer is open
   useEffect(() => {
@@ -274,7 +259,7 @@ const MobileDrawer: React.FC<MobileDrawerProps> = ({ isOpen, onClose, onRandomPo
       : 'h-px mx-3 my-1 bg-slate-200';
 
   const drawerContent = (
-    <div data-testid="mobile-drawer-root">
+    <div data-testid="mobile-drawer-root" inert={!isOpen}>
       {/* Backdrop */}
       <div
         className={backdropClass}
