@@ -182,7 +182,7 @@ Environment variables (optional):
 
 ```bash
 # .env.local
-VITE_POKEAPI_GRAPHQL_URL=https://beta.pokeapi.co/graphql/v1beta
+VITE_POKEAPI_GRAPHQL_URL=https://graphql.pokeapi.co/v1beta2
 ```
 
 ## Contributing
