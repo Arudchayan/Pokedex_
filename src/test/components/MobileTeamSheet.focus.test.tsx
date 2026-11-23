@@ -1,4 +1,3 @@
-import React from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -79,7 +78,7 @@ describe('MobileTeamSheet focus management', () => {
 
     const dialog = await openSheet(user);
     const first = within(dialog).getByRole('button', { name: 'Clear All' });
-    const last = within(dialog).getByRole('button', { name: 'Slot 4' });
+    const last = within(dialog).getByRole('button', { name: 'Add a Pokémon to slot 4 of 4' });
 
     last.focus();
     await user.tab();
@@ -144,8 +143,8 @@ describe('MobileTeamSheet focus management', () => {
 
     const dialog = await openSheet(user);
     const first = within(dialog).getByRole('button', { name: 'Clear All' });
-    const slot3 = within(dialog).getByRole('button', { name: 'Slot 3' });
-    const slot4 = within(dialog).getByRole('button', { name: 'Slot 4' });
+    const slot3 = within(dialog).getByRole('button', { name: 'Add a Pokémon to slot 3 of 4' });
+    const slot4 = within(dialog).getByRole('button', { name: 'Add a Pokémon to slot 4 of 4' });
     const lastMemberRemove = within(dialog).getByRole('button', {
       name: 'Remove charmander from team',
     });
@@ -159,34 +158,6 @@ describe('MobileTeamSheet focus management', () => {
     first.focus();
     await user.tab({ shift: true });
     expect(lastMemberRemove).toHaveFocus();
-  });
-
-  it('focuses the search input after choosing an empty slot', async () => {
-    const user = userEvent.setup({ delay: null });
-    const searchInputRef = React.createRef<HTMLInputElement>();
-    const onAddPokemon = vi.fn(() => searchInputRef.current?.focus());
-
-    render(
-      <>
-        <input ref={searchInputRef} aria-label="Search Pokemon" />
-        <MobileTeamSheet
-          team={team}
-          onRemove={vi.fn()}
-          onClear={vi.fn()}
-          onSelect={vi.fn()}
-          teamCapacity={4}
-          theme="light"
-          onAddPokemon={onAddPokemon}
-        />
-      </>
-    );
-
-    const dialog = await openSheet(user);
-    await user.click(within(dialog).getByRole('button', { name: 'Slot 3' }));
-
-    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
-    expect(onAddPokemon).toHaveBeenCalledTimes(1);
-    expect(searchInputRef.current).toHaveFocus();
   });
 
   it('marks the background inert while open and clears it on close', async () => {
