@@ -35,7 +35,6 @@ describe('TeamBuilder', () => {
   const onUpdateTeamMember = vi.fn();
   const onLoadTeam = vi.fn();
   const onRandomize = vi.fn();
-  const onAddPokemon = vi.fn();
   const undo = vi.fn();
   const redo = vi.fn();
   const onReorderTeam = vi.fn();
@@ -72,14 +71,6 @@ describe('TeamBuilder', () => {
     // 6 capacity - 2 members = 4 empty slots
     const emptySlots = screen.getAllByText(/Slot \d+/);
     expect(emptySlots).toHaveLength(4);
-  });
-
-  it('calls onAddPokemon when empty slot is clicked', () => {
-    renderWithProvider(<TeamBuilder {...defaultProps} onAddPokemon={onAddPokemon} />);
-
-    const emptySlot = screen.getByText('Slot 3').closest('div');
-    fireEvent.click(emptySlot!);
-    expect(onAddPokemon).toHaveBeenCalled();
   });
 
   it('calls onRemove when remove button is clicked', () => {

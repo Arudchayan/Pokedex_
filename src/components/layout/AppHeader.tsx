@@ -195,15 +195,15 @@ const AppHeader: React.FC<AppHeaderProps> = memo(({ onRandomPokemon }) => {
     >
       <div className="mx-auto flex w-full max-w-7xl flex-col gap-2 px-3 py-2 sm:gap-4 sm:px-6 sm:py-4 md:gap-6 md:py-6">
         <div className="flex flex-col gap-2 sm:gap-3 md:flex-row md:items-center md:justify-between">
-          <div className="flex items-center gap-2.5 sm:gap-4">
+          <div className="flex items-center gap-2.5 sm:gap-4 md:shrink-0 lg:shrink">
             <img
               src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png"
               alt="Pokeball"
               className="h-8 w-8 sm:h-11 sm:w-11 drop-shadow-lg"
             />
-            <div className="flex-1 min-w-0">
+            <div className="flex-1">
               <h1
-                className={`text-2xl font-black tracking-tight sm:text-4xl md:text-5xl ${
+                className={`text-2xl font-black tracking-tight whitespace-nowrap sm:text-4xl lg:text-5xl ${
                   isCyberpunk
                     ? 'cyber-title'
                     : theme === 'dark'
@@ -211,10 +211,10 @@ const AppHeader: React.FC<AppHeaderProps> = memo(({ onRandomPokemon }) => {
                       : 'text-slate-800'
                 }`}
               >
-                Pokedex
+                Pokédex
               </h1>
               <p
-                className={`hidden md:block text-sm ${
+                className={`hidden lg:block text-sm ${
                   isCyberpunk
                     ? 'cyber-text opacity-70'
                     : theme === 'dark'
@@ -593,7 +593,7 @@ const AppHeader: React.FC<AppHeaderProps> = memo(({ onRandomPokemon }) => {
               {/* end desktop-only buttons */}
             </div>
           </div>
-          <div className="flex gap-2 w-full md:max-w-sm" data-tour="search-bar">
+          <div className="flex gap-2 w-full min-w-0 md:max-w-sm" data-tour="search-bar">
             <SearchBar
               id="main-search"
               value={searchTerm}

@@ -54,7 +54,7 @@ describe('App Performance', () => {
     renderWithProvider(<App />);
 
     // Wait for initial load and data
-    await screen.findByRole('heading', { name: /Pokedex/i });
+    await screen.findByRole('heading', { name: /Pokédex/i });
     // Wait for loading to vanish to ensure data is loaded and filteredPokemon populated
     await waitFor(
       () => {
@@ -88,7 +88,7 @@ describe('App Performance', () => {
 
   it('should still randomize team correctly', async () => {
     renderWithProvider(<App />);
-    await screen.findByRole('heading', { name: /Pokedex/i });
+    await screen.findByRole('heading', { name: /Pokédex/i });
     // Wait for data load
     await waitFor(
       () => {
