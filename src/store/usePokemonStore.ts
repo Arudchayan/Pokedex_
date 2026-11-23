@@ -2,7 +2,13 @@ import { useMemo } from 'react';
 import { create } from 'zustand';
 import { devtools, persist } from 'zustand/middleware';
 import type { PokemonListItem, TeamMember } from '../types';
-import { ACCENT_COLORS, type AccentColor } from '../constants';
+import {
+  ACCENT_COLORS,
+  DEFAULT_POKEDEX,
+  POKEDEX_OPTIONS,
+  type AccentColor,
+  type PokedexId,
+} from '../constants';
 import type { SortOption } from '../types/sorting';
 import { env } from '../config/env';
 import { logger } from '../utils/logger';
@@ -125,7 +131,7 @@ const initialState: PokemonState = {
   comparisonList: [],
   sortBy: 'id',
   sortOrder: 'asc',
-  selectedPokedex: 'national',
+  selectedPokedex: DEFAULT_POKEDEX,
   theme: 'dark',
   accent: 'cyan',
   isShiny: false,
@@ -137,21 +143,38 @@ const initialState: PokemonState = {
 };
 
 type PersistedPokemonStorage = {
-  team?: unknown;
-  teamCustomizations?: unknown;
-  favorites?: unknown;
-  theme?: unknown;
-  accent?: unknown;
-  selectedPokedex?: unknown;
-  achievements?: unknown;
-  gameStats?: unknown;
-  savedTeams?: unknown;
+  team?: number[];
+  teamCustomizations?: Record<number, TeamMemberCustomization>;
+  favorites?: number[];
+  theme?: 'dark' | 'light';
+  accent?: AccentColor;
+  selectedPokedex?: string;
+  achievements?: Record<string, number>;
+  gameStats?: Record<string, GameStats>;
+  savedTeams?: SavedTeamEntry[];
   // Allow other persisted keys (versioning, middleware metadata, etc).
   [key: string]: unknown;
 };
 
+const partializePokemonStore = (state: PokemonState & PokemonActions) => ({
+  team: state.team,
+  teamCustomizations: state.teamCustomizations,
+  favorites: Array.from(state.favorites),
+  theme: state.theme,
+  accent: state.accent,
+  selectedPokedex: state.selectedPokedex,
+  achievements: state.achievements,
+  gameStats: state.gameStats,
+  savedTeams: state.savedTeams,
+});
+
+type PersistedPokemonState = ReturnType<typeof partializePokemonStore>;
+
 const isTheme = (value: unknown): value is 'dark' | 'light' =>
   value === 'dark' || value === 'light';
+
+const isPokedexId = (value: unknown): value is PokedexId =>
+  POKEDEX_OPTIONS.some((option) => option.value === value);
 
 function normalizeAccent(value: unknown, fallback: AccentColor): AccentColor {
   if (typeof value === 'string' && ACCENT_COLORS[value as AccentColor]) return value as AccentColor;
@@ -458,17 +481,19 @@ export const usePokemonStore = create<PokemonState & PokemonActions>()(
       },
       {
         name: 'pokedex-storage',
-        partialize: (state) => ({
-          team: state.team,
-          teamCustomizations: state.teamCustomizations,
-          favorites: Array.from(state.favorites),
-          theme: state.theme,
-          accent: state.accent,
-          selectedPokedex: state.selectedPokedex,
-          achievements: state.achievements,
-          gameStats: state.gameStats,
-          savedTeams: state.savedTeams,
-        }),
+        // v1: validate `selectedPokedex` so unsupported/legacy values are
+        // corrected in storage on the next load instead of being replayed.
+        version: 1,
+        migrate: (persistedState) => {
+          const persisted = (persistedState ?? {}) as PersistedPokemonState;
+          return {
+            ...persisted,
+            selectedPokedex: isPokedexId(persisted.selectedPokedex)
+              ? persisted.selectedPokedex
+              : DEFAULT_POKEDEX,
+          };
+        },
+        partialize: partializePokemonStore,
         merge: (persistedState: unknown, currentState) => {
           const persisted = (persistedState ?? {}) as PersistedPokemonStorage;
           const hasNewStorage = Boolean(persisted && (persisted.team || persisted.favorites));
@@ -490,11 +515,13 @@ export const usePokemonStore = create<PokemonState & PokemonActions>()(
           const theme = isTheme(themeCandidate) ? themeCandidate : currentState.theme;
           const accentCandidate = hasNewStorage ? persisted.accent : legacy.accent;
           const accent = normalizeAccent(accentCandidate, currentState.accent);
-          const pokedexCandidate = hasNewStorage
+          const selectedPokedex = isPokedexId(persisted.selectedPokedex)
             ? persisted.selectedPokedex
-            : persisted.selectedPokedex;
-          const selectedPokedex =
-            typeof pokedexCandidate === 'string' ? pokedexCandidate : currentState.selectedPokedex;
+            : currentState.selectedPokedex;
+          // The Dex control restores regional order through `sortBy`, which is
+          // intentionally not persisted. Re-derive it from the persisted Dex so
+          // the control and the list keep the user's regional choice on reload.
+          const sortBy = selectedPokedex === DEFAULT_POKEDEX ? currentState.sortBy : 'regional-dex';
 
           // Consolidated persistence fields — prefer persisted Zustand, fall back to legacy
           const achievements = normalizeAchievements(
@@ -531,6 +558,7 @@ export const usePokemonStore = create<PokemonState & PokemonActions>()(
             theme,
             accent,
             selectedPokedex,
+            sortBy,
             achievements,
             gameStats,
             savedTeams,
