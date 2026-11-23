@@ -34,7 +34,7 @@ const SectionToggle: React.FC<{
   >
     <span>{label}</span>
     <span
-      className={`flex items-center gap-2 text-xs ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}
+      className={`flex items-center gap-2 text-xs ${theme === 'dark' ? 'text-slate-300' : 'text-slate-600'}`}
     >
       {description}
       <svg
@@ -173,7 +173,7 @@ const FilterControls: React.FC<FilterControlsProps> = ({
       <header className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <p
-            className={`text-xs font-semibold uppercase tracking-wide ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}
+            className={`text-xs font-semibold uppercase tracking-wide ${theme === 'dark' ? 'text-slate-300' : 'text-slate-600'}`}
           >
             Refine
           </p>
@@ -209,7 +209,7 @@ const FilterControls: React.FC<FilterControlsProps> = ({
       <div className="mb-4 flex flex-wrap gap-2">
         {activeChips.length === 0 ? (
           <span
-            className={`text-xs font-semibold uppercase tracking-wide ${theme === 'dark' ? 'text-slate-500' : 'text-slate-400'}`}
+            className={`text-xs font-semibold uppercase tracking-wide ${theme === 'dark' ? 'text-slate-300' : 'text-slate-600'}`}
           >
             No filters applied
           </span>
@@ -224,7 +224,7 @@ const FilterControls: React.FC<FilterControlsProps> = ({
               }`}
             >
               <span
-                className={`text-[10px] uppercase tracking-wide ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}
+                className={`text-[10px] uppercase tracking-wide ${theme === 'dark' ? 'text-slate-300' : 'text-slate-600'}`}
               >
                 {chip.label}
               </span>
@@ -390,7 +390,7 @@ const FilterControls: React.FC<FilterControlsProps> = ({
               <div>
                 <label
                   htmlFor="ability-search"
-                  className={`text-xs font-semibold capitalize mb-1 block ${theme === 'dark' ? 'text-slate-400' : 'text-slate-600'}`}
+                  className={`text-xs font-semibold capitalize mb-1 block ${theme === 'dark' ? 'text-slate-300' : 'text-slate-600'}`}
                 >
                   Ability
                 </label>
@@ -429,7 +429,7 @@ const FilterControls: React.FC<FilterControlsProps> = ({
               {/* Stats */}
               <div>
                 <label
-                  className={`text-xs font-semibold capitalize mb-2 block ${theme === 'dark' ? 'text-slate-400' : 'text-slate-600'}`}
+                  className={`text-xs font-semibold capitalize mb-2 block ${theme === 'dark' ? 'text-slate-300' : 'text-slate-600'}`}
                 >
                   Minimum Stats
                 </label>
@@ -439,7 +439,7 @@ const FilterControls: React.FC<FilterControlsProps> = ({
                       <div key={stat} className="flex flex-col gap-1">
                         <label
                           htmlFor={`min-stat-${stat}`}
-                          className={`text-[10px] uppercase tracking-wide ${theme === 'dark' ? 'text-slate-500' : 'text-slate-500'}`}
+                          className={`text-[10px] uppercase tracking-wide ${theme === 'dark' ? 'text-slate-300' : 'text-slate-600'}`}
                         >
                           {stat.replace('-', ' ')}
                         </label>
