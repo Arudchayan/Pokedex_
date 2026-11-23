@@ -174,4 +174,23 @@ describe('AppHeader', () => {
     await waitFor(() => expect(trigger).toHaveFocus());
     expect(trigger).toHaveAttribute('aria-expanded', 'false');
   });
+
+  it('gives every Tools menu item a theme-safe keyboard focus ring', async () => {
+    const user = userEvent.setup();
+    renderWithProvider(<AppHeader onRandomPokemon={vi.fn()} />);
+
+    const { items } = await openToolsMenu(user);
+
+    for (const item of items) {
+      expect(item).toHaveClass(
+        'focus-visible:outline',
+        'focus-visible:outline-2',
+        'focus-visible:outline-offset-2'
+      );
+      expect(item.className).toMatch(/focus-visible:outline-(white|slate-900)/);
+      // Mouse focus should not paint a ring, and the broken primary token is gone.
+      expect(item.className).not.toContain('focus:outline-none');
+      expect(item.className).not.toContain('focus:ring-primary-500');
+    }
+  });
 });

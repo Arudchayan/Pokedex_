@@ -286,10 +286,10 @@ const FilterControls: React.FC<FilterControlsProps> = ({
                 id={`${idPrefix}-generation-select`}
                 value={selectedGeneration}
                 onChange={(event) => onGenerationChange(event.target.value)}
-                className={`w-full rounded-md border py-2 px-3 text-sm shadow-inner transition focus:outline-none focus:ring-2 focus:ring-primary-500/60 ${
+                className={`w-full rounded-md border py-2 px-3 text-sm shadow-inner transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 ${
                   theme === 'dark'
-                    ? 'border-white/10 bg-slate-900 text-white shadow-black/20'
-                    : 'border-slate-300 bg-white text-slate-900 shadow-slate-200/50'
+                    ? 'border-white/10 bg-slate-900 text-white shadow-black/20 focus-visible:outline-white'
+                    : 'border-slate-300 bg-white text-slate-900 shadow-slate-200/50 focus-visible:outline-slate-900'
                 }`}
               >
                 <option value="all">All generations</option>

@@ -92,6 +92,29 @@ describe('App empty/error states', () => {
     mockUsePokemon.mockReset();
   });
 
+  it('renders the skip link with a theme-safe, high-contrast focus indicator', () => {
+    mockUsePokemon.mockReturnValue({
+      ...baseState,
+      theme: 'light',
+    });
+
+    renderWithProvider(<App />);
+
+    const link = screen.getByRole('link', { name: 'Skip to content' });
+    expect(link).toHaveAttribute('href', '#main-content');
+    expect(link).toHaveClass(
+      'focus:z-notification',
+      'focus-visible:outline',
+      'focus-visible:outline-2',
+      'focus-visible:outline-offset-2',
+      'focus:bg-slate-900',
+      'focus-visible:outline-slate-900'
+    );
+    // The legacy primary token computes to an invalid colour inside rings.
+    expect(link.className).not.toContain('focus:ring-primary-500');
+    expect(link.className).not.toContain('focus:bg-primary-600');
+  });
+
   it('shows the empty state when not loading and no error', () => {
     mockUsePokemon.mockReturnValue({
       ...baseState,
