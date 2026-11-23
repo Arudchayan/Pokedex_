@@ -6,8 +6,8 @@ This is a React 19 / Vite 6 / TypeScript 5.8 frontend SPA (Pokédex web app). No
 
 ### Prerequisites
 
-- Node.js 20.x (specified in `.nvmrc`), npm 10.x
-- Use `nvm use 20` if the default Node version differs
+- Node.js 24.x (specified in `.nvmrc`), npm 11.x
+- Use `nvm use 24` if the default Node version differs
 
 ### Key commands
 
