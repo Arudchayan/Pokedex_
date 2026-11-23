@@ -1,4 +1,5 @@
 import React, { memo } from 'react';
+import { DEFAULT_POKEDEX, POKEDEX_OPTIONS } from '../../constants';
 import type { SortOption } from '../../types/sorting';
 
 export type { SortOption } from '../../types/sorting';
@@ -19,7 +20,7 @@ const SortingControls: React.FC<SortingControlsProps> = ({
   onSortChange,
   onOrderChange,
   theme,
-  selectedPokedex = 'national',
+  selectedPokedex = DEFAULT_POKEDEX,
   onPokedexChange,
 }) => {
   const sortOptions: { value: SortOption; label: string; icon: string }[] = [
@@ -41,21 +42,7 @@ const SortingControls: React.FC<SortingControlsProps> = ({
 
   const isStatSelected = statOptions.some((opt) => opt.value === sortBy);
 
-  const dexOptions: { value: string; label: string }[] = [
-    { value: 'national', label: 'National Dex' },
-    { value: 'kanto', label: 'Kanto' },
-    { value: 'original-johto', label: 'Johto' },
-    { value: 'hoenn', label: 'Hoenn' },
-    { value: 'original-sinnoh', label: 'Sinnoh' },
-    { value: 'original-unova', label: 'Unova' },
-    { value: 'kalos-central', label: 'Kalos' },
-    { value: 'original-alola', label: 'Alola' },
-    { value: 'galar', label: 'Galar' },
-    { value: 'hisui', label: 'Hisui' },
-    { value: 'paldea', label: 'Paldea' },
-  ];
-
-  const currentDexValue = sortBy === 'regional-dex' ? selectedPokedex : 'national';
+  const currentDexValue = sortBy === 'regional-dex' ? selectedPokedex : DEFAULT_POKEDEX;
 
   return (
     <div className="flex flex-wrap gap-2 sm:gap-3 items-center w-full sm:w-auto">
@@ -148,7 +135,7 @@ const SortingControls: React.FC<SortingControlsProps> = ({
               if (onPokedexChange) {
                 onPokedexChange(value);
               }
-              if (value === 'national') {
+              if (value === DEFAULT_POKEDEX) {
                 onSortChange('id');
               } else {
                 onSortChange('regional-dex');
@@ -162,7 +149,7 @@ const SortingControls: React.FC<SortingControlsProps> = ({
                   : 'bg-slate-100 text-slate-600 border border-slate-200 hover:bg-slate-200 hover:text-slate-900'
             }`}
           >
-            {dexOptions.map((option) => (
+            {POKEDEX_OPTIONS.map((option) => (
               <option
                 key={option.value}
                 value={option.value}

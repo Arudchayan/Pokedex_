@@ -104,9 +104,12 @@ describe('GameHub and Games', () => {
     fireEvent.click(pokedleBtn);
 
     // Check if Pokedle renders
-    await waitFor(() => {
-      expect(screen.getByText('Pokedle')).toBeInTheDocument();
-    });
+    await waitFor(
+      () => {
+        expect(screen.getByPlaceholderText('Guess a Pokemon...')).toBeInTheDocument();
+      },
+      { timeout: 5000 }
+    );
 
     // Verify new columns exist
     expect(screen.getByText('Type 1')).toBeInTheDocument();
@@ -122,9 +125,12 @@ describe('GameHub and Games', () => {
     const cryBtn = screen.getByText('CryDle');
     fireEvent.click(cryBtn);
 
-    await waitFor(() => {
-      expect(screen.getByText('CryDle')).toBeInTheDocument();
-    });
+    await waitFor(
+      () => {
+        expect(screen.getByText('CryDle')).toBeInTheDocument();
+      },
+      { timeout: 5000 }
+    );
 
     // Check if play button exists
     const playBtn = screen.getByText('Tap to play sound');
