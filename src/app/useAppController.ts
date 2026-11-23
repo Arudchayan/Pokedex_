@@ -28,6 +28,7 @@ export const useAppController = () => {
     sortOrder,
     theme,
     isShiny,
+    masterPokemonList,
     filteredPokemon,
     reload,
     isCyberpunk,
@@ -161,6 +162,7 @@ export const useAppController = () => {
     theme,
     isShiny,
     isCyberpunk,
+    masterPokemonList,
     filteredPokemon,
     virtualList,
 
