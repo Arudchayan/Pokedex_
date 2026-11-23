@@ -12,7 +12,7 @@ import {
 import TypeBadge from '../charts/TypeBadge';
 import Loader from '../shared/Loader';
 import Modal from '../base/Modal';
-import Button from '../base/Button';
+import CalculatorActionButton from './CalculatorActionButton';
 import PokemonAutocomplete from '../shared/PokemonAutocomplete';
 import PokemonDatasetStatus from './PokemonDatasetStatus';
 
@@ -207,14 +207,14 @@ const BreedingCalculator: React.FC<BreedingCalculatorProps> = ({ onClose }) => {
         onRetry={() => void reload()}
       />
 
-      <p className="mb-4 text-center text-sm text-slate-400">
+      <p className="mb-4 text-center text-sm text-slate-600 dark:text-slate-400">
         Select two parents to check compatibility and preview the offspring.
       </p>
 
       {parentError && (
         <div
           role="alert"
-          className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-red-500/40 bg-red-500/10 px-4 py-3 text-sm text-red-300"
+          className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-500/40 dark:bg-red-500/10 dark:text-red-300"
         >
           <span>{parentError.message}</span>
           <button
@@ -228,7 +228,11 @@ const BreedingCalculator: React.FC<BreedingCalculatorProps> = ({ onClose }) => {
       )}
 
       {isBusy && (
-        <div role="status" aria-live="polite" className="mb-4 text-sm text-slate-400">
+        <div
+          role="status"
+          aria-live="polite"
+          className="mb-4 text-sm text-slate-600 dark:text-slate-400"
+        >
           Loading parent data…
         </div>
       )}
@@ -278,7 +282,9 @@ const BreedingCalculator: React.FC<BreedingCalculatorProps> = ({ onClose }) => {
               </div>
               <div className="space-y-2">
                 <div>
-                  <span className="text-xs font-bold uppercase opacity-60">Egg Groups</span>
+                  <span className="text-xs font-bold uppercase text-slate-700 dark:text-slate-300">
+                    Egg Groups
+                  </span>
                   <div className="flex gap-1 flex-wrap">
                     {parentA.eggGroups.map((g) => (
                       <span
@@ -291,7 +297,9 @@ const BreedingCalculator: React.FC<BreedingCalculatorProps> = ({ onClose }) => {
                   </div>
                 </div>
                 <div>
-                  <span className="text-xs font-bold uppercase opacity-60">Gender</span>
+                  <span className="text-xs font-bold uppercase text-slate-700 dark:text-slate-300">
+                    Gender
+                  </span>
                   <div className="flex gap-2 mt-1">
                     {getPossibleGenders(parentA.genderRate).map((g) => (
                       <button
@@ -359,7 +367,9 @@ const BreedingCalculator: React.FC<BreedingCalculatorProps> = ({ onClose }) => {
               </div>
               <div className="space-y-2">
                 <div>
-                  <span className="text-xs font-bold uppercase opacity-60">Egg Groups</span>
+                  <span className="text-xs font-bold uppercase text-slate-700 dark:text-slate-300">
+                    Egg Groups
+                  </span>
                   <div className="flex gap-1 flex-wrap">
                     {parentB.eggGroups.map((g) => (
                       <span
@@ -372,7 +382,9 @@ const BreedingCalculator: React.FC<BreedingCalculatorProps> = ({ onClose }) => {
                   </div>
                 </div>
                 <div>
-                  <span className="text-xs font-bold uppercase opacity-60">Gender</span>
+                  <span className="text-xs font-bold uppercase text-slate-700 dark:text-slate-300">
+                    Gender
+                  </span>
                   <div className="flex gap-2 mt-1">
                     {getPossibleGenders(parentB.genderRate).map((g) => (
                       <button
@@ -401,7 +413,7 @@ const BreedingCalculator: React.FC<BreedingCalculatorProps> = ({ onClose }) => {
       <section aria-labelledby="breeding-result-heading" aria-live="polite" aria-atomic="true">
         <h3
           id="breeding-result-heading"
-          className="mb-2 text-sm font-bold uppercase tracking-wider text-slate-400"
+          className="mb-2 text-sm font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400"
         >
           Breeding Result
         </h3>
@@ -447,12 +459,12 @@ const BreedingCalculator: React.FC<BreedingCalculatorProps> = ({ onClose }) => {
                 )}
               </div>
               <div>
-                <h4 className="font-bold text-xl">
+                <h4 className="font-bold text-xl text-slate-900 dark:text-white">
                   {result.isCompatible ? 'Compatible!' : 'Incompatible'}
                 </h4>
-                <p className="opacity-80">{result.message}</p>
+                <p className="text-slate-800 dark:text-slate-200">{result.message}</p>
                 {!result.isCompatible && (
-                  <p className="mt-1 text-sm opacity-80">
+                  <p className="mt-1 text-sm text-slate-700 dark:text-slate-300">
                     Change a parent or gender to try a different pair.
                   </p>
                 )}
@@ -463,7 +475,7 @@ const BreedingCalculator: React.FC<BreedingCalculatorProps> = ({ onClose }) => {
               <div className="mt-6 border-t border-white/10 pt-6">
                 <div className="flex flex-col md:flex-row gap-8">
                   <div className="flex-1">
-                    <h5 className="font-bold uppercase opacity-60 mb-4 text-sm">
+                    <h5 className="font-bold uppercase text-slate-700 dark:text-slate-300 mb-4 text-sm">
                       Offspring Prediction
                     </h5>
                     {loadingOffspring ? (
@@ -471,7 +483,7 @@ const BreedingCalculator: React.FC<BreedingCalculatorProps> = ({ onClose }) => {
                     ) : offspringError ? (
                       <div
                         role="alert"
-                        className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-red-500/40 bg-red-500/10 px-4 py-3 text-sm text-red-300"
+                        className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-500/40 dark:bg-red-500/10 dark:text-red-300"
                       >
                         <span>{offspringError}</span>
                         <button
@@ -504,10 +516,10 @@ const BreedingCalculator: React.FC<BreedingCalculatorProps> = ({ onClose }) => {
                   </div>
 
                   <div className="flex-1 space-y-4">
-                    <h5 className="font-bold uppercase opacity-60 mb-2 text-sm">
+                    <h5 className="font-bold uppercase text-slate-700 dark:text-slate-300 mb-2 text-sm">
                       Inheritance Options
                     </h5>
-                    <label className="flex items-center gap-2 cursor-pointer">
+                    <label className="flex items-center gap-2 cursor-pointer text-slate-800 dark:text-slate-200">
                       <input
                         type="checkbox"
                         checked={destinyKnot}
@@ -516,7 +528,7 @@ const BreedingCalculator: React.FC<BreedingCalculatorProps> = ({ onClose }) => {
                       />
                       <span>Destiny Knot (Item)</span>
                     </label>
-                    <label className="flex items-center gap-2 cursor-pointer">
+                    <label className="flex items-center gap-2 cursor-pointer text-slate-800 dark:text-slate-200">
                       <input
                         type="checkbox"
                         checked={everstone}
@@ -525,7 +537,7 @@ const BreedingCalculator: React.FC<BreedingCalculatorProps> = ({ onClose }) => {
                       />
                       <span>Everstone (Item)</span>
                     </label>
-                    <label className="flex items-center gap-2 cursor-pointer">
+                    <label className="flex items-center gap-2 cursor-pointer text-slate-800 dark:text-slate-200">
                       <input
                         type="checkbox"
                         checked={masudaMethod}
@@ -534,7 +546,7 @@ const BreedingCalculator: React.FC<BreedingCalculatorProps> = ({ onClose }) => {
                       />
                       <span>Masuda Method (Diff. Language)</span>
                     </label>
-                    <label className="flex items-center gap-2 cursor-pointer">
+                    <label className="flex items-center gap-2 cursor-pointer text-slate-800 dark:text-slate-200">
                       <input
                         type="checkbox"
                         checked={shinyCharm}
@@ -544,7 +556,7 @@ const BreedingCalculator: React.FC<BreedingCalculatorProps> = ({ onClose }) => {
                       <span>Shiny Charm</span>
                     </label>
 
-                    <div className="mt-4 p-3 rounded bg-black/10 text-sm space-y-1">
+                    <div className="mt-4 p-3 rounded bg-black/10 text-sm space-y-1 text-slate-800 dark:text-slate-200">
                       <div className="flex justify-between">
                         <span>IVs:</span>
                         <span className="font-bold">{ivText}</span>
@@ -555,7 +567,9 @@ const BreedingCalculator: React.FC<BreedingCalculatorProps> = ({ onClose }) => {
                       </div>
                       <div className="flex justify-between">
                         <span>Shiny Odds:</span>
-                        <span className="font-bold text-pink-500">{shinyOdds}</span>
+                        <span className="font-bold text-pink-700 dark:text-pink-400">
+                          {shinyOdds}
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -563,7 +577,7 @@ const BreedingCalculator: React.FC<BreedingCalculatorProps> = ({ onClose }) => {
 
                 {eggMoves.length > 0 && (
                   <div className="mt-8">
-                    <h5 className="font-bold uppercase opacity-60 mb-4 text-sm">
+                    <h5 className="font-bold uppercase text-slate-700 dark:text-slate-300 mb-4 text-sm">
                       Potential Egg Moves ({eggMoves.length})
                     </h5>
                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
@@ -573,7 +587,9 @@ const BreedingCalculator: React.FC<BreedingCalculatorProps> = ({ onClose }) => {
                           className={`px-3 py-2 rounded text-xs border ${theme === 'dark' ? 'bg-white/5 border-white/5' : 'bg-white border-slate-200'}`}
                         >
                           <span className="font-bold block capitalize">{m.name}</span>
-                          <span className="opacity-60 capitalize">{m.type}</span>
+                          <span className="text-slate-600 capitalize dark:text-slate-400">
+                            {m.type}
+                          </span>
                         </div>
                       ))}
                     </div>
@@ -583,7 +599,7 @@ const BreedingCalculator: React.FC<BreedingCalculatorProps> = ({ onClose }) => {
             )}
           </div>
         ) : (
-          <div className="rounded-xl border border-white/10 bg-white/5 p-6 text-center text-sm text-slate-400">
+          <div className="rounded-xl border border-slate-300 bg-slate-50 p-6 text-center text-sm text-slate-600 dark:border-white/10 dark:bg-white/5 dark:text-slate-400">
             {!parentA && !parentB
               ? 'Select Parent A and Parent B to check whether they can breed.'
               : !parentA
@@ -596,18 +612,18 @@ const BreedingCalculator: React.FC<BreedingCalculatorProps> = ({ onClose }) => {
       </section>
 
       <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
-        <p className="text-sm text-slate-400">
+        <p className="text-sm text-slate-600 dark:text-slate-400">
           {hasCalculated
             ? 'Result updates as you change parents, genders or options.'
             : 'Choose both parents, then check compatibility.'}
         </p>
         <div className="flex flex-wrap gap-2">
-          <Button onClick={() => setHasCalculated(true)} disabled={!canCalculate}>
+          <CalculatorActionButton onClick={() => setHasCalculated(true)} disabled={!canCalculate}>
             {hasCalculated ? 'Recheck Compatibility' : 'Check Compatibility'}
-          </Button>
-          <Button variant="ghost" onClick={resetCalculator}>
+          </CalculatorActionButton>
+          <CalculatorActionButton variant="secondary" onClick={resetCalculator}>
             Reset
-          </Button>
+          </CalculatorActionButton>
         </div>
       </div>
     </Modal>

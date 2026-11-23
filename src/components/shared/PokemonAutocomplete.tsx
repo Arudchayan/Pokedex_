@@ -87,6 +87,10 @@ const PokemonAutocomplete: React.FC<PokemonAutocompleteProps> = ({
         event.preventDefault();
       }
     } else if (event.key === 'Escape') {
+      if (showDropdown || showNoMatches) {
+        event.preventDefault();
+        event.stopPropagation();
+      }
       setIsOpen(false);
       setActiveIndex(-1);
     }
@@ -135,7 +139,12 @@ const PokemonAutocomplete: React.FC<PokemonAutocompleteProps> = ({
       />
 
       {showNoMatches && (
-        <p id={statusId} role="status" aria-live="polite" className="mt-2 text-sm text-slate-400">
+        <p
+          id={statusId}
+          role="status"
+          aria-live="polite"
+          className="mt-2 text-sm text-slate-600 dark:text-slate-400"
+        >
           No Pokémon match “{query}”. Try a different name.
         </p>
       )}

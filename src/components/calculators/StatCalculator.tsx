@@ -8,7 +8,7 @@ import Loader from '../shared/Loader';
 import TypeBadge from '../charts/TypeBadge';
 import { PokemonDetails } from '../../types';
 import Modal from '../base/Modal';
-import Button from '../base/Button';
+import CalculatorActionButton from './CalculatorActionButton';
 import PokemonAutocomplete from '../shared/PokemonAutocomplete';
 import PokemonDatasetStatus from './PokemonDatasetStatus';
 
@@ -44,6 +44,7 @@ const StatCalculator: React.FC<StatCalculatorProps> = ({ onClose, initialPokemon
   const [loadError, setLoadError] = useState<string | null>(null);
   const [retryTick, setRetryTick] = useState(0);
   const [validationMessage, setValidationMessage] = useState<string | null>(null);
+  const [validationField, setValidationField] = useState<string | null>(null);
   const [hasCalculated, setHasCalculated] = useState(false);
 
   // Stats State
@@ -85,6 +86,7 @@ const StatCalculator: React.FC<StatCalculatorProps> = ({ onClose, initialPokemon
         setPokemon(details);
         setHasCalculated(false);
         setValidationMessage(null);
+        setValidationField(null);
         // Reset to defaults on new pokemon
         setIvs({
           hp: 31,
@@ -154,6 +156,7 @@ const StatCalculator: React.FC<StatCalculatorProps> = ({ onClose, initialPokemon
         ? `${type === 'iv' ? 'IV' : 'EV'} for ${STAT_LABELS[stat]} must be between 0 and ${max}; using ${clamped}.`
         : null
     );
+    setValidationField(isInvalid ? `${type}-${stat}` : null);
 
     if (type === 'iv') {
       setIvs((prev) => ({ ...prev, [stat]: clamped }));
@@ -167,6 +170,7 @@ const StatCalculator: React.FC<StatCalculatorProps> = ({ onClose, initialPokemon
     const isInvalid = !Number.isFinite(parsed) || parsed < 1 || parsed > 100;
     const clamped = Math.min(100, Math.max(1, Number.isFinite(parsed) ? parsed : 1));
     setValidationMessage(isInvalid ? `Level must be between 1 and 100; using ${clamped}.` : null);
+    setValidationField(isInvalid ? 'level' : null);
     setLevel(clamped);
   };
 
@@ -176,6 +180,7 @@ const StatCalculator: React.FC<StatCalculatorProps> = ({ onClose, initialPokemon
     setLoading(false);
     setLoadError(null);
     setValidationMessage(null);
+    setValidationField(null);
     setHasCalculated(false);
     setLevel(50);
     setNature('Hardy');
@@ -201,6 +206,7 @@ const StatCalculator: React.FC<StatCalculatorProps> = ({ onClose, initialPokemon
 
   const applyPreset = (type: 'min' | 'max' | 'comp') => {
     setValidationMessage(null);
+    setValidationField(null);
     if (type === 'min') {
       setIvs({ hp: 0, attack: 0, defense: 0, 'special-attack': 0, 'special-defense': 0, speed: 0 });
       setEvs({ hp: 0, attack: 0, defense: 0, 'special-attack': 0, 'special-defense': 0, speed: 0 });
@@ -254,7 +260,7 @@ const StatCalculator: React.FC<StatCalculatorProps> = ({ onClose, initialPokemon
 
       {!pokemon ? (
         <>
-          <p className="mx-auto mb-4 max-w-md text-center text-sm text-slate-400">
+          <p className="mx-auto mb-4 max-w-md text-center text-sm text-slate-600 dark:text-slate-400">
             Select a Pokémon to set its level, nature, IVs and EVs. Your calculated stats appear
             here.
           </p>
@@ -276,7 +282,7 @@ const StatCalculator: React.FC<StatCalculatorProps> = ({ onClose, initialPokemon
           {loadError && (
             <div
               role="alert"
-              className="mx-auto mt-4 flex max-w-md flex-wrap items-center justify-between gap-3 rounded-lg border border-red-500/40 bg-red-500/10 px-4 py-3 text-sm text-red-300"
+              className="mx-auto mt-4 flex max-w-md flex-wrap items-center justify-between gap-3 rounded-lg border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-500/40 dark:bg-red-500/10 dark:text-red-300"
             >
               <span>{loadError}</span>
               <button
@@ -313,6 +319,7 @@ const StatCalculator: React.FC<StatCalculatorProps> = ({ onClose, initialPokemon
                     setLoadError(null);
                     setHasCalculated(false);
                     setValidationMessage(null);
+                    setValidationField(null);
                   }}
                   className="px-3 py-1 text-xs font-bold uppercase tracking-wider rounded border hover:bg-red-500 hover:text-white hover:border-red-500 transition-colors text-slate-500 border-slate-300"
                 >
@@ -343,6 +350,7 @@ const StatCalculator: React.FC<StatCalculatorProps> = ({ onClose, initialPokemon
                   onChange={(e) => {
                     setLevel(parseInt(e.target.value, 10));
                     setValidationMessage(null);
+                    setValidationField(null);
                   }}
                   className="flex-1 accent-primary-500"
                   aria-label="Level slider"
@@ -355,10 +363,8 @@ const StatCalculator: React.FC<StatCalculatorProps> = ({ onClose, initialPokemon
                   onChange={(e) => handleLevelChange(e.target.value)}
                   className={`w-16 p-2 rounded text-center font-bold ${theme === 'dark' ? 'bg-black/30' : 'bg-white border'}`}
                   aria-label="Level value"
-                  aria-invalid={validationMessage?.startsWith('Level') || undefined}
-                  aria-describedby={
-                    validationMessage?.startsWith('Level') ? 'stat-validation' : undefined
-                  }
+                  aria-invalid={validationField === 'level' || undefined}
+                  aria-describedby={validationField === 'level' ? 'stat-validation' : undefined}
                 />
               </div>
             </div>
@@ -413,7 +419,7 @@ const StatCalculator: React.FC<StatCalculatorProps> = ({ onClose, initialPokemon
             <p
               id="stat-validation"
               role="alert"
-              className="mb-4 rounded-lg border border-amber-500/40 bg-amber-500/10 px-4 py-3 text-sm text-amber-200"
+              className="mb-4 rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-800 dark:border-amber-500/40 dark:bg-amber-500/10 dark:text-amber-200"
             >
               {validationMessage}
             </p>
@@ -423,7 +429,7 @@ const StatCalculator: React.FC<StatCalculatorProps> = ({ onClose, initialPokemon
           <section aria-labelledby="stat-results-heading" aria-live="polite" aria-atomic="false">
             <h3
               id="stat-results-heading"
-              className="mb-2 text-sm font-bold uppercase tracking-wider text-slate-400"
+              className="mb-2 text-sm font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400"
             >
               Calculated Stats
             </h3>
@@ -473,6 +479,10 @@ const StatCalculator: React.FC<StatCalculatorProps> = ({ onClose, initialPokemon
                         onChange={(e) => handleStatChange('iv', stat, e.target.value)}
                         className={`w-full text-center p-1 rounded text-sm ${theme === 'dark' ? 'bg-black/20 focus:bg-black/40' : 'bg-slate-100 focus:bg-white border-transparent focus:border-primary-500 border'}`}
                         aria-label={`${stat.replace('-', ' ')} IV`}
+                        aria-invalid={validationField === `iv-${stat}` || undefined}
+                        aria-describedby={
+                          validationField === `iv-${stat}` ? 'stat-validation' : undefined
+                        }
                       />
                     </div>
 
@@ -486,6 +496,10 @@ const StatCalculator: React.FC<StatCalculatorProps> = ({ onClose, initialPokemon
                         onChange={(e) => handleStatChange('ev', stat, e.target.value)}
                         className={`w-full text-center p-1 rounded text-sm ${theme === 'dark' ? 'bg-black/20 focus:bg-black/40' : 'bg-slate-100 focus:bg-white border-transparent focus:border-primary-500 border'}`}
                         aria-label={`${stat.replace('-', ' ')} EV`}
+                        aria-invalid={validationField === `ev-${stat}` || undefined}
+                        aria-describedby={
+                          validationField === `ev-${stat}` ? 'stat-validation' : undefined
+                        }
                       />
                     </div>
 
@@ -497,7 +511,13 @@ const StatCalculator: React.FC<StatCalculatorProps> = ({ onClose, initialPokemon
                         />
                       </div>
                       <span
-                        className={`text-lg font-bold w-12 text-right ${isUp ? 'text-green-500' : isDown ? 'text-orange-500' : ''}`}
+                        className={`text-lg font-bold w-12 text-right ${
+                          isUp
+                            ? 'text-green-700 dark:text-green-400'
+                            : isDown
+                              ? 'text-orange-700 dark:text-orange-400'
+                              : 'text-slate-900 dark:text-white'
+                        }`}
                         aria-label={`Total ${stat.replace('-', ' ')}`}
                       >
                         {hasCalculated ? total : '—'}
@@ -516,7 +536,7 @@ const StatCalculator: React.FC<StatCalculatorProps> = ({ onClose, initialPokemon
       )}
 
       <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-white/10 pt-4">
-        <p className="text-sm text-slate-400">
+        <p className="text-sm text-slate-600 dark:text-slate-400">
           {!pokemon
             ? 'Select a Pokémon to enable calculation.'
             : hasCalculated
@@ -524,12 +544,12 @@ const StatCalculator: React.FC<StatCalculatorProps> = ({ onClose, initialPokemon
               : 'Set the level, nature, IVs and EVs, then calculate.'}
         </p>
         <div className="flex flex-wrap gap-2">
-          <Button onClick={() => setHasCalculated(true)} disabled={!canCalculate}>
+          <CalculatorActionButton onClick={() => setHasCalculated(true)} disabled={!canCalculate}>
             {hasCalculated ? 'Recalculate Stats' : 'Calculate Stats'}
-          </Button>
-          <Button variant="ghost" onClick={resetCalculator}>
+          </CalculatorActionButton>
+          <CalculatorActionButton variant="secondary" onClick={resetCalculator}>
             Reset
-          </Button>
+          </CalculatorActionButton>
         </div>
       </div>
     </Modal>

@@ -11,7 +11,7 @@ import { usePokemon } from '../../context/PokemonContext';
 import { fetchPokemonDetailsQuery } from '../../services/pokemonDetailsQuery';
 import Loader from '../shared/Loader';
 import Modal from '../base/Modal';
-import Button from '../base/Button';
+import CalculatorActionButton from './CalculatorActionButton';
 import PokemonAutocomplete from '../shared/PokemonAutocomplete';
 import PokemonDatasetStatus from './PokemonDatasetStatus';
 
@@ -100,10 +100,10 @@ const CatchCalculator: React.FC<CatchCalculatorProps> = ({ onClose, initialPokem
   }, [selectedBall, selectedStatus, hpPercent, isNight, turn, pokemon]);
 
   const probabilityColor = useMemo(() => {
-    if (probability >= 90) return 'text-green-500';
-    if (probability >= 50) return 'text-yellow-500';
-    if (probability >= 20) return 'text-orange-500';
-    return 'text-red-500';
+    if (probability >= 90) return 'text-green-700 dark:text-green-400';
+    if (probability >= 50) return 'text-yellow-700 dark:text-yellow-400';
+    if (probability >= 20) return 'text-orange-700 dark:text-orange-400';
+    return 'text-red-700 dark:text-red-400';
   }, [probability]);
 
   const resetCalculator = () => {
@@ -132,7 +132,7 @@ const CatchCalculator: React.FC<CatchCalculatorProps> = ({ onClose, initialPokem
 
       {!pokemon ? (
         <>
-          <p className="mx-auto mb-4 max-w-md text-center text-sm text-slate-400">
+          <p className="mx-auto mb-4 max-w-md text-center text-sm text-slate-600 dark:text-slate-400">
             Select a Pokémon to estimate its catch rate. You can then choose a ball, status and HP
             level.
           </p>
@@ -154,7 +154,7 @@ const CatchCalculator: React.FC<CatchCalculatorProps> = ({ onClose, initialPokem
           {loadError && (
             <div
               role="alert"
-              className="mx-auto mt-4 flex max-w-md flex-wrap items-center justify-between gap-3 rounded-lg border border-red-500/40 bg-red-500/10 px-4 py-3 text-sm text-red-300"
+              className="mx-auto mt-4 flex max-w-md flex-wrap items-center justify-between gap-3 rounded-lg border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-500/40 dark:bg-red-500/10 dark:text-red-300"
             >
               <span>{loadError}</span>
               <button
@@ -289,7 +289,7 @@ const CatchCalculator: React.FC<CatchCalculatorProps> = ({ onClose, initialPokem
               <div className="relative z-10 text-center space-y-2">
                 <h3
                   id="catch-result-heading"
-                  className="text-slate-400 font-bold uppercase tracking-widest text-sm"
+                  className="text-slate-600 font-bold uppercase tracking-widest text-sm dark:text-slate-400"
                 >
                   Capture Probability
                 </h3>
@@ -299,7 +299,7 @@ const CatchCalculator: React.FC<CatchCalculatorProps> = ({ onClose, initialPokem
                   {hasCalculated ? `${probability.toFixed(1)}%` : '—'}
                 </div>
                 <p
-                  className="text-xs text-slate-500 max-w-[200px] mx-auto"
+                  className="text-xs text-slate-600 max-w-[200px] mx-auto dark:text-slate-400"
                   role={hasCalculated ? undefined : 'status'}
                 >
                   {hasCalculated
@@ -356,7 +356,7 @@ const CatchCalculator: React.FC<CatchCalculatorProps> = ({ onClose, initialPokem
       )}
 
       <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-white/10 pt-4">
-        <p className="text-sm text-slate-400">
+        <p className="text-sm text-slate-600 dark:text-slate-400">
           {!pokemon
             ? 'Select a Pokémon to enable calculation.'
             : hasCalculated
@@ -364,12 +364,12 @@ const CatchCalculator: React.FC<CatchCalculatorProps> = ({ onClose, initialPokem
               : 'Pick a ball, status and HP level, then calculate.'}
         </p>
         <div className="flex flex-wrap gap-2">
-          <Button onClick={() => setHasCalculated(true)} disabled={!canCalculate}>
+          <CalculatorActionButton onClick={() => setHasCalculated(true)} disabled={!canCalculate}>
             {hasCalculated ? 'Recalculate Catch Rate' : 'Calculate Catch Rate'}
-          </Button>
-          <Button variant="ghost" onClick={resetCalculator}>
+          </CalculatorActionButton>
+          <CalculatorActionButton variant="secondary" onClick={resetCalculator}>
             Reset
-          </Button>
+          </CalculatorActionButton>
         </div>
       </div>
     </Modal>

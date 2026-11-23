@@ -131,4 +131,23 @@ describe('BreedingCalculator states', () => {
     );
     expect(screen.getByRole('button', { name: 'Check Compatibility' })).toBeDisabled();
   });
+
+  it('shows dataset failure with Retry when the species list is unavailable', () => {
+    const reload = vi.fn();
+    context.current = {
+      masterPokemonList: [],
+      theme: 'dark',
+      loading: false,
+      error: 'Failed to fetch Pokemon data.',
+      reload,
+    };
+
+    renderCalculator();
+
+    expect(screen.getByRole('alert')).toHaveTextContent(/failed to fetch pokemon data/i);
+    fireEvent.click(screen.getByRole('button', { name: 'Retry' }));
+    expect(reload).toHaveBeenCalled();
+    expect(screen.getByPlaceholderText(/search parent a/i)).toBeDisabled();
+    expect(screen.getByPlaceholderText(/search parent b/i)).toBeDisabled();
+  });
 });

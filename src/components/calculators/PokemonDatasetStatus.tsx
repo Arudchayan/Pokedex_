@@ -42,7 +42,7 @@ const PokemonDatasetStatus: React.FC<PokemonDatasetStatusProps> = ({
       <div
         role="status"
         aria-live="polite"
-        className="mb-4 rounded-lg border border-white/10 bg-white/5 px-4 py-3 text-sm text-slate-300"
+        className="mb-4 rounded-lg border border-slate-300 bg-slate-100 px-4 py-3 text-sm text-slate-700 dark:border-white/10 dark:bg-white/5 dark:text-slate-300"
       >
         Loading Pokémon data…
       </div>
@@ -52,7 +52,7 @@ const PokemonDatasetStatus: React.FC<PokemonDatasetStatusProps> = ({
   return (
     <div
       role="alert"
-      className="mb-4 rounded-lg border border-red-500/40 bg-red-500/10 px-4 py-3 text-sm text-red-300"
+      className="mb-4 rounded-lg border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-500/40 dark:bg-red-500/10 dark:text-red-300"
     >
       <div className="flex flex-wrap items-center justify-between gap-3">
         <span>

@@ -8,7 +8,7 @@ import { NATURES, TYPE_COLORS, BATTLE_ITEMS } from '../../constants';
 import TypeBadge from '../charts/TypeBadge';
 import { calculateDamage, BattleContext, BattleStat } from '../../utils/damageFormula';
 import Modal from '../base/Modal';
-import Button from '../base/Button';
+import CalculatorActionButton from './CalculatorActionButton';
 import PokemonAutocomplete from '../shared/PokemonAutocomplete';
 import PokemonDatasetStatus from './PokemonDatasetStatus';
 
@@ -267,7 +267,7 @@ const DamageCalculator: React.FC<DamageCalculatorProps> = ({
         {loadError && (
           <div
             role="alert"
-            className="mb-4 rounded-lg border border-red-500/40 bg-red-500/10 px-4 py-3 text-sm text-red-300"
+            className="mb-4 rounded-lg border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-500/40 dark:bg-red-500/10 dark:text-red-300"
           >
             <div className="flex items-center justify-between gap-3">
               <span>{loadError}</span>
@@ -373,7 +373,7 @@ const DamageCalculator: React.FC<DamageCalculatorProps> = ({
                       <p
                         id="attacker-level-error"
                         role="alert"
-                        className="mt-1 text-xs text-red-400"
+                        className="mt-1 text-xs text-red-700 dark:text-red-400"
                       >
                         {attackerLevelError}
                       </p>
@@ -493,7 +493,10 @@ const DamageCalculator: React.FC<DamageCalculatorProps> = ({
                     ))}
                   </select>
                   {!attacker.selectedMove && (
-                    <p id="damage-move-hint" className="mt-1 text-xs text-slate-400">
+                    <p
+                      id="damage-move-hint"
+                      className="mt-1 text-xs text-slate-600 dark:text-slate-400"
+                    >
                       A damaging move is required before Calculate is enabled.
                     </p>
                   )}
@@ -607,7 +610,7 @@ const DamageCalculator: React.FC<DamageCalculatorProps> = ({
                       <p
                         id="defender-level-error"
                         role="alert"
-                        className="mt-1 text-xs text-red-400"
+                        className="mt-1 text-xs text-red-700 dark:text-red-400"
                       >
                         {defenderLevelError}
                       </p>
@@ -700,17 +703,17 @@ const DamageCalculator: React.FC<DamageCalculatorProps> = ({
         <section aria-labelledby="damage-result-heading" aria-live="polite" aria-atomic="true">
           <h3
             id="damage-result-heading"
-            className="mb-2 text-center text-sm font-bold uppercase tracking-wider text-slate-400"
+            className="mb-2 text-center text-sm font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400"
           >
             Damage Result
           </h3>
           {hasCalculated && result ? (
             <div className="text-center space-y-4">
               <div className="flex flex-col items-center">
-                <div className="text-4xl font-black text-primary-400 mb-2">
+                <div className="text-4xl font-black text-cyan-700 dark:text-cyan-300 mb-2">
                   {result.min} - {result.max}
                 </div>
-                <p className="text-slate-400 text-sm uppercase font-bold tracking-wider">
+                <p className="text-slate-600 dark:text-slate-400 text-sm uppercase font-bold tracking-wider">
                   Damage Range ({result.rolls.length} rolls)
                 </p>
               </div>
@@ -763,7 +766,7 @@ const DamageCalculator: React.FC<DamageCalculatorProps> = ({
               </div>
             </div>
           ) : (
-            <div className="text-center text-slate-500 py-2">
+            <div className="text-center text-slate-600 py-2 dark:text-slate-400">
               {attackerLevelError || defenderLevelError ? (
                 <p>Fix the highlighted level value to calculate damage.</p>
               ) : !attacker ? (
@@ -780,12 +783,12 @@ const DamageCalculator: React.FC<DamageCalculatorProps> = ({
         </section>
 
         <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
-          <Button onClick={() => setHasCalculated(true)} disabled={!canCalculate}>
+          <CalculatorActionButton onClick={() => setHasCalculated(true)} disabled={!canCalculate}>
             {hasCalculated ? 'Recalculate Damage' : 'Calculate Damage'}
-          </Button>
-          <Button variant="ghost" onClick={resetCalculator}>
+          </CalculatorActionButton>
+          <CalculatorActionButton variant="secondary" onClick={resetCalculator}>
             Reset
-          </Button>
+          </CalculatorActionButton>
         </div>
       </div>
     </Modal>
