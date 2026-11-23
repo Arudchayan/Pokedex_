@@ -11,6 +11,8 @@ const FOCUSABLE_SELECTOR = [
   '[tabindex]:not([tabindex="-1"])',
 ].join(',');
 
+const INERT_EXEMPT_ATTRIBUTE = 'data-inert-exempt';
+
 /**
  * Tracks the top-level portal roots of every open trap. Only the most recently
  * opened trap handles keyboard events, so nested dialogs keep their own trap.
@@ -28,6 +30,12 @@ function supportsInert(): boolean {
   return typeof HTMLElement !== 'undefined' && 'inert' in HTMLElement.prototype;
 }
 
+/**
+ * Returns the outermost element below `document.body` that contains the
+ * dialog. Trapped dialogs are expected to render through a portal whose root
+ * is a direct child of `document.body`; anything else returns null and skips
+ * background inert, leaving the keyboard trap as the containment fallback.
+ */
 function getTopLevelRoot(element: HTMLElement): HTMLElement | null {
   let current = element;
   while (current.parentElement && current.parentElement !== document.body) {
@@ -51,6 +59,7 @@ function syncBackgroundInert(): void {
 
   for (const child of Array.from(document.body.children)) {
     if (!(child instanceof HTMLElement)) continue;
+    if (child.hasAttribute(INERT_EXEMPT_ATTRIBUTE)) continue;
 
     const containsOpenDialog = roots.some((root) => child === root || child.contains(root));
 
@@ -65,14 +74,50 @@ function syncBackgroundInert(): void {
   }
 }
 
+function hasDocumentLayout(): boolean {
+  return document.body.getBoundingClientRect().height > 0;
+}
+
+function isVisible(element: HTMLElement, hasLayout: boolean): boolean {
+  if (!element.isConnected) return false;
+  if (element.closest('[hidden], [aria-hidden="true"], [inert]')) return false;
+
+  const view = element.ownerDocument.defaultView;
+  if (view) {
+    const style = view.getComputedStyle(element);
+    if (style.display === 'none' || style.visibility === 'hidden') return false;
+  }
+
+  // jsdom has no layout engine and reports zero rects for every element, so
+  // only enforce the rect check when the document actually has layout.
+  return !hasLayout || element.getClientRects().length > 0;
+}
+
 function getFocusableElements(container: HTMLElement): HTMLElement[] {
+  const hasLayout = hasDocumentLayout();
+
   return Array.from(container.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR)).filter(
-    (element) =>
-      element.tabIndex >= 0 &&
-      !element.hasAttribute('hidden') &&
-      element.getAttribute('aria-hidden') !== 'true' &&
-      element.closest('[inert]') === null
+    (element) => element.tabIndex >= 0 && isVisible(element, hasLayout)
   );
+}
+
+function restoreFocus(
+  previous: HTMLElement | null,
+  fallbackFocusRef?: RefObject<HTMLElement | null>
+): void {
+  const hasLayout = hasDocumentLayout();
+  const candidates = [
+    previous,
+    fallbackFocusRef?.current ?? null,
+    document.getElementById('main-content'),
+  ];
+
+  for (const candidate of candidates) {
+    if (candidate && isVisible(candidate, hasLayout)) {
+      candidate.focus();
+      return;
+    }
+  }
 }
 
 export interface UseFocusTrapOptions {
@@ -84,8 +129,8 @@ export interface UseFocusTrapOptions {
   initialFocusRef?: RefObject<HTMLElement | null>;
   /** Called when Escape is pressed while this is the topmost trap. */
   onEscape?: () => void;
-  /** Restore focus to the previously focused element when the trap deactivates. Defaults to true. */
-  restoreFocus?: boolean;
+  /** Fallback target when the previously focused element is gone or hidden. */
+  fallbackFocusRef?: RefObject<HTMLElement | null>;
 }
 
 /**
@@ -98,7 +143,7 @@ export function useFocusTrap({
   containerRef,
   initialFocusRef,
   onEscape,
-  restoreFocus = true,
+  fallbackFocusRef,
 }: UseFocusTrapOptions): void {
   const previouslyFocusedRef = useRef<HTMLElement | null>(null);
   const onEscapeRef = useRef(onEscape);
@@ -116,19 +161,22 @@ export function useFocusTrap({
     const token = Symbol('focus-trap');
     const root = getTopLevelRoot(container);
 
-    trapOrder.push(token);
-    if (root) trapRoots.set(token, root);
-    syncBackgroundInert();
-
-    // Do not overwrite the original trigger when StrictMode re-runs the effect
-    // after focus has already moved into the dialog.
+    // Capture the invoking element before the background becomes inert.
     const activeElement = document.activeElement;
     if (activeElement instanceof HTMLElement && !container.contains(activeElement)) {
       previouslyFocusedRef.current = activeElement;
     }
 
+    trapOrder.push(token);
+    if (root) trapRoots.set(token, root);
+    syncBackgroundInert();
+
+    const hasLayout = hasDocumentLayout();
+    const preferred = initialFocusRef?.current;
     const initialTarget =
-      initialFocusRef?.current ?? getFocusableElements(container)[0] ?? container;
+      preferred && isVisible(preferred, hasLayout)
+        ? preferred
+        : (getFocusableElements(container)[0] ?? container);
     initialTarget.focus();
 
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -181,9 +229,7 @@ export function useFocusTrap({
       const previous = previouslyFocusedRef.current;
       previouslyFocusedRef.current = null;
 
-      if (restoreFocus && previous?.isConnected) {
-        previous.focus();
-      }
+      restoreFocus(previous, fallbackFocusRef);
     };
-  }, [active, containerRef, initialFocusRef, restoreFocus]);
+  }, [active, containerRef, initialFocusRef, fallbackFocusRef]);
 }
