@@ -3,9 +3,12 @@ import { usePokemon } from '../../context/PokemonContext';
 import {
   GENERATIONS,
   SHINY_METHODS,
+  SPARKLING_POWER_LEVELS,
   GenerationKey,
+  SparklingPowerLevel,
   calculateShinyOdds,
   isShinyCharmAvailable,
+  resolveShinyMethod,
 } from '../../utils/shinyOddsUtils';
 import Modal from '../base/Modal';
 
@@ -18,9 +21,11 @@ const ShinyOddsCalculator: React.FC<ShinyOddsCalculatorProps> = ({ onClose }) =>
   const [generation, setGeneration] = useState<GenerationKey>('gen9');
   const [method, setMethod] = useState<string>('random');
   const [hasCharm, setHasCharm] = useState(false);
-  const [hasSandwich, setHasSandwich] = useState(false); // Gen 9 only
+  const [sparklingPower, setSparklingPower] = useState<SparklingPowerLevel>(0); // Gen 9 only
   const charmLabelId = useId();
   const charmDescriptionId = useId();
+  const sparklingLabelId = useId();
+  const sparklingDescriptionId = useId();
   const charmAvailable = isShinyCharmAvailable(generation);
   const charmActive = charmAvailable && hasCharm;
 
@@ -29,17 +34,29 @@ const ShinyOddsCalculator: React.FC<ShinyOddsCalculatorProps> = ({ onClose }) =>
     setGeneration(gen);
     const defaultMethod = SHINY_METHODS[gen]?.[0]?.id || 'random';
     setMethod(defaultMethod);
-    setHasSandwich(false);
+    setSparklingPower(0);
     // Drop the Charm where it does not exist so a stale selection cannot
     // silently re-apply when switching back to a supported generation.
     setHasCharm((current) => current && isShinyCharmAvailable(gen));
   };
 
   const currentMethods = SHINY_METHODS[generation] || [];
+  // A removed method id (for example a stale selection) falls back to the
+  // generation's first method instead of leaving the calculator in limbo.
+  const activeMethod = resolveShinyMethod(generation, method)?.id ?? 'random';
+  const sparklingPowerAvailable = generation === 'gen9' && activeMethod !== 'masuda';
+  const sparklingPowerActive = sparklingPowerAvailable && sparklingPower > 0;
+
+  const handleMethodChange = (nextMethod: string) => {
+    setMethod(nextMethod);
+    // Sparkling Power only boosts wild encounters. Drop it for Masuda eggs so
+    // the disabled control can never represent an ignored, applied bonus.
+    if (nextMethod === 'masuda') setSparklingPower(0);
+  };
 
   const result = useMemo(() => {
-    return calculateShinyOdds(generation, method, hasCharm, hasSandwich);
-  }, [generation, method, hasCharm, hasSandwich]);
+    return calculateShinyOdds(generation, activeMethod, hasCharm, sparklingPower);
+  }, [generation, activeMethod, hasCharm, sparklingPower]);
 
   const percentage = (result.odds * 100).toFixed(4);
 
@@ -89,10 +106,10 @@ const ShinyOddsCalculator: React.FC<ShinyOddsCalculatorProps> = ({ onClose }) =>
               <button
                 key={m.id}
                 type="button"
-                aria-pressed={method === m.id}
-                onClick={() => setMethod(m.id)}
+                aria-pressed={activeMethod === m.id}
+                onClick={() => handleMethodChange(m.id)}
                 className={`p-3 rounded-lg border text-left transition-all focus-visible:outline-none focus-visible:ring-2 ${
-                  method === m.id
+                  activeMethod === m.id
                     ? `bg-pink-500 text-white border-pink-500 shadow-lg shadow-pink-500/20 ${
                         theme === 'dark'
                           ? 'focus-visible:ring-white'
@@ -151,23 +168,57 @@ const ShinyOddsCalculator: React.FC<ShinyOddsCalculatorProps> = ({ onClose }) =>
           </label>
 
           {generation === 'gen9' && (
-            <label
-              className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-colors ${hasSandwich ? 'bg-orange-500/10 border-orange-500/50' : 'border-transparent bg-black/5 hover:bg-black/10'}`}
+            <div
+              className={`p-3 rounded-lg border transition-colors ${
+                sparklingPowerActive
+                  ? 'bg-orange-500/10 border-orange-500/50'
+                  : 'border-transparent bg-black/5'
+              }`}
             >
-              <input
-                type="checkbox"
-                checked={hasSandwich}
-                onChange={(e) => setHasSandwich(e.target.checked)}
-                className="w-5 h-5 rounded text-orange-500 focus:ring-orange-500 border-gray-500 bg-transparent"
-              />
-              <div className="flex-1">
-                <span className={`font-bold block ${hasSandwich ? 'text-orange-500' : ''}`}>
-                  Sandwich Power Lv. 3
+              <div className="flex items-center gap-3">
+                <div className="flex-1">
+                  <span
+                    id={sparklingLabelId}
+                    className={`font-bold block ${sparklingPowerActive ? 'text-orange-500' : ''}`}
+                  >
+                    Sparkling Power
+                  </span>
+                  <span id={sparklingDescriptionId} className="text-xs opacity-60">
+                    {sparklingPowerAvailable
+                      ? 'Sandwich meal effect: adds one shiny roll per level to wild encounters.'
+                      : 'Not applied to Masuda Method, because eggs are not wild encounters.'}
+                  </span>
+                </div>
+                <span className="text-2xl" aria-hidden="true">
+                  🥪
                 </span>
-                <span className="text-xs opacity-60">Sparkling Power Level 3 active.</span>
               </div>
-              <span className="text-2xl">🥪</span>
-            </label>
+              <div
+                role="group"
+                aria-labelledby={sparklingLabelId}
+                aria-describedby={sparklingDescriptionId}
+                className="mt-3 grid grid-cols-4 gap-2"
+              >
+                {SPARKLING_POWER_LEVELS.map((level) => (
+                  <button
+                    key={level}
+                    type="button"
+                    aria-pressed={sparklingPower === level}
+                    disabled={!sparklingPowerAvailable}
+                    onClick={() => setSparklingPower(level)}
+                    className={`py-2 rounded-md border text-sm font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 disabled:cursor-not-allowed disabled:opacity-40 ${
+                      sparklingPower === level
+                        ? 'bg-orange-500 text-white border-orange-500'
+                        : theme === 'dark'
+                          ? 'bg-black/20 border-white/10 hover:bg-black/40 focus-visible:ring-orange-400'
+                          : 'bg-white border-slate-200 hover:bg-slate-100 focus-visible:ring-orange-500'
+                    }`}
+                  >
+                    {level === 0 ? 'Off' : `Lv. ${level}`}
+                  </button>
+                ))}
+              </div>
+            </div>
           )}
         </div>
 
