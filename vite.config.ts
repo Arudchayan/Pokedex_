@@ -2,6 +2,7 @@ import path from 'path';
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
+import { pwaManifest } from './src/config/pwa';
 
 export default defineConfig(() => {
   return {
@@ -67,24 +68,7 @@ export default defineConfig(() => {
             },
           ],
         },
-        manifest: {
-          name: 'GraphQL Pokedex',
-          short_name: 'Pokedex',
-          description: 'An ultra-fast Pokedex built with React and Vite',
-          theme_color: '#ffffff',
-          icons: [
-            {
-              src: 'pwa-192x192.png',
-              sizes: '192x192',
-              type: 'image/png',
-            },
-            {
-              src: 'pwa-512x512.png',
-              sizes: '512x512',
-              type: 'image/png',
-            },
-          ],
-        },
+        manifest: pwaManifest,
       }),
     ],
     resolve: {
