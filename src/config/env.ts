@@ -80,7 +80,14 @@ const isRetiredPokeapiGraphqlHost = (url: string): boolean => {
  */
 export const resolvePokeapiGraphqlUrl = (configuredUrl: string | undefined): string => {
   const candidate = configuredUrl?.trim();
-  if (!candidate || isRetiredPokeapiGraphqlHost(candidate)) {
+  if (!candidate) {
+    return DEFAULT_POKEAPI_GRAPHQL_URL;
+  }
+  if (isRetiredPokeapiGraphqlHost(candidate)) {
+    console.warn(
+      `[config] Ignoring retired PokeAPI GraphQL endpoint on "${new URL(candidate).hostname}". ` +
+        `Using ${DEFAULT_POKEAPI_GRAPHQL_URL} instead. Update VITE_POKEAPI_GRAPHQL_URL.`
+    );
     return DEFAULT_POKEAPI_GRAPHQL_URL;
   }
   return candidate;

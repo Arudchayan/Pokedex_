@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import fs from 'fs';
 import path from 'path';
 import { POKEAPI_GRAPHQL_URL } from '../constants';
@@ -14,16 +14,35 @@ describe('PokeAPI GraphQL endpoint', () => {
     expect(POKEAPI_GRAPHQL_URL).toContain('/v1beta2');
   });
 
-  it('ignores a configured retired endpoint', () => {
+  it('ignores a configured retired endpoint and warns', () => {
     const retired = 'https://beta.pokeapi.co/graphql/v1beta';
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
 
-    expect(resolvePokeapiGraphqlUrl(retired)).toBe(DEFAULT_POKEAPI_GRAPHQL_URL);
-    expect(resolvePokeapiGraphqlUrl(`${retired}/`)).toBe(DEFAULT_POKEAPI_GRAPHQL_URL);
-    expect(resolvePokeapiGraphqlUrl('http://beta.pokeapi.co/graphql/v1beta')).toBe(
-      DEFAULT_POKEAPI_GRAPHQL_URL
-    );
-    expect(resolvePokeapiGraphqlUrl('')).toBe(DEFAULT_POKEAPI_GRAPHQL_URL);
-    expect(resolvePokeapiGraphqlUrl(undefined)).toBe(DEFAULT_POKEAPI_GRAPHQL_URL);
+    try {
+      expect(resolvePokeapiGraphqlUrl(retired)).toBe(DEFAULT_POKEAPI_GRAPHQL_URL);
+      expect(resolvePokeapiGraphqlUrl(`${retired}/`)).toBe(DEFAULT_POKEAPI_GRAPHQL_URL);
+      expect(resolvePokeapiGraphqlUrl('http://beta.pokeapi.co/graphql/v1beta')).toBe(
+        DEFAULT_POKEAPI_GRAPHQL_URL
+      );
+      expect(warnSpy).toHaveBeenCalledTimes(3);
+      expect(String(warnSpy.mock.calls[0]?.[0])).toContain(
+        'Ignoring retired PokeAPI GraphQL endpoint'
+      );
+    } finally {
+      warnSpy.mockRestore();
+    }
+  });
+
+  it('falls back without warning when no endpoint is configured', () => {
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+    try {
+      expect(resolvePokeapiGraphqlUrl('')).toBe(DEFAULT_POKEAPI_GRAPHQL_URL);
+      expect(resolvePokeapiGraphqlUrl(undefined)).toBe(DEFAULT_POKEAPI_GRAPHQL_URL);
+      expect(warnSpy).not.toHaveBeenCalled();
+    } finally {
+      warnSpy.mockRestore();
+    }
   });
 
   it('keeps a custom non-retired endpoint override', () => {
@@ -51,5 +70,14 @@ describe('PokeAPI GraphQL endpoint', () => {
     const codegenConfig = fs.readFileSync(path.resolve(repoRoot, 'codegen.ts'), 'utf8');
     expect(codegenConfig).toContain(DEFAULT_POKEAPI_GRAPHQL_URL);
     expect(codegenConfig).not.toContain('beta.pokeapi.co');
+  });
+
+  it('requests the full held-item pool without any price filter', () => {
+    const document = fs.readFileSync(path.join(graphqlDir, 'fetchItems.graphql'), 'utf8');
+
+    expect(document).not.toMatch(/itemprices\s*:\s*\{/);
+    expect(document).not.toMatch(/purchase_price\s*:\s*\{/);
+    expect(document).toContain('holdable-active');
+    expect(document).toContain('itemcategory');
   });
 });
