@@ -1,4 +1,4 @@
-import React, { ReactNode, useMemo, useEffect, useCallback } from 'react';
+import React, { ReactNode, useMemo, useEffect, useCallback, useRef } from 'react';
 import { useShallow } from 'zustand/react/shallow';
 import { useQuery } from '@tanstack/react-query';
 import {
@@ -16,28 +16,66 @@ import { fetchAllPokemons } from '../services/pokeapiService';
 import { getFavorites } from '../utils/favorites';
 
 const usePokemonQuerySync = () => {
+  const retryingRef = useRef(false);
+  const mountedRef = useRef(true);
+
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: ['pokemonList'],
     queryFn: ({ signal }) => fetchAllPokemons(signal),
     staleTime: 24 * 60 * 60 * 1000,
+    // fetchAllPokemons already performs the bounded 3-attempt cycle with backoff.
+    // React Query must not add another retry chain on top of it, and a terminal
+    // error must not silently restart via focus/reconnect/remount.
+    retry: false,
+    retryOnMount: false,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
   });
 
   useEffect(() => {
-    usePokemonStore.getState().setLoading(isLoading);
+    mountedRef.current = true;
+    usePokemonStore.getState().setRetrying(false);
+    return () => {
+      mountedRef.current = false;
+      retryingRef.current = false;
+      usePokemonStore.getState().setRetrying(false);
+    };
+  }, []);
+
+  useEffect(() => {
+    // A manual retry keeps the previous error on screen; only the first load shows skeletons.
+    usePokemonStore.getState().setLoading(isLoading && !retryingRef.current);
   }, [isLoading]);
 
   useEffect(() => {
-    usePokemonStore.getState().setError(error ? 'Failed to fetch Pokemon data.' : null);
+    if (error) {
+      usePokemonStore.getState().setError('Failed to fetch Pokemon data.');
+    }
   }, [error]);
 
   useEffect(() => {
-    if (data) {
-      usePokemonStore.getState().setMasterPokemonList(data);
-    }
+    if (!data) return;
+    const store = usePokemonStore.getState();
+    store.setMasterPokemonList(data);
+    store.setError(null);
   }, [data]);
 
   const reload = useCallback(async () => {
-    await refetch();
+    // One bounded cycle at a time, including synchronous double-clicks.
+    if (retryingRef.current) return;
+    retryingRef.current = true;
+    usePokemonStore.getState().setRetrying(true);
+
+    try {
+      await refetch({ cancelRefetch: false });
+    } catch {
+      // The query error state drives the durable error UI; never leak a rejection.
+    } finally {
+      retryingRef.current = false;
+      if (mountedRef.current) {
+        usePokemonStore.getState().setRetrying(false);
+      }
+    }
   }, [refetch]);
 
   useEffect(() => {
@@ -116,6 +154,7 @@ export const usePokemonData = (): PokemonDataContextType => {
     useShallow((state) => ({
       masterPokemonList: state.masterPokemonList,
       loading: state.loading,
+      isRetrying: state.isRetrying,
       error: state.error,
       searchTerm: state.searchTerm,
       selectedGeneration: state.selectedGeneration,
