@@ -105,6 +105,9 @@ function Launcher() {
   return (
     <>
       <WalkthroughModal isOpen={isOpen} onClose={() => setIsOpen(false)} />
+      <button type="button" onClick={() => setIsOpen(true)}>
+        Reopen launcher
+      </button>
       <TourOverlay />
     </>
   );
@@ -234,7 +237,7 @@ describe('Walkthrough resume', () => {
     expect(card).not.toHaveTextContent('Paused at step');
   });
 
-  it('keeps the interrupted position when the tour is skipped', async () => {
+  it('clears the saved position when the tour is skipped', async () => {
     const user = userEvent.setup();
     renderSeededWalkthrough({ currentTourId: 'welcome', currentStepIndex: 2 });
 
@@ -248,24 +251,64 @@ describe('Walkthrough resume', () => {
     expect(screen.queryByText('Tour 3 of 5')).not.toBeInTheDocument();
     await waitFor(() => {
       const stored = readStoredProgress();
-      expect(stored?.currentTourId).toBe('welcome');
-      expect(stored?.currentStepIndex).toBe(2);
+      expect(stored?.currentTourId).toBeNull();
+      expect(stored?.currentStepIndex).toBe(0);
+      expect(stored?.hasSkippedOnboarding).toBe(true);
     });
 
     cleanup();
     renderWalkthrough();
 
+    const card = getTourCard('Welcome & Navigation');
     expect(
-      screen.getByRole('button', {
-        name: 'Resume Welcome & Navigation tour at step 3 of 5',
-      })
+      within(card).getByRole('button', { name: 'Start Welcome & Navigation tour' })
     ).toBeEnabled();
+    expect(getResumeButton()).not.toBeInTheDocument();
+    expect(card).not.toHaveTextContent('Paused at step');
+  });
+
+  it('shows an active tour as in progress without Resume or Restart', async () => {
+    const user = userEvent.setup();
+    renderSeededWalkthrough();
+
+    await user.click(screen.getByRole('button', { name: 'Start Welcome & Navigation tour' }));
+    expect(screen.getByText('Tour 1 of 5')).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Reopen launcher' }));
+
+    const card = getTourCard('Welcome & Navigation');
+    expect(card).toHaveTextContent('In progress at step 1 of 5');
+    expect(card).not.toHaveTextContent('Paused at step');
+    expect(within(card).queryByRole('button', { name: /Resume/ })).not.toBeInTheDocument();
+    expect(within(card).queryByRole('button', { name: /Restart/ })).not.toBeInTheDocument();
+    expect(
+      within(card).queryByRole('button', { name: 'Start Welcome & Navigation tour' })
+    ).not.toBeInTheDocument();
+
+    await user.click(
+      within(card).getByRole('button', {
+        name: 'Continue Welcome & Navigation tour at step 1 of 5',
+      })
+    );
+
+    expect(screen.getByText('Tour 1 of 5')).toBeInTheDocument();
+    await waitFor(() => {
+      const stored = readStoredProgress();
+      expect(stored?.currentTourId).toBe('welcome');
+      expect(stored?.currentStepIndex).toBe(0);
+    });
   });
 
   it.each([
     { label: 'an unknown tour id', currentTourId: 'removed-tour', currentStepIndex: 2 },
     { label: 'a step past the end', currentTourId: 'welcome', currentStepIndex: 99 },
     { label: 'a negative step', currentTourId: 'welcome', currentStepIndex: -1 },
+    { label: 'a fractional step', currentTourId: 'welcome', currentStepIndex: 1.5 },
+    {
+      label: 'a non-numeric step',
+      currentTourId: 'welcome',
+      currentStepIndex: '2' as unknown as number,
+    },
   ])(
     'falls back to Start and clears progress saved with $label',
     async ({ currentStepIndex, currentTourId }) => {
@@ -304,12 +347,18 @@ describe('Walkthrough resume', () => {
     });
   });
 
-  it('cannot resume a locked tour', () => {
+  it('cannot resume a locked tour and clears its stale position', async () => {
     renderSeededWalkthrough({ currentTourId: 'browsing', currentStepIndex: 2 });
 
     const card = getTourCard('Browsing Pokémon');
     expect(within(card).queryByRole('button', { name: /Resume/ })).not.toBeInTheDocument();
     expect(within(card).getByRole('button', { name: /Locked/ })).toBeDisabled();
     expect(card).toHaveTextContent('Complete the Welcome & Navigation tour to unlock.');
+
+    await waitFor(() => {
+      const stored = readStoredProgress();
+      expect(stored?.currentTourId).toBeNull();
+      expect(stored?.currentStepIndex).toBe(0);
+    });
   });
 });

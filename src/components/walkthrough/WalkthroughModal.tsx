@@ -37,7 +37,11 @@ export default function WalkthroughModal({ isOpen, onClose }: WalkthroughModalPr
 
   const handleResumeTour = () => {
     onClose();
-    resumeTour();
+    void resumeTour();
+  };
+
+  const handleContinueTour = () => {
+    onClose();
   };
 
   const handleSkip = () => {
@@ -109,7 +113,11 @@ export default function WalkthroughModal({ isOpen, onClose }: WalkthroughModalPr
           </h3>
 
           {/* We'll get tours from context */}
-          <TourList onStartTour={handleStartTour} onResumeTour={handleResumeTour} />
+          <TourList
+            onStartTour={handleStartTour}
+            onResumeTour={handleResumeTour}
+            onContinueTour={handleContinueTour}
+          />
         </div>
 
         {/* Actions */}
@@ -152,9 +160,11 @@ export default function WalkthroughModal({ isOpen, onClose }: WalkthroughModalPr
 function TourList({
   onStartTour,
   onResumeTour,
+  onContinueTour,
 }: {
   onStartTour: (tourId: string) => void;
   onResumeTour: () => void;
+  onContinueTour: () => void;
 }) {
   const { tours, progress } = useWalkthrough();
   const theme = usePokemonStore((s) => s.theme);
@@ -171,6 +181,7 @@ function TourList({
           isDark={isDark}
           onStartTour={onStartTour}
           onResumeTour={onResumeTour}
+          onContinueTour={onContinueTour}
         />
       ))}
     </ul>
@@ -184,6 +195,7 @@ interface TourCardProps {
   isDark: boolean;
   onStartTour: (tourId: string) => void;
   onResumeTour: () => void;
+  onContinueTour: () => void;
 }
 
 function TourCard({
@@ -193,15 +205,19 @@ function TourCard({
   isDark,
   onStartTour,
   onResumeTour,
+  onContinueTour,
 }: TourCardProps) {
-  const { isTourCompleted, resumableTour } = useWalkthrough();
+  const { isTourCompleted, resumableTour, isActive, currentTour, currentStepIndex } =
+    useWalkthrough();
   const isCompleted = isTourCompleted(tour.id);
   const unlock = getTourUnlockState(tour, tours, completedTours);
   const isLocked = !isCompleted && unlock.isLocked;
   const lockReason = isLocked
     ? (unlock.reason ?? 'Complete the prerequisite tours to unlock.')
     : null;
-  const resumeStepIndex = resumableTour?.tour.id === tour.id ? resumableTour.stepIndex : null;
+  const isInProgress = isActive && currentTour?.id === tour.id;
+  const resumeStepIndex =
+    !isInProgress && resumableTour?.tour.id === tour.id ? resumableTour.stepIndex : null;
 
   const actionLabel = isCompleted ? 'Replay' : isLocked ? 'Locked' : 'Start';
   const actionName = isCompleted
@@ -272,6 +288,13 @@ function TourCard({
         <p className={`text-xs mt-1 ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>
           ~{tour.estimatedTimeMinutes} min • {tour.steps.length} steps
         </p>
+        {isInProgress && (
+          <p
+            className={`text-xs mt-1.5 font-medium ${isDark ? 'text-primary-300' : 'text-primary-700'}`}
+          >
+            In progress at step {currentStepIndex + 1} of {tour.steps.length}.
+          </p>
+        )}
         {resumeStepIndex !== null && (
           <p
             className={`text-xs mt-1.5 font-medium ${isDark ? 'text-primary-300' : 'text-primary-700'}`}
@@ -283,10 +306,20 @@ function TourCard({
 
       <div
         className={`flex shrink-0 flex-col gap-2 sm:flex-row sm:items-center ${
-          resumeStepIndex !== null ? 'w-full sm:w-auto' : ''
+          isInProgress || resumeStepIndex !== null ? 'w-full sm:w-auto' : ''
         }`}
       >
-        {resumeStepIndex !== null ? (
+        {isInProgress ? (
+          <Button
+            variant="primary"
+            size="sm"
+            onClick={onContinueTour}
+            aria-label={`Continue ${tour.name} tour at step ${currentStepIndex + 1} of ${tour.steps.length}`}
+            className="w-full sm:w-auto"
+          >
+            Continue
+          </Button>
+        ) : resumeStepIndex !== null ? (
           <>
             <Button
               variant="primary"

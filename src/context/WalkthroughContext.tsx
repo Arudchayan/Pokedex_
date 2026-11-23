@@ -63,7 +63,7 @@ interface WalkthroughContextType {
 
   // Actions
   startTour: (tourId: string) => void;
-  resumeTour: () => boolean;
+  resumeTour: () => Promise<boolean>;
   nextStep: () => void;
   prevStep: () => void;
   skipTour: () => void;
@@ -203,7 +203,7 @@ export const WalkthroughProvider: React.FC<{ children: ReactNode; tours: TourDef
   );
 
   const resumableTour = useMemo<ResumableTour | null>(() => {
-    if (!currentTour) return null;
+    if (isActive || !currentTour) return null;
     if (isTourCompleted(currentTour.id) || !isTourAvailable(currentTour.id)) return null;
 
     const stepIndex = progress.currentStepIndex;
@@ -212,7 +212,7 @@ export const WalkthroughProvider: React.FC<{ children: ReactNode; tours: TourDef
     }
 
     return { tour: currentTour, stepIndex };
-  }, [currentTour, isTourCompleted, isTourAvailable, progress.currentStepIndex]);
+  }, [isActive, currentTour, isTourCompleted, isTourAvailable, progress.currentStepIndex]);
 
   const getCompletedStepsCount = useCallback(() => {
     return tours.reduce((count, tour) => {
@@ -260,7 +260,7 @@ export const WalkthroughProvider: React.FC<{ children: ReactNode; tours: TourDef
     [tours, isTourAvailable, addToast]
   );
 
-  const resumeTour = useCallback((): boolean => {
+  const resumeTour = useCallback(async (): Promise<boolean> => {
     if (!resumableTour) return false;
 
     const { tour, stepIndex } = resumableTour;
@@ -278,7 +278,7 @@ export const WalkthroughProvider: React.FC<{ children: ReactNode; tours: TourDef
     // Re-run the saved step's setup so targets like the mobile menu are open.
     const step = tour.steps[stepIndex];
     if (step?.onBeforeStep) {
-      step.onBeforeStep();
+      await step.onBeforeStep();
     }
 
     return true;
@@ -328,8 +328,13 @@ export const WalkthroughProvider: React.FC<{ children: ReactNode; tours: TourDef
 
   const skipTour = useCallback(() => {
     setIsActive(false);
-    setProgress((prev) => ({ ...prev, hasSkippedOnboarding: true }));
-    addToast('Tour paused. Resume anytime from the Walkthrough launcher.', 'info');
+    setProgress((prev) => ({
+      ...prev,
+      currentTourId: null,
+      currentStepIndex: 0,
+      hasSkippedOnboarding: true,
+    }));
+    addToast('Tour skipped. Start it again anytime from the menu.', 'info');
   }, [addToast]);
 
   const completeTour = useCallback(() => {
