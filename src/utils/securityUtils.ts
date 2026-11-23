@@ -12,7 +12,7 @@ export const MAX_COMPRESSED_LENGTH = 2000;
 export const MAX_DECOMPRESSED_LENGTH = 30000;
 
 const ALLOWED_REMOTE_HOSTS = new Set([
-  'beta.pokeapi.co',
+  'graphql.pokeapi.co',
   'raw.githubusercontent.com',
   'play.pokemonshowdown.com',
   'fonts.googleapis.com',
