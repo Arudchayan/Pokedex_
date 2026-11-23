@@ -74,6 +74,11 @@ export default function AppMain({ controller }: Props) {
   const fullBuilderHeadingRef = useRef<HTMLHeadingElement>(null);
   const focusSearchAfterBuilderRef = useRef(false);
   const fullBuilderTitleId = useId();
+  const mobileFiltersPanelId = `mobile-filters-${useId().replace(/[^a-zA-Z0-9_-]/g, '')}`;
+  const mobileFilterCount =
+    selectedTypes.length +
+    (selectedGeneration !== 'all' ? 1 : 0) +
+    (flavorTextSearch.trim() ? 1 : 0);
   const isDesktop = useMediaQuery('(min-width: 1024px)');
 
   useFocusTrap({
@@ -406,7 +411,12 @@ export default function AppMain({ controller }: Props) {
             <div className="sm:hidden">
               <button
                 type="button"
-                onClick={() => setMobileFiltersOpen(!mobileFiltersOpen)}
+                onClick={() => setMobileFiltersOpen((open) => !open)}
+                aria-expanded={mobileFiltersOpen}
+                aria-controls={mobileFiltersPanelId}
+                aria-label={
+                  mobileFilterCount > 0 ? `Filters (${mobileFilterCount} active)` : 'Filters'
+                }
                 className={`w-full flex items-center justify-between px-4 py-3 rounded-xl border text-sm font-semibold transition-colors ${
                   theme === 'dark'
                     ? 'border-white/10 bg-slate-950/80 text-slate-200 hover:bg-white/5'
@@ -423,13 +433,9 @@ export default function AppMain({ controller }: Props) {
                     />
                   </svg>
                   Filters
-                  {(selectedTypes.length > 0 ||
-                    selectedGeneration !== 'all' ||
-                    flavorTextSearch.trim()) && (
+                  {mobileFilterCount > 0 && (
                     <span className="bg-primary-500 text-white text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center">
-                      {selectedTypes.length +
-                        (selectedGeneration !== 'all' ? 1 : 0) +
-                        (flavorTextSearch.trim() ? 1 : 0)}
+                      {mobileFilterCount}
                     </span>
                   )}
                 </span>
@@ -450,6 +456,7 @@ export default function AppMain({ controller }: Props) {
               {mobileFiltersOpen && (
                 <div className="mt-2">
                   <FilterControls
+                    id={mobileFiltersPanelId}
                     selectedGeneration={selectedGeneration}
                     onGenerationChange={handleGenerationChange}
                     selectedTypes={selectedTypes}
