@@ -13,6 +13,22 @@ export const GENERATIONS = {
 
 export type GenerationKey = keyof typeof GENERATIONS;
 
+/**
+ * The Shiny Charm was introduced in Generation V (Pokémon Black/White).
+ * It does not exist in Generations 2-4, so it must not affect their odds.
+ */
+const SHINY_CHARM_GENERATIONS: ReadonlySet<GenerationKey> = new Set<GenerationKey>([
+  'gen5',
+  'gen6',
+  'gen7',
+  'gen8',
+  'gen9',
+]);
+
+export function isShinyCharmAvailable(gen: GenerationKey): boolean {
+  return SHINY_CHARM_GENERATIONS.has(gen);
+}
+
 export const SHINY_METHODS = {
   gen2: [{ id: 'breeding', name: 'Breeding (Shiny Parent)', odds: 1 / 64 }],
   gen3: [{ id: 'random', name: 'Random Encounters', odds: 1 / 8192 }],
@@ -72,16 +88,17 @@ export function calculateShinyOdds(
 
   let odds = method.odds;
   let _rolls = 1;
+  const charmActive = hasCharm && isShinyCharmAvailable(gen);
 
   // Base odds adjustments based on method
   // Note: This is a simplification. Actual mechanics are rolls.
   // 1/X probability is approximated by rolls/Base.
 
-  // --- Gen 2-4 (Pre-Charm for most, or specific charm handling) ---
+  // Gen 2 breeding odds are fixed and unaffected by later-generation items.
   if (gen === 'gen2') return { odds, text: `1 in ${Math.round(1 / odds)}` };
 
-  // --- Charm Handling ---
-  if (hasCharm) {
+  // --- Charm Handling (Gen 5+ only) ---
+  if (charmActive) {
     // In Gen 5+, Shiny Charm usually adds 2 extra rolls for standard encounters/eggs
     if (['random', 'masuda', 'friend_safari', 'outbreak'].includes(methodId)) {
       if (gen === 'gen5') {
@@ -131,7 +148,7 @@ export function calculateShinyOdds(
 
     let currentRolls = 1;
     if (methodId === 'outbreak') currentRolls += 2;
-    if (hasCharm) currentRolls += 2;
+    if (charmActive) currentRolls += 2;
     currentRolls += 3; // Sandwich
 
     odds = currentRolls / 4096;
