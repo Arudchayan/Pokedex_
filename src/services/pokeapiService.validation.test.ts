@@ -85,4 +85,34 @@ describe('pokeapiService data validation', () => {
     expect(items[0].cost).toBe(200);
     expect(items[0].flavorText).toBe('Freshly brewed');
   });
+
+  it('fetchAllItems: keeps holdable items without a purchase price (cost 0)', async () => {
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        data: {
+          item: [
+            {
+              id: 211,
+              name: 'leftovers',
+              itemprices: [],
+              itemflavortexts: [{ flavor_text: 'Slowly restores HP.' }],
+            },
+            {
+              id: 2,
+              name: 'ultra-ball',
+              itemprices: [{ purchase_price: 1200 }],
+              itemflavortexts: [],
+            },
+          ],
+        },
+      }),
+    } as any);
+
+    const items = await fetchAllItems();
+
+    expect(items).toHaveLength(2);
+    expect(items[0]).toMatchObject({ name: 'leftovers', cost: 0 });
+    expect(items[1]).toMatchObject({ name: 'ultra-ball', cost: 1200 });
+  });
 });
