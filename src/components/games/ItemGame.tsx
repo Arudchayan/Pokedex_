@@ -103,7 +103,7 @@ const ItemGame: React.FC<Props> = ({ onClose, date, seed, onReady }) => {
     );
 
   // Hint: Cost and Obfuscated Flavor Text
-  const costHint = `Cost: ${target.cost} ₽`;
+  const costHint = target.cost ? `Cost: ${target.cost} ₽` : 'Not sold in stores';
   // const flavorHint = target.flavorText.replace(new RegExp(target.name.replace('-', ' '), 'gi'), '???');
   // Item names in flavor text might not be 1:1, usually simple regex works
 

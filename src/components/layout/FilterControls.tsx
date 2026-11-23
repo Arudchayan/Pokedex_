@@ -1,8 +1,9 @@
 import React, { useMemo, useState } from 'react';
-import { GENERATIONS, TYPE_COLORS } from '../../constants';
+import { GENERATIONS, MAX_STAT_VALUE, MIN_STAT_VALUE, TYPE_COLORS } from '../../constants';
 import { usePokemon } from '../../context/PokemonContext';
 import { usePokemonStore } from '../../store/usePokemonStore';
 import { MAX_INPUT_LENGTH } from '../../utils/securityUtils';
+import { clampStatFilterValue } from '../../utils/statFilters';
 
 interface FilterControlsProps {
   selectedGeneration: string;
@@ -34,7 +35,7 @@ const SectionToggle: React.FC<{
   >
     <span>{label}</span>
     <span
-      className={`flex items-center gap-2 text-xs ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}
+      className={`flex items-center gap-2 text-xs ${theme === 'dark' ? 'text-slate-300' : 'text-slate-600'}`}
     >
       {description}
       <svg
@@ -76,8 +77,7 @@ const FilterControls: React.FC<FilterControlsProps> = ({
     // Input length safety check
     if (value.length > 5) return;
 
-    const numValue = parseInt(value, 10);
-    usePokemonStore.getState().setMinStat(stat, isNaN(numValue) ? 0 : numValue);
+    usePokemonStore.getState().setMinStat(stat, clampStatFilterValue(Number(value)));
   };
 
   const handleFlavorTextChange = (value: string) => {
@@ -173,7 +173,7 @@ const FilterControls: React.FC<FilterControlsProps> = ({
       <header className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <p
-            className={`text-xs font-semibold uppercase tracking-wide ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}
+            className={`text-xs font-semibold uppercase tracking-wide ${theme === 'dark' ? 'text-slate-300' : 'text-slate-600'}`}
           >
             Refine
           </p>
@@ -209,7 +209,7 @@ const FilterControls: React.FC<FilterControlsProps> = ({
       <div className="mb-4 flex flex-wrap gap-2">
         {activeChips.length === 0 ? (
           <span
-            className={`text-xs font-semibold uppercase tracking-wide ${theme === 'dark' ? 'text-slate-500' : 'text-slate-400'}`}
+            className={`text-xs font-semibold uppercase tracking-wide ${theme === 'dark' ? 'text-slate-300' : 'text-slate-600'}`}
           >
             No filters applied
           </span>
@@ -224,7 +224,7 @@ const FilterControls: React.FC<FilterControlsProps> = ({
               }`}
             >
               <span
-                className={`text-[10px] uppercase tracking-wide ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}
+                className={`text-[10px] uppercase tracking-wide ${theme === 'dark' ? 'text-slate-300' : 'text-slate-600'}`}
               >
                 {chip.label}
               </span>
@@ -390,7 +390,7 @@ const FilterControls: React.FC<FilterControlsProps> = ({
               <div>
                 <label
                   htmlFor="ability-search"
-                  className={`text-xs font-semibold capitalize mb-1 block ${theme === 'dark' ? 'text-slate-400' : 'text-slate-600'}`}
+                  className={`text-xs font-semibold capitalize mb-1 block ${theme === 'dark' ? 'text-slate-300' : 'text-slate-600'}`}
                 >
                   Ability
                 </label>
@@ -429,7 +429,7 @@ const FilterControls: React.FC<FilterControlsProps> = ({
               {/* Stats */}
               <div>
                 <label
-                  className={`text-xs font-semibold capitalize mb-2 block ${theme === 'dark' ? 'text-slate-400' : 'text-slate-600'}`}
+                  className={`text-xs font-semibold capitalize mb-2 block ${theme === 'dark' ? 'text-slate-300' : 'text-slate-600'}`}
                 >
                   Minimum Stats
                 </label>
@@ -439,15 +439,17 @@ const FilterControls: React.FC<FilterControlsProps> = ({
                       <div key={stat} className="flex flex-col gap-1">
                         <label
                           htmlFor={`min-stat-${stat}`}
-                          className={`text-[10px] uppercase tracking-wide ${theme === 'dark' ? 'text-slate-500' : 'text-slate-500'}`}
+                          className={`text-[10px] uppercase tracking-wide ${theme === 'dark' ? 'text-slate-300' : 'text-slate-600'}`}
                         >
                           {stat.replace('-', ' ')}
                         </label>
                         <input
                           id={`min-stat-${stat}`}
                           type="number"
-                          min="0"
-                          max="255"
+                          min={MIN_STAT_VALUE}
+                          max={MAX_STAT_VALUE}
+                          step={1}
+                          inputMode="numeric"
                           value={minStats[stat] || ''}
                           onChange={(e) => handleStatChange(stat, e.target.value)}
                           placeholder="0"

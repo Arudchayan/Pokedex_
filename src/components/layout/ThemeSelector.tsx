@@ -95,20 +95,22 @@ const ThemeSelector: React.FC = () => {
             {/* Theme Mode */}
             <div>
               <h3
-                className={`text-xs font-bold uppercase tracking-wider mb-2 ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}
+                className={`text-xs font-bold uppercase tracking-wider mb-2 ${theme === 'dark' ? 'text-slate-300' : 'text-slate-600'}`}
               >
                 Display Mode
               </h3>
               <div className="flex gap-2 bg-black/5 p-1 rounded-lg">
                 <button
                   onClick={(e) => setTheme('light', e)}
-                  className={`flex-1 py-1.5 rounded-md text-sm font-medium transition-all ${theme === 'light' ? 'bg-white shadow text-slate-900' : 'text-slate-500 hover:bg-white/50'}`}
+                  aria-pressed={theme === 'light'}
+                  className={`flex-1 py-1.5 rounded-md text-sm font-medium transition-all ${theme === 'light' ? 'bg-white shadow text-slate-900' : 'text-slate-300 hover:bg-white/10 hover:text-white'}`}
                 >
                   Light
                 </button>
                 <button
                   onClick={(e) => setTheme('dark', e)}
-                  className={`flex-1 py-1.5 rounded-md text-sm font-medium transition-all ${theme === 'dark' ? 'bg-slate-700 shadow text-white' : 'text-slate-500 hover:bg-slate-700/50'}`}
+                  aria-pressed={theme === 'dark'}
+                  className={`flex-1 py-1.5 rounded-md text-sm font-medium transition-all ${theme === 'dark' ? 'bg-slate-700 shadow text-white' : 'text-slate-600 hover:bg-slate-200 hover:text-slate-900'}`}
                 >
                   Dark
                 </button>
@@ -118,7 +120,7 @@ const ThemeSelector: React.FC = () => {
             {/* Accent Colors */}
             <div>
               <h3
-                className={`text-xs font-bold uppercase tracking-wider mb-2 ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}
+                className={`text-xs font-bold uppercase tracking-wider mb-2 ${theme === 'dark' ? 'text-slate-300' : 'text-slate-600'}`}
               >
                 Accent Color
               </h3>
@@ -129,28 +131,30 @@ const ThemeSelector: React.FC = () => {
               >
                 <button
                   onClick={() => setActiveTab('classic')}
+                  aria-pressed={activeTab === 'classic'}
                   className={`flex-1 py-1.5 px-2 text-[10px] font-bold uppercase tracking-wider transition-all ${
                     activeTab === 'classic'
                       ? theme === 'dark'
                         ? 'bg-white/10 text-white'
                         : 'bg-white text-slate-900 shadow'
                       : theme === 'dark'
-                        ? 'text-slate-500 hover:text-slate-300'
-                        : 'text-slate-400 hover:text-slate-600'
+                        ? 'text-slate-300 hover:text-white'
+                        : 'text-slate-600 hover:text-slate-900'
                   }`}
                 >
                   Classic
                 </button>
                 <button
                   onClick={() => setActiveTab('digital')}
+                  aria-pressed={activeTab === 'digital'}
                   className={`flex-1 py-1.5 px-2 text-[10px] font-bold uppercase tracking-wider transition-all ${
                     activeTab === 'digital'
                       ? theme === 'dark'
                         ? 'bg-white/10 text-white'
                         : 'bg-white text-slate-900 shadow'
                       : theme === 'dark'
-                        ? 'text-slate-500 hover:text-slate-300'
-                        : 'text-slate-400 hover:text-slate-600'
+                        ? 'text-slate-300 hover:text-white'
+                        : 'text-slate-600 hover:text-slate-900'
                   }`}
                 >
                   Digital Pokemon
@@ -196,7 +200,7 @@ const ThemeSelector: React.FC = () => {
 
               {activeTab === 'digital' && (
                 <p
-                  className={`text-[10px] mt-2 ${theme === 'dark' ? 'text-slate-500' : 'text-slate-400'}`}
+                  className={`text-[10px] mt-2 ${theme === 'dark' ? 'text-slate-300' : 'text-slate-600'}`}
                 >
                   Digital Pokemon mode activates a futuristic Porygon-inspired theme!
                 </p>
@@ -308,10 +312,11 @@ const ThemeSelector: React.FC = () => {
               <div className="grid grid-cols-2 gap-2">
                 <button
                   onClick={(e) => setTheme('light', e)}
+                  aria-pressed={theme === 'light'}
                   className={`relative py-2.5 px-3 rounded-lg font-bold text-xs uppercase tracking-wider transition-all duration-300 border ${
                     theme === 'light'
                       ? 'bg-yellow-500/20 text-yellow-300 border-yellow-400/60'
-                      : 'bg-black/30 text-slate-400 border-slate-700/50 hover:border-yellow-400/30'
+                      : 'bg-black/30 text-slate-300 border-slate-700/50 hover:border-yellow-400/30'
                   }`}
                   style={theme === 'light' ? { boxShadow: '0 0 15px rgba(250, 204, 21, 0.3)' } : {}}
                 >
@@ -330,10 +335,11 @@ const ThemeSelector: React.FC = () => {
 
                 <button
                   onClick={(e) => setTheme('dark', e)}
+                  aria-pressed={theme === 'dark'}
                   className={`relative py-2.5 px-3 rounded-lg font-bold text-xs uppercase tracking-wider transition-all duration-300 border ${
                     theme === 'dark'
                       ? 'bg-indigo-500/20 text-indigo-300 border-indigo-400/60'
-                      : 'bg-black/30 text-slate-400 border-slate-700/50 hover:border-indigo-400/30'
+                      : 'bg-black/30 text-slate-300 border-slate-700/50 hover:border-indigo-400/30'
                   }`}
                   style={theme === 'dark' ? { boxShadow: '0 0 15px rgba(99, 102, 241, 0.3)' } : {}}
                 >
@@ -363,20 +369,22 @@ const ThemeSelector: React.FC = () => {
               <div className="flex rounded-lg overflow-hidden border border-slate-700/50 bg-black/30">
                 <button
                   onClick={() => setActiveTab('digital')}
+                  aria-pressed={activeTab === 'digital'}
                   className={`flex-1 py-2 px-3 text-[10px] font-bold uppercase tracking-wider transition-all duration-300 ${
                     activeTab === 'digital'
                       ? 'bg-primary-500/20 text-primary-300 border-b-2 border-primary-400'
-                      : 'text-slate-500 hover:text-slate-300'
+                      : 'text-slate-300 hover:text-white'
                   }`}
                 >
                   Digital
                 </button>
                 <button
                   onClick={() => setActiveTab('classic')}
+                  aria-pressed={activeTab === 'classic'}
                   className={`flex-1 py-2 px-3 text-[10px] font-bold uppercase tracking-wider transition-all duration-300 ${
                     activeTab === 'classic'
                       ? 'bg-emerald-500/20 text-emerald-300 border-b-2 border-emerald-400'
-                      : 'text-slate-500 hover:text-slate-300'
+                      : 'text-slate-300 hover:text-white'
                   }`}
                 >
                   Classic
@@ -450,7 +458,7 @@ const ThemeSelector: React.FC = () => {
             {/* Current Theme Indicator */}
             <div className="pt-3 border-t border-slate-700/30">
               <div className="flex items-center justify-between text-xs">
-                <span className="text-slate-500 uppercase tracking-wider">Active:</span>
+                <span className="text-slate-300 uppercase tracking-wider">Active:</span>
                 <span
                   className="font-bold uppercase tracking-wider"
                   style={{

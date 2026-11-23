@@ -122,6 +122,37 @@ const AppHeader: React.FC<AppHeaderProps> = memo(({ onRandomPokemon }) => {
     return () => window.removeEventListener('keydown', onKeyDown);
   }, [showMenu, closeMenu]);
 
+  // WAI-ARIA menu keyboard pattern: arrows move focus with wrap-around,
+  // Home/End jump to the first/last item. Enter/Space stay native to each item.
+  const handleMenuKeyDown = useCallback((e: React.KeyboardEvent<HTMLDivElement>) => {
+    const items = Array.from(e.currentTarget.querySelectorAll<HTMLElement>('[role="menuitem"]'));
+    if (items.length === 0) return;
+
+    const currentIndex = items.indexOf(document.activeElement as HTMLElement);
+    let nextIndex: number;
+
+    switch (e.key) {
+      case 'ArrowDown':
+        nextIndex = currentIndex < 0 ? 0 : (currentIndex + 1) % items.length;
+        break;
+      case 'ArrowUp':
+        nextIndex = currentIndex <= 0 ? items.length - 1 : currentIndex - 1;
+        break;
+      case 'Home':
+        nextIndex = 0;
+        break;
+      case 'End':
+        nextIndex = items.length - 1;
+        break;
+      default:
+        return;
+    }
+
+    e.preventDefault();
+    // focus() scrolls the item into view inside the bounded menu container.
+    items[nextIndex].focus();
+  }, []);
+
   // Achievement Wrappers
   const handleToggleShiny = () => {
     usePokemonStore.getState().toggleShiny();
@@ -261,7 +292,8 @@ const AppHeader: React.FC<AppHeaderProps> = memo(({ onRandomPokemon }) => {
                       id={menuId}
                       role="menu"
                       aria-label="Tools"
-                      className={`absolute top-full mt-2 right-0 w-56 rounded-xl shadow-2xl border p-2 z-50 flex flex-col gap-1 ${
+                      onKeyDown={handleMenuKeyDown}
+                      className={`absolute top-full mt-2 right-0 w-56 max-h-[calc(100dvh-8rem)] rounded-xl shadow-2xl border p-2 z-50 flex flex-col gap-1 overflow-y-auto overscroll-contain scroll-py-2 ${
                         theme === 'dark'
                           ? 'bg-slate-900 border-white/10'
                           : 'bg-white border-slate-200'

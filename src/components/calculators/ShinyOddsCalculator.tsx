@@ -68,20 +68,33 @@ const ShinyOddsCalculator: React.FC<ShinyOddsCalculatorProps> = ({ onClose }) =>
 
         {/* Method Selection */}
         <div>
-          <label className="block text-sm font-bold uppercase tracking-wider mb-2 opacity-70">
+          <span
+            id="shiny-hunting-method-label"
+            className="block text-sm font-bold uppercase tracking-wider mb-2 opacity-70"
+          >
             Hunting Method
-          </label>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+          </span>
+          <div
+            role="group"
+            aria-labelledby="shiny-hunting-method-label"
+            className="grid grid-cols-1 sm:grid-cols-2 gap-2"
+          >
             {currentMethods.map((m) => (
               <button
                 key={m.id}
+                type="button"
+                aria-pressed={method === m.id}
                 onClick={() => setMethod(m.id)}
-                className={`p-3 rounded-lg border text-left transition-all ${
+                className={`p-3 rounded-lg border text-left transition-all focus-visible:outline-none focus-visible:ring-2 ${
                   method === m.id
-                    ? 'bg-pink-500 text-white border-pink-500 shadow-lg shadow-pink-500/20'
+                    ? `bg-pink-500 text-white border-pink-500 shadow-lg shadow-pink-500/20 ${
+                        theme === 'dark'
+                          ? 'focus-visible:ring-white'
+                          : 'focus-visible:ring-slate-900'
+                      }`
                     : theme === 'dark'
-                      ? 'bg-black/20 border-white/5 hover:bg-black/40'
-                      : 'bg-slate-50 border-slate-200 hover:bg-slate-100'
+                      ? 'bg-black/20 border-white/5 hover:bg-black/40 focus-visible:ring-pink-500'
+                      : 'bg-slate-50 border-slate-200 hover:bg-slate-100 focus-visible:ring-pink-500'
                 }`}
               >
                 <span className="block font-bold text-sm">{m.name}</span>
