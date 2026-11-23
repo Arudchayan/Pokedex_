@@ -5,7 +5,7 @@ import { usePokemonUI } from '../../context/PokemonContext';
 import { usePokemonStore } from '../../store/usePokemonStore';
 import { useModalStore } from '../../store/useModalStore';
 import { useAchievements } from '../../context/AchievementContext';
-import { useFocusTrap } from '../../hooks';
+import { useFocusTrap, useMediaQuery } from '../../hooks';
 import ThemeSelector from './ThemeSelector';
 import { openWalkthroughModal } from '../walkthrough/WalkthroughManager';
 import {
@@ -38,6 +38,7 @@ const MobileDrawer: React.FC<MobileDrawerProps> = ({ isOpen, onClose, onRandomPo
   const drawerRef = useRef<HTMLDivElement>(null);
   const firstItemRef = useRef<HTMLButtonElement>(null);
   const themeLabelId = useId();
+  const isDesktop = useMediaQuery('(min-width: 768px)');
 
   // UI state from stores / context
   const { theme, isCyberpunk, isShiny } = usePokemonUI();
@@ -123,6 +124,12 @@ const MobileDrawer: React.FC<MobileDrawerProps> = ({ isOpen, onClose, onRandomPo
     initialFocusRef: firstItemRef,
     onEscape: onClose,
   });
+
+  // The panel is display:none from md up. Close it instead of leaving the
+  // trap active over a hidden dialog, which would keep the page inert.
+  useEffect(() => {
+    if (isDesktop && isOpen) onClose();
+  }, [isDesktop, isOpen, onClose]);
 
   // Lock body scroll when drawer is open
   useEffect(() => {

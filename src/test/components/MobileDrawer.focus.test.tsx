@@ -1,10 +1,43 @@
 import React, { useState } from 'react';
 import { describe, expect, it, vi } from 'vitest';
-import { screen, waitFor, within } from '@testing-library/react';
+import { act, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import MobileDrawer from '../../components/layout/MobileDrawer';
 import { installInertSupport } from '../inertSupport';
 import { renderWithProvider } from '../utils';
+
+type MediaListener = (event: MediaQueryListEvent) => void;
+
+function installMatchMedia(initialMatches: boolean) {
+  const listeners = new Set<MediaListener>();
+  const mediaQueryList = {
+    matches: initialMatches,
+    media: '(min-width: 768px)',
+    onchange: null,
+    addEventListener: (_type: string, listener: MediaListener) => listeners.add(listener),
+    removeEventListener: (_type: string, listener: MediaListener) => listeners.delete(listener),
+    addListener: vi.fn(),
+    removeListener: vi.fn(),
+    dispatchEvent: vi.fn(),
+  };
+  const original = window.matchMedia;
+
+  window.matchMedia = vi
+    .fn()
+    .mockReturnValue(mediaQueryList) as unknown as typeof window.matchMedia;
+
+  return {
+    setMatches: (matches: boolean) => {
+      mediaQueryList.matches = matches;
+      listeners.forEach((listener) =>
+        listener({ matches, media: mediaQueryList.media } as MediaQueryListEvent)
+      );
+    },
+    restore: () => {
+      window.matchMedia = original;
+    },
+  };
+}
 
 function DrawerHarness() {
   const [isOpen, setIsOpen] = useState(false);
@@ -166,6 +199,35 @@ describe('MobileDrawer focus management', () => {
       expect(container).not.toHaveAttribute('inert');
       expect(screen.getByTestId('mobile-drawer-root')).toHaveAttribute('inert');
     } finally {
+      restoreInert();
+    }
+  });
+
+  it('closes and releases the page when the viewport reaches the md breakpoint', async () => {
+    const restoreInert = installInertSupport();
+    const media = installMatchMedia(false);
+
+    try {
+      const user = userEvent.setup({ delay: null });
+      const { trigger, container } = renderHarness();
+
+      const dialog = await openDrawer(user, trigger);
+      expect(container).toHaveAttribute('inert');
+      expect(document.body.style.overflow).toBe('hidden');
+
+      // jsdom does not evaluate Tailwind's md:hidden, so emulate the CSS that
+      // hides the trigger once the viewport reaches 768px.
+      trigger.style.display = 'none';
+
+      act(() => media.setMatches(true));
+
+      await waitFor(() => expect(dialog).toHaveAttribute('aria-hidden', 'true'));
+      await waitFor(() => expect(screen.getByRole('main')).toHaveFocus());
+      expect(container).not.toHaveAttribute('inert');
+      expect(screen.getByTestId('mobile-drawer-root')).toHaveAttribute('inert');
+      expect(document.body.style.overflow).toBe('');
+    } finally {
+      media.restore();
       restoreInert();
     }
   });

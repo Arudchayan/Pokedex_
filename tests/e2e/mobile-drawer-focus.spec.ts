@@ -156,6 +156,39 @@ test.describe('mobile navigation drawer focus (390x844)', () => {
     expect(await bodyOverflow(page)).toBe('');
   });
 
+  test('closes and releases the page when the viewport crosses md while open', async ({ page }) => {
+    await loadApp(page);
+
+    const trigger = page.getByRole('button', { name: 'Open navigation menu' });
+    const search = page.locator('#main-search');
+
+    for (const target of [
+      { width: 768, height: 900 },
+      { width: 844, height: 390 },
+    ]) {
+      await page.setViewportSize({ width: 390, height: 844 });
+      await expect(trigger).toBeVisible();
+
+      const { dialog } = await openDrawerWithKeyboard(page);
+      expect(await bodyOverflow(page)).toBe('hidden');
+
+      await page.setViewportSize(target);
+
+      await expect(dialog).toHaveAttribute('aria-hidden', 'true');
+      await expect(drawerRoot(page)).toHaveAttribute('inert', '');
+      expect(await page.locator('#root').evaluate((element) => element.hasAttribute('inert'))).toBe(
+        false
+      );
+      expect(await bodyOverflow(page)).toBe('');
+      await expect(page.locator('#main-content')).toBeFocused();
+
+      await expectNoDrawerTabStop(page, 10);
+
+      await search.click();
+      await expect(search).toBeFocused();
+    }
+  });
+
   test('the theme popover stays inside the trap', async ({ page }) => {
     await loadApp(page);
 
