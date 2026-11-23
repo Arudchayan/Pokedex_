@@ -82,8 +82,8 @@ Test your knowledge with "dle" style challenges:
 
 ### Prerequisites
 
-- Node.js 20+ (specified in `.node-version`)
-- npm 10+
+- Node.js 24+ (specified in `.node-version`)
+- npm 11+
 
 ### Installation
 
