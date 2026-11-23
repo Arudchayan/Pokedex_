@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useId, useRef, useState } from 'react';
+import ReactDOM from 'react-dom';
 import { useShallow } from 'zustand/react/shallow';
 import { usePokemonUI } from '../../context/PokemonContext';
 import { usePokemonStore } from '../../store/usePokemonStore';
@@ -219,7 +220,7 @@ const MobileDrawer: React.FC<MobileDrawerProps> = ({ isOpen, onClose, onRandomPo
   ];
 
   // Base style classes
-  const backdropClass = `fixed inset-0 z-[1100] bg-black/50 backdrop-blur-sm transition-opacity duration-300 md:hidden ${
+  const backdropClass = `fixed inset-0 z-drawer-backdrop bg-black/50 backdrop-blur-sm transition-opacity duration-300 md:hidden ${
     isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
   }`;
 
@@ -229,7 +230,7 @@ const MobileDrawer: React.FC<MobileDrawerProps> = ({ isOpen, onClose, onRandomPo
       ? 'bg-slate-950 border-r border-white/10'
       : 'bg-white border-r border-slate-200';
 
-  const drawerClass = `fixed z-[1110] flex w-80 max-w-full flex-col shadow-2xl transform transition-transform duration-300 ease-out md:hidden overscroll-contain ${panelBg} ${
+  const drawerClass = `fixed z-drawer flex w-80 max-w-full flex-col shadow-2xl transform transition-transform duration-300 ease-out md:hidden overscroll-contain ${panelBg} ${
     isOpen ? 'translate-x-0' : '-translate-x-full'
   }`;
 
@@ -272,10 +273,15 @@ const MobileDrawer: React.FC<MobileDrawerProps> = ({ isOpen, onClose, onRandomPo
       ? 'h-px mx-3 my-1 bg-white/10'
       : 'h-px mx-3 my-1 bg-slate-200';
 
-  return (
-    <>
+  const drawerContent = (
+    <div data-testid="mobile-drawer-root">
       {/* Backdrop */}
-      <div className={backdropClass} onClick={onClose} aria-hidden="true" />
+      <div
+        className={backdropClass}
+        onClick={onClose}
+        aria-hidden="true"
+        data-testid="mobile-drawer-backdrop"
+      />
 
       {/* Drawer panel */}
       <div
@@ -399,8 +405,14 @@ const MobileDrawer: React.FC<MobileDrawerProps> = ({ isOpen, onClose, onRandomPo
         {/* Bottom padding for safe area */}
         <div className="h-8" />
       </div>
-    </>
+    </div>
   );
+
+  if (typeof document === 'undefined') return null;
+
+  // Portal out of the header: its backdrop-filter makes it a containing block
+  // for fixed descendants, which would clip the backdrop to the header height.
+  return ReactDOM.createPortal(drawerContent, document.body);
 };
 
 export default MobileDrawer;
