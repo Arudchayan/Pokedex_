@@ -8,7 +8,9 @@ import Loader from '../shared/Loader';
 import TypeBadge from '../charts/TypeBadge';
 import { PokemonDetails } from '../../types';
 import Modal from '../base/Modal';
+import Button from '../base/Button';
 import PokemonAutocomplete from '../shared/PokemonAutocomplete';
+import PokemonDatasetStatus from './PokemonDatasetStatus';
 
 interface StatCalculatorProps {
   onClose: () => void;
@@ -27,12 +29,22 @@ const STAT_LABELS: Record<string, string> = {
 const STAT_ORDER = ['hp', 'attack', 'defense', 'special-attack', 'special-defense', 'speed'];
 
 const StatCalculator: React.FC<StatCalculatorProps> = ({ onClose, initialPokemonId }) => {
-  const { masterPokemonList, theme } = usePokemon();
+  const {
+    masterPokemonList,
+    theme,
+    loading: datasetLoading,
+    error: datasetError,
+    reload,
+  } = usePokemon();
   const queryClient = useQueryClient();
 
   const [selectedId, setSelectedId] = useState<number | null>(initialPokemonId || null);
   const [pokemon, setPokemon] = useState<PokemonDetails | null>(null);
   const [loading, setLoading] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [retryTick, setRetryTick] = useState(0);
+  const [validationMessage, setValidationMessage] = useState<string | null>(null);
+  const [hasCalculated, setHasCalculated] = useState(false);
 
   // Stats State
   const [level, setLevel] = useState(50);
@@ -56,36 +68,56 @@ const StatCalculator: React.FC<StatCalculatorProps> = ({ onClose, initialPokemon
 
   // Fetch Pokemon Data
   useEffect(() => {
-    if (selectedId) {
-      setLoading(true);
-      fetchPokemonDetailsQuery(queryClient, selectedId)
-        .then((details) => {
-          if (details) {
-            setPokemon(details);
-            // Reset to defaults on new pokemon
-            setIvs({
-              hp: 31,
-              attack: 31,
-              defense: 31,
-              'special-attack': 31,
-              'special-defense': 31,
-              speed: 31,
-            });
-            setEvs({
-              hp: 0,
-              attack: 0,
-              defense: 0,
-              'special-attack': 0,
-              'special-defense': 0,
-              speed: 0,
-            });
-            setNature('Hardy');
-            setLevel(50);
-          }
-        })
-        .finally(() => setLoading(false));
-    }
-  }, [selectedId, queryClient]);
+    if (!selectedId) return;
+
+    let cancelled = false;
+    setLoading(true);
+    setLoadError(null);
+
+    fetchPokemonDetailsQuery(queryClient, selectedId)
+      .then((details) => {
+        if (cancelled) return;
+        if (!details) {
+          setLoadError(`Could not load Pokémon #${selectedId}.`);
+          return;
+        }
+
+        setPokemon(details);
+        setHasCalculated(false);
+        setValidationMessage(null);
+        // Reset to defaults on new pokemon
+        setIvs({
+          hp: 31,
+          attack: 31,
+          defense: 31,
+          'special-attack': 31,
+          'special-defense': 31,
+          speed: 31,
+        });
+        setEvs({
+          hp: 0,
+          attack: 0,
+          defense: 0,
+          'special-attack': 0,
+          'special-defense': 0,
+          speed: 0,
+        });
+        setNature('Hardy');
+        setLevel(50);
+      })
+      .catch((error: unknown) => {
+        if (cancelled) return;
+        console.error(error);
+        setLoadError('Failed to load Pokémon data. Check your connection and try again.');
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedId, queryClient, retryTick]);
 
   // Calculations
   const results = useMemo(() => {
@@ -112,9 +144,16 @@ const StatCalculator: React.FC<StatCalculatorProps> = ({ onClose, initialPokemon
 
   // Handlers
   const handleStatChange = (type: 'iv' | 'ev', stat: string, val: string) => {
-    const num = parseInt(val) || 0;
+    const parsed = parseInt(val, 10);
     const max = type === 'iv' ? 31 : 252;
-    const clamped = Math.min(max, Math.max(0, num));
+    const isInvalid = !Number.isFinite(parsed) || parsed < 0 || parsed > max;
+    const clamped = Math.min(max, Math.max(0, Number.isFinite(parsed) ? parsed : 0));
+
+    setValidationMessage(
+      isInvalid
+        ? `${type === 'iv' ? 'IV' : 'EV'} for ${STAT_LABELS[stat]} must be between 0 and ${max}; using ${clamped}.`
+        : null
+    );
 
     if (type === 'iv') {
       setIvs((prev) => ({ ...prev, [stat]: clamped }));
@@ -123,7 +162,45 @@ const StatCalculator: React.FC<StatCalculatorProps> = ({ onClose, initialPokemon
     }
   };
 
+  const handleLevelChange = (value: string) => {
+    const parsed = parseInt(value, 10);
+    const isInvalid = !Number.isFinite(parsed) || parsed < 1 || parsed > 100;
+    const clamped = Math.min(100, Math.max(1, Number.isFinite(parsed) ? parsed : 1));
+    setValidationMessage(isInvalid ? `Level must be between 1 and 100; using ${clamped}.` : null);
+    setLevel(clamped);
+  };
+
+  const resetCalculator = () => {
+    setPokemon(null);
+    setSelectedId(null);
+    setLoading(false);
+    setLoadError(null);
+    setValidationMessage(null);
+    setHasCalculated(false);
+    setLevel(50);
+    setNature('Hardy');
+    setIvs({
+      hp: 31,
+      attack: 31,
+      defense: 31,
+      'special-attack': 31,
+      'special-defense': 31,
+      speed: 31,
+    });
+    setEvs({
+      hp: 0,
+      attack: 0,
+      defense: 0,
+      'special-attack': 0,
+      'special-defense': 0,
+      speed: 0,
+    });
+  };
+
+  const canCalculate = Boolean(pokemon && !loading);
+
   const applyPreset = (type: 'min' | 'max' | 'comp') => {
+    setValidationMessage(null);
     if (type === 'min') {
       setIvs({ hp: 0, attack: 0, defense: 0, 'special-attack': 0, 'special-defense': 0, speed: 0 });
       setEvs({ hp: 0, attack: 0, defense: 0, 'special-attack': 0, 'special-defense': 0, speed: 0 });
@@ -168,18 +245,47 @@ const StatCalculator: React.FC<StatCalculatorProps> = ({ onClose, initialPokemon
 
   return (
     <Modal isOpen={true} onClose={onClose} title="Stat Calculator" size="lg">
-      {/* Search */}
+      <PokemonDatasetStatus
+        loading={datasetLoading}
+        error={datasetError}
+        hasData={masterPokemonList.length > 0}
+        onRetry={() => void reload()}
+      />
+
       {!pokemon ? (
         <>
+          <p className="mx-auto mb-4 max-w-md text-center text-sm text-slate-400">
+            Select a Pokémon to set its level, nature, IVs and EVs. Your calculated stats appear
+            here.
+          </p>
           <PokemonAutocomplete
             pokemonList={masterPokemonList}
             theme={theme}
-            onSelect={(p) => setSelectedId(p.id)}
+            onSelect={(p) => {
+              setLoadError(null);
+              setSelectedId(p.id);
+            }}
             autoFocus
+            disabled={!masterPokemonList.length}
           />
           {loading && (
             <div className="mt-4 flex justify-center">
-              <Loader />
+              <Loader message="Loading Pokémon..." />
+            </div>
+          )}
+          {loadError && (
+            <div
+              role="alert"
+              className="mx-auto mt-4 flex max-w-md flex-wrap items-center justify-between gap-3 rounded-lg border border-red-500/40 bg-red-500/10 px-4 py-3 text-sm text-red-300"
+            >
+              <span>{loadError}</span>
+              <button
+                type="button"
+                onClick={() => setRetryTick((tick) => tick + 1)}
+                className="rounded-md px-2 py-1 text-xs font-semibold underline"
+              >
+                Retry
+              </button>
             </div>
           )}
         </>
@@ -204,6 +310,9 @@ const StatCalculator: React.FC<StatCalculatorProps> = ({ onClose, initialPokemon
                   onClick={() => {
                     setPokemon(null);
                     setSelectedId(null);
+                    setLoadError(null);
+                    setHasCalculated(false);
+                    setValidationMessage(null);
                   }}
                   className="px-3 py-1 text-xs font-bold uppercase tracking-wider rounded border hover:bg-red-500 hover:text-white hover:border-red-500 transition-colors text-slate-500 border-slate-300"
                 >
@@ -231,7 +340,10 @@ const StatCalculator: React.FC<StatCalculatorProps> = ({ onClose, initialPokemon
                   min="1"
                   max="100"
                   value={level}
-                  onChange={(e) => setLevel(parseInt(e.target.value))}
+                  onChange={(e) => {
+                    setLevel(parseInt(e.target.value, 10));
+                    setValidationMessage(null);
+                  }}
                   className="flex-1 accent-primary-500"
                   aria-label="Level slider"
                 />
@@ -240,11 +352,13 @@ const StatCalculator: React.FC<StatCalculatorProps> = ({ onClose, initialPokemon
                   min="1"
                   max="100"
                   value={level}
-                  onChange={(e) =>
-                    setLevel(Math.min(100, Math.max(1, parseInt(e.target.value) || 1)))
-                  }
+                  onChange={(e) => handleLevelChange(e.target.value)}
                   className={`w-16 p-2 rounded text-center font-bold ${theme === 'dark' ? 'bg-black/30' : 'bg-white border'}`}
                   aria-label="Level value"
+                  aria-invalid={validationMessage?.startsWith('Level') || undefined}
+                  aria-describedby={
+                    validationMessage?.startsWith('Level') ? 'stat-validation' : undefined
+                  }
                 />
               </div>
             </div>
@@ -295,93 +409,129 @@ const StatCalculator: React.FC<StatCalculatorProps> = ({ onClose, initialPokemon
             </button>
           </div>
 
-          {/* Stats Table */}
-          <div
-            className={`overflow-hidden rounded-xl border ${theme === 'dark' ? 'border-white/10' : 'border-slate-200'}`}
-          >
-            <div
-              className={`grid grid-cols-[1fr_auto_auto_auto_1fr] gap-4 p-3 font-bold text-xs uppercase tracking-wider border-b ${theme === 'dark' ? 'bg-white/5 border-white/10 text-slate-400' : 'bg-slate-100 border-slate-200 text-slate-500'}`}
+          {validationMessage && (
+            <p
+              id="stat-validation"
+              role="alert"
+              className="mb-4 rounded-lg border border-amber-500/40 bg-amber-500/10 px-4 py-3 text-sm text-amber-200"
             >
-              <div className="pl-2">Stat</div>
-              <div className="w-12 text-center">Base</div>
-              <div className="w-12 text-center">IV</div>
-              <div className="w-12 text-center">EV</div>
-              <div className="text-right pr-2">Total</div>
-            </div>
+              {validationMessage}
+            </p>
+          )}
 
-            {STAT_ORDER.map((stat) => {
-              const base = pokemon.stats.find((s) => s.name === stat)?.value || 0;
-              const total = results?.values[stat] || 0;
-              const max = results?.maxes[stat] || 1;
-              const percent = Math.min(100, (total / max) * 100);
+          {/* Stats Table */}
+          <section aria-labelledby="stat-results-heading" aria-live="polite" aria-atomic="false">
+            <h3
+              id="stat-results-heading"
+              className="mb-2 text-sm font-bold uppercase tracking-wider text-slate-400"
+            >
+              Calculated Stats
+            </h3>
+            <div
+              className={`overflow-hidden rounded-xl border ${theme === 'dark' ? 'border-white/10' : 'border-slate-200'}`}
+            >
+              <div
+                className={`grid grid-cols-[1fr_auto_auto_auto_1fr] gap-4 p-3 font-bold text-xs uppercase tracking-wider border-b ${theme === 'dark' ? 'bg-white/5 border-white/10 text-slate-400' : 'bg-slate-100 border-slate-200 text-slate-500'}`}
+              >
+                <div className="pl-2">Stat</div>
+                <div className="w-12 text-center">Base</div>
+                <div className="w-12 text-center">IV</div>
+                <div className="w-12 text-center">EV</div>
+                <div className="text-right pr-2">Total</div>
+              </div>
 
-              // Check nature modifiers for color
-              const natureData = NATURES[nature];
-              const isUp = natureData?.up === stat;
-              const isDown = natureData?.down === stat;
+              {STAT_ORDER.map((stat) => {
+                const base = pokemon.stats.find((s) => s.name === stat)?.value || 0;
+                const total = results?.values[stat] || 0;
+                const max = results?.maxes[stat] || 1;
+                const percent = Math.min(100, (total / max) * 100);
 
-              return (
-                <div
-                  key={stat}
-                  className={`grid grid-cols-[1fr_auto_auto_auto_1fr] gap-4 p-3 items-center border-b last:border-0 hover:bg-primary-500/5 transition-colors ${theme === 'dark' ? 'border-white/5' : 'border-slate-100'}`}
-                >
-                  <div className="font-bold pl-2 flex items-center gap-1">
-                    {STAT_LABELS[stat]}
-                    {isUp && <span className="text-green-400 text-[10px] ml-1">▲</span>}
-                    {isDown && <span className="text-red-400 text-[10px] ml-1">▼</span>}
-                  </div>
+                // Check nature modifiers for color
+                const natureData = NATURES[nature];
+                const isUp = natureData?.up === stat;
+                const isDown = natureData?.down === stat;
 
-                  <div className="w-12 text-center text-sm text-slate-500 font-mono">{base}</div>
+                return (
+                  <div
+                    key={stat}
+                    className={`grid grid-cols-[1fr_auto_auto_auto_1fr] gap-4 p-3 items-center border-b last:border-0 hover:bg-primary-500/5 transition-colors ${theme === 'dark' ? 'border-white/5' : 'border-slate-100'}`}
+                  >
+                    <div className="font-bold pl-2 flex items-center gap-1">
+                      {STAT_LABELS[stat]}
+                      {isUp && <span className="text-green-400 text-[10px] ml-1">▲</span>}
+                      {isDown && <span className="text-red-400 text-[10px] ml-1">▼</span>}
+                    </div>
 
-                  <div className="w-12">
-                    <input
-                      type="number"
-                      min="0"
-                      max="31"
-                      value={ivs[stat]}
-                      onChange={(e) => handleStatChange('iv', stat, e.target.value)}
-                      className={`w-full text-center p-1 rounded text-sm ${theme === 'dark' ? 'bg-black/20 focus:bg-black/40' : 'bg-slate-100 focus:bg-white border-transparent focus:border-primary-500 border'}`}
-                      aria-label={`${stat.replace('-', ' ')} IV`}
-                    />
-                  </div>
+                    <div className="w-12 text-center text-sm text-slate-500 font-mono">{base}</div>
 
-                  <div className="w-12">
-                    <input
-                      type="number"
-                      min="0"
-                      max="252"
-                      step="4"
-                      value={evs[stat]}
-                      onChange={(e) => handleStatChange('ev', stat, e.target.value)}
-                      className={`w-full text-center p-1 rounded text-sm ${theme === 'dark' ? 'bg-black/20 focus:bg-black/40' : 'bg-slate-100 focus:bg-white border-transparent focus:border-primary-500 border'}`}
-                      aria-label={`${stat.replace('-', ' ')} EV`}
-                    />
-                  </div>
-
-                  <div className="flex items-center gap-3 justify-end pr-2">
-                    <div className="flex-1 h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden max-w-[100px] hidden sm:block">
-                      <div
-                        className={`h-full rounded-full transition-all duration-300 ${isUp ? 'bg-green-500' : isDown ? 'bg-orange-500' : 'bg-primary-500'}`}
-                        style={{ width: `${percent}%` }}
+                    <div className="w-12">
+                      <input
+                        type="number"
+                        min="0"
+                        max="31"
+                        value={ivs[stat]}
+                        onChange={(e) => handleStatChange('iv', stat, e.target.value)}
+                        className={`w-full text-center p-1 rounded text-sm ${theme === 'dark' ? 'bg-black/20 focus:bg-black/40' : 'bg-slate-100 focus:bg-white border-transparent focus:border-primary-500 border'}`}
+                        aria-label={`${stat.replace('-', ' ')} IV`}
                       />
                     </div>
-                    <span
-                      className={`text-lg font-bold w-12 text-right ${isUp ? 'text-green-500' : isDown ? 'text-orange-500' : ''}`}
-                      aria-label={`Total ${stat.replace('-', ' ')}`}
-                    >
-                      {total}
-                    </span>
+
+                    <div className="w-12">
+                      <input
+                        type="number"
+                        min="0"
+                        max="252"
+                        step="4"
+                        value={evs[stat]}
+                        onChange={(e) => handleStatChange('ev', stat, e.target.value)}
+                        className={`w-full text-center p-1 rounded text-sm ${theme === 'dark' ? 'bg-black/20 focus:bg-black/40' : 'bg-slate-100 focus:bg-white border-transparent focus:border-primary-500 border'}`}
+                        aria-label={`${stat.replace('-', ' ')} EV`}
+                      />
+                    </div>
+
+                    <div className="flex items-center gap-3 justify-end pr-2">
+                      <div className="flex-1 h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden max-w-[100px] hidden sm:block">
+                        <div
+                          className={`h-full rounded-full transition-all duration-300 ${isUp ? 'bg-green-500' : isDown ? 'bg-orange-500' : 'bg-primary-500'}`}
+                          style={{ width: `${hasCalculated ? percent : 0}%` }}
+                        />
+                      </div>
+                      <span
+                        className={`text-lg font-bold w-12 text-right ${isUp ? 'text-green-500' : isDown ? 'text-orange-500' : ''}`}
+                        aria-label={`Total ${stat.replace('-', ' ')}`}
+                      >
+                        {hasCalculated ? total : '—'}
+                      </span>
+                    </div>
                   </div>
-                </div>
-              );
-            })}
-          </div>
+                );
+              })}
+            </div>
+          </section>
 
           <div className="mt-4 text-xs text-center text-slate-500">
             * Stats calculated using standard Gen 3+ formulas.
           </div>
         </div>
       )}
+
+      <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-white/10 pt-4">
+        <p className="text-sm text-slate-400">
+          {!pokemon
+            ? 'Select a Pokémon to enable calculation.'
+            : hasCalculated
+              ? 'Stats update as you change the build.'
+              : 'Set the level, nature, IVs and EVs, then calculate.'}
+        </p>
+        <div className="flex flex-wrap gap-2">
+          <Button onClick={() => setHasCalculated(true)} disabled={!canCalculate}>
+            {hasCalculated ? 'Recalculate Stats' : 'Calculate Stats'}
+          </Button>
+          <Button variant="ghost" onClick={resetCalculator}>
+            Reset
+          </Button>
+        </div>
+      </div>
     </Modal>
   );
 };

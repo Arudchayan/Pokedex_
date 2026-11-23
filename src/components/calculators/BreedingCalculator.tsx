@@ -12,13 +12,22 @@ import {
 import TypeBadge from '../charts/TypeBadge';
 import Loader from '../shared/Loader';
 import Modal from '../base/Modal';
+import Button from '../base/Button';
+import PokemonAutocomplete from '../shared/PokemonAutocomplete';
+import PokemonDatasetStatus from './PokemonDatasetStatus';
 
 interface BreedingCalculatorProps {
   onClose: () => void;
 }
 
 const BreedingCalculator: React.FC<BreedingCalculatorProps> = ({ onClose }) => {
-  const { masterPokemonList, theme } = usePokemon();
+  const {
+    masterPokemonList,
+    theme,
+    loading: datasetLoading,
+    error: datasetError,
+    reload,
+  } = usePokemon();
   const queryClient = useQueryClient();
 
   // Parent State
@@ -27,13 +36,21 @@ const BreedingCalculator: React.FC<BreedingCalculatorProps> = ({ onClose }) => {
   const [parentB, setParentB] = useState<PokemonDetails | null>(null);
   const [genderB, setGenderB] = useState<Gender>('female');
 
-  // Search State
-  const [searchA, setSearchA] = useState('');
-  const [searchB, setSearchB] = useState('');
+  // Parent lookup state
+  const [loadingA, setLoadingA] = useState(false);
+  const [loadingB, setLoadingB] = useState(false);
+  const [parentError, setParentError] = useState<{
+    message: string;
+    id: number;
+    isA: boolean;
+  } | null>(null);
+  const [hasCalculated, setHasCalculated] = useState(false);
 
   // Offspring State
   const [offspringDetails, setOffspringDetails] = useState<PokemonDetails | null>(null);
   const [loadingOffspring, setLoadingOffspring] = useState(false);
+  const [offspringError, setOffspringError] = useState<string | null>(null);
+  const [offspringRetryTick, setOffspringRetryTick] = useState(0);
 
   // Options
   const [destinyKnot, setDestinyKnot] = useState(false);
@@ -43,21 +60,41 @@ const BreedingCalculator: React.FC<BreedingCalculatorProps> = ({ onClose }) => {
 
   // Load Parent Data
   const loadParent = async (id: number, isA: boolean) => {
-    const details = await fetchPokemonDetailsQuery(queryClient, id);
-    if (details) {
+    const setLoading = isA ? setLoadingA : setLoadingB;
+    setLoading(true);
+    setParentError(null);
+    try {
+      const details = await fetchPokemonDetailsQuery(queryClient, id);
+      if (!details) {
+        setParentError({
+          message: `Could not load Pokémon #${id}.`,
+          id,
+          isA,
+        });
+        return;
+      }
+
       const moves = await fetchPokemonMovesQuery(queryClient, details.id);
       const withMoves = { ...details, moves };
       if (isA) {
         setParentA(withMoves);
         const genders = getPossibleGenders(details.genderRate);
         setGenderA(genders[0]);
-        setSearchA('');
       } else {
         setParentB(withMoves);
         const genders = getPossibleGenders(details.genderRate);
         setGenderB(genders.length > 1 ? genders[1] : genders[0]); // Default to opposite if possible
-        setSearchB('');
       }
+      setHasCalculated(false);
+    } catch (error) {
+      console.error(error);
+      setParentError({
+        message: 'Failed to load Pokémon data. Check your connection and try again.',
+        id,
+        isA,
+      });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -72,40 +109,52 @@ const BreedingCalculator: React.FC<BreedingCalculatorProps> = ({ onClose }) => {
 
   // Fetch Offspring
   useEffect(() => {
-    if (result?.isCompatible && result.offspringId) {
-      if (parentA?.id === result.offspringId) {
-        setOffspringDetails(parentA);
-      } else if (parentB?.id === result.offspringId) {
-        setOffspringDetails(parentB);
-      } else {
-        setLoadingOffspring(true);
-        Promise.all([
-          fetchPokemonDetailsQuery(queryClient, result.offspringId),
-          fetchPokemonMovesQuery(queryClient, result.offspringId),
-        ]).then(([d, moves]) => {
-          setOffspringDetails(d ? { ...d, moves } : null);
-          setLoadingOffspring(false);
-        });
-      }
-    } else {
+    if (!hasCalculated || !result?.isCompatible || !result.offspringId) {
       setOffspringDetails(null);
+      setLoadingOffspring(false);
+      setOffspringError(null);
+      return;
     }
-  }, [result, parentA, parentB, queryClient]);
 
-  const filteredListA = useMemo(
-    () =>
-      masterPokemonList
-        .filter((p) => p.name.toLowerCase().includes(searchA.toLowerCase()))
-        .slice(0, 5),
-    [searchA, masterPokemonList]
-  );
-  const filteredListB = useMemo(
-    () =>
-      masterPokemonList
-        .filter((p) => p.name.toLowerCase().includes(searchB.toLowerCase()))
-        .slice(0, 5),
-    [searchB, masterPokemonList]
-  );
+    if (parentA?.id === result.offspringId) {
+      setOffspringDetails(parentA);
+      setOffspringError(null);
+      return;
+    }
+    if (parentB?.id === result.offspringId) {
+      setOffspringDetails(parentB);
+      setOffspringError(null);
+      return;
+    }
+
+    let cancelled = false;
+    setLoadingOffspring(true);
+    setOffspringError(null);
+    Promise.all([
+      fetchPokemonDetailsQuery(queryClient, result.offspringId),
+      fetchPokemonMovesQuery(queryClient, result.offspringId),
+    ])
+      .then(([details, moves]) => {
+        if (cancelled) return;
+        if (!details) {
+          setOffspringError('Could not load the predicted offspring.');
+          return;
+        }
+        setOffspringDetails({ ...details, moves });
+      })
+      .catch((error: unknown) => {
+        if (cancelled) return;
+        console.error(error);
+        setOffspringError('Failed to load the predicted offspring. Check your connection.');
+      })
+      .finally(() => {
+        if (!cancelled) setLoadingOffspring(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [hasCalculated, result, parentA, parentB, queryClient, offspringRetryTick]);
 
   // Egg Moves
   const eggMoves = useMemo(() => {
@@ -128,8 +177,62 @@ const BreedingCalculator: React.FC<BreedingCalculatorProps> = ({ onClose }) => {
       ? '1/1365 (Charm)'
       : '1/4096 (Base)';
 
+  const canCalculate = Boolean(parentA && parentB && !loadingA && !loadingB);
+  const isBusy = loadingA || loadingB;
+
+  const resetCalculator = () => {
+    setParentA(null);
+    setParentB(null);
+    setLoadingA(false);
+    setLoadingB(false);
+    setParentError(null);
+    setHasCalculated(false);
+    setOffspringDetails(null);
+    setOffspringError(null);
+    setLoadingOffspring(false);
+    setDestinyKnot(false);
+    setEverstone(false);
+    setMasudaMethod(false);
+    setShinyCharm(false);
+    setGenderA('male');
+    setGenderB('female');
+  };
+
   return (
     <Modal isOpen={true} onClose={onClose} title="Breeding Calculator" size="md">
+      <PokemonDatasetStatus
+        loading={datasetLoading}
+        error={datasetError}
+        hasData={masterPokemonList.length > 0}
+        onRetry={() => void reload()}
+      />
+
+      <p className="mb-4 text-center text-sm text-slate-400">
+        Select two parents to check compatibility and preview the offspring.
+      </p>
+
+      {parentError && (
+        <div
+          role="alert"
+          className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-red-500/40 bg-red-500/10 px-4 py-3 text-sm text-red-300"
+        >
+          <span>{parentError.message}</span>
+          <button
+            type="button"
+            onClick={() => void loadParent(parentError.id, parentError.isA)}
+            className="rounded-md px-2 py-1 text-xs font-semibold underline"
+          >
+            Retry
+          </button>
+        </div>
+      )}
+
+      {isBusy && (
+        <div role="status" aria-live="polite" className="mb-4 text-sm text-slate-400">
+          Loading parent data…
+        </div>
+      )}
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
         {/* Parent A */}
         <div
@@ -139,7 +242,10 @@ const BreedingCalculator: React.FC<BreedingCalculatorProps> = ({ onClose }) => {
             Parent A
             {parentA && (
               <button
-                onClick={() => setParentA(null)}
+                onClick={() => {
+                  setParentA(null);
+                  setHasCalculated(false);
+                }}
                 className="text-xs text-red-400 hover:underline font-normal"
               >
                 (Change)
@@ -147,31 +253,16 @@ const BreedingCalculator: React.FC<BreedingCalculatorProps> = ({ onClose }) => {
             )}
           </h3>
           {!parentA ? (
-            <div className="relative">
-              <input
-                type="text"
-                placeholder="Search Parent A..."
-                className={`w-full p-3 rounded bg-transparent border focus:outline-none focus:border-primary-500 ${theme === 'dark' ? 'border-white/20' : 'border-slate-300'}`}
-                value={searchA}
-                onChange={(e) => setSearchA(e.target.value)}
-              />
-              {filteredListA.length > 0 && searchA && (
-                <div
-                  className={`absolute top-full left-0 w-full z-10 rounded-b shadow-xl max-h-60 overflow-y-auto ${theme === 'dark' ? 'bg-slate-800' : 'bg-white'}`}
-                >
-                  {filteredListA.map((p) => (
-                    <div
-                      key={p.id}
-                      className="p-2 hover:bg-primary-500/20 cursor-pointer flex items-center gap-2"
-                      onClick={() => loadParent(p.id, true)}
-                    >
-                      <img src={p.imageUrl} className="w-8 h-8" />
-                      <span>{p.name}</span>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
+            <PokemonAutocomplete
+              pokemonList={masterPokemonList}
+              theme={theme}
+              onSelect={(p) => void loadParent(p.id, true)}
+              label="Parent A"
+              placeholder="Search Parent A..."
+              hideLabel
+              containerClassName="relative"
+              disabled={!masterPokemonList.length || loadingA}
+            />
           ) : (
             <div>
               <div className="flex items-center gap-4 mb-4">
@@ -205,6 +296,8 @@ const BreedingCalculator: React.FC<BreedingCalculatorProps> = ({ onClose }) => {
                     {getPossibleGenders(parentA.genderRate).map((g) => (
                       <button
                         key={g}
+                        type="button"
+                        aria-pressed={genderA === g}
                         onClick={() => setGenderA(g)}
                         className={`px-3 py-1 rounded text-xs font-bold capitalize border ${
                           genderA === g
@@ -230,7 +323,10 @@ const BreedingCalculator: React.FC<BreedingCalculatorProps> = ({ onClose }) => {
             Parent B
             {parentB && (
               <button
-                onClick={() => setParentB(null)}
+                onClick={() => {
+                  setParentB(null);
+                  setHasCalculated(false);
+                }}
                 className="text-xs text-red-400 hover:underline font-normal"
               >
                 (Change)
@@ -238,31 +334,16 @@ const BreedingCalculator: React.FC<BreedingCalculatorProps> = ({ onClose }) => {
             )}
           </h3>
           {!parentB ? (
-            <div className="relative">
-              <input
-                type="text"
-                placeholder="Search Parent B..."
-                className={`w-full p-3 rounded bg-transparent border focus:outline-none focus:border-primary-500 ${theme === 'dark' ? 'border-white/20' : 'border-slate-300'}`}
-                value={searchB}
-                onChange={(e) => setSearchB(e.target.value)}
-              />
-              {filteredListB.length > 0 && searchB && (
-                <div
-                  className={`absolute top-full left-0 w-full z-10 rounded-b shadow-xl max-h-60 overflow-y-auto ${theme === 'dark' ? 'bg-slate-800' : 'bg-white'}`}
-                >
-                  {filteredListB.map((p) => (
-                    <div
-                      key={p.id}
-                      className="p-2 hover:bg-primary-500/20 cursor-pointer flex items-center gap-2"
-                      onClick={() => loadParent(p.id, false)}
-                    >
-                      <img src={p.imageUrl} className="w-8 h-8" />
-                      <span>{p.name}</span>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
+            <PokemonAutocomplete
+              pokemonList={masterPokemonList}
+              theme={theme}
+              onSelect={(p) => void loadParent(p.id, false)}
+              label="Parent B"
+              placeholder="Search Parent B..."
+              hideLabel
+              containerClassName="relative"
+              disabled={!masterPokemonList.length || loadingB}
+            />
           ) : (
             <div>
               <div className="flex items-center gap-4 mb-4">
@@ -296,6 +377,8 @@ const BreedingCalculator: React.FC<BreedingCalculatorProps> = ({ onClose }) => {
                     {getPossibleGenders(parentB.genderRate).map((g) => (
                       <button
                         key={g}
+                        type="button"
+                        aria-pressed={genderB === g}
                         onClick={() => setGenderB(g)}
                         className={`px-3 py-1 rounded text-xs font-bold capitalize border ${
                           genderB === g
@@ -315,146 +398,218 @@ const BreedingCalculator: React.FC<BreedingCalculatorProps> = ({ onClose }) => {
       </div>
 
       {/* Results */}
-      {parentA && parentB && result && (
-        <div
-          className={`rounded-xl border p-6 ${result.isCompatible ? (theme === 'dark' ? 'bg-green-500/10 border-green-500/30' : 'bg-green-50 border-green-200') : theme === 'dark' ? 'bg-red-500/10 border-red-500/30' : 'bg-red-50 border-red-200'}`}
+      <section aria-labelledby="breeding-result-heading" aria-live="polite" aria-atomic="true">
+        <h3
+          id="breeding-result-heading"
+          className="mb-2 text-sm font-bold uppercase tracking-wider text-slate-400"
         >
-          <div className="flex items-center gap-4 mb-4">
-            <div
-              className={`p-3 rounded-full ${result.isCompatible ? 'bg-green-500 text-white' : 'bg-red-500 text-white'}`}
-            >
-              {result.isCompatible ? (
-                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M5 13l4 4L19 7"
-                  />
-                </svg>
-              ) : (
-                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M6 18L18 6M6 6l12 12"
-                  />
-                </svg>
-              )}
-            </div>
-            <div>
-              <h4 className="font-bold text-xl">
-                {result.isCompatible ? 'Compatible!' : 'Incompatible'}
-              </h4>
-              <p className="opacity-80">{result.message}</p>
-            </div>
-          </div>
+          Breeding Result
+        </h3>
 
-          {result.isCompatible && (
-            <div className="mt-6 border-t border-white/10 pt-6">
-              <div className="flex flex-col md:flex-row gap-8">
-                <div className="flex-1">
-                  <h5 className="font-bold uppercase opacity-60 mb-4 text-sm">
-                    Offspring Prediction
-                  </h5>
-                  {loadingOffspring ? (
-                    <Loader message="Fetching Offspring..." />
-                  ) : offspringDetails ? (
-                    <div className="flex items-center gap-4 p-4 rounded-xl bg-black/10">
-                      <img src={offspringDetails.imageUrl} className="w-24 h-24" />
-                      <div>
-                        <div className="font-bold text-2xl capitalize">{offspringDetails.name}</div>
-                        <div className="flex gap-1 mt-1">
-                          {offspringDetails.types.map((t) => (
-                            <TypeBadge key={t} type={t} />
-                          ))}
+        {hasCalculated && parentA && parentB && result ? (
+          <div
+            className={`rounded-xl border p-6 ${result.isCompatible ? (theme === 'dark' ? 'bg-green-500/10 border-green-500/30' : 'bg-green-50 border-green-200') : theme === 'dark' ? 'bg-red-500/10 border-red-500/30' : 'bg-red-50 border-red-200'}`}
+          >
+            <div className="flex items-center gap-4 mb-4">
+              <div
+                className={`p-3 rounded-full ${result.isCompatible ? 'bg-green-500 text-white' : 'bg-red-500 text-white'}`}
+              >
+                {result.isCompatible ? (
+                  <svg
+                    className="w-6 h-6"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    aria-hidden="true"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M5 13l4 4L19 7"
+                    />
+                  </svg>
+                ) : (
+                  <svg
+                    className="w-6 h-6"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    aria-hidden="true"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  </svg>
+                )}
+              </div>
+              <div>
+                <h4 className="font-bold text-xl">
+                  {result.isCompatible ? 'Compatible!' : 'Incompatible'}
+                </h4>
+                <p className="opacity-80">{result.message}</p>
+                {!result.isCompatible && (
+                  <p className="mt-1 text-sm opacity-80">
+                    Change a parent or gender to try a different pair.
+                  </p>
+                )}
+              </div>
+            </div>
+
+            {result.isCompatible && (
+              <div className="mt-6 border-t border-white/10 pt-6">
+                <div className="flex flex-col md:flex-row gap-8">
+                  <div className="flex-1">
+                    <h5 className="font-bold uppercase opacity-60 mb-4 text-sm">
+                      Offspring Prediction
+                    </h5>
+                    {loadingOffspring ? (
+                      <Loader message="Fetching Offspring..." />
+                    ) : offspringError ? (
+                      <div
+                        role="alert"
+                        className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-red-500/40 bg-red-500/10 px-4 py-3 text-sm text-red-300"
+                      >
+                        <span>{offspringError}</span>
+                        <button
+                          type="button"
+                          onClick={() => setOffspringRetryTick((tick) => tick + 1)}
+                          className="rounded-md px-2 py-1 text-xs font-semibold underline"
+                        >
+                          Retry
+                        </button>
+                      </div>
+                    ) : offspringDetails ? (
+                      <div className="flex items-center gap-4 p-4 rounded-xl bg-black/10">
+                        <img
+                          src={offspringDetails.imageUrl}
+                          className="w-24 h-24"
+                          alt={offspringDetails.name}
+                        />
+                        <div>
+                          <div className="font-bold text-2xl capitalize">
+                            {offspringDetails.name}
+                          </div>
+                          <div className="flex gap-1 mt-1">
+                            {offspringDetails.types.map((t) => (
+                              <TypeBadge key={t} type={t} />
+                            ))}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ) : null}
-                </div>
-
-                <div className="flex-1 space-y-4">
-                  <h5 className="font-bold uppercase opacity-60 mb-2 text-sm">
-                    Inheritance Options
-                  </h5>
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={destinyKnot}
-                      onChange={(e) => setDestinyKnot(e.target.checked)}
-                      className="rounded text-primary-500 focus:ring-primary-500 bg-transparent"
-                    />
-                    <span>Destiny Knot (Item)</span>
-                  </label>
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={everstone}
-                      onChange={(e) => setEverstone(e.target.checked)}
-                      className="rounded text-primary-500 focus:ring-primary-500 bg-transparent"
-                    />
-                    <span>Everstone (Item)</span>
-                  </label>
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={masudaMethod}
-                      onChange={(e) => setMasudaMethod(e.target.checked)}
-                      className="rounded text-primary-500 focus:ring-primary-500 bg-transparent"
-                    />
-                    <span>Masuda Method (Diff. Language)</span>
-                  </label>
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={shinyCharm}
-                      onChange={(e) => setShinyCharm(e.target.checked)}
-                      className="rounded text-primary-500 focus:ring-primary-500 bg-transparent"
-                    />
-                    <span>Shiny Charm</span>
-                  </label>
-
-                  <div className="mt-4 p-3 rounded bg-black/10 text-sm space-y-1">
-                    <div className="flex justify-between">
-                      <span>IVs:</span>
-                      <span className="font-bold">{ivText}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Nature:</span>
-                      <span className="font-bold">{natureText}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Shiny Odds:</span>
-                      <span className="font-bold text-pink-500">{shinyOdds}</span>
-                    </div>
+                    ) : null}
                   </div>
-                </div>
-              </div>
 
-              {eggMoves.length > 0 && (
-                <div className="mt-8">
-                  <h5 className="font-bold uppercase opacity-60 mb-4 text-sm">
-                    Potential Egg Moves ({eggMoves.length})
-                  </h5>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                    {eggMoves.map((m) => (
-                      <div
-                        key={m.name}
-                        className={`px-3 py-2 rounded text-xs border ${theme === 'dark' ? 'bg-white/5 border-white/5' : 'bg-white border-slate-200'}`}
-                      >
-                        <span className="font-bold block capitalize">{m.name}</span>
-                        <span className="opacity-60 capitalize">{m.type}</span>
+                  <div className="flex-1 space-y-4">
+                    <h5 className="font-bold uppercase opacity-60 mb-2 text-sm">
+                      Inheritance Options
+                    </h5>
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={destinyKnot}
+                        onChange={(e) => setDestinyKnot(e.target.checked)}
+                        className="rounded text-primary-500 focus:ring-primary-500 bg-transparent"
+                      />
+                      <span>Destiny Knot (Item)</span>
+                    </label>
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={everstone}
+                        onChange={(e) => setEverstone(e.target.checked)}
+                        className="rounded text-primary-500 focus:ring-primary-500 bg-transparent"
+                      />
+                      <span>Everstone (Item)</span>
+                    </label>
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={masudaMethod}
+                        onChange={(e) => setMasudaMethod(e.target.checked)}
+                        className="rounded text-primary-500 focus:ring-primary-500 bg-transparent"
+                      />
+                      <span>Masuda Method (Diff. Language)</span>
+                    </label>
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={shinyCharm}
+                        onChange={(e) => setShinyCharm(e.target.checked)}
+                        className="rounded text-primary-500 focus:ring-primary-500 bg-transparent"
+                      />
+                      <span>Shiny Charm</span>
+                    </label>
+
+                    <div className="mt-4 p-3 rounded bg-black/10 text-sm space-y-1">
+                      <div className="flex justify-between">
+                        <span>IVs:</span>
+                        <span className="font-bold">{ivText}</span>
                       </div>
-                    ))}
+                      <div className="flex justify-between">
+                        <span>Nature:</span>
+                        <span className="font-bold">{natureText}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Shiny Odds:</span>
+                        <span className="font-bold text-pink-500">{shinyOdds}</span>
+                      </div>
+                    </div>
                   </div>
                 </div>
-              )}
-            </div>
-          )}
+
+                {eggMoves.length > 0 && (
+                  <div className="mt-8">
+                    <h5 className="font-bold uppercase opacity-60 mb-4 text-sm">
+                      Potential Egg Moves ({eggMoves.length})
+                    </h5>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                      {eggMoves.map((m) => (
+                        <div
+                          key={m.name}
+                          className={`px-3 py-2 rounded text-xs border ${theme === 'dark' ? 'bg-white/5 border-white/5' : 'bg-white border-slate-200'}`}
+                        >
+                          <span className="font-bold block capitalize">{m.name}</span>
+                          <span className="opacity-60 capitalize">{m.type}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        ) : (
+          <div className="rounded-xl border border-white/10 bg-white/5 p-6 text-center text-sm text-slate-400">
+            {!parentA && !parentB
+              ? 'Select Parent A and Parent B to check whether they can breed.'
+              : !parentA
+                ? 'Select Parent A to complete the pair.'
+                : !parentB
+                  ? 'Select Parent B to complete the pair.'
+                  : 'Choose Check Compatibility to see the breeding result.'}
+          </div>
+        )}
+      </section>
+
+      <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
+        <p className="text-sm text-slate-400">
+          {hasCalculated
+            ? 'Result updates as you change parents, genders or options.'
+            : 'Choose both parents, then check compatibility.'}
+        </p>
+        <div className="flex flex-wrap gap-2">
+          <Button onClick={() => setHasCalculated(true)} disabled={!canCalculate}>
+            {hasCalculated ? 'Recheck Compatibility' : 'Check Compatibility'}
+          </Button>
+          <Button variant="ghost" onClick={resetCalculator}>
+            Reset
+          </Button>
         </div>
-      )}
+      </div>
     </Modal>
   );
 };
