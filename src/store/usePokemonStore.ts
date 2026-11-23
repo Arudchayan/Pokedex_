@@ -542,7 +542,29 @@ export const usePokemonStore = create<PokemonState & PokemonActions>()(
 // These are the primary way consumers should read team/comparison data.
 // ---------------------------------------------------------------------------
 
-/** Resolve team ID array to full TeamMember objects (species + customizations). */
+/**
+ * Build a presentational placeholder for a persisted team ID whose species
+ * details are unavailable (dataset not loaded, provider down, or unknown ID).
+ * The ID is preserved so counts, copy/share links and exports stay correct.
+ */
+export const createUnavailableTeamMember = (id: number): TeamMember => ({
+  id,
+  name: `Pokémon #${id}`,
+  imageUrl: '',
+  shinyImageUrl: '',
+  types: [],
+  flavorText: '',
+  stats: [],
+  abilities: [],
+  detailsUnavailable: true,
+});
+
+/**
+ * Resolve the persisted team ID array into full TeamMember objects (species +
+ * customizations). Membership is authoritative: every stored ID yields an
+ * entry, using a labelled placeholder when species details cannot be resolved,
+ * so the UI never disagrees with local state.
+ */
 export const useTeamPokemon = (): TeamMember[] => {
   const teamIds = usePokemonStore((s) => s.team);
   const customizations = usePokemonStore((s) => s.teamCustomizations);
@@ -550,14 +572,14 @@ export const useTeamPokemon = (): TeamMember[] => {
   return useMemo(() => {
     if (teamIds.length === 0) return [];
     const map = new Map(masterList.map((p) => [p.id, p]));
-    return teamIds
-      .map((id) => {
-        const base = map.get(id);
-        if (!base) return undefined;
-        const customization = customizations[id];
-        return customization ? { ...base, ...customization } : base;
-      })
-      .filter((p): p is TeamMember => p !== undefined);
+    return teamIds.map((id) => {
+      const customization = customizations[id];
+      const base = map.get(id);
+      if (!base) {
+        return { ...createUnavailableTeamMember(id), ...(customization ?? {}) };
+      }
+      return customization ? { ...base, ...customization } : base;
+    });
   }, [teamIds, customizations, masterList]);
 };
 

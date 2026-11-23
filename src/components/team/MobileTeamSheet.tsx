@@ -37,6 +37,7 @@ const MobileTeamSheet: React.FC<MobileTeamSheetProps> = ({
   const safeTeam = team ?? [];
   const { typeCounts, majorThreats } = useTeamAnalytics(safeTeam);
   const uniqueTypes = Object.keys(typeCounts);
+  const unavailableCount = safeTeam.filter((member) => member.detailsUnavailable).length;
 
   useEffect(() => {
     if (isOpen) {
@@ -194,6 +195,19 @@ const MobileTeamSheet: React.FC<MobileTeamSheetProps> = ({
                 </div>
               </div>
 
+              {unavailableCount > 0 && (
+                <p
+                  data-testid="mobile-team-details-unavailable"
+                  className={`mx-4 mt-3 rounded-lg border px-3 py-2 text-xs ${
+                    isDark
+                      ? 'border-amber-400/20 bg-amber-400/5 text-amber-200'
+                      : 'border-amber-300 bg-amber-50 text-amber-800'
+                  }`}
+                >
+                  Some team details couldn&apos;t be loaded. Your saved team is still intact.
+                </p>
+              )}
+
               {/* Team members */}
               <div className="px-4 py-3 space-y-2">
                 {safeTeam.map((member) => (
@@ -203,22 +217,43 @@ const MobileTeamSheet: React.FC<MobileTeamSheetProps> = ({
                       isDark ? 'border-white/10 bg-white/5' : 'border-slate-200 bg-slate-50'
                     }`}
                   >
-                    <img
-                      src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${member.id}.png`}
-                      alt={member.name}
-                      className="w-12 h-12 pixelated"
-                    />
+                    {member.detailsUnavailable ? (
+                      <div
+                        className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-lg border text-sm font-black ${
+                          isDark
+                            ? 'border-white/10 bg-slate-900 text-slate-500'
+                            : 'border-slate-200 bg-white text-slate-400'
+                        }`}
+                        aria-hidden="true"
+                      >
+                        ?
+                      </div>
+                    ) : (
+                      <img
+                        src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${member.id}.png`}
+                        alt={member.name}
+                        className="w-12 h-12 pixelated"
+                      />
+                    )}
                     <div className="flex-1 min-w-0">
                       <p
                         className={`text-sm font-bold capitalize truncate ${isDark ? 'text-white' : 'text-slate-900'}`}
                       >
                         {member.name}
                       </p>
-                      <div className="flex gap-1 mt-0.5">
-                        {member.types.map((type) => (
-                          <TypeBadge key={type} type={type} />
-                        ))}
-                      </div>
+                      {member.detailsUnavailable ? (
+                        <p
+                          className={`text-xs mt-0.5 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}
+                        >
+                          Details unavailable
+                        </p>
+                      ) : (
+                        <div className="flex gap-1 mt-0.5">
+                          {member.types.map((type) => (
+                            <TypeBadge key={type} type={type} />
+                          ))}
+                        </div>
+                      )}
                     </div>
                     <div className="flex items-center gap-1">
                       <button
