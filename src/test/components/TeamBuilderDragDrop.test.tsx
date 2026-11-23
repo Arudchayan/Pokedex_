@@ -75,16 +75,17 @@ describe('Drag and Drop Feature', () => {
       />
     );
 
-    // The wrapper div has draggable. PokemonCard has role="button".
-    // We want the parent of the button.
-    const card = screen.getByRole('button', { name: /view details/i }).parentElement;
+    // Only the dedicated drag handle is draggable, so card clicks are never
+    // swallowed by a dragstart. The card itself must not be draggable.
+    const dragHandle = screen.getByLabelText(/drag bulbasaur to team/i);
+    const cardButton = screen.getByRole('button', { name: /view details/i });
 
-    // Ensure we got the draggable element
-    expect(card).toHaveAttribute('draggable', 'true');
+    expect(dragHandle).toHaveAttribute('draggable', 'true');
+    expect(cardButton.closest('[draggable="true"]')).toBeNull();
 
     const dataTransfer = new MockDataTransfer();
 
-    fireEvent.dragStart(card!, { dataTransfer });
+    fireEvent.dragStart(dragHandle, { dataTransfer });
 
     expect(dataTransfer.getData('application/x-pokedex-pokemon')).toBe(JSON.stringify(mockPokemon));
     expect(dataTransfer.effectAllowed).toBe('copy');
