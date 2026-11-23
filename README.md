@@ -169,6 +169,16 @@ src/
 - Safari 14+
 - Mobile browsers (iOS Safari, Chrome Android)
 
+## URL contract
+
+The app is a single-page app with a deliberately small set of entry routes:
+
+- `/` — home/list. `?search=<term>` applies the search term and `?dex=<dex>` selects a dex from the Dex control on a cold load. Supported dex values are `national`, `kanto`, `original-johto`, `hoenn`, `original-sinnoh`, `original-unova`, `kalos-central`, `original-alola`, `galar`, `hisui`, and `paldea`. Invalid or missing values are ignored.
+- `/pokemon/<id>` — supported deep link for a Pokémon (ids 1–1025). Production redirects it to `/?pokemon=<id>`; dev, preview, and service-worker navigations normalize it client-side before the first render.
+- Every other path is not an app route. Vercel returns a 404, and the service worker only serves the cached shell for `/` and valid `/pokemon/<id>` paths. Unknown paths are left to the network.
+
+Existing query state such as `?pokemon=<id>`, `?compare=<ids>`, `?team=<ids>`, and `?team_data=<data>` continues to work alongside these entry routes.
+
 ## Deployment
 
 Deploy to Vercel, Netlify, or any static host:
