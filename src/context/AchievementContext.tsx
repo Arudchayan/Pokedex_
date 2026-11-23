@@ -1,7 +1,15 @@
-import React, { createContext, useContext, useCallback, useMemo, ReactNode } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useCallback,
+  useEffect,
+  useMemo,
+  ReactNode,
+} from 'react';
 import { useToast } from './ToastContext';
 import { playUISound } from '../services/soundService';
 import { usePokemonStore } from '../store/usePokemonStore';
+import { env } from '../config/env';
 
 export interface Achievement {
   id: string;
@@ -83,6 +91,9 @@ export const AchievementProvider: React.FC<{ children: ReactNode }> = ({ childre
   // Read achievements from Zustand (single source of truth)
   const unlocked = usePokemonStore((s) => s.achievements);
   const storeUnlock = usePokemonStore((s) => s.unlockAchievement);
+  // Team achievements follow persisted membership (IDs), not resolved details,
+  // so a saved team still counts while species data is unavailable.
+  const teamCount = usePokemonStore((s) => s.team.length);
 
   const unlockAchievement = useCallback(
     (id: string) => {
@@ -99,6 +110,11 @@ export const AchievementProvider: React.FC<{ children: ReactNode }> = ({ childre
     },
     [unlocked, storeUnlock, addToast]
   );
+
+  useEffect(() => {
+    if (teamCount >= 1) unlockAchievement('novice_trainer');
+    if (teamCount >= env.teamCapacity) unlockAchievement('full_squad');
+  }, [teamCount, unlockAchievement]);
 
   const achievements: Achievement[] = useMemo(
     () => ACHIEVEMENTS_LIST.map((a) => ({ ...a, unlockedAt: unlocked[a.id] })),
