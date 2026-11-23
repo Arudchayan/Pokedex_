@@ -14,6 +14,7 @@ export type ViewMode = 'grid' | 'list';
 export const useAppController = () => {
   const {
     loading,
+    isRetrying,
     error,
     searchTerm,
     selectedGeneration,
@@ -145,6 +146,7 @@ export const useAppController = () => {
   return {
     // Data + UI
     loading,
+    isRetrying,
     error,
     searchTerm,
     selectedGeneration,
