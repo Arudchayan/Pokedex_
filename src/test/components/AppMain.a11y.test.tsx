@@ -1,12 +1,13 @@
 import React from 'react';
-import { render, screen, waitFor, within } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi } from 'vitest';
 import AppMain from '../../app/AppMain';
 import type { AppController } from '../../app/useAppController';
 import { PokemonListItem } from '../../types';
 
-// Mock child components to isolate AppMain
+// Mock child components to isolate AppMain. The skeleton is intentionally left
+// unmocked so the tests can audit the real loading accessibility tree.
 vi.mock('../../components/pokemon/VirtualPokemonList', () => ({
   default: () => <div data-testid="virtual-list">Virtual List</div>,
 }));
@@ -28,10 +29,6 @@ vi.mock('../../components/layout/SortingControls', () => ({
 
 vi.mock('../../components/layout/FilterControls', () => ({
   default: () => <div data-testid="filter-controls">Filter Controls</div>,
-}));
-
-vi.mock('../../components/base/SkeletonComposites', () => ({
-  PokemonGridSkeleton: () => <div data-testid="skeleton">Loading...</div>,
 }));
 
 const mockPokemon: PokemonListItem = {
@@ -180,5 +177,163 @@ describe('AppMain Accessibility', () => {
 
     await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
     expect(searchInputRef.current).toHaveFocus();
+  });
+
+  it('exposes exactly one loading status and hides the decorative skeleton', () => {
+    const { container } = render(
+      <AppMain
+        controller={{
+          ...mockController,
+          loading: true,
+          error: null,
+          filteredPokemon: [],
+          virtualList: [],
+        }}
+      />
+    );
+
+    const statuses = screen.getAllByRole('status');
+    expect(statuses).toHaveLength(1);
+    expect(statuses[0]).toHaveTextContent('Loading Pokemon...');
+
+    // Raw DOM check: the previous implementation rendered a status per skeleton piece.
+    expect(container.querySelectorAll('[role="status"]')).toHaveLength(1);
+    expect(container.querySelectorAll('[role="status"][aria-label="Loading..."]')).toHaveLength(0);
+    expect(container.querySelectorAll('[role="status"] [role="status"]')).toHaveLength(0);
+
+    const resultsRegion = screen.getByRole('region', { name: 'Pokemon results' });
+    expect(resultsRegion).toHaveAttribute('aria-busy', 'true');
+    expect(within(resultsRegion).queryAllByRole('status')).toHaveLength(0);
+
+    const skeletonPieces = resultsRegion.querySelectorAll('.animate-shimmer, .animate-pulse');
+    expect(skeletonPieces.length).toBeGreaterThan(0);
+    skeletonPieces.forEach((piece) => {
+      expect(piece.closest('[aria-hidden="true"]')).not.toBeNull();
+    });
+  });
+
+  it('toggles aria-busy from true to false across a rerender', () => {
+    const { rerender } = render(
+      <AppMain
+        controller={{
+          ...mockController,
+          loading: true,
+          error: null,
+          filteredPokemon: [],
+          virtualList: [],
+        }}
+      />
+    );
+
+    const resultsRegion = screen.getByRole('region', { name: 'Pokemon results' });
+    expect(resultsRegion).toHaveAttribute('aria-busy', 'true');
+
+    rerender(<AppMain controller={mockController} />);
+
+    expect(screen.getByRole('region', { name: 'Pokemon results' })).toHaveAttribute(
+      'aria-busy',
+      'false'
+    );
+  });
+
+  it('announces a failed load once through a non-empty alert outside aria-busy', () => {
+    render(
+      <AppMain
+        controller={{ ...mockController, loading: false, error: 'Failed to fetch Pokemon data.' }}
+      />
+    );
+
+    const alert = screen.getByRole('alert');
+    expect(alert).toHaveTextContent('Oops! Something went wrong.');
+    expect(within(alert).getByText('Failed to fetch Pokemon data.')).toBeInTheDocument();
+    expect(screen.getAllByRole('alert')).toHaveLength(1);
+    expect(alert.closest('[aria-busy]')).toBeNull();
+
+    const resultsRegion = screen.getByRole('region', { name: 'Pokemon results' });
+    expect(resultsRegion).toHaveAttribute('aria-busy', 'false');
+    expect(within(resultsRegion).queryByRole('alert')).not.toBeInTheDocument();
+
+    // The loading status stays empty so it cannot double-announce the failure.
+    expect(screen.getByRole('status')).toHaveTextContent('');
+  });
+
+  it('moves focus from Retry to the results region, then back to Retry on failure', () => {
+    const reload = vi.fn().mockResolvedValue(undefined);
+    const errorController: AppController = {
+      ...mockController,
+      loading: false,
+      error: 'Failed to fetch Pokemon data.',
+      reload,
+    };
+
+    const { rerender } = render(<AppMain controller={errorController} />);
+
+    const retryButton = screen.getByRole('button', { name: 'Retry' });
+    retryButton.focus();
+    fireEvent.click(retryButton);
+    expect(reload).toHaveBeenCalledTimes(1);
+
+    // loading -> error transition: focus moves to non-live controls only.
+    rerender(<AppMain controller={{ ...errorController, loading: true, error: null }} />);
+
+    const resultsRegion = screen.getByRole('region', { name: 'Pokemon results' });
+    expect(resultsRegion).toHaveAttribute('aria-busy', 'true');
+    expect(resultsRegion).toHaveFocus();
+    expect(screen.getByRole('status')).not.toHaveFocus();
+    expect(document.activeElement).not.toBe(document.body);
+
+    rerender(<AppMain controller={errorController} />);
+
+    const returnedRetry = screen.getByRole('button', { name: 'Retry' });
+    expect(returnedRetry).toHaveFocus();
+    expect(screen.getByRole('alert')).not.toHaveFocus();
+    expect(screen.getByRole('status')).not.toHaveFocus();
+    expect(document.activeElement).not.toBe(document.body);
+  });
+
+  it('does not steal focus when the user moves on during a retry', () => {
+    const reload = vi.fn().mockResolvedValue(undefined);
+    const errorController: AppController = {
+      ...mockController,
+      loading: false,
+      error: 'Failed to fetch Pokemon data.',
+      reload,
+    };
+
+    const { rerender } = render(<AppMain controller={errorController} />);
+
+    const retryButton = screen.getByRole('button', { name: 'Retry' });
+    retryButton.focus();
+    fireEvent.click(retryButton);
+
+    rerender(<AppMain controller={{ ...errorController, loading: true, error: null }} />);
+    expect(screen.getByRole('region', { name: 'Pokemon results' })).toHaveFocus();
+
+    const searchInput = document.createElement('input');
+    searchInput.id = 'main-search';
+    document.body.appendChild(searchInput);
+    searchInput.focus();
+
+    rerender(<AppMain controller={errorController} />);
+
+    expect(searchInput).toHaveFocus();
+    expect(screen.getByRole('alert')).toHaveTextContent('Failed to fetch Pokemon data.');
+    searchInput.remove();
+  });
+
+  it('does not steal focus on an ordinary successful load', () => {
+    const outsideButton = document.createElement('button');
+    document.body.appendChild(outsideButton);
+    outsideButton.focus();
+
+    const { rerender } = render(
+      <AppMain controller={{ ...mockController, loading: true, error: null }} />
+    );
+    expect(outsideButton).toHaveFocus();
+
+    rerender(<AppMain controller={mockController} />);
+
+    expect(outsideButton).toHaveFocus();
+    outsideButton.remove();
   });
 });
