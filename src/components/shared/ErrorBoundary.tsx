@@ -3,6 +3,7 @@ import React, { ReactNode } from 'react';
 interface Props {
   children: ReactNode;
   fallback?: ReactNode;
+  onError?: (error: Error, errorInfo: React.ErrorInfo) => void;
 }
 
 interface State {
@@ -37,6 +38,8 @@ class ErrorBoundary extends React.Component<Props, State> {
       error,
       errorInfo,
     });
+
+    this.props.onError?.(error, errorInfo);
 
     // In production, send to error tracking service (e.g., Sentry)
     // if (import.meta.env.PROD) {

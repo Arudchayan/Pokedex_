@@ -9,9 +9,10 @@ interface Props {
   onClose: () => void;
   date: string;
   seed: number;
+  onReady?: () => void;
 }
 
-const WhosThatPokemonGame: React.FC<Props> = ({ onClose, date, seed }) => {
+const WhosThatPokemonGame: React.FC<Props> = ({ onClose, date, seed, onReady }) => {
   const { masterPokemonList, theme } = usePokemon();
   const [target, setTarget] = useState<PokemonListItem | null>(null);
   const [options, setOptions] = useState<PokemonListItem[]>([]);
@@ -62,6 +63,10 @@ const WhosThatPokemonGame: React.FC<Props> = ({ onClose, date, seed }) => {
     setGuessState('playing');
     setSelectedOption(null);
   }, [masterPokemonList, rng]);
+
+  useEffect(() => {
+    if (target) onReady?.();
+  }, [target, onReady]);
 
   const handleGuess = (id: number) => {
     if (revealed || !target) return;
