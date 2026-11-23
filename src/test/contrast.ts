@@ -1,10 +1,10 @@
 /**
- * WCAG contrast helpers for class-based Tailwind colours.
+ * WCAG contrast helpers for Tailwind colours and inline backgrounds.
  *
  * Vitest runs in jsdom without the compiled Tailwind stylesheet, so the helpers
  * resolve the palette from the rendered class names instead of computed styles.
- * Only base utilities are considered (no `hover:` variants) and translucent
- * background layers are composited over the theme's page background.
+ * Only base utilities are considered (no `hover:` variants). Translucent layers
+ * and element opacity are composited over the theme's page background.
  */
 
 export type ContrastTheme = 'light' | 'dark';
@@ -30,6 +30,25 @@ const PALETTE: Record<string, string> = {
   'slate-800': '#1e293b',
   'slate-900': '#0f172a',
   'slate-950': '#020617',
+  // Type-chip palette (see TYPE_COLORS in src/constants.ts).
+  'gray-400': '#9ca3af',
+  'gray-500': '#6b7280',
+  'gray-700': '#374151',
+  'red-500': '#ef4444',
+  'blue-500': '#3b82f6',
+  'yellow-400': '#facc15',
+  'yellow-600': '#ca8a04',
+  'green-500': '#22c55e',
+  'cyan-300': '#67e8f9',
+  'orange-700': '#c2410c',
+  'purple-600': '#9333ea',
+  'indigo-400': '#818cf8',
+  'indigo-700': '#4338ca',
+  'pink-500': '#ec4899',
+  'pink-300': '#f9a8d4',
+  'lime-500': '#84cc16',
+  'stone-500': '#78716c',
+  'violet-700': '#6d28d9',
 };
 
 const PAGE_BACKGROUND: Record<ContrastTheme, string> = {
@@ -37,7 +56,7 @@ const PAGE_BACKGROUND: Record<ContrastTheme, string> = {
   dark: PALETTE['slate-950'],
 };
 
-const COLOR_TOKEN = /^(text|bg)-(slate-\d{2,3}|white|black)(?:\/(\d{1,3}))?$/;
+const COLOR_TOKEN = /^(text|bg)-([a-z]+-\d{2,3}|white|black)(?:\/(\d{1,3}))?$/;
 
 interface ColorToken {
   kind: 'text' | 'bg';
@@ -72,12 +91,40 @@ function hexToRgba(hex: string, alpha = 1): Rgba {
   };
 }
 
+/** Source-over compositing that keeps the resulting alpha. */
 function composite(top: Rgba, bottom: Rgba): Rgba {
+  const alpha = top.a + bottom.a * (1 - top.a);
+  if (alpha === 0) return { r: 0, g: 0, b: 0, a: 0 };
+
   return {
-    r: top.r * top.a + bottom.r * (1 - top.a),
-    g: top.g * top.a + bottom.g * (1 - top.a),
-    b: top.b * top.a + bottom.b * (1 - top.a),
-    a: 1,
+    r: (top.r * top.a + bottom.r * bottom.a * (1 - top.a)) / alpha,
+    g: (top.g * top.a + bottom.g * bottom.a * (1 - top.a)) / alpha,
+    b: (top.b * top.a + bottom.b * bottom.a * (1 - top.a)) / alpha,
+    a: alpha,
+  };
+}
+
+const TRANSPARENT: Rgba = { r: 0, g: 0, b: 0, a: 0 };
+
+function rgbaToHex(color: Rgba): string {
+  return `#${[color.r, color.g, color.b]
+    .map((channel) => Math.round(channel).toString(16).padStart(2, '0'))
+    .join('')}`;
+}
+
+/** Parse the inline background React writes onto styled elements (e.g. type badges). */
+function parseCssColor(value: string): Rgba | null {
+  const hex = /^#[0-9a-f]{6}$/i.exec(value);
+  if (hex) return hexToRgba(value);
+
+  const match = /^rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*(?:,\s*([\d.]+)\s*)?\)$/i.exec(value);
+  if (!match) return null;
+
+  return {
+    r: Number(match[1]),
+    g: Number(match[2]),
+    b: Number(match[3]),
+    a: match[4] === undefined ? 1 : Number(match[4]),
   };
 }
 
@@ -113,29 +160,57 @@ export function textColorHex(element: Element): string {
   );
 }
 
-/** Composite every background layer between the page and the element. */
-export function backgroundColorHex(element: Element, theme: ContrastTheme): string {
-  const layers: ColorToken[] = [];
+/**
+ * Background layers painted on one element, topmost first.
+ * An inline background takes precedence over background utilities.
+ */
+function ownBackgroundLayers(element: Element): Rgba[] {
+  if (element instanceof HTMLElement) {
+    const inline = parseCssColor(element.style.backgroundColor);
+    if (inline) return [inline];
+  }
+
+  const layers: Rgba[] = [];
+  for (const token of classesOf(element)) {
+    const parsed = parseColorToken(token);
+    if (parsed?.kind === 'bg') layers.push(hexToRgba(parsed.hex, parsed.alpha));
+  }
+  return layers;
+}
+
+/** Every background layer from the page down to the element, bottom-to-top. */
+function backgroundChain(element: Element | null): Rgba[] {
+  const chain: Rgba[] = [];
   let node: Element | null = element;
 
   while (node) {
-    for (const token of classesOf(node)) {
-      const parsed = parseColorToken(token);
-      if (parsed?.kind === 'bg') layers.push(parsed);
-    }
+    // The utilities are emitted in class order, so treat the first one as the top layer.
+    chain.unshift(...ownBackgroundLayers(node).reverse());
     node = node.parentElement;
   }
 
-  const result = layers
-    .reverse()
-    .reduce<Rgba>((background, layer) => composite(hexToRgba(layer.hex, layer.alpha), background), {
-      ...hexToRgba(PAGE_BACKGROUND[theme]),
-      a: 1,
-    });
+  return chain;
+}
 
-  return `#${[result.r, result.g, result.b]
-    .map((channel) => Math.round(channel).toString(16).padStart(2, '0'))
-    .join('')}`;
+function compositeBackground(element: Element | null, theme: ContrastTheme): Rgba {
+  return backgroundChain(element).reduce<Rgba>(
+    (background, layer) => composite(layer, background),
+    { ...hexToRgba(PAGE_BACKGROUND[theme]), a: 1 }
+  );
+}
+
+/** Composite every background layer between the page and the element. */
+export function backgroundColorHex(element: Element, theme: ContrastTheme): string {
+  return rgbaToHex(compositeBackground(element, theme));
+}
+
+/** Resolve element opacity utilities (`opacity-70`). */
+function elementOpacity(element: Element): number {
+  for (const token of classesOf(element)) {
+    const match = /^opacity-(\d{1,3})$/.exec(token);
+    if (match) return Math.min(100, Number(match[1])) / 100;
+  }
+  return 1;
 }
 
 export interface ContrastResult {
@@ -145,7 +220,30 @@ export interface ContrastResult {
 }
 
 export function elementContrast(element: Element, theme: ContrastTheme): ContrastResult {
-  const foreground = textColorHex(element);
-  const background = backgroundColorHex(element, theme);
-  return { ratio: contrastRatio(foreground, background), foreground, background };
+  const text = hexToRgba(textColorHex(element));
+  const opacity = elementOpacity(element);
+  let foreground: Rgba;
+  let background: Rgba;
+
+  if (opacity === 1) {
+    foreground = text;
+    background = compositeBackground(element, theme);
+  } else {
+    // CSS opacity composites the whole element (fill + label) over its backdrop.
+    const backdrop = compositeBackground(element.parentElement, theme);
+    const own = ownBackgroundLayers(element)
+      .reverse()
+      .reduce<Rgba>((bottom, layer) => composite(layer, bottom), TRANSPARENT);
+
+    background = composite({ ...own, a: own.a * opacity }, backdrop);
+    foreground = composite({ ...text, a: text.a * opacity }, backdrop);
+  }
+
+  const foregroundHex = rgbaToHex(foreground);
+  const backgroundHex = rgbaToHex(background);
+  return {
+    ratio: contrastRatio(foregroundHex, backgroundHex),
+    foreground: foregroundHex,
+    background: backgroundHex,
+  };
 }

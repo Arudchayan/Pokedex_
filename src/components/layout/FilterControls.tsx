@@ -306,7 +306,7 @@ const FilterControls: React.FC<FilterControlsProps> = ({
                   const baseClass = TYPE_COLORS[type] || 'bg-slate-500 text-white';
                   const stateClass = isSelected
                     ? `shadow-lg ring-2 ${theme === 'dark' ? 'shadow-black/40 ring-white/60' : 'shadow-slate-400/50 ring-slate-800/60'}`
-                    : 'opacity-70 hover:opacity-100 hover:scale-105';
+                    : `ring-1 ${theme === 'dark' ? 'ring-white/20 hover:ring-white/40' : 'ring-black/10 hover:ring-slate-900/40'} hover:ring-2 hover:scale-105`;
                   return (
                     <button
                       key={type}
