@@ -16,14 +16,14 @@ describe('pokeapiService fresh data validation', () => {
       ok: true,
       json: async () => ({
         data: {
-          pokemon_v2_pokemon: [
+          pokemon: [
             {
               id: 1,
               name: 'valid',
-              pokemon_v2_pokemonsprites: [{ id: 1 }],
-              pokemon_v2_pokemontypes: [],
-              pokemon_v2_pokemonstats: [],
-              pokemon_v2_pokemonabilities: [],
+              pokemonsprites: [{ id: 1 }],
+              pokemontypes: [],
+              pokemonstats: [],
+              pokemonabilities: [],
             },
             { id: 'bad', name: 'invalid-id' },
             { id: 2, name: null }, // Invalid name
@@ -44,7 +44,7 @@ describe('pokeapiService fresh data validation', () => {
       ok: true,
       json: async () => ({
         data: {
-          pokemon_v2_move: [
+          move: [
             { id: 1, name: 'valid', power: 100 },
             { id: 'bad', name: 'invalid-id' },
             { id: 2, name: 'invalid-power', power: 'huge' }, // Invalid power -> sanitized to null, but entry kept as valid Move (power becomes null)
@@ -65,8 +65,8 @@ describe('pokeapiService fresh data validation', () => {
       ok: true,
       json: async () => ({
         data: {
-          pokemon_v2_item: [
-            { id: 1, name: 'valid', cost: 100, pokemon_v2_itemflavortexts: [] },
+          item: [
+            { id: 1, name: 'valid', itemprices: [{ purchase_price: 100 }], itemflavortexts: [] },
             { id: 'bad', name: 'invalid-id' }, // This will have undefined flavortexts
           ],
         },

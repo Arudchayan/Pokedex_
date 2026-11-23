@@ -16,7 +16,7 @@ const makePokemon = (overrides: Record<string, unknown>) => ({
   height: 7,
   weight: 69,
   is_default: false,
-  pokemon_v2_pokemonsprites: [
+  pokemonsprites: [
     {
       sprites: JSON.stringify({
         front_default: 'front.png',
@@ -40,9 +40,9 @@ const makePokemon = (overrides: Record<string, unknown>) => ({
       }),
     },
   ],
-  pokemon_v2_pokemontypes: [{ pokemon_v2_type: { name: 'grass' } }],
-  pokemon_v2_pokemonstats: [{ base_stat: 50, pokemon_v2_stat: { name: 'hp' } }],
-  pokemon_v2_pokemonabilities: [{ pokemon_v2_ability: { name: 'overgrow' } }],
+  pokemontypes: [{ type: { name: 'grass' } }],
+  pokemonstats: [{ base_stat: 50, stat: { name: 'hp' } }],
+  pokemonabilities: [{ ability: { name: 'overgrow' } }],
   ...overrides,
 });
 
@@ -52,17 +52,17 @@ const makeSpecies = (overrides: Record<string, unknown>) => ({
   capture_rate: 45,
   base_happiness: 70,
   gender_rate: 4,
-  pokemon_v2_pokemoncolor: { name: 'green' },
-  pokemon_v2_pokemonhabitat: { name: 'forest' },
-  pokemon_v2_pokemonspeciesnames: [{ genus: 'Seed Pokemon' }],
-  pokemon_v2_growthrate: { name: 'medium-slow' },
-  pokemon_v2_pokemonshape: { name: 'quadruped' },
-  pokemon_v2_pokemonegggroups: [{ pokemon_v2_egggroup: { name: 'monster' } }],
-  pokemon_v2_evolutionchain: {
-    pokemon_v2_pokemonspecies: [],
+  pokemoncolor: { name: 'green' },
+  pokemonhabitat: { name: 'forest' },
+  pokemonspeciesnames: [{ genus: 'Seed Pokemon' }],
+  growthrate: { name: 'medium-slow' },
+  pokemonshape: { name: 'quadruped' },
+  pokemonegggroups: [{ egggroup: { name: 'monster' } }],
+  evolutionchain: {
+    pokemonspecies: [],
   },
-  pokemon_v2_pokemonspeciesflavortexts: [{ flavor_text: 'A test pokemon.' }],
-  pokemon_v2_pokemons: [],
+  pokemonspeciesflavortexts: [{ flavor_text: 'A test pokemon.' }],
+  pokemons: [],
   ...overrides,
 });
 
@@ -76,15 +76,15 @@ describe('pokeapiService transformations', () => {
       id: 25,
       name: 'pikachu',
       is_default: true,
-      pokemon_v2_pokemonsprites: [{ sprites: '{not-json}' }],
+      pokemonsprites: [{ sprites: '{not-json}' }],
     });
 
     const species = makeSpecies({
       name: 'pikachu',
-      pokemon_v2_pokemons: [defaultPokemon],
+      pokemons: [defaultPokemon],
     });
 
-    mockFetchResponse({ pokemon_v2_pokemonspecies: [species] });
+    mockFetchResponse({ pokemonspecies: [species] });
 
     const result = await fetchPokemonDetails(25);
 
@@ -108,7 +108,7 @@ describe('pokeapiService transformations', () => {
       is_default: false,
       height: 4,
       weight: 40,
-      pokemon_v2_pokemontypes: [{ pokemon_v2_type: { name: 'water' } }],
+      pokemontypes: [{ type: { name: 'water' } }],
     });
 
     const defaultForm = makePokemon({
@@ -117,15 +117,15 @@ describe('pokeapiService transformations', () => {
       is_default: true,
       height: 12,
       weight: 250,
-      pokemon_v2_pokemontypes: [{ pokemon_v2_type: { name: 'fire' } }],
+      pokemontypes: [{ type: { name: 'fire' } }],
     });
 
     const species = makeSpecies({
       name: 'testmon',
-      pokemon_v2_pokemons: [altForm, defaultForm],
+      pokemons: [altForm, defaultForm],
     });
 
-    mockFetchResponse({ pokemon_v2_pokemonspecies: [species] });
+    mockFetchResponse({ pokemonspecies: [species] });
 
     const result = await fetchPokemonDetails(11);
 
@@ -139,16 +139,16 @@ describe('pokeapiService transformations', () => {
       id: 100,
       name: 'base',
       evolves_from_species_id: null,
-      pokemon_v2_pokemons: [{ pokemon_v2_pokemonsprites: [{ sprites: undefined }] }],
-      pokemon_v2_pokemonevolutions: [
+      pokemons: [{ pokemonsprites: [{ sprites: undefined }] }],
+      pokemonevolutions: [
         {
           min_level: null,
           min_happiness: null,
-          pokemon_v2_evolutiontrigger: { name: 'level-up' },
-          pokemon_v2_item: null,
-          pokemon_v2_move: null,
+          evolutiontrigger: { name: 'level-up' },
+          item: null,
+          move: null,
           time_of_day: null,
-          pokemon_v2_location: null,
+          location: null,
         },
       ],
     };
@@ -157,16 +157,16 @@ describe('pokeapiService transformations', () => {
       id: 101,
       name: 'evolved',
       evolves_from_species_id: 100,
-      pokemon_v2_pokemons: [{ pokemon_v2_pokemonsprites: [{ sprites: undefined }] }],
-      pokemon_v2_pokemonevolutions: [
+      pokemons: [{ pokemonsprites: [{ sprites: undefined }] }],
+      pokemonevolutions: [
         {
           min_level: null,
           min_happiness: null,
-          pokemon_v2_evolutiontrigger: { name: 'level-up' },
-          pokemon_v2_item: null,
-          pokemon_v2_move: null,
+          evolutiontrigger: { name: 'level-up' },
+          item: null,
+          move: null,
           time_of_day: null,
-          pokemon_v2_location: null,
+          location: null,
         },
       ],
     };
@@ -179,13 +179,13 @@ describe('pokeapiService transformations', () => {
 
     const species = makeSpecies({
       name: 'base',
-      pokemon_v2_pokemons: [defaultPokemon],
-      pokemon_v2_evolutionchain: {
-        pokemon_v2_pokemonspecies: [baseSpecies, evolvedSpecies],
+      pokemons: [defaultPokemon],
+      evolutionchain: {
+        pokemonspecies: [baseSpecies, evolvedSpecies],
       },
     });
 
-    mockFetchResponse({ pokemon_v2_pokemonspecies: [species] });
+    mockFetchResponse({ pokemonspecies: [species] });
 
     const result = await fetchPokemonDetails(100);
 
@@ -207,10 +207,10 @@ describe('pokeapiService transformations', () => {
 
     const species = makeSpecies({
       name: 'move-mon',
-      pokemon_v2_pokemons: [defaultPokemon],
+      pokemons: [defaultPokemon],
     });
 
-    mockFetchResponse({ pokemon_v2_pokemonspecies: [species] });
+    mockFetchResponse({ pokemonspecies: [species] });
 
     const result = await fetchPokemonDetails(200);
     expect(result?.moves).toEqual([]);
@@ -218,22 +218,22 @@ describe('pokeapiService transformations', () => {
 
   it('normalizes move names and learn methods via fetchPokemonMoves', async () => {
     mockFetchResponse({
-      pokemon_v2_pokemon: [
+      pokemon: [
         {
           id: 200,
-          pokemon_v2_pokemonmoves: [
+          pokemonmoves: [
             {
               level: 1,
-              pokemon_v2_versiongroup: { name: 'red-blue' },
-              pokemon_v2_movelearnmethod: { name: 'level-up' },
-              pokemon_v2_move: {
+              versiongroup: { name: 'red-blue' },
+              movelearnmethod: { name: 'level-up' },
+              move: {
                 name: 'solar-beam',
                 power: 120,
                 accuracy: 100,
                 pp: 10,
                 priority: null,
-                pokemon_v2_type: { name: 'grass' },
-                pokemon_v2_movedamageclass: null,
+                type: { name: 'grass' },
+                movedamageclass: null,
               },
             },
           ],
@@ -256,13 +256,11 @@ describe('pokeapiService transformations', () => {
     const defaultPokemon = makePokemon({ id: 1, name: 'bulbasaur', is_default: true });
     const species = makeSpecies({
       name: 'bulbasaur',
-      pokemon_v2_pokemons: [defaultPokemon],
-      pokemon_v2_pokemonspeciesflavortexts: [
-        { flavor_text: 'A strange\nseed was\fplanted on its\nback.' },
-      ],
+      pokemons: [defaultPokemon],
+      pokemonspeciesflavortexts: [{ flavor_text: 'A strange\nseed was\fplanted on its\nback.' }],
     });
 
-    mockFetchResponse({ pokemon_v2_pokemonspecies: [species] });
+    mockFetchResponse({ pokemonspecies: [species] });
 
     const result = await fetchPokemonDetails(1);
     expect(result?.flavorText).toBe('A strange seed was planted on its back.');

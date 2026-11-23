@@ -17,8 +17,8 @@ describe('pokeapiService data validation', () => {
       ok: true,
       json: async () => ({
         data: {
-          pokemon_v2_move: [],
-          pokemon_v2_item: [],
+          move: [],
+          item: [],
         },
       }),
     } as any);
@@ -36,7 +36,7 @@ describe('pokeapiService data validation', () => {
       ok: true,
       json: async () => ({
         data: {
-          pokemon_v2_move: invalidData,
+          move: invalidData,
         },
       }),
     } as any);
@@ -59,12 +59,12 @@ describe('pokeapiService data validation', () => {
   it('fetchAllItems: filters invalid items from API response', async () => {
     const invalidData = [
       { id: 'bad', name: 'potion' }, // Invalid ID
-      { id: 1, cost: 'expensive' }, // Missing name
+      { id: 1, itemprices: [{ purchase_price: 'expensive' }] }, // Missing name
       {
         id: 999,
         name: 'fresh-potion',
-        cost: 200,
-        pokemon_v2_itemflavortexts: [{ flavor_text: 'Freshly brewed' }],
+        itemprices: [{ purchase_price: 200 }],
+        itemflavortexts: [{ flavor_text: 'Freshly brewed' }],
       },
     ];
 
@@ -72,7 +72,7 @@ describe('pokeapiService data validation', () => {
       ok: true,
       json: async () => ({
         data: {
-          pokemon_v2_item: invalidData,
+          item: invalidData,
         },
       }),
     } as any);
@@ -82,6 +82,7 @@ describe('pokeapiService data validation', () => {
     // Should return only the valid item
     expect(items).toHaveLength(1);
     expect(items[0].name).toBe('fresh-potion');
+    expect(items[0].cost).toBe(200);
     expect(items[0].flavorText).toBe('Freshly brewed');
   });
 });
