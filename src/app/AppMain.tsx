@@ -261,8 +261,8 @@ export default function AppMain({ controller }: Props) {
       className="mx-auto w-full max-w-7xl px-3 py-4 sm:px-6 sm:py-8 outline-none"
     >
       <div className="flex flex-col gap-4 sm:gap-8 lg:flex-row">
-        <section className="flex-1 space-y-4 sm:space-y-8">
-          <div className="space-y-3 sm:space-y-4">
+        <section className="min-w-0 flex-1">
+          <div className="mb-3 sm:mb-4">
             <div className="flex flex-col items-start justify-between gap-3 sm:gap-4 md:flex-row md:items-center">
               <SortingControls
                 sortBy={sortBy}
@@ -406,273 +406,283 @@ export default function AppMain({ controller }: Props) {
                 </div>
               </div>
             </div>
+          </div>
 
-            {/* Mobile filter toggle */}
-            <div className="sm:hidden">
-              <button
-                type="button"
-                onClick={() => setMobileFiltersOpen((open) => !open)}
-                aria-expanded={mobileFiltersOpen}
-                aria-controls={mobileFiltersPanelId}
-                aria-label={
-                  mobileFilterCount > 0 ? `Filters (${mobileFilterCount} active)` : 'Filters'
-                }
-                className={`w-full flex items-center justify-between px-4 py-3 rounded-xl border text-sm font-semibold transition-colors ${
-                  theme === 'dark'
-                    ? 'border-white/10 bg-slate-950/80 text-slate-200 hover:bg-white/5'
-                    : 'border-slate-200 bg-white/80 text-slate-700 hover:bg-slate-50'
-                }`}
-              >
-                <span className="flex items-center gap-2">
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          {/*
+            Below the sidebar breakpoint, filters sit beside the results so
+            opening them never pushes the first row off screen.
+          */}
+          <div className="flex flex-col gap-4 sm:gap-8 md:max-lg:grid md:max-lg:grid-cols-[minmax(0,18rem)_minmax(0,1fr)] md:max-lg:items-start md:max-lg:gap-6">
+            <div>
+              {/* Filters disclosure below the desktop sidebar breakpoint */}
+              <div className="lg:hidden">
+                <button
+                  type="button"
+                  onClick={() => setMobileFiltersOpen((open) => !open)}
+                  aria-expanded={mobileFiltersOpen}
+                  aria-controls={mobileFiltersPanelId}
+                  aria-label={
+                    mobileFilterCount > 0 ? `Filters (${mobileFilterCount} active)` : 'Filters'
+                  }
+                  className={`w-full flex items-center justify-between px-4 py-3 rounded-xl border text-sm font-semibold transition-colors ${
+                    theme === 'dark'
+                      ? 'border-white/10 bg-slate-950/80 text-slate-200 hover:bg-white/5'
+                      : 'border-slate-200 bg-white/80 text-slate-700 hover:bg-slate-50'
+                  }`}
+                >
+                  <span className="flex items-center gap-2">
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"
+                      />
+                    </svg>
+                    Filters
+                    {mobileFilterCount > 0 && (
+                      <span className="bg-primary-500 text-white text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                        {mobileFilterCount}
+                      </span>
+                    )}
+                  </span>
+                  <svg
+                    className={`w-4 h-4 transition-transform ${mobileFiltersOpen ? 'rotate-180' : ''}`}
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
                     <path
                       strokeLinecap="round"
                       strokeLinejoin="round"
                       strokeWidth={2}
-                      d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"
+                      d="M19 9l-7 7-7-7"
                     />
                   </svg>
-                  Filters
-                  {mobileFilterCount > 0 && (
-                    <span className="bg-primary-500 text-white text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center">
-                      {mobileFilterCount}
-                    </span>
-                  )}
-                </span>
-                <svg
-                  className={`w-4 h-4 transition-transform ${mobileFiltersOpen ? 'rotate-180' : ''}`}
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
+                </button>
+                {mobileFiltersOpen && (
+                  <div className="mt-2">
+                    <FilterControls
+                      id={mobileFiltersPanelId}
+                      selectedGeneration={selectedGeneration}
+                      onGenerationChange={handleGenerationChange}
+                      selectedTypes={selectedTypes}
+                      onTypeToggle={handleTypeToggle}
+                      flavorTextSearch={flavorTextSearch}
+                      onFlavorTextChange={handleFlavorTextChange}
+                      onClearFilters={handleClearFilters}
+                    />
+                  </div>
+                )}
+              </div>
+              {/* Desktop filter controls - always visible from the sidebar breakpoint up */}
+              <div className="hidden lg:block">
+                <FilterControls
+                  selectedGeneration={selectedGeneration}
+                  onGenerationChange={handleGenerationChange}
+                  selectedTypes={selectedTypes}
+                  onTypeToggle={handleTypeToggle}
+                  flavorTextSearch={flavorTextSearch}
+                  onFlavorTextChange={handleFlavorTextChange}
+                  onClearFilters={handleClearFilters}
+                />
+              </div>
+            </div>
+
+            <div className="min-w-0">
+              {/*
+                Status live region sits outside the aria-busy results region: assistive
+                tech may defer announcements for updates inside a busy container.
+              */}
+              <p role="status" aria-live="polite" aria-atomic="true" className="sr-only">
+                {isInitialLoading ? 'Loading Pokemon...' : retryStatus}
+              </p>
+
+              <div>
+                <div
+                  ref={resultsRef}
+                  role="region"
+                  aria-label="Pokemon results"
+                  aria-busy={isInitialLoading || Boolean(isRetrying)}
+                  tabIndex={-1}
+                  className="outline-none"
                 >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M19 9l-7 7-7-7"
-                  />
-                </svg>
-              </button>
-              {mobileFiltersOpen && (
-                <div className="mt-2">
-                  <FilterControls
-                    id={mobileFiltersPanelId}
-                    selectedGeneration={selectedGeneration}
-                    onGenerationChange={handleGenerationChange}
-                    selectedTypes={selectedTypes}
-                    onTypeToggle={handleTypeToggle}
-                    flavorTextSearch={flavorTextSearch}
-                    onFlavorTextChange={handleFlavorTextChange}
-                    onClearFilters={handleClearFilters}
-                  />
-                </div>
-              )}
-            </div>
-            {/* Desktop filter controls - always visible */}
-            <div className="hidden sm:block">
-              <FilterControls
-                selectedGeneration={selectedGeneration}
-                onGenerationChange={handleGenerationChange}
-                selectedTypes={selectedTypes}
-                onTypeToggle={handleTypeToggle}
-                flavorTextSearch={flavorTextSearch}
-                onFlavorTextChange={handleFlavorTextChange}
-                onClearFilters={handleClearFilters}
-              />
-            </div>
-          </div>
+                  {isInitialLoading ? (
+                    <PokemonGridSkeleton count={12} />
+                  ) : error ? null : (
+                    <>
+                      <VirtualPokemonList
+                        pokemonList={virtualList}
+                        viewMode={viewMode}
+                        onSelect={handleSelectPokemon}
+                        teamIds={teamIds}
+                        teamIsFull={teamIsFull}
+                        favorites={favorites}
+                        comparisonList={comparisonList}
+                        MAX_COMPARISON={MAX_COMPARISON}
+                        onAddToTeam={handleAddToTeam}
+                        onRemoveFromTeam={handleRemoveFromTeam}
+                        onToggleFavorite={handleToggleFavorite}
+                        onAddToComparison={handleAddToComparison}
+                        theme={theme}
+                        isShiny={isShiny}
+                        isCyberpunk={isCyberpunk}
+                        isPaginationEnabled={isPaginationEnabled}
+                      />
 
-          {/*
-            Status live region sits outside the aria-busy results region: assistive
-            tech may defer announcements for updates inside a busy container.
-          */}
-          <p role="status" aria-live="polite" aria-atomic="true" className="sr-only">
-            {isInitialLoading ? 'Loading Pokemon...' : retryStatus}
-          </p>
+                      {filteredPokemon.length === 0 && (
+                        <div
+                          className={`rounded-2xl border py-16 text-center ${
+                            theme === 'dark'
+                              ? 'border-white/10 bg-white/5 text-slate-300'
+                              : 'border-slate-200 bg-slate-50 text-slate-600'
+                          }`}
+                        >
+                          {/* Magnifying glass SVG illustration */}
+                          <div
+                            className={`mx-auto mb-5 flex h-20 w-20 items-center justify-center rounded-full ${
+                              theme === 'dark' ? 'bg-white/5' : 'bg-slate-100'
+                            }`}
+                          >
+                            <svg
+                              className={`h-10 w-10 ${theme === 'dark' ? 'text-slate-500' : 'text-slate-400'}`}
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke="currentColor"
+                              strokeWidth={1.5}
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"
+                              />
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                d="M13.5 10.5H8.5m0 0l2-2m-2 2l2 2"
+                                strokeWidth={1.5}
+                              />
+                            </svg>
+                          </div>
+                          <p
+                            className={`text-xl font-semibold ${theme === 'dark' ? 'text-slate-200' : 'text-slate-700'}`}
+                          >
+                            No Pokemon match your filters
+                          </p>
+                          <p
+                            className={`mt-2 text-sm ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}
+                          >
+                            Try adjusting your search criteria or clear all filters to see every
+                            Pokemon.
+                          </p>
+                          <button
+                            type="button"
+                            onClick={handleClearFilters}
+                            className={`mt-5 inline-flex items-center gap-2 rounded-full px-6 py-2.5 text-sm font-semibold transition-all ${
+                              theme === 'dark'
+                                ? 'bg-primary-500/20 text-primary-300 hover:bg-primary-500/30 border border-primary-500/30'
+                                : 'bg-primary-50 text-primary-600 hover:bg-primary-100 border border-primary-200'
+                            }`}
+                          >
+                            <svg
+                              className="h-4 w-4"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke="currentColor"
+                              strokeWidth={2}
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                d="M6 18L18 6M6 6l12 12"
+                              />
+                            </svg>
+                            Clear Filters
+                          </button>
+                        </div>
+                      )}
 
-          <div>
-            <div
-              ref={resultsRef}
-              role="region"
-              aria-label="Pokemon results"
-              aria-busy={isInitialLoading || Boolean(isRetrying)}
-              tabIndex={-1}
-              className="outline-none"
-            >
-              {isInitialLoading ? (
-                <PokemonGridSkeleton count={12} />
-              ) : error ? null : (
-                <>
-                  <VirtualPokemonList
-                    pokemonList={virtualList}
-                    viewMode={viewMode}
-                    onSelect={handleSelectPokemon}
-                    teamIds={teamIds}
-                    teamIsFull={teamIsFull}
-                    favorites={favorites}
-                    comparisonList={comparisonList}
-                    MAX_COMPARISON={MAX_COMPARISON}
-                    onAddToTeam={handleAddToTeam}
-                    onRemoveFromTeam={handleRemoveFromTeam}
-                    onToggleFavorite={handleToggleFavorite}
-                    onAddToComparison={handleAddToComparison}
-                    theme={theme}
-                    isShiny={isShiny}
-                    isCyberpunk={isCyberpunk}
-                    isPaginationEnabled={isPaginationEnabled}
-                  />
-
-                  {filteredPokemon.length === 0 && (
-                    <div
-                      className={`rounded-2xl border py-16 text-center ${
-                        theme === 'dark'
-                          ? 'border-white/10 bg-white/5 text-slate-300'
-                          : 'border-slate-200 bg-slate-50 text-slate-600'
-                      }`}
-                    >
-                      {/* Magnifying glass SVG illustration */}
                       <div
-                        className={`mx-auto mb-5 flex h-20 w-20 items-center justify-center rounded-full ${
-                          theme === 'dark' ? 'bg-white/5' : 'bg-slate-100'
+                        role="status"
+                        aria-live="polite"
+                        aria-atomic="true"
+                        className={`mt-8 rounded-xl border p-4 text-center ${
+                          isCyberpunk
+                            ? 'cyber-panel'
+                            : theme === 'dark'
+                              ? 'bg-black/20 border-white/10'
+                              : 'bg-white border-slate-200 shadow-sm'
                         }`}
                       >
-                        <svg
-                          className={`h-10 w-10 ${theme === 'dark' ? 'text-slate-500' : 'text-slate-400'}`}
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                          strokeWidth={1.5}
+                        <p
+                          className={`text-sm ${
+                            isCyberpunk
+                              ? 'cyber-text'
+                              : theme === 'dark'
+                                ? 'text-slate-400'
+                                : 'text-slate-600'
+                          }`}
                         >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"
-                          />
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            d="M13.5 10.5H8.5m0 0l2-2m-2 2l2 2"
-                            strokeWidth={1.5}
-                          />
-                        </svg>
+                          {isCyberpunk ? 'PC Box:' : 'Showing'}{' '}
+                          <span
+                            className={`font-bold ${isCyberpunk ? 'cyber-text-pink' : 'text-primary-500'}`}
+                          >
+                            {filteredPokemon.length}
+                          </span>{' '}
+                          Pokemon {isCyberpunk ? 'found' : ''}
+                          {favorites.size > 0 && (
+                            <span className="ml-4">
+                              -{' '}
+                              <span
+                                className={`font-bold ${isCyberpunk ? 'cyber-text-yellow' : 'text-yellow-500'}`}
+                              >
+                                {favorites.size}
+                              </span>{' '}
+                              {isCyberpunk ? 'Marked' : 'Favorites'}
+                            </span>
+                          )}
+                        </p>
                       </div>
-                      <p
-                        className={`text-xl font-semibold ${theme === 'dark' ? 'text-slate-200' : 'text-slate-700'}`}
-                      >
-                        No Pokemon match your filters
-                      </p>
-                      <p
-                        className={`mt-2 text-sm ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}
-                      >
-                        Try adjusting your search criteria or clear all filters to see every
-                        Pokemon.
-                      </p>
-                      <button
-                        type="button"
-                        onClick={handleClearFilters}
-                        className={`mt-5 inline-flex items-center gap-2 rounded-full px-6 py-2.5 text-sm font-semibold transition-all ${
-                          theme === 'dark'
-                            ? 'bg-primary-500/20 text-primary-300 hover:bg-primary-500/30 border border-primary-500/30'
-                            : 'bg-primary-50 text-primary-600 hover:bg-primary-100 border border-primary-200'
-                        }`}
-                      >
-                        <svg
-                          className="h-4 w-4"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                          strokeWidth={2}
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            d="M6 18L18 6M6 6l12 12"
-                          />
-                        </svg>
-                        Clear Filters
-                      </button>
-                    </div>
+                    </>
                   )}
+                </div>
 
+                {error && (
                   <div
-                    role="status"
-                    aria-live="polite"
-                    aria-atomic="true"
-                    className={`mt-8 rounded-xl border p-4 text-center ${
-                      isCyberpunk
-                        ? 'cyber-panel'
-                        : theme === 'dark'
-                          ? 'bg-black/20 border-white/10'
-                          : 'bg-white border-slate-200 shadow-sm'
+                    className={`rounded-2xl border p-8 text-center ${
+                      theme === 'dark'
+                        ? 'border-red-500/30 bg-red-500/10 text-red-200'
+                        : 'border-red-300 bg-red-50 text-red-700'
                     }`}
                   >
-                    <p
-                      className={`text-sm ${
-                        isCyberpunk
-                          ? 'cyber-text'
-                          : theme === 'dark'
-                            ? 'text-slate-400'
-                            : 'text-slate-600'
+                    <div role="alert">
+                      <p className="text-2xl font-bold">Oops! Something went wrong.</p>
+                      <p className="mt-2">{error}</p>
+                    </div>
+                    <button
+                      ref={retryButtonRef}
+                      type="button"
+                      onClick={handleRetry}
+                      disabled={isRetrying}
+                      aria-busy={isRetrying}
+                      className={`mt-6 inline-flex items-center gap-2 rounded-full border px-6 py-2 text-sm font-semibold transition disabled:cursor-wait disabled:opacity-70 ${
+                        theme === 'dark'
+                          ? 'border-red-200/60 bg-red-500/20 text-red-100 hover:bg-red-500/30'
+                          : 'border-red-300 bg-red-100 text-red-700 hover:bg-red-200'
                       }`}
                     >
-                      {isCyberpunk ? 'PC Box:' : 'Showing'}{' '}
-                      <span
-                        className={`font-bold ${isCyberpunk ? 'cyber-text-pink' : 'text-primary-500'}`}
-                      >
-                        {filteredPokemon.length}
-                      </span>{' '}
-                      Pokemon {isCyberpunk ? 'found' : ''}
-                      {favorites.size > 0 && (
-                        <span className="ml-4">
-                          -{' '}
-                          <span
-                            className={`font-bold ${isCyberpunk ? 'cyber-text-yellow' : 'text-yellow-500'}`}
-                          >
-                            {favorites.size}
-                          </span>{' '}
-                          {isCyberpunk ? 'Marked' : 'Favorites'}
-                        </span>
+                      {isRetrying && (
+                        <span
+                          aria-hidden="true"
+                          className="h-4 w-4 animate-spin rounded-full border-2 border-current border-r-transparent"
+                        />
                       )}
-                    </p>
+                      {isRetrying ? 'Retrying...' : 'Retry'}
+                    </button>
                   </div>
-                </>
-              )}
-            </div>
-
-            {error && (
-              <div
-                className={`rounded-2xl border p-8 text-center ${
-                  theme === 'dark'
-                    ? 'border-red-500/30 bg-red-500/10 text-red-200'
-                    : 'border-red-300 bg-red-50 text-red-700'
-                }`}
-              >
-                <div role="alert">
-                  <p className="text-2xl font-bold">Oops! Something went wrong.</p>
-                  <p className="mt-2">{error}</p>
-                </div>
-                <button
-                  ref={retryButtonRef}
-                  type="button"
-                  onClick={handleRetry}
-                  disabled={isRetrying}
-                  aria-busy={isRetrying}
-                  className={`mt-6 inline-flex items-center gap-2 rounded-full border px-6 py-2 text-sm font-semibold transition disabled:cursor-wait disabled:opacity-70 ${
-                    theme === 'dark'
-                      ? 'border-red-200/60 bg-red-500/20 text-red-100 hover:bg-red-500/30'
-                      : 'border-red-300 bg-red-100 text-red-700 hover:bg-red-200'
-                  }`}
-                >
-                  {isRetrying && (
-                    <span
-                      aria-hidden="true"
-                      className="h-4 w-4 animate-spin rounded-full border-2 border-current border-r-transparent"
-                    />
-                  )}
-                  {isRetrying ? 'Retrying...' : 'Retry'}
-                </button>
+                )}
               </div>
-            )}
+            </div>
           </div>
         </section>
 
