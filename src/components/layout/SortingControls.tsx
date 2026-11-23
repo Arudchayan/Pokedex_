@@ -81,8 +81,8 @@ const SortingControls: React.FC<SortingControlsProps> = ({
                 sortBy === option.value
                   ? 'bg-primary-500/30 text-primary-300 border border-primary-400/60 shadow-lg'
                   : theme === 'dark'
-                    ? 'bg-white/5 text-slate-400 border border-white/10 hover:bg-white/10 hover:text-slate-200'
-                    : 'bg-slate-100 text-slate-500 border border-slate-200 hover:bg-slate-200 hover:text-slate-700'
+                    ? 'bg-white/5 text-slate-300 border border-white/10 hover:bg-white/10 hover:text-white'
+                    : 'bg-slate-100 text-slate-600 border border-slate-200 hover:bg-slate-200 hover:text-slate-900'
               }`}
             >
               <span className="mr-1">{option.icon}</span>
@@ -99,8 +99,8 @@ const SortingControls: React.FC<SortingControlsProps> = ({
                 isStatSelected
                   ? 'bg-primary-500/30 text-primary-300 border border-primary-400/60 shadow-lg'
                   : theme === 'dark'
-                    ? 'bg-white/5 text-slate-400 border border-white/10 hover:bg-white/10 hover:text-slate-200'
-                    : 'bg-slate-100 text-slate-500 border border-slate-200 hover:bg-slate-200 hover:text-slate-700'
+                    ? 'bg-white/5 text-slate-300 border border-white/10 hover:bg-white/10 hover:text-white'
+                    : 'bg-slate-100 text-slate-600 border border-slate-200 hover:bg-slate-200 hover:text-slate-900'
               }`}
             >
               <option value="" disabled className={theme === 'dark' ? 'bg-slate-800' : 'bg-white'}>
@@ -119,7 +119,7 @@ const SortingControls: React.FC<SortingControlsProps> = ({
               ))}
             </select>
             <div
-              className={`pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 ${isStatSelected ? 'text-primary-300' : theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}
+              className={`pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 ${isStatSelected ? 'text-primary-300' : theme === 'dark' ? 'text-slate-300' : 'text-slate-600'}`}
             >
               <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path
@@ -158,8 +158,8 @@ const SortingControls: React.FC<SortingControlsProps> = ({
               sortBy === 'regional-dex'
                 ? 'bg-primary-500/30 text-primary-300 border border-primary-400/60 shadow-lg'
                 : theme === 'dark'
-                  ? 'bg-white/5 text-slate-400 border border-white/10 hover:bg-white/10 hover:text-slate-200'
-                  : 'bg-slate-100 text-slate-500 border border-slate-200 hover:bg-slate-200 hover:text-slate-700'
+                  ? 'bg-white/5 text-slate-300 border border-white/10 hover:bg-white/10 hover:text-white'
+                  : 'bg-slate-100 text-slate-600 border border-slate-200 hover:bg-slate-200 hover:text-slate-900'
             }`}
           >
             {dexOptions.map((option) => (

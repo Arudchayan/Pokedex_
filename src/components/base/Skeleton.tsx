@@ -19,6 +19,10 @@ export interface SkeletonProps extends HTMLAttributes<HTMLDivElement> {
  *
  * Base skeleton loading placeholder with customizable dimensions and animations.
  *
+ * Skeletons are decorative and hidden from the accessibility tree by default.
+ * Announce loading once from the surrounding region (or pass `aria-hidden={false}`
+ * plus an explicit role/label when a skeleton itself must be a meaningful status).
+ *
  * @example
  * ```tsx
  * <Skeleton width="100%" height="20px" />
@@ -64,8 +68,7 @@ export const Skeleton: React.FC<SkeletonProps> = ({
         className
       )}
       style={inlineStyles}
-      role="status"
-      aria-label="Loading..."
+      aria-hidden="true"
       {...props}
     />
   );
@@ -102,13 +105,7 @@ export const SkeletonText: React.FC<SkeletonTextProps> = ({
   ...props
 }) => {
   return (
-    <div
-      className={cn('flex flex-col', className)}
-      style={{ gap }}
-      role="status"
-      aria-label="Loading text..."
-      {...props}
-    >
+    <div className={cn('flex flex-col', className)} style={{ gap }} aria-hidden="true" {...props}>
       {Array.from({ length: lines }).map((_, index) => (
         <Skeleton key={index} height={lineHeight} width={index === lines - 1 ? '70%' : '100%'} />
       ))}
@@ -140,17 +137,7 @@ export const SkeletonCircle: React.FC<SkeletonCircleProps> = ({
   className,
   ...props
 }) => {
-  return (
-    <Skeleton
-      width={size}
-      height={size}
-      rounded="full"
-      className={className}
-      role="status"
-      aria-label="Loading avatar..."
-      {...props}
-    />
-  );
+  return <Skeleton width={size} height={size} rounded="full" className={className} {...props} />;
 };
 
 // SkeletonCard Component
@@ -192,8 +179,7 @@ export const SkeletonCard: React.FC<SkeletonCardProps> = ({
         'rounded-xl overflow-hidden bg-slate-800/50 border border-slate-700',
         className
       )}
-      role="status"
-      aria-label="Loading card..."
+      aria-hidden="true"
       {...props}
     >
       {/* Image */}
