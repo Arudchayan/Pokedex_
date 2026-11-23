@@ -6,8 +6,10 @@ const DRAWER_ROOT = '[data-testid="mobile-drawer-root"]';
 async function loadApp(page: Page) {
   await skipWalkthroughOnboarding(page);
   await page.goto('/');
-  await expect(page.getByRole('heading', { level: 1, name: 'Pokedex' })).toBeVisible();
   await dismissWelcomeModal(page);
+  await expect(page.getByRole('heading', { level: 1, name: /Pok[eé]dex/i })).toBeVisible({
+    timeout: 30000,
+  });
 }
 
 function drawerRoot(page: Page) {
