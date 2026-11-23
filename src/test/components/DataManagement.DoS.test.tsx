@@ -6,12 +6,14 @@ import { ToastProvider } from '../../context/ToastContext';
 import { AchievementProvider } from '../../context/AchievementContext';
 import DataManagement from '../../components/shared/DataManagement';
 
-const { setTeamMock, setFavoritesMock, setSavedTeamsMock, saveTeamEntryMock } = vi.hoisted(() => ({
-  setTeamMock: vi.fn(),
-  setFavoritesMock: vi.fn(),
-  setSavedTeamsMock: vi.fn(),
-  saveTeamEntryMock: vi.fn(),
-}));
+const { setTeamMock, setFavoritesMock, setSavedTeamsMock, setThemeMock, saveTeamEntryMock } =
+  vi.hoisted(() => ({
+    setTeamMock: vi.fn(),
+    setFavoritesMock: vi.fn(),
+    setSavedTeamsMock: vi.fn(),
+    setThemeMock: vi.fn(),
+    saveTeamEntryMock: vi.fn(),
+  }));
 
 vi.mock('../../context/PokemonContext', () => ({
   usePokemon: () => ({
@@ -30,6 +32,7 @@ vi.mock('../../store/usePokemonStore', () => {
     setTeam: (...args: any[]) => setTeamMock(...args),
     setFavorites: (...args: any[]) => setFavoritesMock(...args),
     setSavedTeams: (...args: any[]) => setSavedTeamsMock(...args),
+    setTheme: (...args: any[]) => setThemeMock(...args),
     saveTeamEntry: (...args: any[]) => saveTeamEntryMock(...args),
     achievements: {},
     unlockAchievement: vi.fn(),
@@ -70,19 +73,39 @@ vi.mock('../../utils/teamStorage', () => ({
   saveTeamList: vi.fn(),
 }));
 
-import { saveFavorites } from '../../utils/favorites';
-
-// Mock utils/persistenceSchema to bypass strict validation
+// Mock the backup parser so oversized/partial fixtures are accepted and the
+// restore flow can be driven without a full schema.
 vi.mock('../../utils/persistenceSchema', () => ({
+  PERSISTENCE_VERSION: '1.0',
   isPersistenceData: () => true,
   buildPersistenceData: () => ({}),
+  parsePersistenceBackup: (raw: string) => {
+    const data = JSON.parse(raw);
+    return {
+      ok: true,
+      backup: {
+        team: Array.isArray(data.team) ? data.team : [],
+        favorites: Array.isArray(data.favorites) ? data.favorites : [],
+        savedTeams: [],
+        theme: 'dark',
+        timestamp: '2024-01-01T00:00:00.000Z',
+      },
+    };
+  },
 }));
+
+const confirmRestore = () => {
+  fireEvent.click(screen.getByRole('button', { name: 'Restore Backup' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Confirm Restore' }));
+};
 
 describe('DataManagement DoS Prevention', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     setTeamMock.mockClear();
     setFavoritesMock.mockClear();
+    setSavedTeamsMock.mockClear();
+    setThemeMock.mockClear();
   });
 
   it('batches favorite updates to prevent storage thrashing', () => {
@@ -102,15 +125,13 @@ describe('DataManagement DoS Prevention', () => {
 
     const textarea = screen.getByPlaceholderText('Paste JSON here...');
     fireEvent.change(textarea, { target: { value: importData } });
+    confirmRestore();
 
-    const importButton = screen.getByRole('button', { name: 'Restore Backup' });
-    fireEvent.click(importButton);
+    // Should replace favorites in ONE store update, not 50.
+    expect(setFavoritesMock).toHaveBeenCalledTimes(1);
 
-    // Should call saveFavorites ONLY ONCE, not 50 times
-    expect(saveFavorites).toHaveBeenCalledTimes(1);
-
-    // Verify the set passed to saveFavorites contains all items
-    const calledSet = vi.mocked(saveFavorites).mock.calls[0][0];
+    // Verify the set passed to the store contains all items
+    const calledSet = setFavoritesMock.mock.calls[0][0];
     expect(calledSet.size).toBe(50);
   });
 
@@ -135,9 +156,7 @@ describe('DataManagement DoS Prevention', () => {
 
     const textarea = screen.getByPlaceholderText('Paste JSON here...');
     fireEvent.change(textarea, { target: { value: importData } });
-
-    const importButton = screen.getByRole('button', { name: 'Restore Backup' });
-    fireEvent.click(importButton);
+    confirmRestore();
 
     // The key DoS mitigation is calling setTeam once (not N individual add actions).
     expect(setTeamMock).toHaveBeenCalledTimes(1);
