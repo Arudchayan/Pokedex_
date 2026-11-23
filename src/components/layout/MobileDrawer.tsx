@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useId, useRef, useState } from 'react';
+import ReactDOM from 'react-dom';
 import { useShallow } from 'zustand/react/shallow';
 import { usePokemonUI } from '../../context/PokemonContext';
 import { usePokemonStore } from '../../store/usePokemonStore';
@@ -272,10 +273,15 @@ const MobileDrawer: React.FC<MobileDrawerProps> = ({ isOpen, onClose, onRandomPo
       ? 'h-px mx-3 my-1 bg-white/10'
       : 'h-px mx-3 my-1 bg-slate-200';
 
-  return (
+  const drawerContent = (
     <>
       {/* Backdrop */}
-      <div className={backdropClass} onClick={onClose} aria-hidden="true" />
+      <div
+        className={backdropClass}
+        onClick={onClose}
+        aria-hidden="true"
+        data-testid="mobile-drawer-backdrop"
+      />
 
       {/* Drawer panel */}
       <div
@@ -401,6 +407,12 @@ const MobileDrawer: React.FC<MobileDrawerProps> = ({ isOpen, onClose, onRandomPo
       </div>
     </>
   );
+
+  if (typeof document === 'undefined') return null;
+
+  // Portal out of the header: its backdrop-filter makes it a containing block
+  // for fixed descendants, which would clip the backdrop to the header height.
+  return ReactDOM.createPortal(drawerContent, document.body);
 };
 
 export default MobileDrawer;

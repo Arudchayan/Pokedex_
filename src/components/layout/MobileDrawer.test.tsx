@@ -52,4 +52,57 @@ describe('MobileDrawer mobile feature parity', () => {
     expect(openWalkthroughModalMock).toHaveBeenCalledTimes(1);
     expect(onClose).toHaveBeenCalledTimes(1);
   });
+
+  it('portals the drawer and backdrop out of the header', () => {
+    renderWithProvider(
+      <header data-testid="host-header">
+        <MobileDrawer isOpen onClose={onClose} onRandomPokemon={onRandomPokemon} />
+      </header>
+    );
+
+    const header = screen.getByTestId('host-header');
+    const drawer = screen.getByRole('dialog', { name: 'Navigation menu' });
+    const backdrop = screen.getByTestId('mobile-drawer-backdrop');
+
+    expect(header).not.toContainElement(drawer);
+    expect(header).not.toContainElement(backdrop);
+    expect(drawer.closest('header')).toBeNull();
+    expect(backdrop.closest('header')).toBeNull();
+    expect(drawer.parentElement).toBe(document.body);
+    expect(backdrop.parentElement).toBe(document.body);
+
+    expect(backdrop).toHaveClass('fixed', 'inset-0', 'z-[1100]');
+    expect(drawer).toHaveClass('fixed', 'z-[1110]');
+  });
+
+  it('closes when the portaled backdrop is clicked', () => {
+    renderDrawer();
+
+    fireEvent.click(screen.getByTestId('mobile-drawer-backdrop'));
+
+    expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not close when the drawer panel is clicked', () => {
+    renderDrawer();
+
+    fireEvent.click(screen.getByRole('dialog', { name: 'Navigation menu' }));
+
+    expect(onClose).not.toHaveBeenCalled();
+  });
+
+  it('keeps the closed drawer off-screen and hidden from assistive technology', () => {
+    renderWithProvider(
+      <MobileDrawer isOpen={false} onClose={onClose} onRandomPokemon={onRandomPokemon} />
+    );
+
+    const drawer = screen.getByLabelText('Navigation menu');
+
+    expect(drawer).toHaveAttribute('aria-hidden', 'true');
+    expect(drawer).toHaveClass('-translate-x-full');
+    expect(screen.getByTestId('mobile-drawer-backdrop')).toHaveClass(
+      'opacity-0',
+      'pointer-events-none'
+    );
+  });
 });
