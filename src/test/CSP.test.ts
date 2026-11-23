@@ -21,9 +21,11 @@ describe('Content Security Policy', () => {
     expect(content).toContain("base-uri 'self'");
 
     // Verify specific allowances
-    expect(content).toContain('https://beta.pokeapi.co'); // API
+    expect(content).toContain('https://graphql.pokeapi.co'); // API
     expect(content).toContain('https://raw.githubusercontent.com'); // Images/Assets
     expect(content).toContain('https://play.pokemonshowdown.com'); // Sprites
+    // The retired v1beta host must never come back into the CSP.
+    expect(content).not.toContain('beta.pokeapi.co');
     // We ship Tailwind via build-time tooling, not a runtime CDN.
     expect(content).not.toContain('https://cdn.tailwindcss.com');
   });
@@ -46,6 +48,8 @@ describe('Content Security Policy', () => {
     expect(cspContent).toContain("frame-ancestors 'none'");
     expect(cspContent).toContain("object-src 'none'");
     expect(cspContent).toContain("default-src 'self'");
+    expect(cspContent).toContain('https://graphql.pokeapi.co');
+    expect(cspContent).not.toContain('beta.pokeapi.co');
 
     // Verify Defense in Depth (X-Frame-Options)
     const xFrameOptions = headers.find((h: any) => h.key === 'X-Frame-Options');
