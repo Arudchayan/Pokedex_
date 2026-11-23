@@ -8,6 +8,9 @@ import { NATURES, TYPE_COLORS, BATTLE_ITEMS } from '../../constants';
 import TypeBadge from '../charts/TypeBadge';
 import { calculateDamage, BattleContext, BattleStat } from '../../utils/damageFormula';
 import Modal from '../base/Modal';
+import CalculatorActionButton from './CalculatorActionButton';
+import PokemonAutocomplete from '../shared/PokemonAutocomplete';
+import PokemonDatasetStatus from './PokemonDatasetStatus';
 
 interface DamageCalculatorProps {
   onClose: () => void;
@@ -56,7 +59,13 @@ const DamageCalculator: React.FC<DamageCalculatorProps> = ({
   initialAttackerId,
   initialDefenderId,
 }) => {
-  const { masterPokemonList, theme } = usePokemon();
+  const {
+    masterPokemonList,
+    theme,
+    loading: datasetLoading,
+    error: datasetError,
+    reload,
+  } = usePokemon();
   const queryClient = useQueryClient();
 
   const [attackerId, setAttackerId] = useState<number | null>(initialAttackerId || null);
@@ -68,14 +77,11 @@ const DamageCalculator: React.FC<DamageCalculatorProps> = ({
   const [loadingAttacker, setLoadingAttacker] = useState(false);
   const [loadingDefender, setLoadingDefender] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [hasCalculated, setHasCalculated] = useState(false);
 
   // UI Toggles
   const [showAttackerStats, setShowAttackerStats] = useState(false);
   const [showDefenderStats, setShowDefenderStats] = useState(false);
-
-  // Search state
-  const [attackerSearch, setAttackerSearch] = useState('');
-  const [defenderSearch, setDefenderSearch] = useState('');
 
   const fetchPokemonData = async (id: number, isAttacker: boolean) => {
     const setter = isAttacker ? setAttacker : setDefender;
@@ -122,22 +128,27 @@ const DamageCalculator: React.FC<DamageCalculatorProps> = ({
     if (defenderId) fetchPokemonData(defenderId, false);
   }, [defenderId]);
 
-  const filteredAttackerList = useMemo(() => {
-    if (!attackerSearch) return [];
-    return masterPokemonList
-      .filter((p) => p.name.toLowerCase().includes(attackerSearch.toLowerCase()))
-      .slice(0, 5);
-  }, [attackerSearch, masterPokemonList]);
-
-  const filteredDefenderList = useMemo(() => {
-    if (!defenderSearch) return [];
-    return masterPokemonList
-      .filter((p) => p.name.toLowerCase().includes(defenderSearch.toLowerCase()))
-      .slice(0, 5);
-  }, [defenderSearch, masterPokemonList]);
+  const attackerLevelError =
+    attacker && (!Number.isInteger(attacker.level) || attacker.level < 1 || attacker.level > 100)
+      ? 'Level must be between 1 and 100.'
+      : null;
+  const defenderLevelError =
+    defender && (!Number.isInteger(defender.level) || defender.level < 1 || defender.level > 100)
+      ? 'Level must be between 1 and 100.'
+      : null;
 
   const result = useMemo(() => {
     if (!attacker || !defender || !attacker.selectedMove) return null;
+    if (
+      !Number.isInteger(attacker.level) ||
+      attacker.level < 1 ||
+      attacker.level > 100 ||
+      !Number.isInteger(defender.level) ||
+      defender.level < 1 ||
+      defender.level > 100
+    ) {
+      return null;
+    }
 
     const ctx: BattleContext = {
       attacker: {
@@ -160,6 +171,27 @@ const DamageCalculator: React.FC<DamageCalculatorProps> = ({
 
     return calculateDamage(ctx);
   }, [attacker, defender]);
+
+  const canCalculate = Boolean(
+    attacker &&
+    defender &&
+    attacker.selectedMove &&
+    !attackerLevelError &&
+    !defenderLevelError &&
+    !loadingAttacker &&
+    !loadingDefender
+  );
+
+  const resetCalculator = () => {
+    setAttackerId(null);
+    setDefenderId(null);
+    setAttacker(null);
+    setDefender(null);
+    setLoadError(null);
+    setHasCalculated(false);
+    setShowAttackerStats(false);
+    setShowDefenderStats(false);
+  };
 
   // Helper for Stat Inputs
   const StatControl = ({
@@ -226,10 +258,16 @@ const DamageCalculator: React.FC<DamageCalculatorProps> = ({
   return (
     <Modal isOpen={true} onClose={onClose} title="Damage Calculator" size="xl">
       <div className="flex-1 overflow-y-auto p-6">
+        <PokemonDatasetStatus
+          loading={datasetLoading}
+          error={datasetError}
+          hasData={masterPokemonList.length > 0}
+          onRetry={() => void reload()}
+        />
         {loadError && (
           <div
             role="alert"
-            className="mb-4 rounded-lg border border-red-500/40 bg-red-500/10 px-4 py-3 text-sm text-red-300"
+            className="mb-4 rounded-lg border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-500/40 dark:bg-red-500/10 dark:text-red-300"
           >
             <div className="flex items-center justify-between gap-3">
               <span>{loadError}</span>
@@ -270,44 +308,33 @@ const DamageCalculator: React.FC<DamageCalculatorProps> = ({
             </h3>
 
             {!attacker ? (
-              <div className="relative z-20">
-                <input
-                  type="text"
-                  placeholder="Search Attacker..."
-                  className={`w-full p-3 rounded bg-transparent border focus:outline-none focus:border-primary-500 ${theme === 'dark' ? 'border-white/20' : 'border-slate-300'}`}
-                  value={attackerSearch}
-                  onChange={(e) => setAttackerSearch(e.target.value)}
-                />
-                {filteredAttackerList.length > 0 && (
-                  <div
-                    className={`absolute top-full left-0 w-full z-10 rounded-b shadow-xl max-h-60 overflow-y-auto ${theme === 'dark' ? 'bg-slate-800' : 'bg-white'}`}
-                  >
-                    {filteredAttackerList.map((p) => (
-                      <button
-                        type="button"
-                        key={p.id}
-                        className="w-full p-2 hover:bg-primary-500/20 cursor-pointer flex items-center gap-2 text-left"
-                        onClick={() => {
-                          setAttackerId(p.id);
-                          setAttackerSearch('');
-                        }}
-                      >
-                        <img src={p.imageUrl} alt="" className="w-8 h-8" />
-                        <span>{p.name}</span>
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
+              <PokemonAutocomplete
+                pokemonList={masterPokemonList}
+                theme={theme}
+                onSelect={(p) => {
+                  setAttacker(null);
+                  setLoadError(null);
+                  setAttackerId(p.id);
+                }}
+                label="Attacker"
+                placeholder="Search Attacker..."
+                hideLabel
+                containerClassName="relative z-20"
+                disabled={!masterPokemonList.length || loadingAttacker}
+              />
             ) : (
               <div className="space-y-4">
                 <div className="flex items-center gap-4">
-                  <img src={attacker.imageUrl} className="w-20 h-20" />
+                  <img src={attacker.imageUrl} className="w-20 h-20" alt="" />
                   <div className="flex-1">
                     <div className="flex items-center justify-between">
                       <h4 className="text-xl font-bold capitalize">{attacker.name}</h4>
                       <button
-                        onClick={() => setAttacker(null)}
+                        onClick={() => {
+                          setAttacker(null);
+                          setAttackerId(null);
+                          setHasCalculated(false);
+                        }}
                         className="text-xs text-red-400 hover:underline"
                       >
                         Change
@@ -323,15 +350,34 @@ const DamageCalculator: React.FC<DamageCalculatorProps> = ({
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="text-xs text-slate-400 uppercase font-bold">Level</label>
+                    <label
+                      htmlFor="attacker-level"
+                      className="text-xs text-slate-400 uppercase font-bold"
+                    >
+                      Level
+                    </label>
                     <input
+                      id="attacker-level"
                       type="number"
-                      value={attacker.level}
+                      min="1"
+                      max="100"
+                      value={Number.isNaN(attacker.level) ? '' : attacker.level}
+                      aria-invalid={Boolean(attackerLevelError)}
+                      aria-describedby={attackerLevelError ? 'attacker-level-error' : undefined}
                       onChange={(e) =>
-                        setAttacker({ ...attacker, level: parseInt(e.target.value) || 1 })
+                        setAttacker({ ...attacker, level: parseInt(e.target.value, 10) })
                       }
                       className={`w-full p-2 rounded border mt-1 ${theme === 'dark' ? 'bg-black/20 border-white/10' : 'bg-white border-slate-300'}`}
                     />
+                    {attackerLevelError && (
+                      <p
+                        id="attacker-level-error"
+                        role="alert"
+                        className="mt-1 text-xs text-red-700 dark:text-red-400"
+                      >
+                        {attackerLevelError}
+                      </p>
+                    )}
                   </div>
                   <div>
                     <label className="text-xs text-slate-400 uppercase font-bold">Nature</label>
@@ -423,14 +469,21 @@ const DamageCalculator: React.FC<DamageCalculatorProps> = ({
                 )}
 
                 <div>
-                  <label className="text-xs text-slate-400 uppercase font-bold">Select Move</label>
+                  <label
+                    htmlFor="damage-move"
+                    className="text-xs text-slate-400 uppercase font-bold"
+                  >
+                    Select Move
+                  </label>
                   <select
+                    id="damage-move"
                     className={`w-full p-2 rounded border mt-1 ${theme === 'dark' ? 'bg-black/20 border-white/10' : 'bg-white border-slate-300'}`}
                     onChange={(e) => {
                       const move = attacker.moves.find((m) => m.name === e.target.value) || null;
                       setAttacker({ ...attacker, selectedMove: move });
                     }}
                     value={attacker.selectedMove?.name || ''}
+                    aria-describedby={!attacker.selectedMove ? 'damage-move-hint' : undefined}
                   >
                     <option value="">-- Select a Move --</option>
                     {attacker.moves.map((m, i) => (
@@ -439,6 +492,14 @@ const DamageCalculator: React.FC<DamageCalculatorProps> = ({
                       </option>
                     ))}
                   </select>
+                  {!attacker.selectedMove && (
+                    <p
+                      id="damage-move-hint"
+                      className="mt-1 text-xs text-slate-600 dark:text-slate-400"
+                    >
+                      A damaging move is required before Calculate is enabled.
+                    </p>
+                  )}
                 </div>
 
                 {attacker.selectedMove && (
@@ -484,44 +545,33 @@ const DamageCalculator: React.FC<DamageCalculatorProps> = ({
             </h3>
 
             {!defender ? (
-              <div className="relative z-20">
-                <input
-                  type="text"
-                  placeholder="Search Defender..."
-                  className={`w-full p-3 rounded bg-transparent border focus:outline-none focus:border-red-500 ${theme === 'dark' ? 'border-white/20' : 'border-slate-300'}`}
-                  value={defenderSearch}
-                  onChange={(e) => setDefenderSearch(e.target.value)}
-                />
-                {filteredDefenderList.length > 0 && (
-                  <div
-                    className={`absolute top-full left-0 w-full z-10 rounded-b shadow-xl max-h-60 overflow-y-auto ${theme === 'dark' ? 'bg-slate-800' : 'bg-white'}`}
-                  >
-                    {filteredDefenderList.map((p) => (
-                      <button
-                        type="button"
-                        key={p.id}
-                        className="w-full p-2 hover:bg-red-900/20 cursor-pointer flex items-center gap-2 text-left"
-                        onClick={() => {
-                          setDefenderId(p.id);
-                          setDefenderSearch('');
-                        }}
-                      >
-                        <img src={p.imageUrl} alt="" className="w-8 h-8" />
-                        <span>{p.name}</span>
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
+              <PokemonAutocomplete
+                pokemonList={masterPokemonList}
+                theme={theme}
+                onSelect={(p) => {
+                  setDefender(null);
+                  setLoadError(null);
+                  setDefenderId(p.id);
+                }}
+                label="Defender"
+                placeholder="Search Defender..."
+                hideLabel
+                containerClassName="relative z-20"
+                disabled={!masterPokemonList.length || loadingDefender}
+              />
             ) : (
               <div className="space-y-4">
                 <div className="flex items-center gap-4">
-                  <img src={defender.imageUrl} className="w-20 h-20" />
+                  <img src={defender.imageUrl} className="w-20 h-20" alt="" />
                   <div className="flex-1">
                     <div className="flex items-center justify-between">
                       <h4 className="text-xl font-bold capitalize">{defender.name}</h4>
                       <button
-                        onClick={() => setDefender(null)}
+                        onClick={() => {
+                          setDefender(null);
+                          setDefenderId(null);
+                          setHasCalculated(false);
+                        }}
                         className="text-xs text-red-400 hover:underline"
                       >
                         Change
@@ -537,15 +587,34 @@ const DamageCalculator: React.FC<DamageCalculatorProps> = ({
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="text-xs text-slate-400 uppercase font-bold">Level</label>
+                    <label
+                      htmlFor="defender-level"
+                      className="text-xs text-slate-400 uppercase font-bold"
+                    >
+                      Level
+                    </label>
                     <input
+                      id="defender-level"
                       type="number"
-                      value={defender.level}
+                      min="1"
+                      max="100"
+                      value={Number.isNaN(defender.level) ? '' : defender.level}
+                      aria-invalid={Boolean(defenderLevelError)}
+                      aria-describedby={defenderLevelError ? 'defender-level-error' : undefined}
                       onChange={(e) =>
-                        setDefender({ ...defender, level: parseInt(e.target.value) || 1 })
+                        setDefender({ ...defender, level: parseInt(e.target.value, 10) })
                       }
                       className={`w-full p-2 rounded border mt-1 ${theme === 'dark' ? 'bg-black/20 border-white/10' : 'bg-white border-slate-300'}`}
                     />
+                    {defenderLevelError && (
+                      <p
+                        id="defender-level-error"
+                        role="alert"
+                        className="mt-1 text-xs text-red-700 dark:text-red-400"
+                      >
+                        {defenderLevelError}
+                      </p>
+                    )}
                   </div>
                   <div>
                     <label className="text-xs text-slate-400 uppercase font-bold">Nature</label>
@@ -631,68 +700,96 @@ const DamageCalculator: React.FC<DamageCalculatorProps> = ({
       <div
         className={`p-6 border-t flex-shrink-0 ${theme === 'dark' ? 'border-white/10 bg-slate-900' : 'border-slate-200 bg-white'} rounded-b-2xl`}
       >
-        {result ? (
-          <div className="text-center space-y-4">
-            <div className="flex flex-col items-center">
-              <div className="text-4xl font-black text-primary-400 mb-2">
-                {result.min} - {result.max}
+        <section aria-labelledby="damage-result-heading" aria-live="polite" aria-atomic="true">
+          <h3
+            id="damage-result-heading"
+            className="mb-2 text-center text-sm font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400"
+          >
+            Damage Result
+          </h3>
+          {hasCalculated && result ? (
+            <div className="text-center space-y-4">
+              <div className="flex flex-col items-center">
+                <div className="text-4xl font-black text-cyan-700 dark:text-cyan-300 mb-2">
+                  {result.min} - {result.max}
+                </div>
+                <p className="text-slate-600 dark:text-slate-400 text-sm uppercase font-bold tracking-wider">
+                  Damage Range ({result.rolls.length} rolls)
+                </p>
               </div>
-              <p className="text-slate-400 text-sm uppercase font-bold tracking-wider">
-                Damage Range ({result.rolls.length} rolls)
-              </p>
-            </div>
 
-            <div className="w-full bg-gray-700 h-8 rounded-full overflow-hidden relative max-w-lg mx-auto mt-4 ring-2 ring-white/10">
-              <div
-                className="h-full bg-gradient-to-r from-green-500 to-yellow-500 absolute left-0 top-0 transition-all duration-500"
-                style={{ width: `${Math.min(parseFloat(result.maxPercent.toString()), 100)}%` }}
-              ></div>
-              <div className="absolute inset-0 flex items-center justify-center text-xs font-bold text-white drop-shadow-md z-10">
-                {result.minPercent}% - {result.maxPercent}% HP
+              <div className="w-full bg-gray-700 h-8 rounded-full overflow-hidden relative max-w-lg mx-auto mt-4 ring-2 ring-white/10">
+                <div
+                  className="h-full bg-gradient-to-r from-green-500 to-yellow-500 absolute left-0 top-0 transition-all duration-500"
+                  style={{ width: `${Math.min(parseFloat(result.maxPercent.toString()), 100)}%` }}
+                ></div>
+                <div className="absolute inset-0 flex items-center justify-center text-xs font-bold text-white drop-shadow-md z-10">
+                  {result.minPercent}% - {result.maxPercent}% HP
+                </div>
+              </div>
+
+              <div className="flex justify-center gap-2 mt-4 flex-wrap">
+                {result.modifiers.stab && (
+                  <span
+                    className={`px-3 py-1 rounded-full text-xs font-bold border ${theme === 'dark' ? 'bg-blue-500/20 text-blue-300 border-blue-500/30' : 'bg-blue-100 text-blue-700 border-blue-200'}`}
+                  >
+                    STAB
+                  </span>
+                )}
+                {result.modifiers.typeEffectiveness > 1 && (
+                  <span
+                    className={`px-3 py-1 rounded-full text-xs font-bold border ${theme === 'dark' ? 'bg-red-500/20 text-red-300 border-red-500/30' : 'bg-red-100 text-red-700 border-red-200'}`}
+                  >
+                    Super Effective (x{result.modifiers.typeEffectiveness})
+                  </span>
+                )}
+                {result.modifiers.typeEffectiveness < 1 &&
+                  result.modifiers.typeEffectiveness > 0 && (
+                    <span
+                      className={`px-3 py-1 rounded-full text-xs font-bold border ${theme === 'dark' ? 'bg-orange-500/20 text-orange-300 border-orange-500/30' : 'bg-orange-100 text-orange-700 border-orange-200'}`}
+                    >
+                      Not Effective (x{result.modifiers.typeEffectiveness})
+                    </span>
+                  )}
+                {result.modifiers.typeEffectiveness === 0 && (
+                  <span className="bg-gray-500/20 text-gray-300 px-3 py-1 rounded-full text-xs font-bold border border-gray-500/30">
+                    Immune (x0)
+                  </span>
+                )}
+                {result.modifiers.item > 1 && (
+                  <span
+                    className={`px-3 py-1 rounded-full text-xs font-bold border ${theme === 'dark' ? 'bg-purple-500/20 text-purple-300 border-purple-500/30' : 'bg-purple-100 text-purple-700 border-purple-200'}`}
+                  >
+                    Item Boost (x{result.modifiers.item})
+                  </span>
+                )}
               </div>
             </div>
-
-            <div className="flex justify-center gap-2 mt-4 flex-wrap">
-              {result.modifiers.stab && (
-                <span
-                  className={`px-3 py-1 rounded-full text-xs font-bold border ${theme === 'dark' ? 'bg-blue-500/20 text-blue-300 border-blue-500/30' : 'bg-blue-100 text-blue-700 border-blue-200'}`}
-                >
-                  STAB
-                </span>
-              )}
-              {result.modifiers.typeEffectiveness > 1 && (
-                <span
-                  className={`px-3 py-1 rounded-full text-xs font-bold border ${theme === 'dark' ? 'bg-red-500/20 text-red-300 border-red-500/30' : 'bg-red-100 text-red-700 border-red-200'}`}
-                >
-                  Super Effective (x{result.modifiers.typeEffectiveness})
-                </span>
-              )}
-              {result.modifiers.typeEffectiveness < 1 && result.modifiers.typeEffectiveness > 0 && (
-                <span
-                  className={`px-3 py-1 rounded-full text-xs font-bold border ${theme === 'dark' ? 'bg-orange-500/20 text-orange-300 border-orange-500/30' : 'bg-orange-100 text-orange-700 border-orange-200'}`}
-                >
-                  Not Effective (x{result.modifiers.typeEffectiveness})
-                </span>
-              )}
-              {result.modifiers.typeEffectiveness === 0 && (
-                <span className="bg-gray-500/20 text-gray-300 px-3 py-1 rounded-full text-xs font-bold border border-gray-500/30">
-                  Immune (x0)
-                </span>
-              )}
-              {result.modifiers.item > 1 && (
-                <span
-                  className={`px-3 py-1 rounded-full text-xs font-bold border ${theme === 'dark' ? 'bg-purple-500/20 text-purple-300 border-purple-500/30' : 'bg-purple-100 text-purple-700 border-purple-200'}`}
-                >
-                  Item Boost (x{result.modifiers.item})
-                </span>
+          ) : (
+            <div className="text-center text-slate-600 py-2 dark:text-slate-400">
+              {attackerLevelError || defenderLevelError ? (
+                <p>Fix the highlighted level value to calculate damage.</p>
+              ) : !attacker ? (
+                <p>Select an attacker to calculate damage.</p>
+              ) : !defender ? (
+                <p>Select a defender to calculate damage.</p>
+              ) : !attacker.selectedMove ? (
+                <p>Select a move for {attacker.name} to calculate damage.</p>
+              ) : (
+                <p>Choose Calculate Damage to show the damage range.</p>
               )}
             </div>
-          </div>
-        ) : (
-          <div className="text-center text-slate-500 py-4">
-            <p>Select both Pokemon and a Move to calculate damage.</p>
-          </div>
-        )}
+          )}
+        </section>
+
+        <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
+          <CalculatorActionButton onClick={() => setHasCalculated(true)} disabled={!canCalculate}>
+            {hasCalculated ? 'Recalculate Damage' : 'Calculate Damage'}
+          </CalculatorActionButton>
+          <CalculatorActionButton variant="secondary" onClick={resetCalculator}>
+            Reset
+          </CalculatorActionButton>
+        </div>
       </div>
     </Modal>
   );
