@@ -4,6 +4,7 @@ import TypeBadge from '../charts/TypeBadge';
 import SpeedTierAnalysis from '../calculators/SpeedTierAnalysis';
 import { SortableTeamMemberSlot } from './SortableTeamMemberSlot';
 import TeamBuilderActions from './TeamBuilderActions';
+import TeamPokemonPicker from './TeamPokemonPicker';
 import Loader from '../shared/Loader';
 import { useTeamAnalytics } from '../../hooks/useTeamAnalytics';
 import { playUISound } from '../../services/soundService';
@@ -46,7 +47,11 @@ interface TeamBuilderProps {
   onRandomize: () => void;
   hasFilteredPokemon: boolean;
   isCyberpunk?: boolean;
-  onAddPokemon?: () => void;
+  /** Master Pokédex list used by the empty-slot picker. */
+  availablePokemon?: PokemonListItem[];
+  availablePokemonLoading?: boolean;
+  availablePokemonError?: string | null;
+  onRetryAvailablePokemon?: () => void;
   onAddToTeam?: (pokemon: PokemonListItem) => void;
   undo: () => void;
   redo: () => void;
@@ -69,7 +74,10 @@ const TeamBuilder: React.FC<TeamBuilderProps> = ({
   onRandomize,
   hasFilteredPokemon,
   isCyberpunk = false,
-  onAddPokemon,
+  availablePokemon = [],
+  availablePokemonLoading = false,
+  availablePokemonError = null,
+  onRetryAvailablePokemon,
   onAddToTeam,
   undo,
   redo,
@@ -85,7 +93,10 @@ const TeamBuilder: React.FC<TeamBuilderProps> = ({
   const [copyStatus, setCopyStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const [shareLinkStatus, setShareLinkStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const [reorderMessage, setReorderMessage] = useState<string | null>(null);
+  const [pickerSlot, setPickerSlot] = useState<number | null>(null);
   const reorderTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const pickerTriggerRef = useRef<HTMLElement | null>(null);
+  const panelRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
     return () => {
@@ -97,6 +108,27 @@ const TeamBuilder: React.FC<TeamBuilderProps> = ({
     () => Array.from({ length: Math.max(teamCapacity - team.length, 0) }),
     [teamCapacity, team.length]
   );
+  const teamIds = useMemo(() => new Set(team.map((member) => member.id)), [team]);
+
+  const openPicker = (slotNumber: number, trigger: HTMLElement) => {
+    pickerTriggerRef.current = trigger;
+    setPickerSlot(slotNumber);
+  };
+
+  // Return focus to the slot that opened the picker once it closes. If the
+  // slot no longer exists (adding the last Pokémon filled the team), fall back
+  // to the panel itself.
+  useEffect(() => {
+    if (pickerSlot !== null) return;
+    const trigger = pickerTriggerRef.current;
+    if (!trigger) return;
+    pickerTriggerRef.current = null;
+    if (trigger.isConnected) {
+      trigger.focus();
+    } else {
+      panelRef.current?.focus();
+    }
+  }, [pickerSlot]);
 
   // Use custom hook for team analytics
   const analyzableTeam = useMemo(() => team.filter((member) => !member.detailsUnavailable), [team]);
@@ -174,7 +206,9 @@ const TeamBuilder: React.FC<TeamBuilderProps> = ({
 
   return (
     <aside
-      className={`rounded-2xl border p-4 shadow-xl backdrop-blur-lg lg:sticky lg:top-24 ${
+      ref={panelRef}
+      tabIndex={-1}
+      className={`rounded-2xl border p-4 shadow-xl backdrop-blur-lg outline-none lg:sticky lg:top-24 ${
         isCyberpunk
           ? 'cyber-panel cyber-corners'
           : theme === 'dark'
@@ -321,46 +355,52 @@ const TeamBuilder: React.FC<TeamBuilderProps> = ({
 
         {slots.length > 0 && (
           <div className="space-y-2">
-            {slots.map((_, index) => (
-              <div
-                key={`placeholder-${index}`}
-                className={`flex h-16 items-center justify-center gap-2 rounded-xl border border-dashed text-xs font-semibold uppercase tracking-wide transition-all cursor-pointer outline-none ${
-                  theme === 'dark'
-                    ? 'border-white/15 bg-white/5 text-slate-500 hover:border-white/30 hover:bg-white/10 hover:shadow-lg hover:shadow-primary-500/10 focus:ring-2 focus:ring-primary-500/50'
-                    : 'border-slate-300 bg-slate-50 text-slate-400 hover:border-primary-400 hover:bg-primary-300/10 hover:shadow-lg hover:shadow-primary-500/10 focus:ring-2 focus:ring-primary-500/50'
-                }`}
-                role="button"
-                tabIndex={0}
-                onClick={() => {
-                  playUISound('click');
-                  onAddPokemon?.();
-                }}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault();
-                    playUISound('click');
-                    onAddPokemon?.();
-                  }
-                }}
-                aria-label={`Empty slot ${team.length + index + 1} of ${teamCapacity}. Click to search for Pokemon.`}
-                title="Add a Pokemon to fill this slot"
-              >
-                <svg
-                  className="h-4 w-4 opacity-50"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
+            {slots.map((_, index) => {
+              const slotNumber = team.length + index + 1;
+              const openSlotPicker = (trigger: HTMLElement) => {
+                playUISound('click');
+                openPicker(slotNumber, trigger);
+              };
+
+              return (
+                <div
+                  key={`placeholder-${index}`}
+                  className={`flex h-16 items-center justify-center gap-2 rounded-xl border border-dashed text-xs font-semibold uppercase tracking-wide transition-all cursor-pointer outline-none ${
+                    theme === 'dark'
+                      ? 'border-white/15 bg-white/5 text-slate-500 hover:border-white/30 hover:bg-white/10 hover:shadow-lg hover:shadow-primary-500/10 focus:ring-2 focus:ring-primary-500/50'
+                      : 'border-slate-300 bg-slate-50 text-slate-400 hover:border-primary-400 hover:bg-primary-300/10 hover:shadow-lg hover:shadow-primary-500/10 focus:ring-2 focus:ring-primary-500/50'
+                  }`}
+                  role="button"
+                  tabIndex={0}
+                  aria-haspopup="dialog"
+                  aria-expanded={pickerSlot === slotNumber}
+                  onClick={(event) => openSlotPicker(event.currentTarget)}
+                  onKeyDown={(event) => {
+                    if (event.key === 'Enter' || event.key === ' ') {
+                      event.preventDefault();
+                      openSlotPicker(event.currentTarget);
+                    }
+                  }}
+                  aria-label={`Add a Pokémon to slot ${slotNumber} of ${teamCapacity}`}
+                  title="Add a Pokemon to fill this slot"
                 >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 4v16m8-8H4"
-                  />
-                </svg>
-                <span>Slot {team.length + index + 1}</span>
-              </div>
-            ))}
+                  <svg
+                    className="h-4 w-4 opacity-50"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M12 4v16m8-8H4"
+                    />
+                  </svg>
+                  <span>Slot {slotNumber}</span>
+                </div>
+              );
+            })}
           </div>
         )}
 
@@ -606,6 +646,25 @@ const TeamBuilder: React.FC<TeamBuilderProps> = ({
           </>
         )}
       </div>
+
+      {pickerSlot !== null && (
+        <TeamPokemonPicker
+          slotNumber={pickerSlot}
+          teamCapacity={teamCapacity}
+          teamIds={teamIds}
+          pokemonList={availablePokemon}
+          loading={availablePokemonLoading}
+          error={availablePokemonError}
+          onRetry={onRetryAvailablePokemon}
+          onSelect={(pokemon) => {
+            onAddToTeam?.(pokemon);
+            setPickerSlot(null);
+          }}
+          onCancel={() => setPickerSlot(null)}
+          theme={theme}
+          isCyberpunk={isCyberpunk}
+        />
+      )}
     </aside>
   );
 };
