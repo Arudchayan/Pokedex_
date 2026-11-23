@@ -31,6 +31,24 @@ export const ANIMATION_DURATIONS = {
   LONG: 500,
 } as const;
 
+export const DEFAULT_POKEDEX = 'national' as const;
+
+export const POKEDEX_OPTIONS = [
+  { value: DEFAULT_POKEDEX, label: 'National Dex' },
+  { value: 'kanto', label: 'Kanto' },
+  { value: 'original-johto', label: 'Johto' },
+  { value: 'hoenn', label: 'Hoenn' },
+  { value: 'original-sinnoh', label: 'Sinnoh' },
+  { value: 'original-unova', label: 'Unova' },
+  { value: 'kalos-central', label: 'Kalos' },
+  { value: 'original-alola', label: 'Alola' },
+  { value: 'galar', label: 'Galar' },
+  { value: 'hisui', label: 'Hisui' },
+  { value: 'paldea', label: 'Paldea' },
+] as const;
+
+export type PokedexId = (typeof POKEDEX_OPTIONS)[number]['value'];
+
 export const GENERATIONS: { [key: string]: { range: [number, number] } } = {
   'Generation I': { range: [1, 151] },
   'Generation II': { range: [152, 251] },
