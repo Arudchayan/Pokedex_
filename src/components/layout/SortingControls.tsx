@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import React, { memo, useId } from 'react';
 import { DEFAULT_POKEDEX, POKEDEX_OPTIONS } from '../../constants';
 import type { SortOption } from '../../types/sorting';
 
@@ -42,6 +42,11 @@ const SortingControls: React.FC<SortingControlsProps> = ({
 
   const isStatSelected = statOptions.some((opt) => opt.value === sortBy);
 
+  // Multiple instances can be mounted at once, so label/control ids are namespaced.
+  const idPrefix = `sorting-${useId().replace(/[^a-zA-Z0-9_-]/g, '')}`;
+  const sortLabelId = `${idPrefix}-sort-label`;
+  const dexSelectId = `${idPrefix}-dex-select`;
+
   const currentDexValue = sortBy === 'regional-dex' ? selectedPokedex : DEFAULT_POKEDEX;
 
   return (
@@ -49,10 +54,10 @@ const SortingControls: React.FC<SortingControlsProps> = ({
       <div
         className="flex items-center gap-2 w-full sm:w-auto overflow-x-auto scrollbar-hide"
         role="group"
-        aria-labelledby="sort-label"
+        aria-labelledby={sortLabelId}
       >
         <label
-          id="sort-label"
+          id={sortLabelId}
           className={`text-xs sm:text-sm font-semibold whitespace-nowrap flex-shrink-0 ${theme === 'dark' ? 'text-slate-300' : 'text-slate-600'}`}
         >
           Sort by:
@@ -122,13 +127,15 @@ const SortingControls: React.FC<SortingControlsProps> = ({
       </div>
 
       <div className="flex items-center gap-3">
-        <div className="flex items-center gap-2" aria-label="Dex order">
-          <span
+        <div className="flex items-center gap-2">
+          <label
+            htmlFor={dexSelectId}
             className={`text-sm font-semibold ${theme === 'dark' ? 'text-slate-300' : 'text-slate-600'}`}
           >
             Dex:
-          </span>
+          </label>
           <select
+            id={dexSelectId}
             value={currentDexValue}
             onChange={(e) => {
               const value = e.target.value;

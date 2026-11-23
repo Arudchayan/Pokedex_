@@ -1,11 +1,24 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { getSavedTeam, getSavedTeamList, SavedTeam } from './teamStorage';
+import { getSavedTeam, getSavedTeamList, validateTeamMember, type SavedTeam } from './teamStorage';
 import { TeamMember } from '../types';
 
 describe('teamStorage', () => {
   beforeEach(() => {
     localStorage.clear();
     vi.clearAllMocks();
+  });
+
+  describe('validateTeamMember', () => {
+    it.each([0, -1, 1.5, Number.MAX_SAFE_INTEGER + 1, Number.POSITIVE_INFINITY, Number.NaN])(
+      'rejects unsafe id %s',
+      (id) => {
+        expect(validateTeamMember({ id, name: 'Pikachu' })).toBeNull();
+      }
+    );
+
+    it('accepts a positive safe integer id', () => {
+      expect(validateTeamMember({ id: 25, name: 'Pikachu' })?.id).toBe(25);
+    });
   });
 
   describe('getSavedTeam', () => {
