@@ -53,7 +53,7 @@ describe('MobileDrawer mobile feature parity', () => {
     expect(onClose).toHaveBeenCalledTimes(1);
   });
 
-  it('portals the drawer and backdrop out of the header', () => {
+  it('portals the drawer and backdrop out of the header through one root', () => {
     renderWithProvider(
       <header data-testid="host-header">
         <MobileDrawer isOpen onClose={onClose} onRandomPokemon={onRandomPokemon} />
@@ -61,18 +61,25 @@ describe('MobileDrawer mobile feature parity', () => {
     );
 
     const header = screen.getByTestId('host-header');
+    const root = screen.getByTestId('mobile-drawer-root');
     const drawer = screen.getByRole('dialog', { name: 'Navigation menu' });
     const backdrop = screen.getByTestId('mobile-drawer-backdrop');
 
+    expect(header).not.toContainElement(root);
     expect(header).not.toContainElement(drawer);
     expect(header).not.toContainElement(backdrop);
     expect(drawer.closest('header')).toBeNull();
     expect(backdrop.closest('header')).toBeNull();
-    expect(drawer.parentElement).toBe(document.body);
-    expect(backdrop.parentElement).toBe(document.body);
 
-    expect(backdrop).toHaveClass('fixed', 'inset-0', 'z-[1100]');
-    expect(drawer).toHaveClass('fixed', 'z-[1110]');
+    expect(root.parentElement).toBe(document.body);
+    expect(root).not.toHaveAttribute('class');
+    expect(root).toContainElement(backdrop);
+    expect(root).toContainElement(drawer);
+    expect(backdrop.parentElement).toBe(root);
+    expect(drawer.parentElement).toBe(root);
+
+    expect(backdrop).toHaveClass('fixed', 'inset-0', 'z-drawer-backdrop');
+    expect(drawer).toHaveClass('fixed', 'z-drawer');
   });
 
   it('closes when the portaled backdrop is clicked', () => {
