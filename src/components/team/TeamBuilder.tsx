@@ -8,7 +8,6 @@ import Loader from '../shared/Loader';
 import { useTeamAnalytics } from '../../hooks/useTeamAnalytics';
 import { playUISound } from '../../services/soundService';
 import { validatePokemonListItem } from '../../services/pokeapiService';
-import { useAchievements } from '../../context/AchievementContext';
 import { MAX_INPUT_LENGTH } from '../../utils/securityUtils';
 import {
   DndContext,
@@ -88,17 +87,6 @@ const TeamBuilder: React.FC<TeamBuilderProps> = ({
   const [reorderMessage, setReorderMessage] = useState<string | null>(null);
   const reorderTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const { unlockAchievement } = useAchievements();
-
-  useEffect(() => {
-    if (team.length >= 1) {
-      unlockAchievement('novice_trainer');
-    }
-    if (team.length >= teamCapacity) {
-      unlockAchievement('full_squad');
-    }
-  }, [team.length, teamCapacity, unlockAchievement]);
-
   useEffect(() => {
     return () => {
       if (reorderTimeoutRef.current) clearTimeout(reorderTimeoutRef.current);
@@ -111,6 +99,7 @@ const TeamBuilder: React.FC<TeamBuilderProps> = ({
   );
 
   // Use custom hook for team analytics
+  const analyzableTeam = useMemo(() => team.filter((member) => !member.detailsUnavailable), [team]);
   const {
     typeCounts,
     teamWeaknesses,
@@ -118,10 +107,14 @@ const TeamBuilder: React.FC<TeamBuilderProps> = ({
     offensiveCoverage,
     majorThreats,
     teamStats,
-  } = useTeamAnalytics(team);
+  } = useTeamAnalytics(analyzableTeam);
 
   const uniqueTypes = Object.keys(typeCounts);
   const isTeamFull = team.length >= teamCapacity;
+  const unavailableCount = useMemo(
+    () => team.filter((member) => member.detailsUnavailable).length,
+    [team]
+  );
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
@@ -260,6 +253,19 @@ const TeamBuilder: React.FC<TeamBuilderProps> = ({
         />
       </header>
 
+      {unavailableCount > 0 && (
+        <p
+          data-testid="team-details-unavailable"
+          className={`mt-3 rounded-lg border px-3 py-2 text-xs ${
+            theme === 'dark'
+              ? 'border-amber-400/20 bg-amber-400/5 text-amber-200'
+              : 'border-amber-300 bg-amber-50 text-amber-800'
+          }`}
+        >
+          Some team details couldn&apos;t be loaded. Your saved team is still intact.
+        </p>
+      )}
+
       {/* Screen Reader Announcements */}
       <div aria-live="polite" className="sr-only">
         {reorderMessage}
@@ -359,7 +365,7 @@ const TeamBuilder: React.FC<TeamBuilderProps> = ({
         )}
 
         <Suspense fallback={null}>
-          <TeamCoveragePanel team={team} theme={theme} />
+          {analyzableTeam.length > 0 && <TeamCoveragePanel team={analyzableTeam} theme={theme} />}
         </Suspense>
       </div>
 
@@ -374,7 +380,7 @@ const TeamBuilder: React.FC<TeamBuilderProps> = ({
           >
             Team Analytics
           </p>
-          {team.length > 0 && (
+          {analyzableTeam.length > 0 && (
             <button
               onClick={() => setShowAnalytics(!showAnalytics)}
               className={`text-xs transition-colors ${theme === 'dark' ? 'text-primary-400 hover:text-primary-300' : 'text-primary-600 hover:text-primary-500'}`}
@@ -409,8 +415,24 @@ const TeamBuilder: React.FC<TeamBuilderProps> = ({
               Browse the Pokedex and add Pokemon to your team
             </p>
           </div>
+        ) : analyzableTeam.length === 0 ? (
+          <div className="flex flex-col items-center py-6 text-center">
+            <p
+              className={`text-sm font-semibold ${theme === 'dark' ? 'text-slate-300' : 'text-slate-600'}`}
+            >
+              Analytics unavailable
+            </p>
+            <p className={`mt-1 text-xs ${theme === 'dark' ? 'text-slate-500' : 'text-slate-400'}`}>
+              Team details haven&apos;t loaded yet. Counts and slots still reflect your saved team.
+            </p>
+          </div>
         ) : (
           <>
+            {unavailableCount > 0 && (
+              <p className={`text-xs ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>
+                Based on {analyzableTeam.length} of {team.length} Pokémon with available details.
+              </p>
+            )}
             <div>
               <p
                 className={`text-xs font-semibold mb-2 ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}
@@ -445,16 +467,16 @@ const TeamBuilder: React.FC<TeamBuilderProps> = ({
                 }
               >
                 {/* Coverage Grid */}
-                <CoverageGrid team={team} theme={theme} />
+                <CoverageGrid team={analyzableTeam} theme={theme} />
 
                 {/* Team Checklist */}
-                <TeamChecklist team={team} theme={theme} />
+                <TeamChecklist team={analyzableTeam} theme={theme} />
 
                 {/* Entry Hazard Analysis */}
-                <EntryHazardAnalysis team={team} theme={theme} />
+                <EntryHazardAnalysis team={analyzableTeam} theme={theme} />
 
                 {/* Speed Tier Analysis */}
-                <SpeedTierAnalysis team={team} theme={theme} />
+                <SpeedTierAnalysis team={analyzableTeam} theme={theme} />
 
                 {/* Team Stats Radar Chart */}
                 {teamStats && (

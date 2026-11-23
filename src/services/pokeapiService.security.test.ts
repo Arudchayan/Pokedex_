@@ -44,7 +44,7 @@ describe('pokeapiService security', () => {
   });
 
   it('fetchAllItems: handles malformed JSON in localStorage safely', async () => {
-    await set('pokedex_items', '{invalid-json');
+    await set('pokedex_items_v2', '{invalid-json');
 
     const items = await fetchAllItems();
     expect(Array.isArray(items)).toBe(true);
