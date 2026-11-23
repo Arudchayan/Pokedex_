@@ -49,7 +49,7 @@ const validateStatsObject = (data: any, maxVal: number): Record<string, number> 
 export const validateTeamMember = (data: any): TeamMember | null => {
   if (!data || typeof data !== 'object') return null;
   // Essential fields
-  if (typeof data.id !== 'number') return null;
+  if (!Number.isSafeInteger(data.id) || data.id <= 0) return null;
   if (typeof data.name !== 'string') return null;
 
   // Sanitize strings

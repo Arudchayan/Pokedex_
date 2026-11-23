@@ -70,7 +70,8 @@ const isSavedTeam = (value: unknown): value is SavedTeam => {
     typeof record.name === 'string' &&
     typeof record.updatedAt === 'number' &&
     Number.isFinite(record.updatedAt) &&
-    Array.isArray(record.team)
+    Array.isArray(record.team) &&
+    record.team.every(isPokemonListItem)
   );
 };
 

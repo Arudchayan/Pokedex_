@@ -112,5 +112,28 @@ describe('persistenceSchema', () => {
       };
       expect(isPersistenceData(unsafeSavedTeam)).toBe(false);
     });
+
+    it.each([
+      ['zero', 0],
+      ['negative', -1],
+      ['fractional', 1.5],
+      ['unsafe', Number.MAX_SAFE_INTEGER + 1],
+      ['infinite', Number.POSITIVE_INFINITY],
+    ])('rejects saved-team member IDs: %s', (_label, id) => {
+      const backup = {
+        ...validBackup(),
+        savedTeams: [
+          {
+            id: 'team-1',
+            name: 'Team One',
+            team: [{ ...sampleTeam[0], id }],
+            updatedAt: 1,
+          },
+        ],
+      };
+
+      expect(isPersistenceData(backup)).toBe(false);
+      expect(parsePersistenceBackup(JSON.stringify(backup)).ok).toBe(false);
+    });
   });
 });
