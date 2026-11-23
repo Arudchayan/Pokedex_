@@ -134,7 +134,7 @@ const defaultItems: Item[] = [
   },
 ];
 
-const fetchAllPokemonsMock = vi.fn().mockResolvedValue(defaultPokemonList);
+export const fetchAllPokemonsMock = vi.fn().mockResolvedValue(defaultPokemonList);
 const fetchPokemonDetailsMock = vi.fn().mockResolvedValue(defaultPokemonDetails);
 const fetchPokemonMovesMock = vi.fn().mockResolvedValue(defaultPokemonDetails.moves);
 const fetchAllMovesMock = vi.fn().mockResolvedValue(defaultMoves);

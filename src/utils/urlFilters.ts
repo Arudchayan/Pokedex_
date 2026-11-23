@@ -1,9 +1,12 @@
-import { isPokedexId, type PokedexId } from '../config/pokedex';
+import { POKEDEX_OPTIONS, type PokedexId } from '../constants';
 
 export interface UrlFilters {
   search?: string;
   dex?: PokedexId;
 }
+
+const isPokedexId = (value: string): value is PokedexId =>
+  POKEDEX_OPTIONS.some((option) => option.value === value);
 
 /** Keep a URL-provided search term within the same order of magnitude as the UI input. */
 const MAX_URL_SEARCH_LENGTH = 200;

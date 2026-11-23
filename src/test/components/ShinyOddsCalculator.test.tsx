@@ -1,5 +1,6 @@
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, within, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi } from 'vitest';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import ShinyOddsCalculator from '../../components/calculators/ShinyOddsCalculator';
@@ -47,6 +48,14 @@ describe('ShinyOddsCalculator', () => {
 
     // Gen 2 Breeding -> 1/64
     expect(screen.getByText('1 in 64')).toBeInTheDocument();
+
+    // Generation changes reset the method, keeping exactly one selected.
+    const methodGroup = screen.getByRole('group', { name: /hunting method/i });
+    const selected = within(methodGroup)
+      .getAllByRole('button')
+      .filter((button) => button.getAttribute('aria-pressed') === 'true');
+    expect(selected).toHaveLength(1);
+    expect(selected[0]).toHaveAccessibleName('Breeding (Shiny Parent)');
   });
 
   it('updates odds when method changes', () => {
@@ -59,6 +68,85 @@ describe('ShinyOddsCalculator', () => {
 
     // Gen 9 Masuda -> 1/683
     expect(screen.getByText('1 in 683')).toBeInTheDocument();
+  });
+
+  it('exposes exactly one selected hunting method within a named group', () => {
+    const handleClose = vi.fn();
+    renderWithProvider(<ShinyOddsCalculator onClose={handleClose} />);
+
+    const methodGroup = screen.getByRole('group', { name: /hunting method/i });
+    const methodButtons = [
+      'Random Encounters',
+      'Masuda Method',
+      'Mass Outbreak (60+ KOs)',
+      'Sparkling Power Lv. 3',
+    ].map((name) => within(methodGroup).getByRole('button', { name }));
+
+    methodButtons.forEach((button) => {
+      expect(button).toHaveAttribute('aria-pressed');
+    });
+
+    const selected = methodButtons.filter(
+      (button) => button.getAttribute('aria-pressed') === 'true'
+    );
+    expect(selected).toHaveLength(1);
+    expect(selected[0]).toHaveAccessibleName('Random Encounters');
+  });
+
+  it('moves the selected state and updates odds when another method is clicked', () => {
+    const handleClose = vi.fn();
+    renderWithProvider(<ShinyOddsCalculator onClose={handleClose} />);
+
+    const methodGroup = screen.getByRole('group', { name: /hunting method/i });
+    fireEvent.click(within(methodGroup).getByRole('button', { name: 'Mass Outbreak (60+ KOs)' }));
+
+    expect(
+      within(methodGroup).getByRole('button', { name: 'Mass Outbreak (60+ KOs)' })
+    ).toHaveAttribute('aria-pressed', 'true');
+    expect(within(methodGroup).getByRole('button', { name: 'Random Encounters' })).toHaveAttribute(
+      'aria-pressed',
+      'false'
+    );
+    expect(
+      within(methodGroup)
+        .getAllByRole('button')
+        .filter((button) => button.getAttribute('aria-pressed') === 'true')
+    ).toHaveLength(1);
+    expect(screen.getByText('1 in 1365')).toBeInTheDocument();
+  });
+
+  it('supports keyboard activation of hunting methods', async () => {
+    const handleClose = vi.fn();
+    const user = userEvent.setup();
+    renderWithProvider(<ShinyOddsCalculator onClose={handleClose} />);
+
+    // Wait for the modal's own initial focus before navigating with the keyboard.
+    await waitFor(() => expect(screen.getByLabelText('Close')).toHaveFocus());
+
+    const masudaButton = screen.getByRole('button', { name: 'Masuda Method' });
+    for (let i = 0; i < 10 && document.activeElement !== masudaButton; i += 1) {
+      await user.tab();
+    }
+    expect(masudaButton).toHaveFocus();
+
+    await user.keyboard('{Enter}');
+
+    expect(masudaButton).toHaveAttribute('aria-pressed', 'true');
+    expect(screen.getByRole('button', { name: 'Random Encounters' })).toHaveAttribute(
+      'aria-pressed',
+      'false'
+    );
+    expect(screen.getByText('1 in 683')).toBeInTheDocument();
+
+    // Activate the next method with Space.
+    const outbreakButton = screen.getByRole('button', { name: 'Mass Outbreak (60+ KOs)' });
+    await user.tab();
+    expect(outbreakButton).toHaveFocus();
+    await user.keyboard(' ');
+
+    expect(outbreakButton).toHaveAttribute('aria-pressed', 'true');
+    expect(masudaButton).toHaveAttribute('aria-pressed', 'false');
+    expect(screen.getByText('1 in 1365')).toBeInTheDocument();
   });
 
   it('updates odds when Shiny Charm is toggled', () => {

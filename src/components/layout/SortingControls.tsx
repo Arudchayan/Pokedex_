@@ -1,6 +1,6 @@
 import React, { memo } from 'react';
+import { DEFAULT_POKEDEX, POKEDEX_OPTIONS } from '../../constants';
 import type { SortOption } from '../../types/sorting';
-import { POKEDEX_OPTIONS } from '../../config/pokedex';
 
 export type { SortOption } from '../../types/sorting';
 
@@ -20,7 +20,7 @@ const SortingControls: React.FC<SortingControlsProps> = ({
   onSortChange,
   onOrderChange,
   theme,
-  selectedPokedex = 'national',
+  selectedPokedex = DEFAULT_POKEDEX,
   onPokedexChange,
 }) => {
   const sortOptions: { value: SortOption; label: string; icon: string }[] = [
@@ -42,7 +42,7 @@ const SortingControls: React.FC<SortingControlsProps> = ({
 
   const isStatSelected = statOptions.some((opt) => opt.value === sortBy);
 
-  const currentDexValue = sortBy === 'regional-dex' ? selectedPokedex : 'national';
+  const currentDexValue = sortBy === 'regional-dex' ? selectedPokedex : DEFAULT_POKEDEX;
 
   return (
     <div className="flex flex-wrap gap-2 sm:gap-3 items-center w-full sm:w-auto">
@@ -135,7 +135,7 @@ const SortingControls: React.FC<SortingControlsProps> = ({
               if (onPokedexChange) {
                 onPokedexChange(value);
               }
-              if (value === 'national') {
+              if (value === DEFAULT_POKEDEX) {
                 onSortChange('id');
               } else {
                 onSortChange('regional-dex');

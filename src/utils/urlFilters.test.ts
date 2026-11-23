@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { POKEDEX_OPTIONS } from '../config/pokedex';
+import { POKEDEX_OPTIONS } from '../constants';
 import { parseUrlFilters } from './urlFilters';
 
 describe('parseUrlFilters', () => {

@@ -137,7 +137,9 @@ export const useAppController = () => {
   }, [handleSelectPokemon]);
 
   const handleFocusSearch = useCallback(() => {
-    searchInputRef.current?.focus();
+    const input =
+      searchInputRef.current ?? (document.getElementById('main-search') as HTMLInputElement | null);
+    input?.focus();
   }, []);
 
   return {

@@ -9,9 +9,10 @@ interface Props {
   onClose: () => void;
   date: string;
   seed: number;
+  onReady?: () => void;
 }
 
-const CryGame: React.FC<Props> = ({ onClose, date, seed }) => {
+const CryGame: React.FC<Props> = ({ onClose, date, seed, onReady }) => {
   const { masterPokemonList } = usePokemonData();
   const { theme } = usePokemonUI();
   const { recordResult } = useGameStats();
@@ -32,6 +33,10 @@ const CryGame: React.FC<Props> = ({ onClose, date, seed }) => {
       setTarget(pickRandom(masterPokemonList, rng));
     }
   }, [masterPokemonList, rng]);
+
+  useEffect(() => {
+    if (target) onReady?.();
+  }, [target, onReady]);
 
   const [isPlaying, setIsPlaying] = useState(false);
 

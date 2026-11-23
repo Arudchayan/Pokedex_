@@ -1,10 +1,12 @@
-import { useState, useEffect, useRef, Suspense, lazy, useCallback, useMemo } from 'react';
+import { useState, useEffect, useId, useRef, Suspense, lazy, useCallback, useMemo } from 'react';
 import ReactDOM from 'react-dom';
 import FilterControls from '../components/layout/FilterControls';
 import { PokemonGridSkeleton } from '../components/base/SkeletonComposites';
 import SortingControls from '../components/layout/SortingControls';
 import VirtualPokemonList from '../components/pokemon/VirtualPokemonList';
 import MobileTeamSheet from '../components/team/MobileTeamSheet';
+import { useFocusTrap } from '../hooks/useFocusTrap';
+import { useMediaQuery } from '../hooks/useMediaQuery';
 import type { AppController } from './useAppController';
 
 const TeamBuilder = lazy(() => import('../components/team/TeamBuilder'));
@@ -67,6 +69,22 @@ export default function AppMain({ controller }: Props) {
 
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
   const [mobileFullBuilderOpen, setMobileFullBuilderOpen] = useState(false);
+  const fullBuilderRef = useRef<HTMLDivElement>(null);
+  const fullBuilderHeadingRef = useRef<HTMLHeadingElement>(null);
+  const focusSearchAfterBuilderRef = useRef(false);
+  const fullBuilderTitleId = useId();
+  const isDesktop = useMediaQuery('(min-width: 1024px)');
+
+  useFocusTrap({
+    active: mobileFullBuilderOpen,
+    containerRef: fullBuilderRef,
+    initialFocusRef: fullBuilderHeadingRef,
+    onEscape: () => setMobileFullBuilderOpen(false),
+  });
+
+  useEffect(() => {
+    if (isDesktop) setMobileFullBuilderOpen(false);
+  }, [isDesktop]);
 
   useEffect(() => {
     if (!mobileFullBuilderOpen) return;
@@ -86,9 +104,21 @@ export default function AppMain({ controller }: Props) {
   );
 
   const handleTeamAddPokemon = useCallback(() => {
-    setMobileFullBuilderOpen(false);
+    if (mobileFullBuilderOpen) {
+      focusSearchAfterBuilderRef.current = true;
+      setMobileFullBuilderOpen(false);
+      return;
+    }
     handleFocusSearch();
-  }, [handleFocusSearch]);
+  }, [handleFocusSearch, mobileFullBuilderOpen]);
+
+  // Wait until the builder has closed and the trap has removed `inert` before
+  // moving focus to the search input.
+  useEffect(() => {
+    if (mobileFullBuilderOpen || !focusSearchAfterBuilderRef.current) return;
+    focusSearchAfterBuilderRef.current = false;
+    handleFocusSearch();
+  }, [mobileFullBuilderOpen, handleFocusSearch]);
 
   const hasFilteredPokemon = filteredPokemon.length > 0;
 
@@ -622,7 +652,14 @@ export default function AppMain({ controller }: Props) {
         {/* Full TeamBuilder as a mobile-only fullscreen modal */}
         {mobileFullBuilderOpen &&
           ReactDOM.createPortal(
-            <div className="fixed inset-0 z-[1070] lg:hidden flex flex-col">
+            <div
+              ref={fullBuilderRef}
+              className="fixed inset-0 z-[1070] lg:hidden flex flex-col"
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby={fullBuilderTitleId}
+              tabIndex={-1}
+            >
               <div
                 className={`flex items-center justify-between gap-3 px-4 py-3 border-b shrink-0 ${
                   theme === 'dark' || isCyberpunk
@@ -630,7 +667,14 @@ export default function AppMain({ controller }: Props) {
                     : 'bg-white border-slate-200 text-slate-900'
                 }`}
               >
-                <h2 className="text-base font-bold">Team Builder</h2>
+                <h2
+                  id={fullBuilderTitleId}
+                  ref={fullBuilderHeadingRef}
+                  tabIndex={-1}
+                  className="text-base font-bold"
+                >
+                  Team Builder
+                </h2>
                 <button
                   type="button"
                   onClick={() => setMobileFullBuilderOpen(false)}
@@ -648,9 +692,6 @@ export default function AppMain({ controller }: Props) {
                 className={`flex-1 overflow-y-auto overscroll-contain p-3 ${
                   theme === 'dark' || isCyberpunk ? 'bg-slate-950' : 'bg-slate-50'
                 }`}
-                role="dialog"
-                aria-modal="true"
-                aria-label="Full team builder"
               >
                 <Suspense
                   fallback={

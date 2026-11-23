@@ -1,3 +1,4 @@
+import { DEFAULT_POKEDEX } from '../constants';
 import { usePokemonStore } from '../store/usePokemonStore';
 import { parseUrlFilters } from '../utils/urlFilters';
 
@@ -15,6 +16,6 @@ export function applyUrlFilters(search: string): void {
 
   if (dex !== undefined) {
     store.setPokedex(dex);
-    store.setSort(dex === 'national' ? 'id' : 'regional-dex', store.sortOrder);
+    store.setSort(dex === DEFAULT_POKEDEX ? 'id' : 'regional-dex', store.sortOrder);
   }
 }
