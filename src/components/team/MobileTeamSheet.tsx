@@ -1,6 +1,7 @@
-import React, { useState, useEffect, useId, useRef } from 'react';
+import React, { useState, useEffect, useId, useMemo, useRef } from 'react';
 import { TeamMember, PokemonListItem } from '../../types';
 import TypeBadge from '../charts/TypeBadge';
+import TeamPokemonPicker from './TeamPokemonPicker';
 import { useTeamAnalytics } from '../../hooks/useTeamAnalytics';
 import { useFocusTrap } from '../../hooks/useFocusTrap';
 import { useMediaQuery } from '../../hooks/useMediaQuery';
@@ -15,7 +16,11 @@ interface MobileTeamSheetProps {
   teamCapacity: number;
   theme: 'dark' | 'light';
   isCyberpunk?: boolean;
-  onAddPokemon?: () => void;
+  /** Master Pokédex list used by the empty-slot picker. */
+  availablePokemon?: PokemonListItem[];
+  availablePokemonLoading?: boolean;
+  availablePokemonError?: string | null;
+  onRetryAvailablePokemon?: () => void;
   onAddToTeam?: (pokemon: PokemonListItem) => void;
   /** Opens the full TeamBuilder (export, edit members, analytics) on mobile. */
   onOpenFullBuilder?: () => void;
@@ -29,20 +34,26 @@ const MobileTeamSheet: React.FC<MobileTeamSheetProps> = ({
   teamCapacity,
   theme,
   isCyberpunk = false,
-  onAddPokemon,
+  availablePokemon = [],
+  availablePokemonLoading = false,
+  availablePokemonError = null,
+  onRetryAvailablePokemon,
+  onAddToTeam,
   onOpenFullBuilder,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [pickerSlot, setPickerSlot] = useState<number | null>(null);
   const sheetRef = useRef<HTMLDivElement>(null);
   const headingRef = useRef<HTMLHeadingElement>(null);
-  const focusSearchOnCloseRef = useRef(false);
+  const pickerTriggerRef = useRef<HTMLElement | null>(null);
   const titleId = useId();
   const descriptionId = useId();
   const isDesktop = useMediaQuery('(min-width: 1024px)');
   const isDark = theme === 'dark' || isCyberpunk;
 
-  const safeTeam = team ?? [];
+  const safeTeam = useMemo(() => team ?? [], [team]);
   const analyzableTeam = safeTeam.filter((member) => !member.detailsUnavailable);
+  const teamIds = useMemo(() => new Set(safeTeam.map((member) => member.id)), [safeTeam]);
   const { typeCounts, majorThreats } = useTeamAnalytics(analyzableTeam);
   const uniqueTypes = Object.keys(typeCounts);
   const unavailableCount = safeTeam.length - analyzableTeam.length;
@@ -54,13 +65,24 @@ const MobileTeamSheet: React.FC<MobileTeamSheetProps> = ({
     onEscape: () => setIsOpen(false),
   });
 
-  // Wait until the sheet has closed and the trap has removed `inert` before
-  // moving focus to the search input.
+  // The picker only exists while the sheet is open.
   useEffect(() => {
-    if (isOpen || !focusSearchOnCloseRef.current) return;
-    focusSearchOnCloseRef.current = false;
-    onAddPokemon?.();
-  }, [isOpen, onAddPokemon]);
+    if (!isOpen) setPickerSlot(null);
+  }, [isOpen]);
+
+  // Return focus to the slot that opened the picker once it closes, or to the
+  // sheet itself if adding the last Pokémon removed the slot.
+  useEffect(() => {
+    if (pickerSlot !== null || !isOpen) return;
+    const trigger = pickerTriggerRef.current;
+    if (!trigger) return;
+    pickerTriggerRef.current = null;
+    if (trigger.isConnected) {
+      trigger.focus();
+    } else {
+      sheetRef.current?.focus();
+    }
+  }, [pickerSlot, isOpen]);
 
   useEffect(() => {
     if (isOpen) {
@@ -89,10 +111,10 @@ const MobileTeamSheet: React.FC<MobileTeamSheetProps> = ({
     setIsOpen(false);
   };
 
-  const handleEmptySlotClick = () => {
+  const handleEmptySlotClick = (slotNumber: number, trigger: HTMLElement) => {
     playUISound('click');
-    focusSearchOnCloseRef.current = true;
-    setIsOpen(false);
+    pickerTriggerRef.current = trigger;
+    setPickerSlot(slotNumber);
   };
 
   return (
@@ -149,6 +171,7 @@ const MobileTeamSheet: React.FC<MobileTeamSheetProps> = ({
               aria-modal="true"
               aria-labelledby={titleId}
               aria-describedby={descriptionId}
+              aria-hidden={pickerSlot !== null || undefined}
               tabIndex={-1}
             >
               {/* Drag handle */}
@@ -349,33 +372,39 @@ const MobileTeamSheet: React.FC<MobileTeamSheetProps> = ({
                 ))}
 
                 {/* Empty slots */}
-                {Array.from({ length: Math.max(teamCapacity - safeTeam.length, 0) }).map((_, i) => (
-                  <button
-                    key={`empty-${i}`}
-                    type="button"
-                    onClick={handleEmptySlotClick}
-                    className={`w-full flex items-center justify-center gap-2 p-3 rounded-xl border border-dashed text-xs font-semibold uppercase tracking-wide transition-colors ${
-                      isDark
-                        ? 'border-white/15 text-slate-500 hover:border-white/30 hover:bg-white/5'
-                        : 'border-slate-300 text-slate-400 hover:border-primary-400 hover:bg-primary-50'
-                    }`}
-                  >
-                    <svg
-                      className="h-4 w-4 opacity-50"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
+                {Array.from({ length: Math.max(teamCapacity - safeTeam.length, 0) }).map((_, i) => {
+                  const slotNumber = safeTeam.length + i + 1;
+                  return (
+                    <button
+                      key={`empty-${i}`}
+                      type="button"
+                      onClick={(event) => handleEmptySlotClick(slotNumber, event.currentTarget)}
+                      aria-haspopup="dialog"
+                      aria-expanded={pickerSlot === slotNumber}
+                      aria-label={`Add a Pokémon to slot ${slotNumber} of ${teamCapacity}`}
+                      className={`w-full flex items-center justify-center gap-2 p-3 rounded-xl border border-dashed text-xs font-semibold uppercase tracking-wide transition-colors ${
+                        isDark
+                          ? 'border-white/15 text-slate-500 hover:border-white/30 hover:bg-white/5'
+                          : 'border-slate-300 text-slate-400 hover:border-primary-400 hover:bg-primary-50'
+                      }`}
                     >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M12 4v16m8-8H4"
-                      />
-                    </svg>
-                    <span>Slot {safeTeam.length + i + 1}</span>
-                  </button>
-                ))}
+                      <svg
+                        className="h-4 w-4 opacity-50"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M12 4v16m8-8H4"
+                        />
+                      </svg>
+                      <span>Slot {slotNumber}</span>
+                    </button>
+                  );
+                })}
               </div>
 
               {/* Team Analytics summary */}
@@ -482,6 +511,25 @@ const MobileTeamSheet: React.FC<MobileTeamSheetProps> = ({
           </div>,
           document.body
         )}
+
+      {pickerSlot !== null && (
+        <TeamPokemonPicker
+          slotNumber={pickerSlot}
+          teamCapacity={teamCapacity}
+          teamIds={teamIds}
+          pokemonList={availablePokemon}
+          loading={availablePokemonLoading}
+          error={availablePokemonError}
+          onRetry={onRetryAvailablePokemon}
+          onSelect={(pokemon) => {
+            onAddToTeam?.(pokemon);
+            setPickerSlot(null);
+          }}
+          onCancel={() => setPickerSlot(null)}
+          theme={theme}
+          isCyberpunk={isCyberpunk}
+        />
+      )}
     </>
   );
 };
