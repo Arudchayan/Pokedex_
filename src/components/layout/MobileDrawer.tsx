@@ -1,9 +1,11 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useId, useRef, useState } from 'react';
 import { useShallow } from 'zustand/react/shallow';
 import { usePokemonUI } from '../../context/PokemonContext';
 import { usePokemonStore } from '../../store/usePokemonStore';
 import { useModalStore } from '../../store/useModalStore';
 import { useAchievements } from '../../context/AchievementContext';
+import ThemeSelector from './ThemeSelector';
+import { openWalkthroughModal } from '../walkthrough/WalkthroughManager';
 import {
   playUISound,
   toggleAudio as toggleAudioService,
@@ -33,6 +35,7 @@ interface DrawerSection {
 const MobileDrawer: React.FC<MobileDrawerProps> = ({ isOpen, onClose, onRandomPokemon }) => {
   const drawerRef = useRef<HTMLDivElement>(null);
   const firstItemRef = useRef<HTMLButtonElement>(null);
+  const themeLabelId = useId();
 
   // UI state from stores / context
   const { theme, isCyberpunk, isShiny } = usePokemonUI();
@@ -208,6 +211,7 @@ const MobileDrawer: React.FC<MobileDrawerProps> = ({ isOpen, onClose, onRandomPo
         },
         { label: 'Random Pokémon', icon: '🎲', onClick: onRandomPokemon },
         { label: 'Achievements', icon: '🏆', onClick: openAchievements },
+        { label: 'Start Walkthrough', icon: '🧭', onClick: openWalkthroughModal },
         { label: 'Pokémon Walkers', icon: '🚶', onClick: openWalkersSettings },
         { label: 'Data Management', icon: '💾', onClick: openDataManagement },
       ],
@@ -225,7 +229,7 @@ const MobileDrawer: React.FC<MobileDrawerProps> = ({ isOpen, onClose, onRandomPo
       ? 'bg-slate-950 border-r border-white/10'
       : 'bg-white border-r border-slate-200';
 
-  const drawerClass = `fixed z-[1110] w-72 max-w-[85vw] shadow-2xl transform transition-transform duration-300 ease-out md:hidden overflow-y-auto overscroll-contain ${panelBg} ${
+  const drawerClass = `fixed z-[1110] flex w-80 max-w-full flex-col shadow-2xl transform transition-transform duration-300 ease-out md:hidden overscroll-contain ${panelBg} ${
     isOpen ? 'translate-x-0' : '-translate-x-full'
   }`;
 
@@ -331,8 +335,38 @@ const MobileDrawer: React.FC<MobileDrawerProps> = ({ isOpen, onClose, onRandomPo
           </button>
         </div>
 
+        {/* Appearance stays outside the scroll area so the theme panel is not clipped */}
+        <div className="pt-3 shrink-0">
+          <div className={sectionTitleClass}>Appearance</div>
+          <div
+            className={`flex items-center justify-between gap-3 pl-3 ${
+              isCyberpunk ? 'pr-0' : 'pr-3'
+            } py-1 border-b ${
+              isCyberpunk ? 'border-cyan-500/20' : isDark ? 'border-white/10' : 'border-slate-200'
+            }`}
+            role="group"
+            aria-labelledby={themeLabelId}
+          >
+            <span
+              id={themeLabelId}
+              className={`flex items-center gap-3 text-sm font-medium ${
+                isCyberpunk ? 'text-cyan-300' : isDark ? 'text-slate-200' : 'text-slate-700'
+              }`}
+            >
+              <span className="text-base w-6 text-center flex-shrink-0" aria-hidden="true">
+                🎨
+              </span>
+              Theme
+            </span>
+            {/* Nudge past the 2px cyberpunk border so the 20rem panel starts on-screen */}
+            <div className={isCyberpunk ? '-mr-0.5' : undefined}>
+              <ThemeSelector />
+            </div>
+          </div>
+        </div>
+
         {/* Sections */}
-        <nav className="px-2 py-3 flex flex-col gap-1">
+        <nav className="flex-1 min-h-0 overflow-y-auto overscroll-contain px-2 py-3 flex flex-col gap-1">
           {sections.map((section, sIdx) => (
             <React.Fragment key={section.title}>
               {sIdx > 0 && <div className={dividerClass} />}
