@@ -34,8 +34,10 @@ export function normalizePokemonPath({ pathname, search, hash }: UrlParts): stri
   const id = parsePokemonId(match[1]);
   if (id == null) return null;
 
-  // `set` replaces a conflicting `?pokemon=` value, so the path id always wins.
+  // `set` replaces a conflicting `?pokemon=` value, and the internal redirect
+  // marker must never survive a real path link (`/pokemon/25?pokemonPath=6`).
   const params = new URLSearchParams(search);
+  params.delete(POKEMON_PATH_MARKER_PARAM);
   params.set('pokemon', String(id));
 
   return `/?${params.toString()}${hash}`;

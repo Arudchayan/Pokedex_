@@ -31,7 +31,18 @@ describe('normalizePokemonPath', () => {
   });
 
   it('accepts a trailing slash and normalizes leading zeros', () => {
+    expect(normalizePokemonPath(parts('/pokemon/25/'))).toBe('/?pokemon=25');
     expect(normalizePokemonPath(parts('/pokemon/025/'))).toBe('/?pokemon=25');
+  });
+
+  it('drops a crafted pokemonPath marker when normalizing a real path', () => {
+    const normalized = normalizePokemonPath(parts('/pokemon/25', '?pokemonPath=6&compare=1,4'));
+
+    expect(normalized).not.toBeNull();
+    const url = new URL(normalized!, 'https://example.test');
+    expect(url.searchParams.getAll('pokemon')).toEqual(['25']);
+    expect(url.searchParams.has('pokemonPath')).toBe(false);
+    expect(url.searchParams.get('compare')).toBe('1,4');
   });
 
   it('preserves unrelated query params and the hash', () => {
@@ -144,6 +155,24 @@ describe('normalizePokemonPathInLocation', () => {
 
     expect(window.location.pathname).toBe('/');
     expect(window.location.search).toBe('?pokemon=25&compare=1%2C4');
+  });
+
+  it('strips a crafted marker from a real path before the controller reads it', () => {
+    window.history.replaceState(null, '', '/pokemon/25?pokemonPath=6');
+
+    normalizePokemonPathInLocation();
+
+    expect(window.location.pathname).toBe('/');
+    expect(window.location.search).toBe('?pokemon=25');
+  });
+
+  it('strips a crafted marker from a trailing-slash path', () => {
+    window.history.replaceState(null, '', '/pokemon/25/?pokemonPath=6');
+
+    normalizePokemonPathInLocation();
+
+    expect(window.location.pathname).toBe('/');
+    expect(window.location.search).toBe('?pokemon=25');
   });
 
   it('removes an invalid Vercel path marker', () => {

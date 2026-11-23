@@ -23,6 +23,7 @@ describe('app shell navigation allowlist', () => {
     }
 
     expect(servesAppShell('/pokemon/025')).toBe(true);
+    expect(servesAppShell('/pokemon/25/')).toBe(true);
     expect(servesAppShell('/pokemon/1025/')).toBe(true);
   });
 

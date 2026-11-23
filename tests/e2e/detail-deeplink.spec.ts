@@ -41,6 +41,21 @@ test('Path deep-link /pokemon/25 normalizes to ?pokemon=25 and opens Pikachu', a
   await expect(page).toHaveTitle(/Pikachu/i);
 });
 
+test('Path deep-link /pokemon/25/ also normalizes and opens Pikachu', async ({ page }) => {
+  await skipWalkthroughOnboarding(page);
+  await page.goto('/pokemon/25/');
+  await dismissWelcomeModal(page);
+
+  await expect(page).toHaveURL(/\/\?pokemon=25$/);
+
+  const detailDialog = page.locator('div[role="dialog"]').filter({
+    has: page.getByRole('heading', { name: /Pikachu/i }),
+  });
+
+  await expect(detailDialog).toBeVisible({ timeout: 30000 });
+  await expect(detailDialog.getByRole('heading', { name: /Pikachu/i })).toBeVisible();
+});
+
 test('Path deep-link wins over a conflicting ?pokemon from the Vercel redirect', async ({
   page,
 }) => {

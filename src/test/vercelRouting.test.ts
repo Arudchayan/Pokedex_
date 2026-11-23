@@ -12,6 +12,7 @@ interface RedirectRule {
 const repoRoot = path.resolve(__dirname, '../..');
 const vercelConfig = JSON.parse(fs.readFileSync(path.join(repoRoot, 'vercel.json'), 'utf-8')) as {
   redirects?: RedirectRule[];
+  trailingSlash?: boolean;
 };
 
 const redirect = vercelConfig.redirects?.find((rule) => rule.source.startsWith('/pokemon/'));
@@ -39,6 +40,18 @@ describe('Vercel routing', () => {
     for (const invalid of ['0', '000', '1026', '99999', 'abc', '25abc', '-1']) {
       expect(idPattern.test(invalid)).toBe(false);
     }
+  });
+
+  it('canonicalizes a trailing slash before matching the redirect', () => {
+    expect(vercelConfig.trailingSlash).toBe(false);
+
+    const sourcePattern = redirect ? /^\/pokemon\/:id\((.*)\)$/.exec(redirect.source)?.[1] : null;
+    const idPattern = new RegExp(`^(?:${sourcePattern})$`);
+    // Vercel returns 308 /pokemon/25/ -> /pokemon/25 before evaluating redirects,
+    // so the existing source then sends the request to the path marker.
+    const canonicalPath = '/pokemon/25/'.replace(/\/+$/, '');
+
+    expect(idPattern.test(canonicalPath.slice('/pokemon/'.length))).toBe(true);
   });
 
   it('does not blanket-redirect unknown paths to the app shell', () => {
