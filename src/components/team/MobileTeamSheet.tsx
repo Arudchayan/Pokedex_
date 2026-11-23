@@ -1,7 +1,9 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useId, useRef } from 'react';
 import { TeamMember, PokemonListItem } from '../../types';
 import TypeBadge from '../charts/TypeBadge';
 import { useTeamAnalytics } from '../../hooks/useTeamAnalytics';
+import { useFocusTrap } from '../../hooks/useFocusTrap';
+import { useMediaQuery } from '../../hooks/useMediaQuery';
 import { playUISound } from '../../services/soundService';
 import ReactDOM from 'react-dom';
 
@@ -32,6 +34,11 @@ const MobileTeamSheet: React.FC<MobileTeamSheetProps> = ({
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const sheetRef = useRef<HTMLDivElement>(null);
+  const headingRef = useRef<HTMLHeadingElement>(null);
+  const focusSearchOnCloseRef = useRef(false);
+  const titleId = useId();
+  const descriptionId = useId();
+  const isDesktop = useMediaQuery('(min-width: 1024px)');
   const isDark = theme === 'dark' || isCyberpunk;
 
   const safeTeam = team ?? [];
@@ -39,6 +46,21 @@ const MobileTeamSheet: React.FC<MobileTeamSheetProps> = ({
   const { typeCounts, majorThreats } = useTeamAnalytics(analyzableTeam);
   const uniqueTypes = Object.keys(typeCounts);
   const unavailableCount = safeTeam.length - analyzableTeam.length;
+
+  useFocusTrap({
+    active: isOpen,
+    containerRef: sheetRef,
+    initialFocusRef: headingRef,
+    onEscape: () => setIsOpen(false),
+  });
+
+  // Wait until the sheet has closed and the trap has removed `inert` before
+  // moving focus to the search input.
+  useEffect(() => {
+    if (isOpen || !focusSearchOnCloseRef.current) return;
+    focusSearchOnCloseRef.current = false;
+    onAddPokemon?.();
+  }, [isOpen, onAddPokemon]);
 
   useEffect(() => {
     if (isOpen) {
@@ -51,16 +73,11 @@ const MobileTeamSheet: React.FC<MobileTeamSheetProps> = ({
     };
   }, [isOpen]);
 
+  // The sheet is display:none at the lg breakpoint; close it instead of
+  // leaving focus trapped inside a hidden dialog.
   useEffect(() => {
-    if (!isOpen) return;
-    const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        setIsOpen(false);
-      }
-    };
-    window.addEventListener('keydown', onKeyDown);
-    return () => window.removeEventListener('keydown', onKeyDown);
-  }, [isOpen]);
+    if (isDesktop) setIsOpen(false);
+  }, [isDesktop]);
 
   const handleFabClick = () => {
     playUISound('click');
@@ -69,6 +86,12 @@ const MobileTeamSheet: React.FC<MobileTeamSheetProps> = ({
 
   const handleSelectAndClose = (id: number) => {
     onSelect(id);
+    setIsOpen(false);
+  };
+
+  const handleEmptySlotClick = () => {
+    playUISound('click');
+    focusSearchOnCloseRef.current = true;
     setIsOpen(false);
   };
 
@@ -124,7 +147,9 @@ const MobileTeamSheet: React.FC<MobileTeamSheetProps> = ({
               }`}
               role="dialog"
               aria-modal="true"
-              aria-label="Team Builder"
+              aria-labelledby={titleId}
+              aria-describedby={descriptionId}
+              tabIndex={-1}
             >
               {/* Drag handle */}
               <div className="flex justify-center pt-3 pb-1">
@@ -138,10 +163,18 @@ const MobileTeamSheet: React.FC<MobileTeamSheetProps> = ({
                 className={`flex items-center justify-between px-5 py-3 border-b ${isDark ? 'border-white/10' : 'border-slate-200'}`}
               >
                 <div>
-                  <h2 className={`text-lg font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>
+                  <h2
+                    id={titleId}
+                    ref={headingRef}
+                    tabIndex={-1}
+                    className={`text-lg font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}
+                  >
                     Team Builder
                   </h2>
-                  <p className={`text-xs ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+                  <p
+                    id={descriptionId}
+                    className={`text-xs ${isDark ? 'text-slate-400' : 'text-slate-500'}`}
+                  >
                     {safeTeam.length}/{teamCapacity} slots filled
                   </p>
                 </div>
@@ -320,11 +353,7 @@ const MobileTeamSheet: React.FC<MobileTeamSheetProps> = ({
                   <button
                     key={`empty-${i}`}
                     type="button"
-                    onClick={() => {
-                      playUISound('click');
-                      onAddPokemon?.();
-                      setIsOpen(false);
-                    }}
+                    onClick={handleEmptySlotClick}
                     className={`w-full flex items-center justify-center gap-2 p-3 rounded-xl border border-dashed text-xs font-semibold uppercase tracking-wide transition-colors ${
                       isDark
                         ? 'border-white/15 text-slate-500 hover:border-white/30 hover:bg-white/5'

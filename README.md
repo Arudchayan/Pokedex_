@@ -182,6 +182,7 @@ Environment variables (optional):
 
 ```bash
 # .env.local
+# A custom endpoint must also be added to the CSP connect-src in index.html and vercel.json.
 VITE_POKEAPI_GRAPHQL_URL=https://graphql.pokeapi.co/v1beta2
 ```
 
