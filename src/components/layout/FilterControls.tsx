@@ -1,8 +1,9 @@
 import React, { useMemo, useState } from 'react';
-import { GENERATIONS, TYPE_COLORS } from '../../constants';
+import { GENERATIONS, MAX_STAT_VALUE, MIN_STAT_VALUE, TYPE_COLORS } from '../../constants';
 import { usePokemon } from '../../context/PokemonContext';
 import { usePokemonStore } from '../../store/usePokemonStore';
 import { MAX_INPUT_LENGTH } from '../../utils/securityUtils';
+import { clampStatFilterValue } from '../../utils/statFilters';
 
 interface FilterControlsProps {
   selectedGeneration: string;
@@ -76,8 +77,7 @@ const FilterControls: React.FC<FilterControlsProps> = ({
     // Input length safety check
     if (value.length > 5) return;
 
-    const numValue = parseInt(value, 10);
-    usePokemonStore.getState().setMinStat(stat, isNaN(numValue) ? 0 : numValue);
+    usePokemonStore.getState().setMinStat(stat, clampStatFilterValue(Number(value)));
   };
 
   const handleFlavorTextChange = (value: string) => {
@@ -446,8 +446,10 @@ const FilterControls: React.FC<FilterControlsProps> = ({
                         <input
                           id={`min-stat-${stat}`}
                           type="number"
-                          min="0"
-                          max="255"
+                          min={MIN_STAT_VALUE}
+                          max={MAX_STAT_VALUE}
+                          step={1}
+                          inputMode="numeric"
                           value={minStats[stat] || ''}
                           onChange={(e) => handleStatChange(stat, e.target.value)}
                           placeholder="0"
