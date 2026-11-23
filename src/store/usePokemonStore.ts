@@ -49,6 +49,7 @@ export interface PokemonActions {
   // Data-loading helpers (used by PokemonContext query sync).
   setMasterPokemonList: (list: PokemonListItem[]) => void;
   setLoading: (loading: boolean) => void;
+  setRetrying: (isRetrying: boolean) => void;
   setError: (error: string | null) => void;
 
   // Typed action helpers.
@@ -112,6 +113,7 @@ const reducerContext: ReducerContext = {
 const initialState: PokemonState = {
   masterPokemonList: [],
   loading: true,
+  isRetrying: false,
   error: null,
   searchTerm: '',
   selectedGeneration: 'all',
@@ -413,6 +415,8 @@ export const usePokemonStore = create<PokemonState & PokemonActions>()(
           setMasterPokemonList: (list) =>
             dispatchAction({ type: 'SET_POKEMON_LIST', payload: list }),
           setLoading: (loading) => dispatchAction({ type: 'SET_LOADING', payload: loading }),
+          setRetrying: (isRetrying) =>
+            dispatchAction({ type: 'SET_RETRYING', payload: isRetrying }),
           setError: (error) => dispatchAction({ type: 'SET_ERROR', payload: error }),
 
           // Typed helpers (thin wrappers around dispatchAction).
