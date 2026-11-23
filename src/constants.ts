@@ -65,19 +65,23 @@ export const GENERATIONS: { [key: string]: { range: [number, number] } } = {
   'Generation IX': { range: [906, MAX_POKEMON_ID] },
 };
 
+/**
+ * Type chip fills with a text colour that keeps the label at or above 4.5:1.
+ * Light fills take black text; dark fills keep white. Covered by TypeChipContrast.test.tsx.
+ */
 export const TYPE_COLORS: { [key: string]: string } = {
   normal: 'bg-gray-400 text-black',
-  fire: 'bg-red-500 text-white',
-  water: 'bg-blue-500 text-white',
+  fire: 'bg-red-500 text-black',
+  water: 'bg-blue-500 text-black',
   electric: 'bg-yellow-400 text-black',
-  grass: 'bg-green-500 text-white',
+  grass: 'bg-green-500 text-black',
   ice: 'bg-cyan-300 text-black',
   fighting: 'bg-orange-700 text-white',
   poison: 'bg-purple-600 text-white',
-  ground: 'bg-yellow-600 text-white',
-  flying: 'bg-indigo-400 text-white',
-  psychic: 'bg-pink-500 text-white',
-  bug: 'bg-lime-500 text-white',
+  ground: 'bg-yellow-600 text-black',
+  flying: 'bg-indigo-400 text-black',
+  psychic: 'bg-pink-500 text-black',
+  bug: 'bg-lime-500 text-black',
   rock: 'bg-stone-500 text-white',
   ghost: 'bg-violet-700 text-white',
   dragon: 'bg-indigo-700 text-white',

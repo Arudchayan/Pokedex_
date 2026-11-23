@@ -25,6 +25,12 @@ const renderWithProvider = (ui: React.ReactElement) => {
 // Mock ScrollIntoView since it's not supported in JSDOM
 window.HTMLElement.prototype.scrollIntoView = function () {};
 
+const selectGeneration = (gen: string) => {
+  fireEvent.change(screen.getByRole('combobox'), { target: { value: gen } });
+};
+
+const getCharmCheckbox = () => screen.getByRole('checkbox', { name: 'Shiny Charm' });
+
 describe('ShinyOddsCalculator', () => {
   it('renders correctly', () => {
     const handleClose = vi.fn();
@@ -163,6 +169,142 @@ describe('ShinyOddsCalculator', () => {
 
     // 1/4096 -> 1/1365 with Charm
     expect(screen.getByText('1 in 1365')).toBeInTheDocument();
+  });
+
+  it('disables Shiny Charm with an explanation in Gen 3 and keeps base odds', () => {
+    const handleClose = vi.fn();
+    renderWithProvider(<ShinyOddsCalculator onClose={handleClose} />);
+
+    selectGeneration('gen3');
+
+    const charmCheckbox = getCharmCheckbox();
+    expect(charmCheckbox).toBeDisabled();
+    expect(charmCheckbox).toHaveAttribute('aria-disabled', 'true');
+    expect(charmCheckbox).not.toBeChecked();
+    expect(charmCheckbox).toHaveAccessibleDescription(/not available in this generation/i);
+    expect(screen.getByText(/introduced in generation 5/i)).toBeInTheDocument();
+
+    // 1/8192 base; an unavailable Charm must not be toggleable.
+    expect(screen.getByText('1 in 8192')).toBeInTheDocument();
+    fireEvent.click(charmCheckbox);
+    expect(charmCheckbox).not.toBeChecked();
+    expect(screen.getByText('1 in 8192')).toBeInTheDocument();
+  });
+
+  it('disables Shiny Charm for every Gen 4 method and leaves odds unchanged', () => {
+    const handleClose = vi.fn();
+    renderWithProvider(<ShinyOddsCalculator onClose={handleClose} />);
+
+    selectGeneration('gen4');
+
+    const charmCheckbox = getCharmCheckbox();
+    expect(charmCheckbox).toBeDisabled();
+    expect(screen.getByText('1 in 8192')).toBeInTheDocument();
+
+    fireEvent.click(charmCheckbox);
+    expect(charmCheckbox).not.toBeChecked();
+    expect(screen.getByText('1 in 8192')).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Masuda Method' }));
+    expect(screen.getByText('1 in 1638')).toBeInTheDocument();
+
+    fireEvent.click(charmCheckbox);
+    expect(charmCheckbox).not.toBeChecked();
+    expect(screen.getByText('1 in 1638')).toBeInTheDocument();
+  });
+
+  it('offers an interactive Shiny Charm from Gen 5 onwards and applies its bonus', () => {
+    const handleClose = vi.fn();
+    renderWithProvider(<ShinyOddsCalculator onClose={handleClose} />);
+
+    selectGeneration('gen5');
+
+    const charmCheckbox = getCharmCheckbox();
+    expect(charmCheckbox).toBeEnabled();
+    expect(charmCheckbox).toHaveAttribute('aria-disabled', 'false');
+    expect(charmCheckbox).not.toBeChecked();
+    expect(charmCheckbox).not.toHaveAccessibleDescription(/not available in this generation/i);
+    expect(screen.getByText('1 in 8192')).toBeInTheDocument();
+
+    fireEvent.click(charmCheckbox);
+    expect(charmCheckbox).toBeChecked();
+    expect(screen.getByText('1 in 2730')).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Masuda Method' }));
+    expect(screen.getByText('1 in 1024')).toBeInTheDocument();
+
+    fireEvent.click(charmCheckbox);
+    expect(charmCheckbox).not.toBeChecked();
+    expect(screen.getByText('1 in 1365')).toBeInTheDocument();
+  });
+
+  it('resets a stale Shiny Charm on unsupported generations and does not silently re-apply it', () => {
+    const handleClose = vi.fn();
+    renderWithProvider(<ShinyOddsCalculator onClose={handleClose} />);
+
+    // Gen 9 default: enable Charm, 1/4096 -> 1/1365.
+    const charmCheckbox = getCharmCheckbox();
+    fireEvent.click(charmCheckbox);
+    expect(charmCheckbox).toBeChecked();
+    expect(screen.getByText('1 in 1365')).toBeInTheDocument();
+
+    // Switching to Gen 4 drops the Charm and recalculates without it.
+    selectGeneration('gen4');
+    expect(charmCheckbox).toBeDisabled();
+    expect(charmCheckbox).not.toBeChecked();
+    expect(screen.getByText('1 in 8192')).toBeInTheDocument();
+
+    // Switching back does not silently restore the stale selection.
+    selectGeneration('gen9');
+    expect(charmCheckbox).toBeEnabled();
+    expect(charmCheckbox).not.toBeChecked();
+    expect(screen.getByText('1 in 4096')).toBeInTheDocument();
+
+    // Only an explicit toggle re-applies the bonus.
+    fireEvent.click(charmCheckbox);
+    expect(charmCheckbox).toBeChecked();
+    expect(screen.getByText('1 in 1365')).toBeInTheDocument();
+  });
+
+  it('exposes the unavailable Shiny Charm state to assistive technology and keyboard users', async () => {
+    const handleClose = vi.fn();
+    const user = userEvent.setup();
+    renderWithProvider(<ShinyOddsCalculator onClose={handleClose} />);
+
+    selectGeneration('gen4');
+
+    const charmCheckbox = getCharmCheckbox();
+    expect(charmCheckbox).toHaveAttribute('aria-disabled', 'true');
+    expect(charmCheckbox).toHaveAccessibleDescription(
+      /not available in this generation.*generation 5/i
+    );
+
+    // Disabled controls stay out of the tab order.
+    await waitFor(() => expect(screen.getByLabelText('Close')).toHaveFocus());
+    for (let i = 0; i < 8; i += 1) {
+      await user.tab();
+      expect(document.activeElement).not.toBe(charmCheckbox);
+    }
+    expect(charmCheckbox).not.toHaveFocus();
+  });
+
+  it('toggles the available Shiny Charm from the keyboard', async () => {
+    const handleClose = vi.fn();
+    const user = userEvent.setup();
+    renderWithProvider(<ShinyOddsCalculator onClose={handleClose} />);
+
+    selectGeneration('gen5');
+
+    const charmCheckbox = getCharmCheckbox();
+    await waitFor(() => expect(screen.getByLabelText('Close')).toHaveFocus());
+    for (let i = 0; i < 8 && document.activeElement !== charmCheckbox; i += 1) {
+      await user.tab();
+    }
+    expect(charmCheckbox).toHaveFocus();
+
+    await user.keyboard(' ');
+    expect(charmCheckbox).toBeChecked();
+    expect(screen.getByText('1 in 2730')).toBeInTheDocument();
   });
 
   it('updates odds when Sandwich is toggled (Gen 9 only)', () => {

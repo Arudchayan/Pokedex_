@@ -20,7 +20,11 @@ vi.mock('../../components/layout/SortingControls', () => ({
 }));
 
 vi.mock('../../components/layout/FilterControls', () => ({
-  default: () => <div data-testid="filter-controls">Filter Controls</div>,
+  default: ({ id }: { id?: string }) => (
+    <div id={id} data-testid="filter-controls">
+      Filter Controls
+    </div>
+  ),
 }));
 
 const mockPokemon: PokemonListItem = {
@@ -122,6 +126,48 @@ describe('AppMain Accessibility', () => {
     expect(statusContainer).toHaveAttribute('role', 'status');
     expect(statusContainer).toHaveAttribute('aria-live', 'polite');
     expect(statusContainer).toHaveAttribute('aria-atomic', 'true');
+  });
+
+  it('exposes the mobile Filters disclosure state and links it to its panel', async () => {
+    const user = userEvent.setup();
+    render(<AppMain controller={mockController} />);
+
+    const toggle = screen.getByRole('button', { name: 'Filters' });
+    expect(toggle).toHaveAttribute('aria-expanded', 'false');
+
+    const panelId = toggle.getAttribute('aria-controls');
+    expect(panelId).toBeTruthy();
+    expect(document.getElementById(panelId!)).not.toBeInTheDocument();
+    expect(screen.getAllByTestId('filter-controls')).toHaveLength(1);
+
+    await user.click(toggle);
+
+    expect(toggle).toHaveAttribute('aria-expanded', 'true');
+    const panel = document.getElementById(panelId!);
+    expect(panel).not.toBeNull();
+    expect(panel).toHaveAttribute('data-testid', 'filter-controls');
+    expect(screen.getAllByTestId('filter-controls')).toHaveLength(2);
+    expect(toggle).toHaveFocus();
+
+    await user.click(toggle);
+
+    expect(toggle).toHaveAttribute('aria-expanded', 'false');
+    expect(document.getElementById(panelId!)).not.toBeInTheDocument();
+    expect(toggle).toHaveFocus();
+  });
+
+  it('includes the active filter count in the mobile Filters name', () => {
+    render(
+      <AppMain
+        controller={{
+          ...mockController,
+          selectedGeneration: 'generation-i',
+          selectedTypes: ['fire', 'water'],
+        }}
+      />
+    );
+
+    expect(screen.getByRole('button', { name: 'Filters (3 active)' })).toBeInTheDocument();
   });
 
   it('moves focus into the full team builder and restores it to the FAB on Escape', async () => {

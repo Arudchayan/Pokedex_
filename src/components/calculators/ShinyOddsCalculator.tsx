@@ -1,10 +1,11 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useId } from 'react';
 import { usePokemon } from '../../context/PokemonContext';
 import {
   GENERATIONS,
   SHINY_METHODS,
   GenerationKey,
   calculateShinyOdds,
+  isShinyCharmAvailable,
 } from '../../utils/shinyOddsUtils';
 import Modal from '../base/Modal';
 
@@ -18,6 +19,10 @@ const ShinyOddsCalculator: React.FC<ShinyOddsCalculatorProps> = ({ onClose }) =>
   const [method, setMethod] = useState<string>('random');
   const [hasCharm, setHasCharm] = useState(false);
   const [hasSandwich, setHasSandwich] = useState(false); // Gen 9 only
+  const charmLabelId = useId();
+  const charmDescriptionId = useId();
+  const charmAvailable = isShinyCharmAvailable(generation);
+  const charmActive = charmAvailable && hasCharm;
 
   // Reset method when generation changes
   const handleGenerationChange = (gen: GenerationKey) => {
@@ -25,8 +30,9 @@ const ShinyOddsCalculator: React.FC<ShinyOddsCalculatorProps> = ({ onClose }) =>
     const defaultMethod = SHINY_METHODS[gen]?.[0]?.id || 'random';
     setMethod(defaultMethod);
     setHasSandwich(false);
-    // Keep charm if possible, though Gen 2 doesn't have it
-    if (gen === 'gen2') setHasCharm(false);
+    // Drop the Charm where it does not exist so a stale selection cannot
+    // silently re-apply when switching back to a supported generation.
+    setHasCharm((current) => current && isShinyCharmAvailable(gen));
   };
 
   const currentMethods = SHINY_METHODS[generation] || [];
@@ -109,27 +115,40 @@ const ShinyOddsCalculator: React.FC<ShinyOddsCalculatorProps> = ({ onClose }) =>
             Modifiers
           </label>
 
-          {generation !== 'gen2' && (
-            <label
-              className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-colors ${hasCharm ? 'bg-yellow-500/10 border-yellow-500/50' : 'border-transparent bg-black/5 hover:bg-black/10'}`}
-            >
-              <input
-                type="checkbox"
-                checked={hasCharm}
-                onChange={(e) => setHasCharm(e.target.checked)}
-                className="w-5 h-5 rounded text-yellow-500 focus:ring-yellow-500 border-gray-500 bg-transparent"
-              />
-              <div className="flex-1">
-                <span className={`font-bold block ${hasCharm ? 'text-yellow-500' : ''}`}>
-                  Shiny Charm
-                </span>
-                <span className="text-xs opacity-60">
-                  Key Item that increases shiny odds drastically.
-                </span>
-              </div>
-              <span className="text-2xl">🗝️</span>
-            </label>
-          )}
+          <label
+            className={`flex items-center gap-3 p-3 rounded-lg border transition-colors ${
+              !charmAvailable
+                ? 'border-transparent bg-black/5'
+                : charmActive
+                  ? 'bg-yellow-500/10 border-yellow-500/50 cursor-pointer'
+                  : 'border-transparent bg-black/5 hover:bg-black/10 cursor-pointer'
+            }`}
+          >
+            <input
+              type="checkbox"
+              checked={charmActive}
+              onChange={(e) => setHasCharm(e.target.checked)}
+              disabled={!charmAvailable}
+              aria-disabled={!charmAvailable}
+              aria-labelledby={charmLabelId}
+              aria-describedby={charmDescriptionId}
+              className="w-5 h-5 rounded text-yellow-500 focus:ring-yellow-500 border-gray-500 bg-transparent disabled:cursor-not-allowed"
+            />
+            <div className="flex-1">
+              <span
+                id={charmLabelId}
+                className={`font-bold block ${charmActive ? 'text-yellow-500' : ''}`}
+              >
+                Shiny Charm
+              </span>
+              <span id={charmDescriptionId} className="text-xs opacity-60">
+                {charmAvailable
+                  ? 'Key Item that increases shiny odds drastically.'
+                  : 'Not available in this generation. The Shiny Charm was introduced in Generation 5 (Black/White).'}
+              </span>
+            </div>
+            <span className="text-2xl">🗝️</span>
+          </label>
 
           {generation === 'gen9' && (
             <label
