@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useId, useMemo, useState } from 'react';
 import { GENERATIONS, MAX_STAT_VALUE, MIN_STAT_VALUE, TYPE_COLORS } from '../../constants';
 import { usePokemon } from '../../context/PokemonContext';
 import { usePokemonStore } from '../../store/usePokemonStore';
@@ -14,19 +14,22 @@ interface FilterControlsProps {
   onFlavorTextChange: (value: string) => void;
   onClearFilters?: () => void;
   className?: string;
+  id?: string;
 }
 
 type SectionId = 'generation' | 'types' | 'flavor' | 'advanced';
 
 const SectionToggle: React.FC<{
+  id: string;
   label: string;
   isOpen: boolean;
   description?: string;
   onToggle: () => void;
   theme: 'dark' | 'light';
   controlsId: string;
-}> = ({ label, isOpen, description, onToggle, theme, controlsId }) => (
+}> = ({ id, label, isOpen, description, onToggle, theme, controlsId }) => (
   <button
+    id={id}
     type="button"
     onClick={onToggle}
     className={`flex w-full items-center justify-between py-3 text-left text-sm font-semibold transition ${theme === 'dark' ? 'text-white hover:text-primary-300' : 'text-slate-800 hover:text-primary-600'}`}
@@ -60,8 +63,18 @@ const FilterControls: React.FC<FilterControlsProps> = ({
   onFlavorTextChange,
   onClearFilters,
   className,
+  id,
 }) => {
   const { minStats, selectedAbility, isMonoType, minBST, theme } = usePokemon();
+  // Each mounted instance (desktop sidebar + mobile disclosure) needs its own
+  // id namespace so labels and aria-controls stay unambiguous.
+  const idPrefix = `filter-${useId().replace(/[^a-zA-Z0-9_-]/g, '')}`;
+  const sectionIds: Record<SectionId, string> = {
+    generation: `${idPrefix}-section-generation`,
+    types: `${idPrefix}-section-types`,
+    flavor: `${idPrefix}-section-flavor`,
+    advanced: `${idPrefix}-section-advanced`,
+  };
   const [expandedSections, setExpandedSections] = useState<Record<SectionId, boolean>>({
     generation: true,
     types: true,
@@ -169,7 +182,7 @@ const FilterControls: React.FC<FilterControlsProps> = ({
     }`;
 
   return (
-    <section className={containerClass} aria-label="Filters">
+    <section id={id ?? `${idPrefix}-panel`} className={containerClass} aria-label="Filters">
       <header className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <p
@@ -256,20 +269,21 @@ const FilterControls: React.FC<FilterControlsProps> = ({
       >
         <article>
           <SectionToggle
+            id={`${sectionIds.generation}-toggle`}
             label="Generation"
             isOpen={expandedSections.generation}
             description={selectedGeneration === 'all' ? 'All' : selectedGeneration}
             onToggle={() => toggleSection('generation')}
             theme={theme}
-            controlsId="filter-section-generation"
+            controlsId={sectionIds.generation}
           />
           {expandedSections.generation && (
-            <div className="pb-4" id="filter-section-generation">
-              <label htmlFor="generation-select" className="sr-only">
+            <div className="pb-4" id={sectionIds.generation}>
+              <label htmlFor={`${idPrefix}-generation-select`} className="sr-only">
                 Select generation
               </label>
               <select
-                id="generation-select"
+                id={`${idPrefix}-generation-select`}
                 value={selectedGeneration}
                 onChange={(event) => onGenerationChange(event.target.value)}
                 className={`w-full rounded-md border py-2 px-3 text-sm shadow-inner transition focus:outline-none focus:ring-2 focus:ring-primary-500/60 ${
@@ -291,15 +305,16 @@ const FilterControls: React.FC<FilterControlsProps> = ({
 
         <article>
           <SectionToggle
+            id={`${sectionIds.types}-toggle`}
             label="Types"
             isOpen={expandedSections.types}
             description={selectedTypes.length > 0 ? `${selectedTypes.length} selected` : 'All'}
             onToggle={() => toggleSection('types')}
             theme={theme}
-            controlsId="filter-section-types"
+            controlsId={sectionIds.types}
           />
           {expandedSections.types && (
-            <div className="pb-4" id="filter-section-types">
+            <div className="pb-4" id={sectionIds.types}>
               <div className="flex flex-wrap gap-2 mb-4">
                 {allTypes.map((type) => {
                   const isSelected = selectedTypes.includes(type);
@@ -324,13 +339,13 @@ const FilterControls: React.FC<FilterControlsProps> = ({
               <div className="flex items-center gap-2">
                 <input
                   type="checkbox"
-                  id="mono-type-toggle"
+                  id={`${idPrefix}-mono-type-toggle`}
                   checked={isMonoType}
                   onChange={() => usePokemonStore.getState().toggleMonoType()}
                   className="rounded border-slate-300 text-primary-600 shadow-sm focus:border-primary-300 focus:ring focus:ring-primary-300/40 focus:ring-opacity-50"
                 />
                 <label
-                  htmlFor="mono-type-toggle"
+                  htmlFor={`${idPrefix}-mono-type-toggle`}
                   className={`text-sm ${theme === 'dark' ? 'text-slate-300' : 'text-slate-700'}`}
                 >
                   Mono-type only (Single Type)
@@ -342,20 +357,21 @@ const FilterControls: React.FC<FilterControlsProps> = ({
 
         <article>
           <SectionToggle
+            id={`${sectionIds.flavor}-toggle`}
             label="Flavor text"
             isOpen={expandedSections.flavor}
             description={flavorTextSearch.trim().length > 0 ? 'Active' : 'Optional'}
             onToggle={() => toggleSection('flavor')}
             theme={theme}
-            controlsId="filter-section-flavor"
+            controlsId={sectionIds.flavor}
           />
           {expandedSections.flavor && (
-            <div className="pb-4" id="filter-section-flavor">
-              <label htmlFor="flavor-text-search" className="sr-only">
+            <div className="pb-4" id={sectionIds.flavor}>
+              <label htmlFor={`${idPrefix}-flavor-text-search`} className="sr-only">
                 Filter by flavor text
               </label>
               <input
-                id="flavor-text-search"
+                id={`${idPrefix}-flavor-text-search`}
                 type="text"
                 value={flavorTextSearch}
                 onChange={(event) => handleFlavorTextChange(event.target.value)}
@@ -373,6 +389,7 @@ const FilterControls: React.FC<FilterControlsProps> = ({
 
         <article>
           <SectionToggle
+            id={`${sectionIds.advanced}-toggle`}
             label="Advanced (Stats & Abilities)"
             isOpen={expandedSections.advanced}
             description={
@@ -382,20 +399,20 @@ const FilterControls: React.FC<FilterControlsProps> = ({
             }
             onToggle={() => toggleSection('advanced')}
             theme={theme}
-            controlsId="filter-section-advanced"
+            controlsId={sectionIds.advanced}
           />
           {expandedSections.advanced && (
-            <div className="pb-4 space-y-4" id="filter-section-advanced">
+            <div className="pb-4 space-y-4" id={sectionIds.advanced}>
               {/* Ability Search */}
               <div>
                 <label
-                  htmlFor="ability-search"
+                  htmlFor={`${idPrefix}-ability-search`}
                   className={`text-xs font-semibold capitalize mb-1 block ${theme === 'dark' ? 'text-slate-300' : 'text-slate-600'}`}
                 >
                   Ability
                 </label>
                 <input
-                  id="ability-search"
+                  id={`${idPrefix}-ability-search`}
                   type="text"
                   value={selectedAbility}
                   onChange={(e) => handleAbilityChange(e.target.value)}
@@ -413,13 +430,13 @@ const FilterControls: React.FC<FilterControlsProps> = ({
               <div className="flex items-center gap-2">
                 <input
                   type="checkbox"
-                  id="bst-toggle"
+                  id={`${idPrefix}-bst-toggle`}
                   checked={minBST >= 500}
                   onChange={(e) => usePokemonStore.getState().setMinBST(e.target.checked ? 500 : 0)}
                   className="rounded border-slate-300 text-primary-600 shadow-sm focus:border-primary-300 focus:ring focus:ring-primary-300/40 focus:ring-opacity-50"
                 />
                 <label
-                  htmlFor="bst-toggle"
+                  htmlFor={`${idPrefix}-bst-toggle`}
                   className={`text-sm ${theme === 'dark' ? 'text-slate-300' : 'text-slate-700'}`}
                 >
                   High Stats Only (BST ≥ 500)
@@ -438,13 +455,13 @@ const FilterControls: React.FC<FilterControlsProps> = ({
                     (stat) => (
                       <div key={stat} className="flex flex-col gap-1">
                         <label
-                          htmlFor={`min-stat-${stat}`}
+                          htmlFor={`${idPrefix}-min-stat-${stat}`}
                           className={`text-[10px] uppercase tracking-wide ${theme === 'dark' ? 'text-slate-300' : 'text-slate-600'}`}
                         >
                           {stat.replace('-', ' ')}
                         </label>
                         <input
-                          id={`min-stat-${stat}`}
+                          id={`${idPrefix}-min-stat-${stat}`}
                           type="number"
                           min={MIN_STAT_VALUE}
                           max={MAX_STAT_VALUE}
