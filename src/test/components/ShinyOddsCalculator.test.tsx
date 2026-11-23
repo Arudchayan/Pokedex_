@@ -1,5 +1,6 @@
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, within, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi } from 'vitest';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import ShinyOddsCalculator from '../../components/calculators/ShinyOddsCalculator';
@@ -58,6 +59,73 @@ describe('ShinyOddsCalculator', () => {
     fireEvent.click(masudaButton);
 
     // Gen 9 Masuda -> 1/683
+    expect(screen.getByText('1 in 683')).toBeInTheDocument();
+  });
+
+  it('exposes exactly one selected hunting method within a named group', () => {
+    const handleClose = vi.fn();
+    renderWithProvider(<ShinyOddsCalculator onClose={handleClose} />);
+
+    const methodGroup = screen.getByRole('group', { name: /hunting method/i });
+    const methodButtons = within(methodGroup).getAllByRole('button');
+    expect(methodButtons).toHaveLength(4);
+
+    methodButtons.forEach((button) => {
+      expect(button).toHaveAttribute('aria-pressed');
+    });
+
+    const selected = methodButtons.filter(
+      (button) => button.getAttribute('aria-pressed') === 'true'
+    );
+    expect(selected).toHaveLength(1);
+    expect(selected[0]).toHaveAccessibleName('Random Encounters');
+  });
+
+  it('moves the selected state and updates odds when another method is clicked', () => {
+    const handleClose = vi.fn();
+    renderWithProvider(<ShinyOddsCalculator onClose={handleClose} />);
+
+    const methodGroup = screen.getByRole('group', { name: /hunting method/i });
+    fireEvent.click(within(methodGroup).getByRole('button', { name: 'Mass Outbreak (60+ KOs)' }));
+
+    expect(
+      within(methodGroup).getByRole('button', { name: 'Mass Outbreak (60+ KOs)' })
+    ).toHaveAttribute('aria-pressed', 'true');
+    expect(within(methodGroup).getByRole('button', { name: 'Random Encounters' })).toHaveAttribute(
+      'aria-pressed',
+      'false'
+    );
+    expect(
+      within(methodGroup)
+        .getAllByRole('button')
+        .filter((button) => button.getAttribute('aria-pressed') === 'true')
+    ).toHaveLength(1);
+    expect(screen.getByText('1 in 1365')).toBeInTheDocument();
+  });
+
+  it('supports keyboard activation of hunting methods', async () => {
+    const handleClose = vi.fn();
+    const user = userEvent.setup();
+    renderWithProvider(<ShinyOddsCalculator onClose={handleClose} />);
+
+    // Wait for the modal's own initial focus before navigating with the keyboard.
+    await waitFor(() => expect(screen.getByLabelText('Close')).toHaveFocus());
+
+    // Tab: generation select -> Random Encounters -> Masuda Method.
+    await user.tab();
+    await user.tab();
+    await user.tab();
+
+    const masudaButton = screen.getByRole('button', { name: 'Masuda Method' });
+    expect(masudaButton).toHaveFocus();
+
+    await user.keyboard('{Enter}');
+
+    expect(masudaButton).toHaveAttribute('aria-pressed', 'true');
+    expect(screen.getByRole('button', { name: 'Random Encounters' })).toHaveAttribute(
+      'aria-pressed',
+      'false'
+    );
     expect(screen.getByText('1 in 683')).toBeInTheDocument();
   });
 
