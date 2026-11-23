@@ -321,8 +321,9 @@ export const fetchAllPokemons = async (signal?: AbortSignal): Promise<PokemonLis
         { limit: MAX_POKEMON_ID },
         { signal }
       ),
-    3, // max 3 retries
-    2000 // start with 2s delay
+    3, // max 3 attempts (not 3 extra retries)
+    2000, // start with 2s delay
+    signal
   );
 
   const processed = data.pokemon

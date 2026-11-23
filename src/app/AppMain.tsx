@@ -30,6 +30,7 @@ export default function AppMain({ controller }: Props) {
     selectedTypes,
     flavorTextSearch,
     loading,
+    isRetrying,
     error,
     reload,
     virtualList,
@@ -73,6 +74,11 @@ export default function AppMain({ controller }: Props) {
   const fullBuilderHeadingRef = useRef<HTMLHeadingElement>(null);
   const focusSearchAfterBuilderRef = useRef(false);
   const fullBuilderTitleId = useId();
+  const mobileFiltersPanelId = `mobile-filters-${useId().replace(/[^a-zA-Z0-9_-]/g, '')}`;
+  const mobileFilterCount =
+    selectedTypes.length +
+    (selectedGeneration !== 'all' ? 1 : 0) +
+    (flavorTextSearch.trim() ? 1 : 0);
   const isDesktop = useMediaQuery('(min-width: 1024px)');
 
   useFocusTrap({
@@ -168,11 +174,49 @@ export default function AppMain({ controller }: Props) {
   const resultsRef = useRef<HTMLDivElement>(null);
   const retryButtonRef = useRef<HTMLButtonElement>(null);
   const focusAfterRetryRef = useRef(false);
+  const retryWasInFlightRef = useRef(false);
+  const retryOutcomeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [retryStatus, setRetryStatus] = useState('');
+  const isInitialLoading = loading && !error;
 
   const handleRetry = () => {
+    if (isRetrying) return;
     focusAfterRetryRef.current = true;
     void reload();
   };
+
+  // Announce the retry start and its outcome through the existing single status
+  // region. A failed initial load still stays silent there so the alert owns
+  // that announcement (see #96).
+  useEffect(() => {
+    if (retryOutcomeTimerRef.current !== null) {
+      clearTimeout(retryOutcomeTimerRef.current);
+      retryOutcomeTimerRef.current = null;
+    }
+
+    if (isRetrying) {
+      retryWasInFlightRef.current = true;
+      setRetryStatus('Retrying Pokemon data...');
+      return;
+    }
+
+    if (!retryWasInFlightRef.current) return;
+
+    // Let the provider's success effect clear `error` before deciding the
+    // outcome; effects in the parent run after this child effect.
+    retryOutcomeTimerRef.current = setTimeout(() => {
+      retryOutcomeTimerRef.current = null;
+      retryWasInFlightRef.current = false;
+      setRetryStatus(error ? `Retry failed. ${error}` : 'Pokemon data loaded.');
+    }, 0);
+
+    return () => {
+      if (retryOutcomeTimerRef.current !== null) {
+        clearTimeout(retryOutcomeTimerRef.current);
+        retryOutcomeTimerRef.current = null;
+      }
+    };
+  }, [isRetrying, error]);
 
   // Keep keyboard focus anchored to whichever state replaces the Retry button,
   // but only when focus was ours to begin with. If the user has moved on to
@@ -182,6 +226,10 @@ export default function AppMain({ controller }: Props) {
   useEffect(() => {
     if (!focusAfterRetryRef.current) return;
 
+    // Wait for the retry outcome to settle (the provider may clear the error
+    // one commit after isRetrying flips) before deciding where focus belongs.
+    if (!isRetrying && retryWasInFlightRef.current) return;
+
     const active = document.activeElement;
     const focusWasOurs =
       active === null ||
@@ -189,7 +237,9 @@ export default function AppMain({ controller }: Props) {
       active === retryButtonRef.current ||
       (resultsRef.current?.contains(active) ?? false);
 
-    if (loading) {
+    // The Retry button is disabled while its cycle runs, so park focus on the
+    // results region until the outcome is known.
+    if (loading || isRetrying) {
       if (focusWasOurs) resultsRef.current?.focus();
       return;
     }
@@ -202,7 +252,7 @@ export default function AppMain({ controller }: Props) {
     } else {
       resultsRef.current?.focus();
     }
-  }, [loading, error]);
+  }, [loading, error, isRetrying, retryStatus]);
 
   return (
     <main
@@ -361,7 +411,12 @@ export default function AppMain({ controller }: Props) {
             <div className="sm:hidden">
               <button
                 type="button"
-                onClick={() => setMobileFiltersOpen(!mobileFiltersOpen)}
+                onClick={() => setMobileFiltersOpen((open) => !open)}
+                aria-expanded={mobileFiltersOpen}
+                aria-controls={mobileFiltersPanelId}
+                aria-label={
+                  mobileFilterCount > 0 ? `Filters (${mobileFilterCount} active)` : 'Filters'
+                }
                 className={`w-full flex items-center justify-between px-4 py-3 rounded-xl border text-sm font-semibold transition-colors ${
                   theme === 'dark'
                     ? 'border-white/10 bg-slate-950/80 text-slate-200 hover:bg-white/5'
@@ -378,13 +433,9 @@ export default function AppMain({ controller }: Props) {
                     />
                   </svg>
                   Filters
-                  {(selectedTypes.length > 0 ||
-                    selectedGeneration !== 'all' ||
-                    flavorTextSearch.trim()) && (
+                  {mobileFilterCount > 0 && (
                     <span className="bg-primary-500 text-white text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center">
-                      {selectedTypes.length +
-                        (selectedGeneration !== 'all' ? 1 : 0) +
-                        (flavorTextSearch.trim() ? 1 : 0)}
+                      {mobileFilterCount}
                     </span>
                   )}
                 </span>
@@ -405,6 +456,7 @@ export default function AppMain({ controller }: Props) {
               {mobileFiltersOpen && (
                 <div className="mt-2">
                   <FilterControls
+                    id={mobileFiltersPanelId}
                     selectedGeneration={selectedGeneration}
                     onGenerationChange={handleGenerationChange}
                     selectedTypes={selectedTypes}
@@ -435,7 +487,7 @@ export default function AppMain({ controller }: Props) {
             tech may defer announcements for updates inside a busy container.
           */}
           <p role="status" aria-live="polite" aria-atomic="true" className="sr-only">
-            {loading ? 'Loading Pokemon...' : ''}
+            {isInitialLoading ? 'Loading Pokemon...' : retryStatus}
           </p>
 
           <div>
@@ -443,11 +495,11 @@ export default function AppMain({ controller }: Props) {
               ref={resultsRef}
               role="region"
               aria-label="Pokemon results"
-              aria-busy={loading}
+              aria-busy={isInitialLoading || Boolean(isRetrying)}
               tabIndex={-1}
               className="outline-none"
             >
-              {loading ? (
+              {isInitialLoading ? (
                 <PokemonGridSkeleton count={12} />
               ) : error ? null : (
                 <>
@@ -587,7 +639,7 @@ export default function AppMain({ controller }: Props) {
               )}
             </div>
 
-            {!loading && error && (
+            {error && (
               <div
                 className={`rounded-2xl border p-8 text-center ${
                   theme === 'dark'
@@ -603,13 +655,21 @@ export default function AppMain({ controller }: Props) {
                   ref={retryButtonRef}
                   type="button"
                   onClick={handleRetry}
-                  className={`mt-6 rounded-full border px-6 py-2 text-sm font-semibold transition ${
+                  disabled={isRetrying}
+                  aria-busy={isRetrying}
+                  className={`mt-6 inline-flex items-center gap-2 rounded-full border px-6 py-2 text-sm font-semibold transition disabled:cursor-wait disabled:opacity-70 ${
                     theme === 'dark'
                       ? 'border-red-200/60 bg-red-500/20 text-red-100 hover:bg-red-500/30'
                       : 'border-red-300 bg-red-100 text-red-700 hover:bg-red-200'
                   }`}
                 >
-                  Retry
+                  {isRetrying && (
+                    <span
+                      aria-hidden="true"
+                      className="h-4 w-4 animate-spin rounded-full border-2 border-current border-r-transparent"
+                    />
+                  )}
+                  {isRetrying ? 'Retrying...' : 'Retry'}
                 </button>
               </div>
             )}

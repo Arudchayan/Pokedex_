@@ -1,4 +1,6 @@
 import { useWalkthrough } from '../../context/WalkthroughContext';
+import type { TourDefinition } from '../../context/WalkthroughContext';
+import { getTourUnlockState } from '../../data/tourAccess';
 import { usePokemonStore } from '../../store/usePokemonStore';
 import Button from '../base/Button';
 import Modal from '../base/Modal';
@@ -131,7 +133,8 @@ export default function WalkthroughModal({ isOpen, onClose }: WalkthroughModalPr
           </div>
 
           <div className="text-xs text-slate-500 dark:text-slate-400">
-            You can always access tours from the menu
+            Reopen this launcher from the menu anytime. Locked tours unlock when their prerequisites
+            are complete.
           </div>
         </div>
       </div>
@@ -141,139 +144,123 @@ export default function WalkthroughModal({ isOpen, onClose }: WalkthroughModalPr
 
 // Inner component to access tours from context
 function TourList({ onStartTour }: { onStartTour: (tourId: string) => void }) {
-  const walkthrough = useWalkthrough();
+  const { tours, progress } = useWalkthrough();
   const theme = usePokemonStore((s) => s.theme);
   const isDark = theme === 'dark';
 
-  // Get tours from the provider - we need to access them somehow
-  // For now, we'll use a simplified approach
-  const tours = getTourList();
-
   return (
-    <div className="grid gap-3">
-      {tours.map((tour) => {
-        const isCompleted = walkthrough.isTourCompleted(tour.id);
-        const isAvailable = walkthrough.isTourAvailable(tour.id);
-        const isLocked = !isAvailable && !isCompleted;
-
-        return (
-          <div
-            key={tour.id}
-            className={`flex items-center gap-3 p-3 rounded-lg border transition-all ${
-              isCompleted
-                ? isDark
-                  ? 'bg-green-500/10 border-green-500/20'
-                  : 'bg-green-50 border-green-200'
-                : isLocked
-                  ? isDark
-                    ? 'bg-slate-800/50 border-slate-700 opacity-60'
-                    : 'bg-slate-50 border-slate-200 opacity-60'
-                  : isDark
-                    ? 'bg-slate-800 border-slate-700 hover:border-primary-500/50'
-                    : 'bg-white border-slate-200 hover:border-primary-300'
-            }`}
-          >
-            <div className="text-2xl">{tour.icon}</div>
-
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2">
-                <h4 className="font-semibold truncate">{tour.name}</h4>
-                {isCompleted && (
-                  <span className="text-green-500">
-                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                      <path
-                        fillRule="evenodd"
-                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                  </span>
-                )}
-                {isLocked && (
-                  <span className="text-slate-400">
-                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                      <path
-                        fillRule="evenodd"
-                        d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                  </span>
-                )}
-              </div>
-              <p className={`text-sm ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
-                {tour.description}
-              </p>
-              <p className={`text-xs mt-1 ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>
-                ~{tour.estimatedTimeMinutes} min • {tour.steps} steps
-              </p>
-            </div>
-
-            <Button
-              variant={isCompleted ? 'ghost' : 'primary'}
-              size="sm"
-              onClick={() => onStartTour(tour.id)}
-              disabled={isLocked}
-            >
-              {isCompleted ? 'Replay' : isLocked ? 'Locked' : 'Start'}
-            </Button>
-          </div>
-        );
-      })}
-    </div>
+    <ul className="grid gap-3">
+      {tours.map((tour) => (
+        <TourCard
+          key={tour.id}
+          tour={tour}
+          tours={tours}
+          completedTours={progress.completedTours}
+          isDark={isDark}
+          onStartTour={onStartTour}
+        />
+      ))}
+    </ul>
   );
 }
 
-// Tour definitions - this will be replaced by actual data from context
-function getTourList() {
-  return [
-    {
-      id: 'welcome',
-      name: 'Welcome & Navigation',
-      description: 'Learn the basics: menu, search, themes, and quick access.',
-      icon: '👋',
-      estimatedTimeMinutes: 3,
-      steps: 5,
-    },
-    {
-      id: 'browsing',
-      name: 'Browsing Pokémon',
-      description: 'Search, filter, and explore detailed Pokémon information.',
-      icon: '🔍',
-      estimatedTimeMinutes: 7,
-      steps: 12,
-    },
-    {
-      id: 'team-builder',
-      name: 'Team Builder',
-      description: 'Build and analyze competitive teams with coverage tools.',
-      icon: '🛠️',
-      estimatedTimeMinutes: 8,
-      steps: 11,
-    },
-    {
-      id: 'calculators',
-      name: 'Calculators',
-      description: 'Master damage, stats, catch rates, and breeding odds.',
-      icon: '🧮',
-      estimatedTimeMinutes: 4,
-      steps: 5,
-    },
-    {
-      id: 'games',
-      name: 'Games Hub',
-      description: 'Play daily challenges and test your Pokémon knowledge.',
-      icon: '🎮',
-      estimatedTimeMinutes: 3,
-      steps: 4,
-    },
-    {
-      id: 'advanced',
-      name: 'Advanced Features',
-      description: 'Comparison, reference data, favorites, walkers, and keyboard shortcuts.',
-      icon: '⚡',
-      estimatedTimeMinutes: 5,
-      steps: 7,
-    },
-  ];
+interface TourCardProps {
+  tour: TourDefinition;
+  tours: TourDefinition[];
+  completedTours: string[];
+  isDark: boolean;
+  onStartTour: (tourId: string) => void;
+}
+
+function TourCard({ tour, tours, completedTours, isDark, onStartTour }: TourCardProps) {
+  const { isTourCompleted } = useWalkthrough();
+  const isCompleted = isTourCompleted(tour.id);
+  const unlock = getTourUnlockState(tour, tours, completedTours);
+  const isLocked = !isCompleted && unlock.isLocked;
+  const lockReason = isLocked
+    ? (unlock.reason ?? 'Complete the prerequisite tours to unlock.')
+    : null;
+
+  const actionLabel = isCompleted ? 'Replay' : isLocked ? 'Locked' : 'Start';
+  const actionName = isCompleted
+    ? `Replay ${tour.name} tour`
+    : lockReason
+      ? `${tour.name}: Locked. ${lockReason}${unlock.progressLabel ? ` ${unlock.progressLabel}` : ''}`
+      : `Start ${tour.name} tour`;
+
+  return (
+    <li
+      className={`flex items-center gap-3 p-3 rounded-lg border transition-all ${
+        isCompleted
+          ? isDark
+            ? 'bg-green-500/10 border-green-500/20'
+            : 'bg-green-50 border-green-200'
+          : isLocked
+            ? isDark
+              ? 'bg-slate-800/50 border-slate-600 border-dashed'
+              : 'bg-slate-50 border-slate-300 border-dashed'
+            : isDark
+              ? 'bg-slate-800 border-slate-700 hover:border-primary-500/50'
+              : 'bg-white border-slate-200 hover:border-primary-300'
+      }`}
+    >
+      <div className="text-2xl" aria-hidden="true">
+        {tour.icon}
+      </div>
+
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-2">
+          <h4 className="font-semibold truncate">{tour.name}</h4>
+          {isCompleted && (
+            <span className="text-green-500" aria-hidden="true">
+              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                <path
+                  fillRule="evenodd"
+                  d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                  clipRule="evenodd"
+                />
+              </svg>
+            </span>
+          )}
+          {isLocked && (
+            <span className="text-slate-400" aria-hidden="true">
+              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                <path
+                  fillRule="evenodd"
+                  d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z"
+                  clipRule="evenodd"
+                />
+              </svg>
+            </span>
+          )}
+        </div>
+        <p className={`text-sm ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+          {tour.description}
+        </p>
+        {lockReason && (
+          <p className={`text-xs mt-1.5 ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>
+            {lockReason}{' '}
+            {unlock.progressLabel && (
+              <span className={isDark ? 'text-slate-400' : 'text-slate-500'}>
+                {unlock.progressLabel}
+              </span>
+            )}
+          </p>
+        )}
+        <p className={`text-xs mt-1 ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>
+          ~{tour.estimatedTimeMinutes} min • {tour.steps.length} steps
+        </p>
+      </div>
+
+      <Button
+        variant={isCompleted ? 'ghost' : 'primary'}
+        size="sm"
+        onClick={() => onStartTour(tour.id)}
+        disabled={isLocked}
+        aria-label={actionName}
+      >
+        {actionLabel}
+      </Button>
+    </li>
+  );
 }

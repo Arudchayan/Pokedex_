@@ -142,6 +142,7 @@ const fetchAllItemsMock = vi.fn().mockResolvedValue(defaultItems);
 const fetchMoveDexMock = vi.fn().mockResolvedValue([]);
 const fetchAbilityDexMock = vi.fn().mockResolvedValue([]);
 const fetchItemDexMock = vi.fn().mockResolvedValue([]);
+const fetchRegionalDexMapMock = vi.fn().mockResolvedValue(new Map());
 const validatePokemonListItemMock = vi.fn().mockImplementation((data) => {
   if (
     data &&
@@ -163,6 +164,7 @@ vi.mock('../services/pokeapiService', () => ({
   fetchMoveDex: (...args: any[]) => fetchMoveDexMock(...args),
   fetchAbilityDex: (...args: any[]) => fetchAbilityDexMock(...args),
   fetchItemDex: (...args: any[]) => fetchItemDexMock(...args),
+  fetchRegionalDexMap: (pokedexName: string) => fetchRegionalDexMapMock(pokedexName),
   validatePokemonListItem: (...args: any[]) => validatePokemonListItemMock(...args),
 }));
 
@@ -175,6 +177,7 @@ type PokeapiServiceMockOverrides = Partial<{
   fetchMoveDex: MoveDexItem[];
   fetchAbilityDex: AbilityDexItem[];
   fetchItemDex: ItemDexItem[];
+  fetchRegionalDexMap: Map<number, number>;
 }>;
 
 export const setPokeapiServiceMock = (overrides: PokeapiServiceMockOverrides = {}) => {
@@ -190,6 +193,7 @@ export const setPokeapiServiceMock = (overrides: PokeapiServiceMockOverrides = {
   fetchMoveDexMock.mockResolvedValue(overrides.fetchMoveDex ?? []);
   fetchAbilityDexMock.mockResolvedValue(overrides.fetchAbilityDex ?? []);
   fetchItemDexMock.mockResolvedValue(overrides.fetchItemDex ?? []);
+  fetchRegionalDexMapMock.mockResolvedValue(overrides.fetchRegionalDexMap ?? new Map());
 };
 
 export const renderWithProvider = (ui: React.ReactElement) => {
