@@ -346,6 +346,7 @@ const MobileDrawer: React.FC<MobileDrawerProps> = ({ isOpen, onClose, onRandomPo
             }`}
             role="group"
             aria-labelledby={themeLabelId}
+            data-tour="theme-mobile"
           >
             <span
               id={themeLabelId}

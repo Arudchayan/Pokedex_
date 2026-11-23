@@ -27,6 +27,7 @@ describe('MobileDrawer mobile feature parity', () => {
     renderDrawer();
 
     const themeGroup = screen.getByRole('group', { name: 'Theme' });
+    expect(themeGroup).toHaveAttribute('data-tour', 'theme-mobile');
     expect(
       within(themeGroup).getByRole('button', { name: 'Customize theme settings' })
     ).toBeInTheDocument();
