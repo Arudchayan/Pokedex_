@@ -261,7 +261,7 @@ const AppHeader: React.FC<AppHeaderProps> = memo(({ onRandomPokemon }) => {
                       id={menuId}
                       role="menu"
                       aria-label="Tools"
-                      className={`absolute top-full mt-2 right-0 w-56 rounded-xl shadow-2xl border p-2 z-50 flex flex-col gap-1 ${
+                      className={`absolute top-full mt-2 right-0 w-56 max-h-[calc(100dvh-8rem)] rounded-xl shadow-2xl border p-2 z-50 flex flex-col gap-1 overflow-y-auto overscroll-contain scroll-py-2 ${
                         theme === 'dark'
                           ? 'bg-slate-900 border-white/10'
                           : 'bg-white border-slate-200'
