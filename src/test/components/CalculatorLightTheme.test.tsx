@@ -38,6 +38,11 @@ const expectThemeSafePrimary = (name: string) => {
   const action = screen.getByRole('button', { name });
   expect(action).toHaveClass('bg-slate-900', 'text-white', 'border-slate-900');
   expect(action).toHaveClass('dark:bg-white', 'dark:text-slate-900', 'dark:border-white');
+  expect(action).toHaveClass(
+    'disabled:bg-slate-500',
+    'disabled:text-white',
+    'disabled:border-slate-500'
+  );
 };
 
 describe('calculator light-theme states', () => {
