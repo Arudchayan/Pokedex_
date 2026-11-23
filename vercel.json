@@ -3,6 +3,13 @@
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
   "installCommand": "npm ci",
+  "redirects": [
+    {
+      "source": "/pokemon/:id(\\d+)",
+      "destination": "/?pokemon=:id",
+      "permanent": false
+    }
+  ],
   "headers": [
     {
       "source": "/(.*)",

@@ -10,6 +10,7 @@ import { AchievementProvider } from './context/AchievementContext';
 import { WalkthroughProvider } from './context/WalkthroughContext';
 import ToastContainer from './components/shared/ToastContainer';
 import { registerServiceWorker } from './utils/registerSW';
+import { normalizePokemonPathInLocation } from './utils/pokemonPath';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { queryClient } from './config/queryClient';
@@ -17,6 +18,9 @@ import { env } from './config/env';
 import { ALL_TOURS } from './data/tours';
 import './index.css';
 import './styles/global.css';
+
+// Support `/pokemon/:id` entry links before the app reads `?pokemon=`.
+normalizePokemonPathInLocation();
 
 const rootElement = document.getElementById('root');
 if (!rootElement) {
