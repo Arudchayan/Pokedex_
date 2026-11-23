@@ -55,7 +55,7 @@ function Modal({
   return ReactDOM.createPortal(
     <div
       ref={contentRef}
-      className="fixed inset-0 z-[1080] flex items-end sm:items-center justify-center sm:p-4"
+      className="fixed inset-0 z-modal-elevated flex items-end sm:items-center justify-center sm:p-4"
       role="dialog"
       aria-modal="true"
       aria-labelledby={titleId}

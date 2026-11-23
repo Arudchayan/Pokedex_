@@ -3,6 +3,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import MobileTeamSheet from '../../components/team/MobileTeamSheet';
+import { installInertSupport } from '../inertSupport';
 import type { TeamMember } from '../../types';
 
 const team: TeamMember[] = [
@@ -137,13 +138,59 @@ describe('MobileTeamSheet focus management', () => {
     expect(trigger).toHaveFocus();
   });
 
-  it('marks the background inert while open and clears it on close', async () => {
-    const originalDescriptor = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'inert');
-    Object.defineProperty(HTMLElement.prototype, 'inert', {
-      configurable: true,
-      writable: true,
-      value: false,
+  it('skips controls hidden by CSS or aria-hidden when wrapping', async () => {
+    const user = userEvent.setup({ delay: null });
+    renderSheet();
+
+    const dialog = await openSheet(user);
+    const first = within(dialog).getByRole('button', { name: 'Clear All' });
+    const slot3 = within(dialog).getByRole('button', { name: 'Slot 3' });
+    const slot4 = within(dialog).getByRole('button', { name: 'Slot 4' });
+    const lastMemberRemove = within(dialog).getByRole('button', {
+      name: 'Remove charmander from team',
     });
+
+    slot4.style.display = 'none';
+    first.focus();
+    await user.tab({ shift: true });
+    expect(slot3).toHaveFocus();
+
+    slot3.setAttribute('aria-hidden', 'true');
+    first.focus();
+    await user.tab({ shift: true });
+    expect(lastMemberRemove).toHaveFocus();
+  });
+
+  it('focuses the search input after choosing an empty slot', async () => {
+    const user = userEvent.setup({ delay: null });
+    const searchInputRef = React.createRef<HTMLInputElement>();
+    const onAddPokemon = vi.fn(() => searchInputRef.current?.focus());
+
+    render(
+      <>
+        <input ref={searchInputRef} aria-label="Search Pokemon" />
+        <MobileTeamSheet
+          team={team}
+          onRemove={vi.fn()}
+          onClear={vi.fn()}
+          onSelect={vi.fn()}
+          teamCapacity={4}
+          theme="light"
+          onAddPokemon={onAddPokemon}
+        />
+      </>
+    );
+
+    const dialog = await openSheet(user);
+    await user.click(within(dialog).getByRole('button', { name: 'Slot 3' }));
+
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+    expect(onAddPokemon).toHaveBeenCalledTimes(1);
+    expect(searchInputRef.current).toHaveFocus();
+  });
+
+  it('marks the background inert while open and clears it on close', async () => {
+    const restoreInert = installInertSupport();
 
     try {
       const user = userEvent.setup({ delay: null });
@@ -160,11 +207,7 @@ describe('MobileTeamSheet focus management', () => {
       await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
       expect(appRoot).not.toHaveAttribute('inert');
     } finally {
-      if (originalDescriptor) {
-        Object.defineProperty(HTMLElement.prototype, 'inert', originalDescriptor);
-      } else {
-        delete (HTMLElement.prototype as { inert?: boolean }).inert;
-      }
+      restoreInert();
     }
   });
 });

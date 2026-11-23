@@ -71,6 +71,7 @@ export default function AppMain({ controller }: Props) {
   const [mobileFullBuilderOpen, setMobileFullBuilderOpen] = useState(false);
   const fullBuilderRef = useRef<HTMLDivElement>(null);
   const fullBuilderHeadingRef = useRef<HTMLHeadingElement>(null);
+  const focusSearchAfterBuilderRef = useRef(false);
   const fullBuilderTitleId = useId();
   const isDesktop = useMediaQuery('(min-width: 1024px)');
 
@@ -103,9 +104,21 @@ export default function AppMain({ controller }: Props) {
   );
 
   const handleTeamAddPokemon = useCallback(() => {
-    setMobileFullBuilderOpen(false);
+    if (mobileFullBuilderOpen) {
+      focusSearchAfterBuilderRef.current = true;
+      setMobileFullBuilderOpen(false);
+      return;
+    }
     handleFocusSearch();
-  }, [handleFocusSearch]);
+  }, [handleFocusSearch, mobileFullBuilderOpen]);
+
+  // Wait until the builder has closed and the trap has removed `inert` before
+  // moving focus to the search input.
+  useEffect(() => {
+    if (mobileFullBuilderOpen || !focusSearchAfterBuilderRef.current) return;
+    focusSearchAfterBuilderRef.current = false;
+    handleFocusSearch();
+  }, [mobileFullBuilderOpen, handleFocusSearch]);
 
   const hasFilteredPokemon = filteredPokemon.length > 0;
 

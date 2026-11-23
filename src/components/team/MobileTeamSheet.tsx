@@ -35,6 +35,7 @@ const MobileTeamSheet: React.FC<MobileTeamSheetProps> = ({
   const [isOpen, setIsOpen] = useState(false);
   const sheetRef = useRef<HTMLDivElement>(null);
   const headingRef = useRef<HTMLHeadingElement>(null);
+  const focusSearchOnCloseRef = useRef(false);
   const titleId = useId();
   const descriptionId = useId();
   const isDesktop = useMediaQuery('(min-width: 1024px)');
@@ -50,6 +51,14 @@ const MobileTeamSheet: React.FC<MobileTeamSheetProps> = ({
     initialFocusRef: headingRef,
     onEscape: () => setIsOpen(false),
   });
+
+  // Wait until the sheet has closed and the trap has removed `inert` before
+  // moving focus to the search input.
+  useEffect(() => {
+    if (isOpen || !focusSearchOnCloseRef.current) return;
+    focusSearchOnCloseRef.current = false;
+    onAddPokemon?.();
+  }, [isOpen, onAddPokemon]);
 
   useEffect(() => {
     if (isOpen) {
@@ -75,6 +84,12 @@ const MobileTeamSheet: React.FC<MobileTeamSheetProps> = ({
 
   const handleSelectAndClose = (id: number) => {
     onSelect(id);
+    setIsOpen(false);
+  };
+
+  const handleEmptySlotClick = () => {
+    playUISound('click');
+    focusSearchOnCloseRef.current = true;
     setIsOpen(false);
   };
 
@@ -302,11 +317,7 @@ const MobileTeamSheet: React.FC<MobileTeamSheetProps> = ({
                   <button
                     key={`empty-${i}`}
                     type="button"
-                    onClick={() => {
-                      playUISound('click');
-                      onAddPokemon?.();
-                      setIsOpen(false);
-                    }}
+                    onClick={handleEmptySlotClick}
                     className={`w-full flex items-center justify-center gap-2 p-3 rounded-xl border border-dashed text-xs font-semibold uppercase tracking-wide transition-colors ${
                       isDark
                         ? 'border-white/15 text-slate-500 hover:border-white/30 hover:bg-white/5'
