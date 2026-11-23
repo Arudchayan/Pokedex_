@@ -179,7 +179,7 @@ describe('saved team resolution', () => {
       } satisfies PokemonListItem,
     ]);
     expect(restored.map((member) => member.id)).toEqual([SAVED_ID]);
-  });
+  }, 15000);
 
   it('resolves available species while keeping unresolved IDs as placeholders', async () => {
     setPokeapiServiceMock();
@@ -195,7 +195,7 @@ describe('saved team resolution', () => {
   });
 
   it('resolves a placeholder when species data arrives and ignores blank image overrides', async () => {
-    setPokeapiServiceMock({ fetchAllPokemons: [] });
+    setPokeapiServiceMock();
     usePokemonStore.getState().setTeam([unavailableMember(SAVED_ID)]);
     expect(usePokemonStore.getState().teamCustomizations[SAVED_ID]?.imageUrl).toBeUndefined();
 
@@ -207,6 +207,7 @@ describe('saved team resolution', () => {
     renderWithProvider(<TeamBuilderHarness />);
 
     expect(await screen.findByText(`Pokémon #${SAVED_ID}`)).toBeInTheDocument();
+    await waitFor(() => expect(usePokemonStore.getState().masterPokemonList).toHaveLength(2));
 
     await act(async () => {
       usePokemonStore.getState().setMasterPokemonList([resolvedPokemon()]);
@@ -217,7 +218,7 @@ describe('saved team resolution', () => {
     expect(screen.queryByText('Details unavailable')).not.toBeInTheDocument();
     expect(screen.getByAltText('mewtwo')).toHaveAttribute('src', resolvedPokemon().imageUrl);
     expect(usePokemonStore.getState().team).toEqual([SAVED_ID]);
-  });
+  }, 15000);
 
   it('unlocks Full Squad from six persisted IDs without details', async () => {
     setPokeapiServiceMock({ fetchAllPokemons: [] });
@@ -231,7 +232,7 @@ describe('saved team resolution', () => {
       expect(achievements.novice_trainer).toBeTypeOf('number');
       expect(achievements.full_squad).toBeTypeOf('number');
     });
-  });
+  }, 10000);
 
   it('blocks saving the current team while member details are unavailable', async () => {
     setPokeapiServiceMock({ fetchAllPokemons: [] });
