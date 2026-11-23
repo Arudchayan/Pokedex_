@@ -68,8 +68,19 @@ vi.mock('../../utils/teamStorage', () => ({
 
 // Mock utils/persistenceSchema to bypass strict validation if needed
 vi.mock('../../utils/persistenceSchema', () => ({
+  PERSISTENCE_VERSION: '1.0',
   isPersistenceData: () => true,
   buildPersistenceData: () => ({}),
+  parsePersistenceBackup: (_raw: string) => ({
+    ok: true,
+    backup: {
+      team: [],
+      favorites: [],
+      savedTeams: [],
+      theme: 'dark',
+      timestamp: '2024-01-01T00:00:00.000Z',
+    },
+  }),
 }));
 
 describe('DataManagement Input DoS Prevention', () => {

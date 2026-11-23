@@ -40,6 +40,7 @@ export default function AppMain({ controller }: Props) {
     comparisonList,
     MAX_COMPARISON,
     TEAM_CAPACITY,
+    masterPokemonList,
     filteredPokemon,
     teamPokemon,
     undo,
@@ -64,7 +65,6 @@ export default function AppMain({ controller }: Props) {
     handleUpdateTeamMember,
     handleLoadTeam,
     handleRandomizeTeam,
-    handleFocusSearch,
     handleReorderTeam,
   } = controller;
 
@@ -72,7 +72,6 @@ export default function AppMain({ controller }: Props) {
   const [mobileFullBuilderOpen, setMobileFullBuilderOpen] = useState(false);
   const fullBuilderRef = useRef<HTMLDivElement>(null);
   const fullBuilderHeadingRef = useRef<HTMLHeadingElement>(null);
-  const focusSearchAfterBuilderRef = useRef(false);
   const fullBuilderTitleId = useId();
   const mobileFiltersPanelId = `mobile-filters-${useId().replace(/[^a-zA-Z0-9_-]/g, '')}`;
   const mobileFilterCount =
@@ -109,23 +108,6 @@ export default function AppMain({ controller }: Props) {
     [handleSelectPokemon]
   );
 
-  const handleTeamAddPokemon = useCallback(() => {
-    if (mobileFullBuilderOpen) {
-      focusSearchAfterBuilderRef.current = true;
-      setMobileFullBuilderOpen(false);
-      return;
-    }
-    handleFocusSearch();
-  }, [handleFocusSearch, mobileFullBuilderOpen]);
-
-  // Wait until the builder has closed and the trap has removed `inert` before
-  // moving focus to the search input.
-  useEffect(() => {
-    if (mobileFullBuilderOpen || !focusSearchAfterBuilderRef.current) return;
-    focusSearchAfterBuilderRef.current = false;
-    handleFocusSearch();
-  }, [mobileFullBuilderOpen, handleFocusSearch]);
-
   const hasFilteredPokemon = filteredPokemon.length > 0;
 
   const teamBuilderProps = useMemo(
@@ -141,7 +123,10 @@ export default function AppMain({ controller }: Props) {
       onRandomize: handleRandomizeTeam,
       hasFilteredPokemon,
       isCyberpunk,
-      onAddPokemon: handleTeamAddPokemon,
+      availablePokemon: masterPokemonList,
+      availablePokemonLoading: loading,
+      availablePokemonError: error,
+      onRetryAvailablePokemon: reload,
       onAddToTeam: handleAddToTeam,
       undo,
       redo,
@@ -161,7 +146,10 @@ export default function AppMain({ controller }: Props) {
       handleRandomizeTeam,
       hasFilteredPokemon,
       isCyberpunk,
-      handleTeamAddPokemon,
+      masterPokemonList,
+      loading,
+      error,
+      reload,
       handleAddToTeam,
       undo,
       redo,
@@ -714,7 +702,10 @@ export default function AppMain({ controller }: Props) {
           teamCapacity={TEAM_CAPACITY}
           theme={theme}
           isCyberpunk={isCyberpunk}
-          onAddPokemon={handleFocusSearch}
+          availablePokemon={masterPokemonList}
+          availablePokemonLoading={loading}
+          availablePokemonError={error}
+          onRetryAvailablePokemon={reload}
           onAddToTeam={handleAddToTeam}
           onOpenFullBuilder={() => setMobileFullBuilderOpen(true)}
         />
