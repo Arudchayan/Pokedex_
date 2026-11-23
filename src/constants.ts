@@ -5,6 +5,10 @@ export const POKEAPI_GRAPHQL_URL = env.pokeapiUrl;
 export const POKEMON_PER_PAGE = env.pokemonPerPage;
 export const MAX_POKEMON_ID = 1025;
 
+/** Legal range for a Pokémon base stat (HP/Attack/Defense/Sp. Atk/Sp. Def/Speed). */
+export const MIN_STAT_VALUE = 0;
+export const MAX_STAT_VALUE = 255;
+
 // Timeout constants (in milliseconds)
 export const TIMEOUT_DELAYS = {
   BATTLE_TEAM_GENERATION: 8000, // 8 seconds for battle team generation timeout

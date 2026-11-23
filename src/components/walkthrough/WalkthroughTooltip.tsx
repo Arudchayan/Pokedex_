@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { usePokemonStore } from '../../store/usePokemonStore';
+import { resolveTourTarget } from '../../utils/tourTarget';
 import Button from '../base/Button';
 import type { TourStep } from '../../context/WalkthroughContext';
 
@@ -45,7 +46,7 @@ export default function WalkthroughTooltip({
       return;
     }
 
-    const targetElement = document.querySelector(step.target);
+    const targetElement = resolveTourTarget(step.target);
     if (!targetElement) {
       // Target not found, center the tooltip
       setPosition({

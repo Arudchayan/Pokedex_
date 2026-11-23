@@ -8,6 +8,7 @@ interface Props {
   onClose: () => void;
   date: string;
   seed: number;
+  onReady?: () => void;
 }
 
 interface GuessResult {
@@ -22,7 +23,7 @@ interface GuessResult {
   };
 }
 
-const MoveGame: React.FC<Props> = ({ onClose, date, seed }) => {
+const MoveGame: React.FC<Props> = ({ onClose, date, seed, onReady }) => {
   const { theme } = usePokemonUI();
   const { recordResult } = useGameStats();
   const [moves, setMoves] = useState<Move[]>([]);
@@ -60,6 +61,10 @@ const MoveGame: React.FC<Props> = ({ onClose, date, seed }) => {
     };
     init();
   }, [rng]);
+
+  useEffect(() => {
+    if (!isLoading) onReady?.();
+  }, [isLoading, onReady]);
 
   const handleSearch = (term: string) => {
     setCurrentGuess(term);

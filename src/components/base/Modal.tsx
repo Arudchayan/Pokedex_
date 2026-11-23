@@ -1,5 +1,6 @@
-import { useEffect, useRef, useCallback, useId } from 'react';
+import { useEffect, useRef, useId } from 'react';
 import ReactDOM from 'react-dom';
+import { useFocusTrap } from '../../hooks/useFocusTrap';
 
 export interface ModalProps {
   isOpen: boolean;
@@ -29,89 +30,24 @@ function Modal({
   className = '',
 }: ModalProps) {
   const titleId = useId();
-  const previousFocusRef = useRef<Element | null>(null);
   const contentRef = useRef<HTMLDivElement>(null);
 
-  // Capture the previously-focused element when the modal opens
+  useFocusTrap({
+    active: isOpen,
+    containerRef: contentRef,
+    onEscape: onClose,
+  });
+
+  // Lock body scroll while the modal is open
   useEffect(() => {
     if (!isOpen) return;
 
-    previousFocusRef.current = document.activeElement;
-
-    // Lock body scroll
     const originalOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
 
     return () => {
-      // Restore body scroll
       document.body.style.overflow = originalOverflow;
-
-      // Restore focus
-      const el = previousFocusRef.current;
-      if (el && el instanceof HTMLElement) {
-        el.focus();
-      }
     };
-  }, [isOpen]);
-
-  // Escape key handler
-  const handleKeyDown = useCallback(
-    (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        onClose();
-      }
-    },
-    [onClose]
-  );
-
-  useEffect(() => {
-    if (!isOpen) return;
-
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, handleKeyDown]);
-
-  // Focus trap: keep Tab / Shift+Tab cycling within the modal
-  useEffect(() => {
-    if (!isOpen) return;
-
-    const modal = contentRef.current;
-    if (!modal) return;
-
-    const focusableSelectors =
-      'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])';
-
-    const handleTab = (e: KeyboardEvent) => {
-      if (e.key !== 'Tab') return;
-
-      const focusableElements = modal.querySelectorAll(focusableSelectors);
-      if (focusableElements.length === 0) return;
-
-      const firstElement = focusableElements[0] as HTMLElement;
-      const lastElement = focusableElements[focusableElements.length - 1] as HTMLElement;
-
-      if (e.shiftKey) {
-        if (document.activeElement === firstElement) {
-          e.preventDefault();
-          lastElement.focus();
-        }
-      } else {
-        if (document.activeElement === lastElement) {
-          e.preventDefault();
-          firstElement.focus();
-        }
-      }
-    };
-
-    document.addEventListener('keydown', handleTab);
-
-    // Auto-focus the first focusable element (typically the close button)
-    const firstFocusable = modal.querySelector(focusableSelectors) as HTMLElement;
-    if (firstFocusable) {
-      setTimeout(() => firstFocusable.focus(), 50);
-    }
-
-    return () => document.removeEventListener('keydown', handleTab);
   }, [isOpen]);
 
   if (!isOpen) return null;
@@ -119,10 +55,11 @@ function Modal({
   return ReactDOM.createPortal(
     <div
       ref={contentRef}
-      className="fixed inset-0 z-[1050] flex items-end sm:items-center justify-center sm:p-4"
+      className="fixed inset-0 z-modal-elevated flex items-end sm:items-center justify-center sm:p-4"
       role="dialog"
       aria-modal="true"
       aria-labelledby={titleId}
+      tabIndex={-1}
     >
       {/* Backdrop */}
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
