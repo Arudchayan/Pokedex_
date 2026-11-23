@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it } from 'vitest';
 import {
+  consumePokemonPathMarker,
   normalizePokemonPath,
   normalizePokemonPathInLocation,
   parsePokemonId,
@@ -74,6 +75,53 @@ describe('normalizePokemonPath', () => {
   });
 });
 
+describe('consumePokemonPathMarker', () => {
+  it('converts the Vercel marker into the canonical query deep link', () => {
+    expect(consumePokemonPathMarker(parts('/', '?pokemonPath=25'))).toBe('/?pokemon=25');
+  });
+
+  it('lets the path id win over a merged conflicting ?pokemon value', () => {
+    const normalized = consumePokemonPathMarker(parts('/', '?pokemon=6&pokemonPath=25'));
+
+    expect(normalized).not.toBeNull();
+    const url = new URL(normalized!, 'https://example.test');
+    expect(url.searchParams.getAll('pokemon')).toEqual(['25']);
+    expect(url.searchParams.has('pokemonPath')).toBe(false);
+  });
+
+  it('preserves unrelated query params, hashes, and leading-zero ids', () => {
+    const normalized = consumePokemonPathMarker(
+      parts('/', '?compare=1,4&foo=bar&pokemonPath=025', '#overview')
+    );
+
+    expect(normalized).not.toBeNull();
+    const url = new URL(normalized!, 'https://example.test');
+    expect(url.hash).toBe('#overview');
+    expect(url.searchParams.get('compare')).toBe('1,4');
+    expect(url.searchParams.get('foo')).toBe('bar');
+    expect(url.searchParams.get('pokemon')).toBe('25');
+    expect(url.searchParams.has('pokemonPath')).toBe(false);
+  });
+
+  it('uses the last marker when the request already contained one', () => {
+    const normalized = consumePokemonPathMarker(parts('/', '?pokemonPath=6&pokemonPath=25'));
+
+    expect(normalized).not.toBeNull();
+    const url = new URL(normalized!, 'https://example.test');
+    expect(url.searchParams.getAll('pokemon')).toEqual(['25']);
+  });
+
+  it('removes an invalid marker without opening a detail view', () => {
+    expect(consumePokemonPathMarker(parts('/', '?pokemonPath=abc&compare=1'))).toBe('/?compare=1');
+    expect(consumePokemonPathMarker(parts('/', '?pokemonPath=0'))).toBe('/');
+    expect(consumePokemonPathMarker(parts('/', '?pokemonPath=1026'))).toBe('/');
+  });
+
+  it('is a no-op when the marker is absent', () => {
+    expect(consumePokemonPathMarker(parts('/', '?pokemon=25'))).toBeNull();
+  });
+});
+
 describe('normalizePokemonPathInLocation', () => {
   afterEach(() => {
     window.history.replaceState(null, '', '/');
@@ -87,6 +135,23 @@ describe('normalizePokemonPathInLocation', () => {
     expect(window.location.pathname).toBe('/');
     expect(window.location.search).toBe('?compare=1%2C4&pokemon=25');
     expect(window.location.hash).toBe('#overview');
+  });
+
+  it('consumes a Vercel path marker on the home route', () => {
+    window.history.replaceState(null, '', '/?pokemon=6&pokemonPath=25&compare=1,4');
+
+    normalizePokemonPathInLocation();
+
+    expect(window.location.pathname).toBe('/');
+    expect(window.location.search).toBe('?pokemon=25&compare=1%2C4');
+  });
+
+  it('removes an invalid Vercel path marker', () => {
+    window.history.replaceState(null, '', '/?pokemonPath=1026&compare=1,4');
+
+    normalizePokemonPathInLocation();
+
+    expect(window.location.search).toBe('?compare=1%2C4');
   });
 
   it('leaves other paths untouched', () => {

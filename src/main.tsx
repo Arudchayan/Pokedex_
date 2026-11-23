@@ -11,6 +11,7 @@ import { WalkthroughProvider } from './context/WalkthroughContext';
 import ToastContainer from './components/shared/ToastContainer';
 import { registerServiceWorker } from './utils/registerSW';
 import { normalizePokemonPathInLocation } from './utils/pokemonPath';
+import { applyUrlFilters } from './app/urlState';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { queryClient } from './config/queryClient';
@@ -19,8 +20,9 @@ import { ALL_TOURS } from './data/tours';
 import './index.css';
 import './styles/global.css';
 
-// Support `/pokemon/:id` entry links before the app reads `?pokemon=`.
+// Support `/pokemon/:id` entry links and filter state before the app reads the URL.
 normalizePokemonPathInLocation();
+applyUrlFilters(window.location.search);
 
 const rootElement = document.getElementById('root');
 if (!rootElement) {

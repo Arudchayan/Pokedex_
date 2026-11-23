@@ -41,6 +41,26 @@ test('Path deep-link /pokemon/25 normalizes to ?pokemon=25 and opens Pikachu', a
   await expect(page).toHaveTitle(/Pikachu/i);
 });
 
+test('Path deep-link wins over a conflicting ?pokemon from the Vercel redirect', async ({
+  page,
+}) => {
+  await skipWalkthroughOnboarding(page);
+  // Vercel merges request and destination query strings, so the cold redirect
+  // lands on a URL that contains both values.
+  await page.goto('/?pokemon=6&pokemonPath=25');
+  await dismissWelcomeModal(page);
+
+  await expect(page).toHaveURL(/\/\?pokemon=25$/);
+
+  const detailDialog = page.locator('div[role="dialog"]').filter({
+    has: page.getByRole('heading', { name: /Pikachu/i }),
+  });
+
+  await expect(detailDialog).toBeVisible({ timeout: 30000 });
+  await expect(detailDialog.getByRole('heading', { name: /Pikachu/i })).toBeVisible();
+  await expect(page).toHaveTitle(/Pikachu/i);
+});
+
 test('Compare deep-link opens comparison from ?compare=1,4', async ({ page }) => {
   await skipWalkthroughOnboarding(page);
   await page.goto('/?compare=1,4');

@@ -5,8 +5,8 @@
   "installCommand": "npm ci",
   "redirects": [
     {
-      "source": "/pokemon/:id(\\d+)",
-      "destination": "/?pokemon=:id",
+      "source": "/pokemon/:id(0*[1-9][0-9]{0,2}|0*10[01][0-9]|0*102[0-5])",
+      "destination": "/?pokemonPath=:id",
       "permanent": false
     }
   ],

@@ -1,4 +1,5 @@
-import type { ManifestOptions } from 'vite-plugin-pwa';
+import type { ManifestOptions, VitePWAOptions } from 'vite-plugin-pwa';
+import { APP_SHELL_NAVIGATION_ALLOWLIST } from './routing';
 
 /**
  * Web app manifest for the installed PWA.
@@ -29,3 +30,45 @@ export const pwaManifest = {
     },
   ],
 } satisfies Partial<ManifestOptions>;
+
+/**
+ * Only the declared app routes may fall back to the cached app shell. Unknown
+ * paths go to the network so Vercel can return its 404 instead of a soft-200
+ * home screen.
+ */
+export const pwaWorkbox = {
+  navigateFallbackAllowlist: APP_SHELL_NAVIGATION_ALLOWLIST,
+  runtimeCaching: [
+    {
+      // Pokemon walkers sprite pack (GitHub raw). Cache for smoother playback.
+      urlPattern: ({ url }: { url: URL }) =>
+        url.origin === 'https://raw.githubusercontent.com' &&
+        url.pathname.includes('/media/') &&
+        url.pathname.endsWith('_8fps.gif'),
+      handler: 'CacheFirst',
+      options: {
+        cacheName: 'walkers-sprites',
+        cacheableResponse: { statuses: [0, 200] },
+        expiration: {
+          maxEntries: 250,
+          maxAgeSeconds: 60 * 60 * 24 * 30, // 30 days
+        },
+      },
+    },
+    {
+      // Core PokeAPI sprites (pokemon + items) for repeat visits / offline polish.
+      urlPattern: ({ url }: { url: URL }) =>
+        url.origin === 'https://raw.githubusercontent.com' &&
+        url.pathname.includes('/PokeAPI/sprites/'),
+      handler: 'CacheFirst',
+      options: {
+        cacheName: 'pokeapi-sprites',
+        cacheableResponse: { statuses: [0, 200] },
+        expiration: {
+          maxEntries: 800,
+          maxAgeSeconds: 60 * 60 * 24 * 30, // 30 days
+        },
+      },
+    },
+  ],
+} satisfies VitePWAOptions['workbox'];

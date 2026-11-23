@@ -1,5 +1,6 @@
 import React, { memo } from 'react';
 import type { SortOption } from '../../types/sorting';
+import { POKEDEX_OPTIONS } from '../../config/pokedex';
 
 export type { SortOption } from '../../types/sorting';
 
@@ -40,20 +41,6 @@ const SortingControls: React.FC<SortingControlsProps> = ({
   ];
 
   const isStatSelected = statOptions.some((opt) => opt.value === sortBy);
-
-  const dexOptions: { value: string; label: string }[] = [
-    { value: 'national', label: 'National Dex' },
-    { value: 'kanto', label: 'Kanto' },
-    { value: 'original-johto', label: 'Johto' },
-    { value: 'hoenn', label: 'Hoenn' },
-    { value: 'original-sinnoh', label: 'Sinnoh' },
-    { value: 'original-unova', label: 'Unova' },
-    { value: 'kalos-central', label: 'Kalos' },
-    { value: 'original-alola', label: 'Alola' },
-    { value: 'galar', label: 'Galar' },
-    { value: 'hisui', label: 'Hisui' },
-    { value: 'paldea', label: 'Paldea' },
-  ];
 
   const currentDexValue = sortBy === 'regional-dex' ? selectedPokedex : 'national';
 
@@ -162,7 +149,7 @@ const SortingControls: React.FC<SortingControlsProps> = ({
                   : 'bg-slate-100 text-slate-600 border border-slate-200 hover:bg-slate-200 hover:text-slate-900'
             }`}
           >
-            {dexOptions.map((option) => (
+            {POKEDEX_OPTIONS.map((option) => (
               <option
                 key={option.value}
                 value={option.value}
