@@ -52,6 +52,7 @@ interface WalkthroughContextType {
   currentStepIndex: number;
   totalSteps: number;
   progress: WalkthroughProgress;
+  tours: TourDefinition[];
 
   // Actions
   startTour: (tourId: string) => void;
@@ -322,6 +323,7 @@ export const WalkthroughProvider: React.FC<{ children: ReactNode; tours: TourDef
       currentStepIndex: progress.currentStepIndex,
       totalSteps,
       progress,
+      tours,
       startTour,
       nextStep,
       prevStep,
@@ -343,6 +345,7 @@ export const WalkthroughProvider: React.FC<{ children: ReactNode; tours: TourDef
       currentStep,
       progress,
       totalSteps,
+      tours,
       startTour,
       nextStep,
       prevStep,
