@@ -45,8 +45,8 @@ describe('FilterControls instance ids', () => {
 
     expect(duplicateIds(document.body)).toEqual([]);
 
-    const labelTargets = Array.from(container.querySelectorAll('label[for]')).map(
-      (label) => label.getAttribute('for')!
+    const labelTargets = Array.from(container.querySelectorAll('label[for]')).map((label) =>
+      label.getAttribute('for')!
     );
     expect(labelTargets.length).toBeGreaterThan(0);
     labelTargets.forEach((id) => expect(document.getElementById(id)).not.toBeNull());
