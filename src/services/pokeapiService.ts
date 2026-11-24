@@ -37,86 +37,11 @@ import type {
   FetchMoveDexQuery,
   FetchAbilityDexQuery,
   FetchItemDexQuery,
+  GetEncounterLocationsQuery,
+  GetPokemonDetailsQuery,
+  GetPokemonMovesQuery,
+  GetRegionalDexQuery,
 } from '../graphql/generated';
-
-/** Slim details response — moves live in getPokemonMoves (manual typing; avoid regenerating generated.ts). */
-type GetPokemonDetailsQuery = {
-  pokemon_v2_pokemonspecies: Array<{
-    id: number;
-    name: string;
-    capture_rate?: number | null;
-    base_happiness?: number | null;
-    gender_rate?: number | null;
-    pokemon_v2_pokemoncolor?: { name: string } | null;
-    pokemon_v2_pokemonhabitat?: { name: string } | null;
-    pokemon_v2_pokemonspeciesnames: Array<{ genus: string }>;
-    pokemon_v2_growthrate?: { name: string } | null;
-    pokemon_v2_pokemonshape?: { name: string } | null;
-    pokemon_v2_pokemonegggroups: Array<{
-      pokemon_v2_egggroup?: { name: string } | null;
-    }>;
-    pokemon_v2_evolutionchain?: {
-      pokemon_v2_pokemonspecies: Array<{
-        id: number;
-        name: string;
-        evolves_from_species_id?: number | null;
-        pokemon_v2_pokemons: Array<{
-          pokemon_v2_pokemonsprites: Array<{ sprites: unknown }>;
-        }>;
-        pokemon_v2_pokemonevolutions: Array<{
-          min_level?: number | null;
-          min_happiness?: number | null;
-          held_item_id?: number | null;
-          time_of_day?: string | null;
-          pokemon_v2_evolutiontrigger?: { name: string } | null;
-          pokemon_v2_item?: { name: string } | null;
-          pokemon_v2_move?: { name: string } | null;
-          pokemon_v2_location?: { name: string } | null;
-        }>;
-      }>;
-    } | null;
-    pokemon_v2_pokemonspeciesflavortexts: Array<{ flavor_text: string }>;
-    pokemon_v2_pokemons: Array<{
-      id: number;
-      name: string;
-      height?: number | null;
-      weight?: number | null;
-      is_default: boolean;
-      pokemon_v2_pokemonsprites: Array<{ sprites: unknown }>;
-      pokemon_v2_pokemontypes: Array<{
-        pokemon_v2_type?: { name: string } | null;
-      }>;
-      pokemon_v2_pokemonstats: Array<{
-        base_stat: number;
-        pokemon_v2_stat?: { name: string } | null;
-      }>;
-      pokemon_v2_pokemonabilities: Array<{
-        pokemon_v2_ability?: { name: string } | null;
-      }>;
-    }>;
-  }>;
-};
-
-type GetPokemonMovesQuery = {
-  pokemon_v2_pokemon: Array<{
-    id: number;
-    pokemon_v2_pokemonmoves: Array<{
-      level: number;
-      version_group_id?: number | null;
-      pokemon_v2_versiongroup?: { name: string } | null;
-      pokemon_v2_movelearnmethod?: { name: string } | null;
-      pokemon_v2_move?: {
-        name: string;
-        power?: number | null;
-        accuracy?: number | null;
-        pp?: number | null;
-        priority?: number | null;
-        pokemon_v2_type?: { name: string } | null;
-        pokemon_v2_movedamageclass?: { name: string } | null;
-      } | null;
-    }>;
-  }>;
-};
 
 const FLAVOR_TEXT_SANITIZATION_REGEX = /[\n\f]/g;
 const CACHE_TTL = 24 * 60 * 60 * 1000; // 24 hours
@@ -124,8 +49,9 @@ const CACHE_TIMESTAMP_KEY = 'pokedex_master_list_timestamp';
 const CACHE_KEY = 'pokedex_master_list_v2';
 const MOVES_CACHE_KEY = 'pokedex_moves';
 const MOVES_CACHE_TIMESTAMP_KEY = 'pokedex_moves_timestamp';
-const ITEMS_CACHE_KEY = 'pokedex_items';
-const ITEMS_CACHE_TIMESTAMP_KEY = 'pokedex_items_timestamp';
+// v2 invalidates pre-migration v1 caches that only held the 16 price-filtered items.
+const ITEMS_CACHE_KEY = 'pokedex_items_v2';
+const ITEMS_CACHE_TIMESTAMP_KEY = 'pokedex_items_v2_timestamp';
 
 const EVOLUTION_ITEM_MAP: Record<number, string> = {
   198: "King's Rock",
@@ -395,18 +321,19 @@ export const fetchAllPokemons = async (signal?: AbortSignal): Promise<PokemonLis
         { limit: MAX_POKEMON_ID },
         { signal }
       ),
-    3, // max 3 retries
-    2000 // start with 2s delay
+    3, // max 3 attempts (not 3 extra retries)
+    2000, // start with 2s delay
+    signal
   );
 
-  const processed = data.pokemon_v2_pokemon
+  const processed = data.pokemon
     .filter((p) => {
       // Basic validation to prevent crashes from malformed data
       const isValidId = validateSafeNumber(p.id);
       const isValidName = sanitizeString(p.name);
       // Ensure critical arrays exist
-      const hasTypes = Array.isArray(p.pokemon_v2_pokemontypes);
-      const hasStats = Array.isArray(p.pokemon_v2_pokemonstats);
+      const hasTypes = Array.isArray(p.pokemontypes);
+      const hasStats = Array.isArray(p.pokemonstats);
 
       if (!isValidId || !isValidName || !hasTypes || !hasStats) {
         console.warn(`Sentinel: Skipping invalid pokemon ID: ${p.id}`);
@@ -419,15 +346,15 @@ export const fetchAllPokemons = async (signal?: AbortSignal): Promise<PokemonLis
       const genericSprite = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${p.id}.png`;
       const genericShinySprite = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/${p.id}.png`;
       const flavorText =
-        p.pokemon_v2_pokemonspecy?.pokemon_v2_pokemonspeciesflavortexts?.[0]?.flavor_text?.replace(
+        p.pokemonspecy?.pokemonspeciesflavortexts?.[0]?.flavor_text?.replace(
           FLAVOR_TEXT_SANITIZATION_REGEX,
           ' '
         ) || '';
-      const stats = p.pokemon_v2_pokemonstats.map((s) => ({
-        name: s.pokemon_v2_stat?.name || 'unknown',
+      const stats = p.pokemonstats.map((s) => ({
+        name: s.stat?.name || 'unknown',
         value: s.base_stat,
       }));
-      const types = p.pokemon_v2_pokemontypes.map((t) => t.pokemon_v2_type?.name || 'unknown');
+      const types = p.pokemontypes.map((t) => t.type?.name || 'unknown');
       const bst = stats.reduce((sum, stat) => sum + stat.value, 0);
 
       return {
@@ -439,14 +366,12 @@ export const fetchAllPokemons = async (signal?: AbortSignal): Promise<PokemonLis
         flavorText: flavorText,
         stats: stats,
         bst: bst,
-        abilities: (p.pokemon_v2_pokemonabilities || []).map(
-          (a) => a.pokemon_v2_ability?.name || 'unknown'
-        ),
+        abilities: (p.pokemonabilities || []).map((a) => a.ability?.name || 'unknown'),
         // Optimization: Pre-compute lowercased values for filtering
         nameLower: p.name.toLowerCase(),
         flavorTextLower: flavorText.toLowerCase(),
-        abilitiesLower: (p.pokemon_v2_pokemonabilities || []).map(
-          (a) => a.pokemon_v2_ability?.name.toLowerCase() || 'unknown'
+        abilitiesLower: (p.pokemonabilities || []).map(
+          (a) => a.ability?.name.toLowerCase() || 'unknown'
         ),
       };
     });
@@ -589,12 +514,12 @@ export const fetchAllMoves = async (): Promise<Move[]> => {
 
   try {
     const data = await queryPokeAPI<FetchMovesQuery>(fetchMovesQuery);
-    const moves = data.pokemon_v2_move
+    const moves = data.move
       .map((m) => ({
         id: m.id,
         name: m.name,
-        type: m.pokemon_v2_type?.name || 'normal',
-        category: m.pokemon_v2_movedamageclass?.name || 'status',
+        type: m.type?.name || 'normal',
+        category: m.movedamageclass?.name || 'status',
         power: m.power,
         accuracy: m.accuracy,
         pp: m.pp,
@@ -661,12 +586,12 @@ export const fetchAllItems = async (): Promise<Item[]> => {
   try {
     const data = await queryPokeAPI<FetchItemsQuery>(fetchItemsQuery);
     const items: Item[] = [];
-    for (const i of data.pokemon_v2_item) {
+    for (const i of data.item) {
       const itemData = {
         id: i.id,
         name: i.name,
-        cost: i.cost || 0,
-        flavorText: i.pokemon_v2_itemflavortexts?.[0]?.flavor_text || '',
+        cost: i.itemprices?.[0]?.purchase_price ?? 0,
+        flavorText: i.itemflavortexts?.[0]?.flavor_text || '',
         imageUrl: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/${i.name}.png`,
       };
       const validated = validateItem(itemData);
@@ -710,13 +635,13 @@ export interface ItemDexItem {
 /** Throws on failure so React Query can retry. */
 export const fetchMoveDex = async (signal?: AbortSignal): Promise<MoveDexItem[]> => {
   const data = await queryPokeAPI<FetchMoveDexQuery>(fetchMoveDexQuery, {}, { signal });
-  return data.pokemon_v2_move.map((m) => {
+  return data.move.map((m) => {
     const name = m.name;
-    const type = m.pokemon_v2_type?.name || 'normal';
+    const type = m.type?.name || 'normal';
     return {
       name,
       type,
-      damageClass: m.pokemon_v2_movedamageclass?.name || 'status',
+      damageClass: m.movedamageclass?.name || 'status',
       power: m.power ?? null,
       accuracy: m.accuracy ?? null,
       pp: m.pp ?? 0,
@@ -731,19 +656,19 @@ export const fetchMoveDex = async (signal?: AbortSignal): Promise<MoveDexItem[]>
 /** Throws on failure so React Query can retry. */
 export const fetchAbilityDex = async (signal?: AbortSignal): Promise<AbilityDexItem[]> => {
   const data = await queryPokeAPI<FetchAbilityDexQuery>(fetchAbilityDexQuery, {}, { signal });
-  return data.pokemon_v2_ability.map((a) => ({
+  return data.ability.map((a) => ({
     name: a.name,
-    effect: a.pokemon_v2_abilityeffecttexts[0]?.effect || 'No description available.',
+    effect: a.abilityeffecttexts[0]?.effect || 'No description available.',
   }));
 };
 
 /** Throws on failure so React Query can retry. */
 export const fetchItemDex = async (signal?: AbortSignal): Promise<ItemDexItem[]> => {
   const data = await queryPokeAPI<FetchItemDexQuery>(fetchItemDexQuery, {}, { signal });
-  return data.pokemon_v2_item.map((item) => ({
+  return data.item.map((item) => ({
     name: item.name,
-    category: item.pokemon_v2_itemcategory?.name || 'Misc',
-    effect: item.pokemon_v2_itemeffecttexts[0]?.effect || 'No description available.',
+    category: item.itemcategory?.name || 'Misc',
+    effect: item.itemeffecttexts[0]?.effect || 'No description available.',
     sprite: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/${encodeURIComponent(item.name)}.png`,
   }));
 };
@@ -795,19 +720,6 @@ const touchEncounterCacheLru = async (pokemonId: number): Promise<void> => {
 
 // --- Encounter Locations ---
 
-interface EncounterLocationsResponse {
-  pokemon_v2_encounter: {
-    min_level: number;
-    max_level: number;
-    pokemon_v2_encounterslots: {
-      rarity: number;
-      pokemon_v2_encountermethod: { name: string } | null;
-    }[];
-    pokemon_v2_version: { name: string } | null;
-    pokemon_v2_locationarea: { pokemon_v2_location: { name: string } | null } | null;
-  }[];
-}
-
 export const fetchEncounterLocations = async (pokemonId: number): Promise<PokemonEncounter[]> => {
   const cacheKey = encounterCacheKey(pokemonId);
   const tsKey = encounterTsKey(pokemonId);
@@ -829,20 +741,17 @@ export const fetchEncounterLocations = async (pokemonId: number): Promise<Pokemo
   }
 
   try {
-    const data = await queryPokeAPI<EncounterLocationsResponse>(getEncounterLocationsQuery, {
+    const data = await queryPokeAPI<GetEncounterLocationsQuery>(getEncounterLocationsQuery, {
       pokemonId,
     });
 
-    const encounters: PokemonEncounter[] = data.pokemon_v2_encounter.map((enc) => ({
-      locationName:
-        enc.pokemon_v2_locationarea?.pokemon_v2_location?.name?.replace(/-/g, ' ') ?? 'Unknown',
-      gameVersion: enc.pokemon_v2_version?.name?.replace(/-/g, ' ') ?? 'Unknown',
-      encounterMethod:
-        enc.pokemon_v2_encounterslots[0]?.pokemon_v2_encountermethod?.name?.replace(/-/g, ' ') ??
-        'Unknown',
+    const encounters: PokemonEncounter[] = data.encounter.map((enc) => ({
+      locationName: enc.locationarea?.location?.name?.replace(/-/g, ' ') ?? 'Unknown',
+      gameVersion: enc.version?.name?.replace(/-/g, ' ') ?? 'Unknown',
+      encounterMethod: enc.encounterslot?.encountermethod?.name?.replace(/-/g, ' ') ?? 'Unknown',
       minLevel: enc.min_level,
       maxLevel: enc.max_level,
-      chance: enc.pokemon_v2_encounterslots[0]?.rarity ?? 0,
+      chance: enc.encounterslot?.rarity ?? 0,
     }));
 
     scheduleIdleTask(async () => {
@@ -864,10 +773,6 @@ export const fetchEncounterLocations = async (pokemonId: number): Promise<Pokemo
 
 // --- Regional Dex Map ---
 
-interface RegionalDexResponse {
-  pokemon_v2_pokemondexnumber: { pokedex_number: number; pokemon_species_id: number }[];
-}
-
 /**
  * Returns a map of pokemonSpeciesId → regional dex number for the given pokedex.
  */
@@ -886,11 +791,14 @@ export const fetchRegionalDexMap = async (pokedexName: string): Promise<Map<numb
   }
 
   try {
-    const data = await queryPokeAPI<RegionalDexResponse>(getRegionalDexQuery, { pokedexName });
-    const entries: [number, number][] = data.pokemon_v2_pokemondexnumber.map((e) => [
-      e.pokemon_species_id,
-      e.pokedex_number,
-    ]);
+    const data = await queryPokeAPI<GetRegionalDexQuery>(getRegionalDexQuery, { pokedexName });
+    const entries: [number, number][] = [];
+    for (const e of data.pokemondexnumber) {
+      const speciesId = validateSafeNumber(e.pokemon_species_id, 1, 100000);
+      const dexNumber = validateSafeNumber(e.pokedex_number, 1, 100000);
+      if (speciesId === undefined || dexNumber === undefined) continue;
+      entries.push([speciesId, dexNumber]);
+    }
     const map = new Map(entries);
 
     scheduleIdleTask(async () => {
@@ -912,20 +820,19 @@ export const fetchRegionalDexMap = async (pokedexName: string): Promise<Map<numb
 export const fetchPokemonDetails = async (id: number): Promise<PokemonDetails | null> => {
   const data = await queryPokeAPI<GetPokemonDetailsQuery>(getPokemonDetailsQuery, { id });
 
-  const species = data.pokemon_v2_pokemonspecies[0];
+  const species = data.pokemonspecies[0];
   if (!species) return null;
 
-  const defaultPokemon =
-    species.pokemon_v2_pokemons.find((p) => p.is_default) || species.pokemon_v2_pokemons[0];
+  const defaultPokemon = species.pokemons.find((p) => p.is_default) || species.pokemons[0];
   if (!defaultPokemon) return null;
 
   const flavorText =
-    species?.pokemon_v2_pokemonspeciesflavortexts[0]?.flavor_text?.replace(
+    species.pokemonspeciesflavortexts[0]?.flavor_text?.replace(
       FLAVOR_TEXT_SANITIZATION_REGEX,
       ' '
     ) || 'No description available.';
 
-  const forms = species.pokemon_v2_pokemons.map((p): PokemonForm => {
+  const forms = species.pokemons.map((p): PokemonForm => {
     const { officialUrl, shinyOfficialUrl } = extractSpriteUrls(p.id, p.name);
 
     let formName = p.name.replace(species.name, '').trim();
@@ -937,17 +844,17 @@ export const fetchPokemonDetails = async (id: number): Promise<PokemonDetails | 
       name: p.name,
       formName: formName.replace(/-/g, ' '),
       isDefault: p.is_default,
-      types: p.pokemon_v2_pokemontypes.map((t) => t.pokemon_v2_type?.name || 'unknown'),
+      types: p.pokemontypes.map((t) => t.type?.name || 'unknown'),
       imageUrl: officialUrl,
       shinyImageUrl: shinyOfficialUrl,
       height: p.height ?? 0,
       weight: p.weight ?? 0,
-      stats: (p.pokemon_v2_pokemonstats || []).map((s) => ({
-        name: s.pokemon_v2_stat?.name || 'unknown',
+      stats: (p.pokemonstats || []).map((s) => ({
+        name: s.stat?.name || 'unknown',
         value: s.base_stat,
       })),
-      abilities: (p.pokemon_v2_pokemonabilities || []).map((a) => ({
-        name: a.pokemon_v2_ability?.name || 'unknown',
+      abilities: (p.pokemonabilities || []).map((a) => ({
+        name: a.ability?.name || 'unknown',
       })),
     };
   });
@@ -963,7 +870,7 @@ export const fetchPokemonDetails = async (id: number): Promise<PokemonDetails | 
     shinyDefaultUrl,
   } = extractSpriteUrls(defaultPokemon.id, defaultPokemon.name);
 
-  const spritesBlob = defaultPokemon.pokemon_v2_pokemonsprites?.[0]?.sprites;
+  const spritesBlob = defaultPokemon.pokemonsprites?.[0]?.sprites;
   const genSprites = spritesBlob ? parseGenSprites(spritesBlob) : {};
 
   return {
@@ -980,22 +887,22 @@ export const fetchPokemonDetails = async (id: number): Promise<PokemonDetails | 
     abilities: defaultForm.abilities,
     genSprites: genSprites,
     evolutionChain:
-      species?.pokemon_v2_evolutionchain?.pokemon_v2_pokemonspecies?.map((e) => {
+      species.evolutionchain?.pokemonspecies?.map((e) => {
         const { officialUrl: evoOfficial, defaultUrl: evoSprite } = extractSpriteUrls(e.id, e.name);
 
         // Extract evolution details
-        const evoDetails = e.pokemon_v2_pokemonevolutions[0];
-        let trigger = evoDetails?.pokemon_v2_evolutiontrigger?.name;
+        const evoDetails = e.pokemonevolutions[0];
+        let trigger = evoDetails?.evolutiontrigger?.name;
         const minLevel = evoDetails?.min_level;
-        const item = evoDetails?.pokemon_v2_item?.name;
+        const item = evoDetails?.item?.name;
         const heldItemId = evoDetails?.held_item_id;
         const heldItem = heldItemId
           ? EVOLUTION_ITEM_MAP[heldItemId] || `Item ${heldItemId}`
           : undefined;
         const timeOfDay = evoDetails?.time_of_day;
-        const knownMove = evoDetails?.pokemon_v2_move?.name;
+        const knownMove = evoDetails?.move?.name;
         const minHappiness = evoDetails?.min_happiness;
-        const location = evoDetails?.pokemon_v2_location?.name;
+        const location = evoDetails?.location?.name;
 
         if (
           trigger === 'level-up' &&
@@ -1007,7 +914,7 @@ export const fetchPokemonDetails = async (id: number): Promise<PokemonDetails | 
           !heldItemId
         ) {
           // Sometimes level-up is default but condition is hidden or it's base form
-          if (e.id !== species.pokemon_v2_evolutionchain?.pokemon_v2_pokemonspecies[0]?.id) {
+          if (e.id !== species.evolutionchain?.pokemonspecies[0]?.id) {
             trigger = 'Special Condition';
           } else {
             trigger = undefined; // Base form
@@ -1029,19 +936,17 @@ export const fetchPokemonDetails = async (id: number): Promise<PokemonDetails | 
           evolvesFromId: e.evolves_from_species_id,
         };
       }) || [],
-    color: species?.pokemon_v2_pokemoncolor?.name || 'gray',
-    habitat: species?.pokemon_v2_pokemonhabitat?.name || 'Unknown',
-    captureRate: species?.capture_rate ?? 0,
-    baseHappiness: species?.base_happiness ?? 0,
-    genderRate: species?.gender_rate ?? -1,
-    genus: species?.pokemon_v2_pokemonspeciesnames[0]?.genus || 'Unknown',
+    color: species.pokemoncolor?.name || 'gray',
+    habitat: species.pokemonhabitat?.name || 'Unknown',
+    captureRate: species.capture_rate ?? 0,
+    baseHappiness: species.base_happiness ?? 0,
+    genderRate: species.gender_rate ?? -1,
+    genus: species.pokemonspeciesnames[0]?.genus || 'Unknown',
     flavorText: flavorText,
     weaknesses: [], // Will be calculated on the client
-    eggGroups:
-      species?.pokemon_v2_pokemonegggroups?.map((g) => g.pokemon_v2_egggroup?.name || 'Unknown') ||
-      [],
-    growthRate: species?.pokemon_v2_growthrate?.name?.replace(/-/g, ' ') || 'Unknown',
-    shape: species?.pokemon_v2_pokemonshape?.name || 'Unknown',
+    eggGroups: species.pokemonegggroups?.map((g) => g.egggroup?.name || 'Unknown') || [],
+    growthRate: species.growthrate?.name?.replace(/-/g, ' ') || 'Unknown',
+    shape: species.pokemonshape?.name || 'Unknown',
     // Moves are loaded separately via fetchPokemonMoves to keep this query slim.
     moves: [],
     forms: forms,
@@ -1049,25 +954,25 @@ export const fetchPokemonDetails = async (id: number): Promise<PokemonDetails | 
 };
 
 const mapPokemonMoves = (
-  rows: GetPokemonMovesQuery['pokemon_v2_pokemon'][number]['pokemon_v2_pokemonmoves']
+  rows: GetPokemonMovesQuery['pokemon'][number]['pokemonmoves']
 ): PokemonMove[] =>
   (rows || []).map((m) => ({
-    name: m.pokemon_v2_move?.name?.replace(/-/g, ' ') || 'Unknown Move',
-    type: m.pokemon_v2_move?.pokemon_v2_type?.name || 'normal',
-    power: m.pokemon_v2_move?.power ?? null,
-    accuracy: m.pokemon_v2_move?.accuracy ?? null,
-    pp: m.pokemon_v2_move?.pp ?? 0,
-    priority: m.pokemon_v2_move?.priority || 0,
-    damageClass: m.pokemon_v2_move?.pokemon_v2_movedamageclass?.name || 'status',
-    learnMethod: m.pokemon_v2_movelearnmethod?.name?.replace(/-/g, ' ') || 'Unknown',
+    name: m.move?.name?.replace(/-/g, ' ') || 'Unknown Move',
+    type: m.move?.type?.name || 'normal',
+    power: m.move?.power ?? null,
+    accuracy: m.move?.accuracy ?? null,
+    pp: m.move?.pp ?? 0,
+    priority: m.move?.priority || 0,
+    damageClass: m.move?.movedamageclass?.name || 'status',
+    learnMethod: m.movelearnmethod?.name?.replace(/-/g, ' ') || 'Unknown',
     level: m.level,
-    versionGroup: m.pokemon_v2_versiongroup?.name?.replace(/-/g, ' ') || undefined,
+    versionGroup: m.versiongroup?.name?.replace(/-/g, ' ') || undefined,
   }));
 
 /** Lazy-loaded move list for a single pokemon form id (default form typically). */
 export const fetchPokemonMoves = async (id: number): Promise<PokemonMove[]> => {
   const data = await queryPokeAPI<GetPokemonMovesQuery>(getPokemonMovesQuery, { id });
-  const pokemon = data.pokemon_v2_pokemon[0];
+  const pokemon = data.pokemon[0];
   if (!pokemon) return [];
-  return mapPokemonMoves(pokemon.pokemon_v2_pokemonmoves);
+  return mapPokemonMoves(pokemon.pokemonmoves);
 };

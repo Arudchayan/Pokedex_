@@ -2,6 +2,7 @@ import path from 'path';
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
+import { pwaManifest, pwaWorkbox } from './src/config/pwa';
 
 export default defineConfig(() => {
   return {
@@ -32,59 +33,8 @@ export default defineConfig(() => {
       VitePWA({
         registerType: 'prompt',
         includeAssets: ['favicon.ico', 'favicon.png', 'apple-touch-icon.png', 'mask-icon.svg'],
-        workbox: {
-          runtimeCaching: [
-            {
-              // Pokemon walkers sprite pack (GitHub raw). Cache for smoother playback.
-              urlPattern: ({ url }) =>
-                url.origin === 'https://raw.githubusercontent.com' &&
-                url.pathname.includes('/media/') &&
-                url.pathname.endsWith('_8fps.gif'),
-              handler: 'CacheFirst',
-              options: {
-                cacheName: 'walkers-sprites',
-                cacheableResponse: { statuses: [0, 200] },
-                expiration: {
-                  maxEntries: 250,
-                  maxAgeSeconds: 60 * 60 * 24 * 30, // 30 days
-                },
-              },
-            },
-            {
-              // Core PokeAPI sprites (pokemon + items) for repeat visits / offline polish.
-              urlPattern: ({ url }) =>
-                url.origin === 'https://raw.githubusercontent.com' &&
-                url.pathname.includes('/PokeAPI/sprites/'),
-              handler: 'CacheFirst',
-              options: {
-                cacheName: 'pokeapi-sprites',
-                cacheableResponse: { statuses: [0, 200] },
-                expiration: {
-                  maxEntries: 800,
-                  maxAgeSeconds: 60 * 60 * 24 * 30, // 30 days
-                },
-              },
-            },
-          ],
-        },
-        manifest: {
-          name: 'GraphQL Pokedex',
-          short_name: 'Pokedex',
-          description: 'An ultra-fast Pokedex built with React and Vite',
-          theme_color: '#ffffff',
-          icons: [
-            {
-              src: 'pwa-192x192.png',
-              sizes: '192x192',
-              type: 'image/png',
-            },
-            {
-              src: 'pwa-512x512.png',
-              sizes: '512x512',
-              type: 'image/png',
-            },
-          ],
-        },
+        workbox: pwaWorkbox,
+        manifest: pwaManifest,
       }),
     ],
     resolve: {

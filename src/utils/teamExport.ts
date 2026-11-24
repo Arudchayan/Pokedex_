@@ -33,6 +33,11 @@ export const exportToShowdown = (team: TeamMember[]): string => {
 
   return team
     .map((pokemon) => {
+      // Explicitly mark unresolved members instead of emitting a fake species name.
+      if (pokemon.detailsUnavailable) {
+        return `#${pokemon.id} (details unavailable)`;
+      }
+
       // 1. Name & Item
       let header = pokemon.name.charAt(0).toUpperCase() + pokemon.name.slice(1);
       if (pokemon.selectedItem) {

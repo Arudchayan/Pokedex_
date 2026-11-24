@@ -1,12 +1,15 @@
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { usePokemon } from '../../context/PokemonContext';
 import { usePokemonStore } from '../../store/usePokemonStore';
 import { useToast } from '../../context/ToastContext';
 import { useAchievements } from '../../context/AchievementContext';
-import { buildPersistenceData, isPersistenceData } from '../../utils/persistenceSchema';
-import { validateTeamMember, validateSavedTeam, SavedTeam } from '../../utils/teamStorage';
+import {
+  buildPersistenceData,
+  parsePersistenceBackup,
+  PersistenceRestorePayload,
+} from '../../utils/persistenceSchema';
+import { SavedTeam } from '../../utils/teamStorage';
 import { importFromShowdown } from '../../utils/teamExport';
-import { saveFavorites } from '../../utils/favorites';
 import { MAX_INPUT_LENGTH } from '../../utils/securityUtils';
 import { compressTeam } from '../../utils/urlCompression';
 import Modal from '../base/Modal';
@@ -15,23 +18,126 @@ interface DataManagementProps {
   onClose: () => void;
 }
 
+const formatBackupDate = (timestamp: string): string =>
+  new Date(timestamp).toLocaleDateString(undefined, {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+  });
+
+const formatCount = (count: number, singular: string): string =>
+  `${count} ${singular}${count === 1 ? '' : 's'}`;
+
 const DataManagement: React.FC<DataManagementProps> = ({ onClose }) => {
   const { theme, teamPokemon: team, favorites, masterPokemonList } = usePokemon();
   const { addToast } = useToast();
   const { unlockAchievement } = useAchievements();
   const [importData, setImportData] = useState('');
   const [shareLink, setShareLink] = useState('');
-  const [isImportingBackup, setIsImportingBackup] = useState(false);
   const [isImportingShowdown, setIsImportingShowdown] = useState(false);
+  const [parsedBackup, setParsedBackup] = useState<PersistenceRestorePayload | null>(null);
+  const [backupError, setBackupError] = useState<string | null>(null);
+  const [isConfirmingRestore, setIsConfirmingRestore] = useState(false);
   const [importSummary, setImportSummary] = useState<{
     teamMembers: number;
-    favoritesAdded: number;
-    savedTeamsAdded: number;
+    favorites: number;
+    savedTeams: number;
   } | null>(null);
+
+  const restoreButtonRef = useRef<HTMLButtonElement>(null);
+  const cancelButtonRef = useRef<HTMLButtonElement>(null);
+  const confirmPanelRef = useRef<HTMLDivElement>(null);
+  const confirmWasOpenRef = useRef(false);
+  const restoreFocusAfterConfirmRef = useRef(false);
+  const successRef = useRef<HTMLParagraphElement>(null);
 
   // Showdown Import State
   const [showdownImportText, setShowdownImportText] = useState('');
   const [importTeamName, setImportTeamName] = useState('Imported Team');
+
+  const showdownPreview = useMemo(() => {
+    if (!showdownImportText.trim()) {
+      return { status: 'empty' as const, team: null };
+    }
+
+    const parsed = importFromShowdown(showdownImportText, masterPokemonList);
+    const importedTeam = Array.isArray(parsed) ? parsed : [];
+
+    return importedTeam.length > 0
+      ? { status: 'valid' as const, team: importedTeam }
+      : { status: 'invalid' as const, team: null };
+  }, [showdownImportText, masterPokemonList]);
+
+  useEffect(() => {
+    if (isConfirmingRestore) {
+      confirmWasOpenRef.current = true;
+      cancelButtonRef.current?.focus();
+      confirmPanelRef.current?.scrollIntoView?.({ block: 'center' });
+      return;
+    }
+
+    if (!confirmWasOpenRef.current) return;
+    confirmWasOpenRef.current = false;
+    if (!restoreFocusAfterConfirmRef.current) return;
+    restoreFocusAfterConfirmRef.current = false;
+    restoreButtonRef.current?.focus();
+  }, [isConfirmingRestore]);
+
+  // Keep Tab focus inside the confirmation and let Escape cancel only the
+  // confirmation, before the outer modal's focus trap sees the event.
+  useEffect(() => {
+    if (!isConfirmingRestore) return;
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      const panel = confirmPanelRef.current;
+      if (!panel) return;
+
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        event.stopPropagation();
+        restoreFocusAfterConfirmRef.current = true;
+        setIsConfirmingRestore(false);
+        return;
+      }
+
+      if (event.key !== 'Tab') return;
+
+      const focusable = Array.from(
+        panel.querySelectorAll<HTMLElement>(
+          'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+        )
+      ).filter((element) => element.tabIndex >= 0);
+
+      if (focusable.length === 0) {
+        event.preventDefault();
+        panel.focus();
+        return;
+      }
+
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      const active = document.activeElement;
+
+      if (event.shiftKey && (active === first || !panel.contains(active))) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && (active === last || !panel.contains(active))) {
+        event.preventDefault();
+        first.focus();
+      }
+
+      event.stopPropagation();
+    };
+
+    document.addEventListener('keydown', handleKeyDown, true);
+    return () => document.removeEventListener('keydown', handleKeyDown, true);
+  }, [isConfirmingRestore]);
+
+  useEffect(() => {
+    if (importSummary) {
+      successRef.current?.focus();
+    }
+  }, [importSummary]);
 
   const handleGenerateLink = async () => {
     try {
@@ -74,103 +180,60 @@ const DataManagement: React.FC<DataManagementProps> = ({ onClose }) => {
     addToast('Data exported successfully!', 'success');
   };
 
-  const handleImport = () => {
-    if (isImportingBackup) return;
+  const handleBackupInputChange = (value: string) => {
+    if (value.length > MAX_INPUT_LENGTH) return;
 
-    // SECURITY: Prevent DoS with large payloads
-    if (importData.length > MAX_INPUT_LENGTH) {
-      addToast('Input data too large.', 'error');
-      return;
-    }
-
-    setIsImportingBackup(true);
+    setImportData(value);
     setImportSummary(null);
+    restoreFocusAfterConfirmRef.current = false;
+    setIsConfirmingRestore(false);
 
-    try {
-      const data = JSON.parse(importData);
-
-      if (!isPersistenceData(data)) {
-        addToast('Invalid JSON data.', 'error');
-        setIsImportingBackup(false);
-        return;
-      }
-
-      let restoredTeamCount = 0;
-
-      if (data.team && Array.isArray(data.team)) {
-        // SECURITY: Batch update team to prevent multiple storage writes
-        const validTeam = data.team
-          .map((p: any) => validateTeamMember(p))
-          .filter((p): p is NonNullable<typeof p> => p !== null);
-
-        // setTeam handles slicing to capacity and saving to storage
-        usePokemonStore.getState().setTeam(validTeam);
-        restoredTeamCount = validTeam.length;
-      }
-
-      let favoritesAdded = 0;
-      if (data.favorites && Array.isArray(data.favorites)) {
-        // SECURITY: Batch update favorites to prevent DoS via storage thrashing
-        // Instead of dispatching N actions (N writes), we calculate the final set and write once.
-        const newFavorites = new Set(favorites);
-        let hasChanges = false;
-
-        data.favorites.forEach((id: any) => {
-          const numId = Number(id);
-          if (!isNaN(numId) && Number.isSafeInteger(numId) && !newFavorites.has(numId)) {
-            newFavorites.add(numId);
-            hasChanges = true;
-            favoritesAdded += 1;
-          }
-        });
-
-        if (hasChanges) {
-          saveFavorites(newFavorites);
-          usePokemonStore.getState().setFavorites(newFavorites);
-        }
-      }
-
-      if (data.savedTeams && Array.isArray(data.savedTeams)) {
-        const currentSavedTeams = usePokemonStore.getState().savedTeams;
-        const existingIds = new Set(currentSavedTeams.map((t) => t.id));
-        const importedTeams: SavedTeam[] = [];
-
-        data.savedTeams.forEach((teamData: any) => {
-          const validTeam = validateSavedTeam(teamData);
-          if (validTeam) {
-            // ID Collision Check: If exists, generate new ID
-            if (existingIds.has(validTeam.id)) {
-              validTeam.id = crypto.randomUUID();
-            }
-            importedTeams.push(validTeam);
-          }
-        });
-
-        if (importedTeams.length > 0) {
-          usePokemonStore.getState().setSavedTeams([...currentSavedTeams, ...importedTeams]);
-        }
-
-        setImportSummary({
-          teamMembers: restoredTeamCount,
-          favoritesAdded,
-          savedTeamsAdded: importedTeams.length,
-        });
-      } else {
-        setImportSummary({
-          teamMembers: restoredTeamCount,
-          favoritesAdded,
-          savedTeamsAdded: 0,
-        });
-      }
-
-      unlockAchievement('data_hoarder');
-      addToast('Data imported successfully! (Team, Favorites & Saved Teams updated)', 'success');
-    } catch (_e) {
-      addToast('Invalid JSON data.', 'error');
-      setImportSummary(null);
-    } finally {
-      setIsImportingBackup(false);
+    const result = parsePersistenceBackup(value);
+    if (result.ok) {
+      setParsedBackup(result.backup);
+      setBackupError(null);
+    } else {
+      setParsedBackup(null);
+      setBackupError(value.trim() ? result.error : null);
     }
+  };
+
+  const handleReviewRestore = () => {
+    if (!parsedBackup) return;
+    setImportSummary(null);
+    restoreFocusAfterConfirmRef.current = false;
+    setIsConfirmingRestore(true);
+  };
+
+  const handleCancelRestore = () => {
+    restoreFocusAfterConfirmRef.current = true;
+    setIsConfirmingRestore(false);
+  };
+
+  const handleConfirmRestore = () => {
+    if (!parsedBackup) return;
+
+    // Validation completed before this point; every write below is a synchronous
+    // in-memory store update, so a malformed backup never reaches application state.
+    const store = usePokemonStore.getState();
+    store.setTeam(parsedBackup.team);
+    store.setFavorites(new Set(parsedBackup.favorites));
+    store.setSavedTeams(parsedBackup.savedTeams);
+    store.setTheme(parsedBackup.theme);
+
+    setImportSummary({
+      teamMembers: parsedBackup.team.length,
+      favorites: parsedBackup.favorites.length,
+      savedTeams: parsedBackup.savedTeams.length,
+    });
+    setParsedBackup(null);
+    setBackupError(null);
+    setImportData('');
+    restoreFocusAfterConfirmRef.current = false;
+    setIsConfirmingRestore(false);
+
+    unlockAchievement('data_hoarder');
+    addToast('Backup restored. Your previous data was replaced.', 'success');
   };
 
   const handleShowdownImport = () => {
@@ -181,20 +244,15 @@ const DataManagement: React.FC<DataManagementProps> = ({ onClose }) => {
       return;
     }
 
-    if (!showdownImportText.trim()) {
-      addToast('Please paste a team first.', 'error');
+    if (showdownPreview.status !== 'valid' || !showdownPreview.team) {
+      addToast('No valid Pokemon found in text.', 'error');
       return;
     }
 
     setIsImportingShowdown(true);
 
     try {
-      const importedTeam = importFromShowdown(showdownImportText, masterPokemonList);
-
-      if (importedTeam.length === 0) {
-        addToast('No valid Pokemon found in text.', 'error');
-        return;
-      }
+      const importedTeam = showdownPreview.team;
 
       // Create SavedTeam
       const normalizedName = importTeamName.trim();
@@ -279,7 +337,8 @@ const DataManagement: React.FC<DataManagementProps> = ({ onClose }) => {
         >
           <h3 className="text-lg font-bold mb-2">Import Backup (JSON)</h3>
           <p className="text-sm opacity-70 mb-4">
-            Paste your full backup JSON here to restore everything.
+            Paste a full backup JSON file to replace your current data. You can review what will be
+            restored before anything changes.
           </p>
           <label htmlFor="import-data" className="sr-only">
             Paste JSON Data
@@ -287,28 +346,125 @@ const DataManagement: React.FC<DataManagementProps> = ({ onClose }) => {
           <textarea
             id="import-data"
             value={importData}
-            onChange={(e) => {
-              if (e.target.value.length <= MAX_INPUT_LENGTH) {
-                setImportData(e.target.value);
-                setImportSummary(null);
-              }
-            }}
+            onChange={(e) => handleBackupInputChange(e.target.value)}
             maxLength={MAX_INPUT_LENGTH}
-            className={`w-full h-32 p-3 rounded-lg border text-sm font-mono mb-3 ${theme === 'dark' ? 'bg-black/30 border-white/20 text-white' : 'bg-white border-slate-300'}`}
+            aria-invalid={backupError ? true : undefined}
+            aria-describedby={backupError ? 'import-data-error' : undefined}
+            className={`w-full h-32 p-3 rounded-lg border text-sm font-mono mb-3 ${
+              backupError
+                ? 'border-red-500/70'
+                : theme === 'dark'
+                  ? 'border-white/20'
+                  : 'border-slate-300'
+            } ${theme === 'dark' ? 'bg-black/30 text-white' : 'bg-white'}`}
             placeholder="Paste JSON here..."
           />
+          {backupError && (
+            <p
+              id="import-data-error"
+              role="alert"
+              className="mb-3 text-sm font-medium text-red-600 dark:text-red-400"
+            >
+              {backupError}
+            </p>
+          )}
           <button
-            onClick={handleImport}
-            disabled={!importData || isImportingBackup}
+            ref={restoreButtonRef}
+            onClick={handleReviewRestore}
+            disabled={!parsedBackup || isConfirmingRestore}
             className="px-4 py-2 bg-green-600 hover:bg-green-500 text-white rounded-lg font-bold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {isImportingBackup ? 'Restoring...' : 'Restore Backup'}
+            Restore Backup
           </button>
+
+          {isConfirmingRestore && parsedBackup && (
+            <div
+              ref={confirmPanelRef}
+              role="alertdialog"
+              aria-labelledby="restore-confirm-title"
+              aria-describedby="restore-confirm-warning"
+              tabIndex={-1}
+              className={`mt-4 rounded-xl border p-4 ${
+                theme === 'dark'
+                  ? 'border-amber-500/40 bg-amber-500/10'
+                  : 'border-amber-300 bg-amber-50'
+              }`}
+            >
+              <h4
+                id="restore-confirm-title"
+                className="text-base font-bold mb-2 focus:outline-none"
+              >
+                Confirm restore
+              </h4>
+              <p
+                id="restore-confirm-warning"
+                className="text-sm font-medium mb-3 text-amber-800 dark:text-amber-200"
+              >
+                Restoring replaces your current team, favorites, saved teams, and theme. This cannot
+                be undone.
+              </p>
+
+              <dl className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm mb-3">
+                <div className="flex items-center justify-between gap-2">
+                  <dt className="opacity-70">Team members</dt>
+                  <dd className="font-bold">{parsedBackup.team.length}</dd>
+                </div>
+                <div className="flex items-center justify-between gap-2">
+                  <dt className="opacity-70">Favorites</dt>
+                  <dd className="font-bold">{parsedBackup.favorites.length}</dd>
+                </div>
+                <div className="flex items-center justify-between gap-2">
+                  <dt className="opacity-70">Saved teams</dt>
+                  <dd className="font-bold">{parsedBackup.savedTeams.length}</dd>
+                </div>
+                <div className="flex items-center justify-between gap-2">
+                  <dt className="opacity-70">Theme</dt>
+                  <dd className="font-bold capitalize">{parsedBackup.theme}</dd>
+                </div>
+              </dl>
+
+              <p className="text-xs opacity-70 mb-4">
+                Backup created {formatBackupDate(parsedBackup.timestamp)}.
+              </p>
+
+              <div className="flex flex-wrap items-center gap-3">
+                <button
+                  onClick={handleConfirmRestore}
+                  className="px-4 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg font-bold transition-colors"
+                >
+                  Confirm Restore
+                </button>
+                <button
+                  ref={cancelButtonRef}
+                  onClick={handleCancelRestore}
+                  className={`px-4 py-2 rounded-lg font-bold transition-colors ${
+                    theme === 'dark'
+                      ? 'bg-white/10 hover:bg-white/20 text-white'
+                      : 'bg-white hover:bg-slate-100 text-slate-700 border border-slate-300'
+                  }`}
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleExport}
+                  className="text-sm font-semibold underline underline-offset-2 hover:opacity-80"
+                >
+                  Download current data first
+                </button>
+              </div>
+            </div>
+          )}
+
           {importSummary && (
-            <p className="mt-3 text-xs opacity-80" role="status" aria-live="polite">
-              Restored {importSummary.teamMembers} team members, added{' '}
-              {importSummary.favoritesAdded} favorites, and imported {importSummary.savedTeamsAdded}{' '}
-              saved teams.
+            <p
+              ref={successRef}
+              role="status"
+              tabIndex={-1}
+              className="mt-3 text-sm font-medium text-green-700 dark:text-green-400 focus:outline-none"
+            >
+              Restored {formatCount(importSummary.teamMembers, 'team member')},{' '}
+              {formatCount(importSummary.favorites, 'favorite')}, and{' '}
+              {formatCount(importSummary.savedTeams, 'saved team')}.
             </p>
           )}
         </div>
@@ -354,14 +510,34 @@ const DataManagement: React.FC<DataManagementProps> = ({ onClose }) => {
                   }
                 }}
                 maxLength={MAX_INPUT_LENGTH}
-                className={`w-full h-32 p-3 rounded-lg border text-sm font-mono ${theme === 'dark' ? 'bg-black/30 border-white/20 text-white' : 'bg-white border-slate-300'}`}
+                aria-invalid={showdownPreview.status === 'invalid' ? true : undefined}
+                aria-describedby={
+                  showdownPreview.status === 'invalid' ? 'showdown-validation' : undefined
+                }
+                className={`w-full h-32 p-3 rounded-lg border text-sm font-mono ${
+                  showdownPreview.status === 'invalid'
+                    ? 'border-red-500/70'
+                    : theme === 'dark'
+                      ? 'border-white/20'
+                      : 'border-slate-300'
+                } ${theme === 'dark' ? 'bg-black/30 text-white' : 'bg-white'}`}
                 placeholder={`Pikachu @ Light Ball\nAbility: Static\nEVs: 252 Atk / 252 Spe\n...`}
               />
+              {showdownPreview.status === 'invalid' && (
+                <p
+                  id="showdown-validation"
+                  role="status"
+                  className="mt-2 text-sm font-medium text-red-600 dark:text-red-400"
+                >
+                  No valid Pokémon found. Paste a Showdown export such as &quot;Pikachu @ Light
+                  Ball&quot;.
+                </p>
+              )}
             </div>
 
             <button
               onClick={handleShowdownImport}
-              disabled={!showdownImportText.trim() || isImportingShowdown}
+              disabled={showdownPreview.status !== 'valid' || isImportingShowdown}
               className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg font-bold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isImportingShowdown ? 'Saving...' : 'Save to My Teams'}
