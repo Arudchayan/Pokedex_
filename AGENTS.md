@@ -2,7 +2,7 @@
 
 ## Cursor Cloud specific instructions
 
-This is a React 19 / Vite 6 / TypeScript 5.8 frontend SPA (Pokédex web app). No backend, no database, no Docker — all data comes from the public PokeAPI GraphQL endpoint.
+This is a React 19 / Vite 8 / TypeScript 5.8 frontend SPA (Pokédex web app). No backend, no database, no Docker — all data comes from the public PokeAPI GraphQL endpoint.
 
 ### Prerequisites
 

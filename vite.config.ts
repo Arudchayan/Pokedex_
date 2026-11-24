@@ -12,18 +12,17 @@ export default defineConfig(() => {
     },
     build: {
       // Keep the main entry chunk smaller for better caching and to avoid "single giant bundle" warnings.
-      rollupOptions: {
+      rolldownOptions: {
         output: {
-          manualChunks: {
-            react: ['react', 'react-dom'],
-            query: [
-              '@tanstack/react-query',
-              '@tanstack/react-query-devtools',
-              '@tanstack/react-virtual',
+          // Vite 8 (Rolldown) replaces the object form of `manualChunks` with groups.
+          codeSplitting: {
+            groups: [
+              { name: 'react', test: /node_modules[\\/](react|react-dom|scheduler)[\\/]/ },
+              { name: 'query', test: /node_modules[\\/]@tanstack[\\/]/ },
+              { name: 'dnd', test: /node_modules[\\/]@dnd-kit[\\/]/ },
+              { name: 'state', test: /node_modules[\\/]zustand[\\/]/ },
+              { name: 'storage', test: /node_modules[\\/](idb-keyval|lz-string)[\\/]/ },
             ],
-            dnd: ['@dnd-kit/core', '@dnd-kit/sortable', '@dnd-kit/utilities'],
-            state: ['zustand'],
-            storage: ['idb-keyval', 'lz-string'],
           },
         },
       },
