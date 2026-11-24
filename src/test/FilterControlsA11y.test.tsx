@@ -15,6 +15,21 @@ describe('FilterControls Accessibility', () => {
     onClearFilters: vi.fn(),
   };
 
+  it('gives the generation select a visible keyboard focus indicator', () => {
+    renderWithProvider(<FilterControls {...defaultProps} />);
+
+    const select = screen.getByLabelText('Select generation');
+    expect(select.tagName).toBe('SELECT');
+    expect(select).toHaveClass(
+      'focus-visible:outline',
+      'focus-visible:outline-2',
+      'focus-visible:outline-offset-2'
+    );
+    expect(select.className).toMatch(/focus-visible:outline-(white|slate-900)/);
+    expect(select.className).not.toContain('focus:outline-none');
+    expect(select.className).not.toContain('ring-primary-500');
+  });
+
   it('has accessible Ability search input', () => {
     renderWithProvider(<FilterControls {...defaultProps} />);
 

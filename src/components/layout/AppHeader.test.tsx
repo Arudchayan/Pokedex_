@@ -175,6 +175,41 @@ describe('AppHeader', () => {
     expect(trigger).toHaveAttribute('aria-expanded', 'false');
   });
 
+  it('gives every Tools menu item a theme-safe keyboard focus ring', async () => {
+    const user = userEvent.setup();
+    renderWithProvider(<AppHeader onRandomPokemon={vi.fn()} />);
+
+    const { items } = await openToolsMenu(user);
+
+    for (const item of items) {
+      expect(item).toHaveClass(
+        'focus-visible:outline',
+        'focus-visible:outline-2',
+        'focus-visible:outline-offset-2'
+      );
+      expect(item.className).toMatch(/focus-visible:outline-(white|slate-900)/);
+      // Mouse focus should not paint a ring, and the broken primary token is gone.
+      expect(item.className).not.toContain('focus:outline-none');
+      expect(item.className).not.toContain('focus:ring-primary-500');
+    }
+  });
+
+  it('gives the Tools trigger and header toggles theme-safe focus rings', () => {
+    renderWithProvider(<AppHeader onRandomPokemon={vi.fn()} />);
+
+    for (const name of ['Tools', /Shiny Mode/i, /sounds/i]) {
+      const control = screen.getByRole('button', { name });
+      expect(control).toHaveClass(
+        'focus-visible:outline',
+        'focus-visible:outline-2',
+        'focus-visible:outline-offset-2'
+      );
+      expect(control.className).toMatch(/focus-visible:outline-(white|slate-900)/);
+      expect(control.className).not.toContain('ring-primary-500');
+      expect(control.className).not.toContain('focus:outline-none');
+    }
+  });
+
   describe('mobile navigation drawer', () => {
     const openDrawer = async (user: ReturnType<typeof userEvent.setup>) => {
       const trigger = screen.getByRole('button', { name: 'Open navigation menu' });
