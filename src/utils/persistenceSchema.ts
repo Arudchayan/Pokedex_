@@ -28,8 +28,7 @@ export interface PersistenceRestorePayload {
 }
 
 export type PersistenceParseResult =
-  | { ok: true; backup: PersistenceRestorePayload }
-  | { ok: false; error: string };
+  { ok: true; backup: PersistenceRestorePayload } | { ok: false; error: string };
 
 const isThemePreference = (value: unknown): value is ThemePreference =>
   value === 'dark' || value === 'light';
