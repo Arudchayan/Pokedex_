@@ -1,9 +1,13 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useId, useRef, useState } from 'react';
+import ReactDOM from 'react-dom';
 import { useShallow } from 'zustand/react/shallow';
 import { usePokemonUI } from '../../context/PokemonContext';
 import { usePokemonStore } from '../../store/usePokemonStore';
 import { useModalStore } from '../../store/useModalStore';
 import { useAchievements } from '../../context/AchievementContext';
+import { useFocusTrap, useMediaQuery } from '../../hooks';
+import ThemeSelector from './ThemeSelector';
+import { openWalkthroughModal } from '../walkthrough/WalkthroughManager';
 import {
   playUISound,
   toggleAudio as toggleAudioService,
@@ -33,6 +37,8 @@ interface DrawerSection {
 const MobileDrawer: React.FC<MobileDrawerProps> = ({ isOpen, onClose, onRandomPokemon }) => {
   const drawerRef = useRef<HTMLDivElement>(null);
   const firstItemRef = useRef<HTMLButtonElement>(null);
+  const themeLabelId = useId();
+  const isDesktop = useMediaQuery('(min-width: 768px)');
 
   // UI state from stores / context
   const { theme, isCyberpunk, isShiny } = usePokemonUI();
@@ -111,29 +117,19 @@ const MobileDrawer: React.FC<MobileDrawerProps> = ({ isOpen, onClose, onRandomPo
     unlockAchievement('knowledge_seeker');
   };
 
-  // Close on Escape
+  // Trap focus inside the open drawer and restore it to the trigger on close.
+  useFocusTrap({
+    active: isOpen,
+    containerRef: drawerRef,
+    initialFocusRef: firstItemRef,
+    onEscape: onClose,
+  });
+
+  // The panel is display:none from md up. Close it instead of leaving the
+  // trap active over a hidden dialog, which would keep the page inert.
   useEffect(() => {
-    if (!isOpen) return;
-
-    const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        e.preventDefault();
-        onClose();
-      }
-    };
-
-    window.addEventListener('keydown', onKeyDown);
-    return () => window.removeEventListener('keydown', onKeyDown);
-  }, [isOpen, onClose]);
-
-  // Focus management: move focus into drawer when opened
-  useEffect(() => {
-    if (isOpen) {
-      requestAnimationFrame(() => {
-        firstItemRef.current?.focus();
-      });
-    }
-  }, [isOpen]);
+    if (isDesktop && isOpen) onClose();
+  }, [isDesktop, isOpen, onClose]);
 
   // Lock body scroll when drawer is open
   useEffect(() => {
@@ -208,6 +204,7 @@ const MobileDrawer: React.FC<MobileDrawerProps> = ({ isOpen, onClose, onRandomPo
         },
         { label: 'Random Pokémon', icon: '🎲', onClick: onRandomPokemon },
         { label: 'Achievements', icon: '🏆', onClick: openAchievements },
+        { label: 'Start Walkthrough', icon: '🧭', onClick: openWalkthroughModal },
         { label: 'Pokémon Walkers', icon: '🚶', onClick: openWalkersSettings },
         { label: 'Data Management', icon: '💾', onClick: openDataManagement },
       ],
@@ -215,7 +212,7 @@ const MobileDrawer: React.FC<MobileDrawerProps> = ({ isOpen, onClose, onRandomPo
   ];
 
   // Base style classes
-  const backdropClass = `fixed inset-0 z-[1100] bg-black/50 backdrop-blur-sm transition-opacity duration-300 md:hidden ${
+  const backdropClass = `fixed inset-0 z-drawer-backdrop bg-black/50 backdrop-blur-sm transition-opacity duration-300 md:hidden ${
     isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
   }`;
 
@@ -225,7 +222,7 @@ const MobileDrawer: React.FC<MobileDrawerProps> = ({ isOpen, onClose, onRandomPo
       ? 'bg-slate-950 border-r border-white/10'
       : 'bg-white border-r border-slate-200';
 
-  const drawerClass = `fixed z-[1110] w-72 max-w-[85vw] shadow-2xl transform transition-transform duration-300 ease-out md:hidden overflow-y-auto overscroll-contain ${panelBg} ${
+  const drawerClass = `fixed z-drawer flex w-80 max-w-full flex-col shadow-2xl transform transition-transform duration-300 ease-out md:hidden overscroll-contain ${panelBg} ${
     isOpen ? 'translate-x-0' : '-translate-x-full'
   }`;
 
@@ -268,10 +265,15 @@ const MobileDrawer: React.FC<MobileDrawerProps> = ({ isOpen, onClose, onRandomPo
       ? 'h-px mx-3 my-1 bg-white/10'
       : 'h-px mx-3 my-1 bg-slate-200';
 
-  return (
-    <>
+  const drawerContent = (
+    <div data-testid="mobile-drawer-root" inert={!isOpen}>
       {/* Backdrop */}
-      <div className={backdropClass} onClick={onClose} aria-hidden="true" />
+      <div
+        className={backdropClass}
+        onClick={onClose}
+        aria-hidden="true"
+        data-testid="mobile-drawer-backdrop"
+      />
 
       {/* Drawer panel */}
       <div
@@ -331,8 +333,39 @@ const MobileDrawer: React.FC<MobileDrawerProps> = ({ isOpen, onClose, onRandomPo
           </button>
         </div>
 
+        {/* Appearance stays outside the scroll area so the theme panel is not clipped */}
+        <div className="pt-3 shrink-0">
+          <div className={sectionTitleClass}>Appearance</div>
+          <div
+            className={`flex items-center justify-between gap-3 pl-3 ${
+              isCyberpunk ? 'pr-0' : 'pr-3'
+            } py-1 border-b ${
+              isCyberpunk ? 'border-cyan-500/20' : isDark ? 'border-white/10' : 'border-slate-200'
+            }`}
+            role="group"
+            aria-labelledby={themeLabelId}
+            data-tour="theme-mobile"
+          >
+            <span
+              id={themeLabelId}
+              className={`flex items-center gap-3 text-sm font-medium ${
+                isCyberpunk ? 'text-cyan-300' : isDark ? 'text-slate-200' : 'text-slate-700'
+              }`}
+            >
+              <span className="text-base w-6 text-center flex-shrink-0" aria-hidden="true">
+                🎨
+              </span>
+              Theme
+            </span>
+            {/* Nudge past the 2px cyberpunk border so the 20rem panel starts on-screen */}
+            <div className={isCyberpunk ? '-mr-0.5' : undefined}>
+              <ThemeSelector />
+            </div>
+          </div>
+        </div>
+
         {/* Sections */}
-        <nav className="px-2 py-3 flex flex-col gap-1">
+        <nav className="flex-1 min-h-0 overflow-y-auto overscroll-contain px-2 py-3 flex flex-col gap-1">
           {sections.map((section, sIdx) => (
             <React.Fragment key={section.title}>
               {sIdx > 0 && <div className={dividerClass} />}
@@ -364,8 +397,14 @@ const MobileDrawer: React.FC<MobileDrawerProps> = ({ isOpen, onClose, onRandomPo
         {/* Bottom padding for safe area */}
         <div className="h-8" />
       </div>
-    </>
+    </div>
   );
+
+  if (typeof document === 'undefined') return null;
+
+  // Portal out of the header: its backdrop-filter makes it a containing block
+  // for fixed descendants, which would clip the backdrop to the header height.
+  return ReactDOM.createPortal(drawerContent, document.body);
 };
 
 export default MobileDrawer;

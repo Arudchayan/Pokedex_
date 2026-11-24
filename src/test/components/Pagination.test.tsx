@@ -102,4 +102,13 @@ describe('VirtualPokemonList Pagination', () => {
     // Check absence of Pagination Controls
     expect(screen.queryByLabelText('Previous Page')).not.toBeInTheDocument();
   });
+
+  it('uses the grid column override when the list is narrower than the viewport', () => {
+    render(
+      <VirtualPokemonList {...defaultProps} isPaginationEnabled={true} gridColumnsOverride={2} />
+    );
+
+    const grid = screen.getByRole('grid').firstElementChild as HTMLElement;
+    expect(grid.style.gridTemplateColumns).toBe('repeat(2, minmax(0, 1fr))');
+  });
 });

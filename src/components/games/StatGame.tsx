@@ -12,9 +12,10 @@ interface Props {
   onClose: () => void;
   date: string;
   seed: number;
+  onReady?: () => void;
 }
 
-const StatGame: React.FC<Props> = ({ onClose, date, seed }) => {
+const StatGame: React.FC<Props> = ({ onClose, date, seed, onReady }) => {
   const { masterPokemonList } = usePokemonData();
   const { theme } = usePokemonUI();
   const queryClient = useQueryClient();
@@ -43,6 +44,10 @@ const StatGame: React.FC<Props> = ({ onClose, date, seed }) => {
     };
     init();
   }, [masterPokemonList, rng, queryClient]);
+
+  useEffect(() => {
+    if (target) onReady?.();
+  }, [target, onReady]);
 
   const handleSearch = (term: string) => {
     setCurrentGuess(term);

@@ -9,9 +9,10 @@ interface Props {
   onClose: () => void;
   date: string;
   seed: number;
+  onReady?: () => void;
 }
 
-const ItemGame: React.FC<Props> = ({ onClose, date, seed }) => {
+const ItemGame: React.FC<Props> = ({ onClose, date, seed, onReady }) => {
   const { theme } = usePokemonUI();
   const { recordResult } = useGameStats();
   const [items, setItems] = useState<Item[]>([]);
@@ -46,6 +47,10 @@ const ItemGame: React.FC<Props> = ({ onClose, date, seed }) => {
     };
     init();
   }, [rng]);
+
+  useEffect(() => {
+    if (!isLoading) onReady?.();
+  }, [isLoading, onReady]);
 
   const handleSearch = (term: string) => {
     setCurrentGuess(term);
@@ -98,7 +103,7 @@ const ItemGame: React.FC<Props> = ({ onClose, date, seed }) => {
     );
 
   // Hint: Cost and Obfuscated Flavor Text
-  const costHint = `Cost: ${target.cost} ₽`;
+  const costHint = target.cost ? `Cost: ${target.cost} ₽` : 'Not sold in stores';
   // const flavorHint = target.flavorText.replace(new RegExp(target.name.replace('-', ' '), 'gi'), '???');
   // Item names in flavor text might not be 1:1, usually simple regex works
 

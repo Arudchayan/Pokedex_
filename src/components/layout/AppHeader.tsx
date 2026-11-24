@@ -15,6 +15,7 @@ import { usePokemonUI } from '../../context/PokemonContext';
 import { usePokemonStore } from '../../store/usePokemonStore';
 import { useModalStore } from '../../store/useModalStore';
 import { useFilterController } from '../../hooks/useFilterController';
+import { getFocusRingClassName } from '../../utils/focusRing';
 
 interface AppHeaderProps {
   onRandomPokemon: () => void;
@@ -122,6 +123,37 @@ const AppHeader: React.FC<AppHeaderProps> = memo(({ onRandomPokemon }) => {
     return () => window.removeEventListener('keydown', onKeyDown);
   }, [showMenu, closeMenu]);
 
+  // WAI-ARIA menu keyboard pattern: arrows move focus with wrap-around,
+  // Home/End jump to the first/last item. Enter/Space stay native to each item.
+  const handleMenuKeyDown = useCallback((e: React.KeyboardEvent<HTMLDivElement>) => {
+    const items = Array.from(e.currentTarget.querySelectorAll<HTMLElement>('[role="menuitem"]'));
+    if (items.length === 0) return;
+
+    const currentIndex = items.indexOf(document.activeElement as HTMLElement);
+    let nextIndex: number;
+
+    switch (e.key) {
+      case 'ArrowDown':
+        nextIndex = currentIndex < 0 ? 0 : (currentIndex + 1) % items.length;
+        break;
+      case 'ArrowUp':
+        nextIndex = currentIndex <= 0 ? items.length - 1 : currentIndex - 1;
+        break;
+      case 'Home':
+        nextIndex = 0;
+        break;
+      case 'End':
+        nextIndex = items.length - 1;
+        break;
+      default:
+        return;
+    }
+
+    e.preventDefault();
+    // focus() scrolls the item into view inside the bounded menu container.
+    items[nextIndex].focus();
+  }, []);
+
   // Achievement Wrappers
   const handleToggleShiny = () => {
     usePokemonStore.getState().toggleShiny();
@@ -152,6 +184,14 @@ const AppHeader: React.FC<AppHeaderProps> = memo(({ onRandomPokemon }) => {
     unlockAchievement('knowledge_seeker');
   };
 
+  // Theme-aware keyboard focus rings. The menu surface follows the theme,
+  // while the cyberpunk header is always dark even when the theme is light.
+  const headerFocusRingClassName = getFocusRingClassName({
+    theme,
+    onDarkSurface: isCyberpunk,
+  });
+  const menuItemClassName = `p-2 text-left rounded-lg font-bold ${getFocusRingClassName({ theme })}`;
+
   return (
     <header
       className={`sticky top-0 z-sticky border-b backdrop-blur-xl ${
@@ -164,15 +204,15 @@ const AppHeader: React.FC<AppHeaderProps> = memo(({ onRandomPokemon }) => {
     >
       <div className="mx-auto flex w-full max-w-7xl flex-col gap-2 px-3 py-2 sm:gap-4 sm:px-6 sm:py-4 md:gap-6 md:py-6">
         <div className="flex flex-col gap-2 sm:gap-3 md:flex-row md:items-center md:justify-between">
-          <div className="flex items-center gap-2.5 sm:gap-4">
+          <div className="flex items-center gap-2.5 sm:gap-4 md:shrink-0 lg:shrink">
             <img
               src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png"
               alt="Pokeball"
               className="h-8 w-8 sm:h-11 sm:w-11 drop-shadow-lg"
             />
-            <div className="flex-1 min-w-0">
+            <div className="flex-1">
               <h1
-                className={`text-2xl font-black tracking-tight sm:text-4xl md:text-5xl ${
+                className={`text-2xl font-black tracking-tight whitespace-nowrap sm:text-4xl lg:text-5xl ${
                   isCyberpunk
                     ? 'cyber-title'
                     : theme === 'dark'
@@ -180,10 +220,10 @@ const AppHeader: React.FC<AppHeaderProps> = memo(({ onRandomPokemon }) => {
                       : 'text-slate-800'
                 }`}
               >
-                Pokedex
+                Pokédex
               </h1>
               <p
-                className={`hidden md:block text-sm ${
+                className={`hidden lg:block text-sm ${
                   isCyberpunk
                     ? 'cyber-text opacity-70'
                     : theme === 'dark'
@@ -203,7 +243,7 @@ const AppHeader: React.FC<AppHeaderProps> = memo(({ onRandomPokemon }) => {
               <button
                 type="button"
                 onClick={() => setMobileDrawerOpen(true)}
-                className={`md:hidden p-2 rounded-lg border transition-all hover:scale-105 focus-visible:ring-2 focus-visible:ring-primary-500 focus:outline-none ${
+                className={`md:hidden p-2 rounded-lg border transition-all hover:scale-105 ${headerFocusRingClassName} ${
                   theme === 'dark'
                     ? 'bg-slate-800 border-slate-700 text-slate-300 hover:text-white'
                     : 'bg-slate-200 border-slate-300 text-slate-600 hover:text-slate-900'
@@ -234,7 +274,7 @@ const AppHeader: React.FC<AppHeaderProps> = memo(({ onRandomPokemon }) => {
                     type="button"
                     onClick={toggleMenu}
                     ref={menuButtonRef}
-                    className={`p-2 rounded-lg border transition-all hover:scale-105 focus-visible:ring-2 focus-visible:ring-primary-500 focus:outline-none ${theme === 'dark' ? 'bg-slate-800 border-slate-700 text-slate-300 hover:text-white' : 'bg-slate-200 border-slate-300 text-slate-600 hover:text-slate-900'}`}
+                    className={`p-2 rounded-lg border transition-all hover:scale-105 ${headerFocusRingClassName} ${theme === 'dark' ? 'bg-slate-800 border-slate-700 text-slate-300 hover:text-white' : 'bg-slate-200 border-slate-300 text-slate-600 hover:text-slate-900'}`}
                     aria-label="Tools"
                     aria-expanded={showMenu}
                     aria-haspopup="menu"
@@ -261,7 +301,8 @@ const AppHeader: React.FC<AppHeaderProps> = memo(({ onRandomPokemon }) => {
                       id={menuId}
                       role="menu"
                       aria-label="Tools"
-                      className={`absolute top-full mt-2 right-0 w-56 rounded-xl shadow-2xl border p-2 z-50 flex flex-col gap-1 ${
+                      onKeyDown={handleMenuKeyDown}
+                      className={`absolute top-full mt-2 right-0 w-56 max-h-[calc(100dvh-8rem)] rounded-xl shadow-2xl border p-2 z-50 flex flex-col gap-1 overflow-y-auto overscroll-contain scroll-py-2 ${
                         theme === 'dark'
                           ? 'bg-slate-900 border-white/10'
                           : 'bg-white border-slate-200'
@@ -275,7 +316,7 @@ const AppHeader: React.FC<AppHeaderProps> = memo(({ onRandomPokemon }) => {
                           openMoveDex();
                           closeMenu();
                         }}
-                        className={`p-2 text-left rounded-lg font-bold focus:outline-none focus:ring-2 focus:ring-primary-500 ${theme === 'dark' ? 'hover:bg-white/10 text-slate-300' : 'hover:bg-slate-100 text-slate-700'}`}
+                        className={`${menuItemClassName} ${theme === 'dark' ? 'hover:bg-white/10 text-slate-300' : 'hover:bg-slate-100 text-slate-700'}`}
                       >
                         Move Dex
                       </button>
@@ -286,7 +327,7 @@ const AppHeader: React.FC<AppHeaderProps> = memo(({ onRandomPokemon }) => {
                           openAbilityDex();
                           closeMenu();
                         }}
-                        className={`p-2 text-left rounded-lg font-bold focus:outline-none focus:ring-2 focus:ring-primary-500 ${theme === 'dark' ? 'hover:bg-white/10 text-slate-300' : 'hover:bg-slate-100 text-slate-700'}`}
+                        className={`${menuItemClassName} ${theme === 'dark' ? 'hover:bg-white/10 text-slate-300' : 'hover:bg-slate-100 text-slate-700'}`}
                       >
                         Ability Dex
                       </button>
@@ -297,7 +338,7 @@ const AppHeader: React.FC<AppHeaderProps> = memo(({ onRandomPokemon }) => {
                           openItemDex();
                           closeMenu();
                         }}
-                        className={`p-2 text-left rounded-lg font-bold focus:outline-none focus:ring-2 focus:ring-primary-500 ${theme === 'dark' ? 'hover:bg-white/10 text-slate-300' : 'hover:bg-slate-100 text-slate-700'}`}
+                        className={`${menuItemClassName} ${theme === 'dark' ? 'hover:bg-white/10 text-slate-300' : 'hover:bg-slate-100 text-slate-700'}`}
                       >
                         Item Dex
                       </button>
@@ -308,7 +349,7 @@ const AppHeader: React.FC<AppHeaderProps> = memo(({ onRandomPokemon }) => {
                           handleShowBreeding();
                           closeMenu();
                         }}
-                        className={`p-2 text-left rounded-lg font-bold focus:outline-none focus:ring-2 focus:ring-primary-500 ${theme === 'dark' ? 'hover:bg-white/10 text-slate-300' : 'hover:bg-slate-100 text-slate-700'}`}
+                        className={`${menuItemClassName} ${theme === 'dark' ? 'hover:bg-white/10 text-slate-300' : 'hover:bg-slate-100 text-slate-700'}`}
                       >
                         Breeding Calculator
                       </button>
@@ -319,7 +360,7 @@ const AppHeader: React.FC<AppHeaderProps> = memo(({ onRandomPokemon }) => {
                           openNatureChart();
                           closeMenu();
                         }}
-                        className={`p-2 text-left rounded-lg font-bold focus:outline-none focus:ring-2 focus:ring-primary-500 ${theme === 'dark' ? 'hover:bg-white/10 text-slate-300' : 'hover:bg-slate-100 text-slate-700'}`}
+                        className={`${menuItemClassName} ${theme === 'dark' ? 'hover:bg-white/10 text-slate-300' : 'hover:bg-slate-100 text-slate-700'}`}
                       >
                         Nature Chart
                       </button>
@@ -330,7 +371,7 @@ const AppHeader: React.FC<AppHeaderProps> = memo(({ onRandomPokemon }) => {
                           handleShowTypeChart();
                           closeMenu();
                         }}
-                        className={`p-2 text-left rounded-lg font-bold focus:outline-none focus:ring-2 focus:ring-primary-500 ${theme === 'dark' ? 'hover:bg-white/10 text-slate-300' : 'hover:bg-slate-100 text-slate-700'}`}
+                        className={`${menuItemClassName} ${theme === 'dark' ? 'hover:bg-white/10 text-slate-300' : 'hover:bg-slate-100 text-slate-700'}`}
                       >
                         Type Chart
                       </button>
@@ -344,7 +385,7 @@ const AppHeader: React.FC<AppHeaderProps> = memo(({ onRandomPokemon }) => {
                           openDataManagement();
                           closeMenu();
                         }}
-                        className={`p-2 text-left rounded-lg font-bold focus:outline-none focus:ring-2 focus:ring-primary-500 ${theme === 'dark' ? 'hover:bg-white/10 text-slate-300' : 'hover:bg-slate-100 text-slate-700'}`}
+                        className={`${menuItemClassName} ${theme === 'dark' ? 'hover:bg-white/10 text-slate-300' : 'hover:bg-slate-100 text-slate-700'}`}
                       >
                         Data Management
                       </button>
@@ -355,7 +396,7 @@ const AppHeader: React.FC<AppHeaderProps> = memo(({ onRandomPokemon }) => {
                           openWalkersSettings();
                           closeMenu();
                         }}
-                        className={`p-2 text-left rounded-lg font-bold focus:outline-none focus:ring-2 focus:ring-primary-500 ${theme === 'dark' ? 'hover:bg-white/10 text-slate-300' : 'hover:bg-slate-100 text-slate-700'}`}
+                        className={`${menuItemClassName} ${theme === 'dark' ? 'hover:bg-white/10 text-slate-300' : 'hover:bg-slate-100 text-slate-700'}`}
                       >
                         Pokemon Walkers
                       </button>
@@ -369,7 +410,7 @@ const AppHeader: React.FC<AppHeaderProps> = memo(({ onRandomPokemon }) => {
                           handleShowGameHub();
                           closeMenu();
                         }}
-                        className={`p-2 text-left rounded-lg font-bold focus:outline-none focus:ring-2 focus:ring-primary-500 ${theme === 'dark' ? 'hover:bg-white/10 text-slate-300' : 'hover:bg-slate-100 text-slate-700'}`}
+                        className={`${menuItemClassName} ${theme === 'dark' ? 'hover:bg-white/10 text-slate-300' : 'hover:bg-slate-100 text-slate-700'}`}
                       >
                         Game Hub
                       </button>
@@ -380,7 +421,7 @@ const AppHeader: React.FC<AppHeaderProps> = memo(({ onRandomPokemon }) => {
                           handleShowDamageCalc();
                           closeMenu();
                         }}
-                        className={`p-2 text-left rounded-lg font-bold focus:outline-none focus:ring-2 focus:ring-primary-500 ${theme === 'dark' ? 'hover:bg-white/10 text-slate-300' : 'hover:bg-slate-100 text-slate-700'}`}
+                        className={`${menuItemClassName} ${theme === 'dark' ? 'hover:bg-white/10 text-slate-300' : 'hover:bg-slate-100 text-slate-700'}`}
                       >
                         Damage Calculator
                       </button>
@@ -391,7 +432,7 @@ const AppHeader: React.FC<AppHeaderProps> = memo(({ onRandomPokemon }) => {
                           openStatCalc();
                           closeMenu();
                         }}
-                        className={`p-2 text-left rounded-lg font-bold focus:outline-none focus:ring-2 focus:ring-primary-500 ${theme === 'dark' ? 'hover:bg-white/10 text-slate-300' : 'hover:bg-slate-100 text-slate-700'}`}
+                        className={`${menuItemClassName} ${theme === 'dark' ? 'hover:bg-white/10 text-slate-300' : 'hover:bg-slate-100 text-slate-700'}`}
                       >
                         Stat Calculator
                       </button>
@@ -402,7 +443,7 @@ const AppHeader: React.FC<AppHeaderProps> = memo(({ onRandomPokemon }) => {
                           handleShowCatchCalc();
                           closeMenu();
                         }}
-                        className={`p-2 text-left rounded-lg font-bold focus:outline-none focus:ring-2 focus:ring-primary-500 ${theme === 'dark' ? 'hover:bg-white/10 text-slate-300' : 'hover:bg-slate-100 text-slate-700'}`}
+                        className={`${menuItemClassName} ${theme === 'dark' ? 'hover:bg-white/10 text-slate-300' : 'hover:bg-slate-100 text-slate-700'}`}
                       >
                         Catch Calculator
                       </button>
@@ -413,7 +454,7 @@ const AppHeader: React.FC<AppHeaderProps> = memo(({ onRandomPokemon }) => {
                           openShinyCalc();
                           closeMenu();
                         }}
-                        className={`p-2 text-left rounded-lg font-bold focus:outline-none focus:ring-2 focus:ring-primary-500 ${theme === 'dark' ? 'hover:bg-white/10 text-slate-300' : 'hover:bg-slate-100 text-slate-700'}`}
+                        className={`${menuItemClassName} ${theme === 'dark' ? 'hover:bg-white/10 text-slate-300' : 'hover:bg-slate-100 text-slate-700'}`}
                       >
                         Shiny Odds Calculator
                       </button>
@@ -427,7 +468,7 @@ const AppHeader: React.FC<AppHeaderProps> = memo(({ onRandomPokemon }) => {
                           openAchievements();
                           closeMenu();
                         }}
-                        className={`p-2 text-left rounded-lg font-bold focus:outline-none focus:ring-2 focus:ring-primary-500 ${theme === 'dark' ? 'hover:bg-white/10 text-slate-300' : 'hover:bg-slate-100 text-slate-700'}`}
+                        className={`${menuItemClassName} ${theme === 'dark' ? 'hover:bg-white/10 text-slate-300' : 'hover:bg-slate-100 text-slate-700'}`}
                       >
                         Achievements
                       </button>
@@ -441,7 +482,7 @@ const AppHeader: React.FC<AppHeaderProps> = memo(({ onRandomPokemon }) => {
                           openWalkthroughModal();
                           closeMenu();
                         }}
-                        className={`p-2 text-left rounded-lg font-bold focus:outline-none focus:ring-2 focus:ring-primary-500 ${theme === 'dark' ? 'hover:bg-white/10 text-primary-400' : 'hover:bg-slate-100 text-primary-600'}`}
+                        className={`${menuItemClassName} ${theme === 'dark' ? 'hover:bg-white/10 text-primary-400' : 'hover:bg-slate-100 text-primary-600'}`}
                       >
                         Start Walkthrough
                       </button>
@@ -451,7 +492,7 @@ const AppHeader: React.FC<AppHeaderProps> = memo(({ onRandomPokemon }) => {
                         rel="noopener noreferrer"
                         role="menuitem"
                         onClick={() => closeMenu()}
-                        className={`p-2 text-left rounded-lg font-bold focus:outline-none focus:ring-2 focus:ring-primary-500 ${theme === 'dark' ? 'hover:bg-white/10 text-slate-300' : 'hover:bg-slate-100 text-slate-700'}`}
+                        className={`${menuItemClassName} ${theme === 'dark' ? 'hover:bg-white/10 text-slate-300' : 'hover:bg-slate-100 text-slate-700'}`}
                       >
                         View on GitHub
                       </a>
@@ -466,7 +507,7 @@ const AppHeader: React.FC<AppHeaderProps> = memo(({ onRandomPokemon }) => {
                 <button
                   type="button"
                   onClick={handleToggleShiny}
-                  className={`p-2 rounded-lg border transition-all hover:scale-105 focus-visible:ring-2 focus-visible:ring-primary-500 focus:outline-none ${
+                  className={`p-2 rounded-lg border transition-all hover:scale-105 ${headerFocusRingClassName} ${
                     isShiny
                       ? 'bg-pink-500/20 border-pink-400/40 hover:bg-pink-500/30 text-pink-300'
                       : theme === 'dark'
@@ -498,7 +539,7 @@ const AppHeader: React.FC<AppHeaderProps> = memo(({ onRandomPokemon }) => {
                   <button
                     type="button"
                     onClick={openComparison}
-                    className="relative p-2 rounded-lg bg-primary-500/20 border border-primary-400/40 hover:bg-primary-500/30 transition-all hover:scale-105 animate-pulse-glow focus-visible:ring-2 focus-visible:ring-primary-500 focus:outline-none"
+                    className={`relative p-2 rounded-lg bg-primary-500/20 border border-primary-400/40 hover:bg-primary-500/30 transition-all hover:scale-105 animate-pulse-glow ${headerFocusRingClassName}`}
                     title={`Compare ${comparisonListLength} Pokemon`}
                     aria-label={`Compare ${comparisonListLength} Pokemon`}
                   >
@@ -523,7 +564,7 @@ const AppHeader: React.FC<AppHeaderProps> = memo(({ onRandomPokemon }) => {
                 <button
                   type="button"
                   onClick={handleToggleAudio}
-                  className={`p-2 rounded-lg border transition-all focus-visible:ring-2 focus-visible:ring-primary-500 focus:outline-none ${theme === 'dark' ? 'bg-white/5 border-white/10 hover:bg-white/10' : 'bg-slate-100 border-slate-200 hover:bg-slate-200'}`}
+                  className={`p-2 rounded-lg border transition-all ${headerFocusRingClassName} ${theme === 'dark' ? 'bg-white/5 border-white/10 hover:bg-white/10' : 'bg-slate-100 border-slate-200 hover:bg-slate-200'}`}
                   title={audioEnabled ? 'Mute sounds' : 'Enable sounds'}
                   aria-label={audioEnabled ? 'Mute sounds' : 'Enable sounds'}
                 >
@@ -561,7 +602,7 @@ const AppHeader: React.FC<AppHeaderProps> = memo(({ onRandomPokemon }) => {
               {/* end desktop-only buttons */}
             </div>
           </div>
-          <div className="flex gap-2 w-full md:max-w-sm" data-tour="search-bar">
+          <div className="flex gap-2 w-full min-w-0 md:max-w-sm" data-tour="search-bar">
             <SearchBar
               id="main-search"
               value={searchTerm}

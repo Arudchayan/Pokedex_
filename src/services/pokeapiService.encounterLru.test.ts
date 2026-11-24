@@ -13,19 +13,17 @@ describe('pokeapiService encounter cache LRU', () => {
         ok: true,
         json: async () => ({
           data: {
-            pokemon_v2_encounter: [
+            encounter: [
               {
                 min_level: 5,
                 max_level: 10,
-                pokemon_v2_encounterslots: [
-                  {
-                    rarity: 20,
-                    pokemon_v2_encountermethod: { name: 'walk' },
-                  },
-                ],
-                pokemon_v2_version: { name: 'red' },
-                pokemon_v2_locationarea: {
-                  pokemon_v2_location: { name: 'route-1' },
+                encounterslot: {
+                  rarity: 20,
+                  encountermethod: { name: 'walk' },
+                },
+                version: { name: 'red' },
+                locationarea: {
+                  location: { name: 'route-1' },
                 },
               },
             ],

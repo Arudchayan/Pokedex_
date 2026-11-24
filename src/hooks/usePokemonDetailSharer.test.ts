@@ -47,6 +47,15 @@ describe('usePokemonDetailSharer', () => {
     expect(onSelect).not.toHaveBeenCalled();
   });
 
+  it('ignores pokemon query values outside the National Dex range', () => {
+    window.location.search = '?pokemon=1026';
+    const onSelect = vi.fn();
+
+    renderHook(() => usePokemonDetailSharer({ selectedPokemonId: null, onSelect }));
+
+    expect(onSelect).not.toHaveBeenCalled();
+  });
+
   it('does not strip ?pokemon while waiting for selection after hydrate', () => {
     window.location.search = '?pokemon=25&compare=1';
     const onSelect = vi.fn();
