@@ -1,5 +1,7 @@
-import React, { memo } from 'react';
+import React, { memo, useId } from 'react';
+import { DEFAULT_POKEDEX, POKEDEX_OPTIONS } from '../../constants';
 import type { SortOption } from '../../types/sorting';
+import { getFocusRingClassName } from '../../utils/focusRing';
 
 export type { SortOption } from '../../types/sorting';
 
@@ -19,7 +21,7 @@ const SortingControls: React.FC<SortingControlsProps> = ({
   onSortChange,
   onOrderChange,
   theme,
-  selectedPokedex = 'national',
+  selectedPokedex = DEFAULT_POKEDEX,
   onPokedexChange,
 }) => {
   const sortOptions: { value: SortOption; label: string; icon: string }[] = [
@@ -41,31 +43,23 @@ const SortingControls: React.FC<SortingControlsProps> = ({
 
   const isStatSelected = statOptions.some((opt) => opt.value === sortBy);
 
-  const dexOptions: { value: string; label: string }[] = [
-    { value: 'national', label: 'National Dex' },
-    { value: 'kanto', label: 'Kanto' },
-    { value: 'original-johto', label: 'Johto' },
-    { value: 'hoenn', label: 'Hoenn' },
-    { value: 'original-sinnoh', label: 'Sinnoh' },
-    { value: 'original-unova', label: 'Unova' },
-    { value: 'kalos-central', label: 'Kalos' },
-    { value: 'original-alola', label: 'Alola' },
-    { value: 'galar', label: 'Galar' },
-    { value: 'hisui', label: 'Hisui' },
-    { value: 'paldea', label: 'Paldea' },
-  ];
+  // Multiple instances can be mounted at once, so label/control ids are namespaced.
+  const idPrefix = `sorting-${useId().replace(/[^a-zA-Z0-9_-]/g, '')}`;
+  const sortLabelId = `${idPrefix}-sort-label`;
+  const dexSelectId = `${idPrefix}-dex-select`;
 
-  const currentDexValue = sortBy === 'regional-dex' ? selectedPokedex : 'national';
+  const currentDexValue = sortBy === 'regional-dex' ? selectedPokedex : DEFAULT_POKEDEX;
+  const focusRingClassName = getFocusRingClassName({ theme });
 
   return (
     <div className="flex flex-wrap gap-2 sm:gap-3 items-center w-full sm:w-auto">
       <div
         className="flex items-center gap-2 w-full sm:w-auto overflow-x-auto scrollbar-hide"
         role="group"
-        aria-labelledby="sort-label"
+        aria-labelledby={sortLabelId}
       >
         <label
-          id="sort-label"
+          id={sortLabelId}
           className={`text-xs sm:text-sm font-semibold whitespace-nowrap flex-shrink-0 ${theme === 'dark' ? 'text-slate-300' : 'text-slate-600'}`}
         >
           Sort by:
@@ -77,12 +71,12 @@ const SortingControls: React.FC<SortingControlsProps> = ({
               type="button"
               onClick={() => onSortChange(option.value)}
               aria-pressed={sortBy === option.value}
-              className={`px-2.5 py-2 rounded-lg text-xs sm:text-sm sm:px-3 font-semibold whitespace-nowrap transition-all focus:outline-none focus:ring-2 focus:ring-primary-500 flex-shrink-0 ${
+              className={`px-2.5 py-2 rounded-lg text-xs sm:text-sm sm:px-3 font-semibold whitespace-nowrap transition-all ${focusRingClassName} flex-shrink-0 ${
                 sortBy === option.value
                   ? 'bg-primary-500/30 text-primary-300 border border-primary-400/60 shadow-lg'
                   : theme === 'dark'
-                    ? 'bg-white/5 text-slate-400 border border-white/10 hover:bg-white/10 hover:text-slate-200'
-                    : 'bg-slate-100 text-slate-500 border border-slate-200 hover:bg-slate-200 hover:text-slate-700'
+                    ? 'bg-white/5 text-slate-300 border border-white/10 hover:bg-white/10 hover:text-white'
+                    : 'bg-slate-100 text-slate-600 border border-slate-200 hover:bg-slate-200 hover:text-slate-900'
               }`}
             >
               <span className="mr-1">{option.icon}</span>
@@ -95,12 +89,12 @@ const SortingControls: React.FC<SortingControlsProps> = ({
               value={isStatSelected ? sortBy : ''}
               onChange={(e) => onSortChange(e.target.value as SortOption)}
               aria-label="Sort by Stat"
-              className={`appearance-none pl-2.5 pr-7 sm:pl-3 sm:pr-8 py-2 rounded-lg text-xs sm:text-sm font-semibold whitespace-nowrap transition-all focus:outline-none focus:ring-2 focus:ring-primary-500 cursor-pointer flex-shrink-0 ${
+              className={`appearance-none pl-2.5 pr-7 sm:pl-3 sm:pr-8 py-2 rounded-lg text-xs sm:text-sm font-semibold whitespace-nowrap transition-all ${focusRingClassName} cursor-pointer flex-shrink-0 ${
                 isStatSelected
                   ? 'bg-primary-500/30 text-primary-300 border border-primary-400/60 shadow-lg'
                   : theme === 'dark'
-                    ? 'bg-white/5 text-slate-400 border border-white/10 hover:bg-white/10 hover:text-slate-200'
-                    : 'bg-slate-100 text-slate-500 border border-slate-200 hover:bg-slate-200 hover:text-slate-700'
+                    ? 'bg-white/5 text-slate-300 border border-white/10 hover:bg-white/10 hover:text-white'
+                    : 'bg-slate-100 text-slate-600 border border-slate-200 hover:bg-slate-200 hover:text-slate-900'
               }`}
             >
               <option value="" disabled className={theme === 'dark' ? 'bg-slate-800' : 'bg-white'}>
@@ -119,7 +113,7 @@ const SortingControls: React.FC<SortingControlsProps> = ({
               ))}
             </select>
             <div
-              className={`pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 ${isStatSelected ? 'text-primary-300' : theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}
+              className={`pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 ${isStatSelected ? 'text-primary-300' : theme === 'dark' ? 'text-slate-300' : 'text-slate-600'}`}
             >
               <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path
@@ -135,34 +129,36 @@ const SortingControls: React.FC<SortingControlsProps> = ({
       </div>
 
       <div className="flex items-center gap-3">
-        <div className="flex items-center gap-2" aria-label="Dex order">
-          <span
+        <div className="flex items-center gap-2">
+          <label
+            htmlFor={dexSelectId}
             className={`text-sm font-semibold ${theme === 'dark' ? 'text-slate-300' : 'text-slate-600'}`}
           >
             Dex:
-          </span>
+          </label>
           <select
+            id={dexSelectId}
             value={currentDexValue}
             onChange={(e) => {
               const value = e.target.value;
               if (onPokedexChange) {
                 onPokedexChange(value);
               }
-              if (value === 'national') {
+              if (value === DEFAULT_POKEDEX) {
                 onSortChange('id');
               } else {
                 onSortChange('regional-dex');
               }
             }}
-            className={`pl-3 pr-8 py-2 rounded-lg text-sm font-semibold transition-all focus:outline-none focus:ring-2 focus:ring-primary-500 cursor-pointer ${
+            className={`pl-3 pr-8 py-2 rounded-lg text-sm font-semibold transition-all ${focusRingClassName} cursor-pointer ${
               sortBy === 'regional-dex'
                 ? 'bg-primary-500/30 text-primary-300 border border-primary-400/60 shadow-lg'
                 : theme === 'dark'
-                  ? 'bg-white/5 text-slate-400 border border-white/10 hover:bg-white/10 hover:text-slate-200'
-                  : 'bg-slate-100 text-slate-500 border border-slate-200 hover:bg-slate-200 hover:text-slate-700'
+                  ? 'bg-white/5 text-slate-300 border border-white/10 hover:bg-white/10 hover:text-white'
+                  : 'bg-slate-100 text-slate-600 border border-slate-200 hover:bg-slate-200 hover:text-slate-900'
             }`}
           >
-            {dexOptions.map((option) => (
+            {POKEDEX_OPTIONS.map((option) => (
               <option
                 key={option.value}
                 value={option.value}
@@ -179,7 +175,7 @@ const SortingControls: React.FC<SortingControlsProps> = ({
         <button
           type="button"
           onClick={() => onOrderChange(sortOrder === 'asc' ? 'desc' : 'asc')}
-          className={`p-2 rounded-lg transition-all focus:outline-none focus:ring-2 focus:ring-primary-500 ${
+          className={`p-2 rounded-lg transition-all ${focusRingClassName} ${
             theme === 'dark'
               ? 'bg-white/5 border border-white/10 hover:bg-white/10'
               : 'bg-slate-100 border border-slate-200 hover:bg-slate-200'

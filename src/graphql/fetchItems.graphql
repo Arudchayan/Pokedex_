@@ -1,9 +1,23 @@
 query FetchItems {
-  pokemon_v2_item(limit: 100, order_by: { id: asc }, where: { cost: { _gt: 0 } }) {
+  item(
+    order_by: { id: asc }
+    where: {
+      _or: [
+        {
+          itemattributemaps: {
+            itemattribute: { name: { _in: ["holdable", "holdable-passive", "holdable-active"] } }
+          }
+        }
+        { itemcategory: { name: { _eq: "held-items" } } }
+      ]
+    }
+  ) {
     id
     name
-    cost
-    pokemon_v2_itemflavortexts(where: { language_id: { _eq: 9 } }, limit: 1) {
+    itemprices(limit: 1, order_by: { purchase_price: desc_nulls_last }) {
+      purchase_price
+    }
+    itemflavortexts(where: { language: { name: { _eq: "en" } } }, limit: 1) {
       flavor_text
     }
   }

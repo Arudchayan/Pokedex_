@@ -11,12 +11,13 @@ interface Props {
   onClose: () => void;
   date: string;
   seed: number;
+  onReady?: () => void;
 }
 
 const FLAVOR_CANDIDATE_TRIES = 20;
 const FLAVOR_FETCH_CONCURRENCY = 5;
 
-const FlavorGame: React.FC<Props> = ({ onClose, date, seed }) => {
+const FlavorGame: React.FC<Props> = ({ onClose, date, seed, onReady }) => {
   const { masterPokemonList, theme } = usePokemon();
   const { recordResult } = useGameStats();
   const queryClient = useQueryClient();
@@ -54,6 +55,10 @@ const FlavorGame: React.FC<Props> = ({ onClose, date, seed }) => {
     };
     init();
   }, [masterPokemonList, rng, queryClient]);
+
+  useEffect(() => {
+    if (target) onReady?.();
+  }, [target, onReady]);
 
   // Obfuscate the flavor text by replacing the pokemon name
   const flavorText = useMemo(() => {

@@ -49,7 +49,7 @@ const validateStatsObject = (data: any, maxVal: number): Record<string, number> 
 export const validateTeamMember = (data: any): TeamMember | null => {
   if (!data || typeof data !== 'object') return null;
   // Essential fields
-  if (typeof data.id !== 'number') return null;
+  if (!Number.isSafeInteger(data.id) || data.id <= 0) return null;
   if (typeof data.name !== 'string') return null;
 
   // Sanitize strings
@@ -83,6 +83,7 @@ export const validateTeamMember = (data: any): TeamMember | null => {
     selectedAbility: data.selectedAbility ? sanitizeString(data.selectedAbility) : undefined,
     selectedNature: data.selectedNature ? sanitizeString(data.selectedNature) : undefined,
     selectedItem: data.selectedItem ? sanitizeString(data.selectedItem) : undefined,
+    isShiny: typeof data.isShiny === 'boolean' ? data.isShiny : undefined,
     evs: validateStatsObject(data.evs, 252), // EVs max 252
     ivs: validateStatsObject(data.ivs, 31), // IVs max 31
   };

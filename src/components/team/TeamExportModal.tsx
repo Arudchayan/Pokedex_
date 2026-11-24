@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { PokemonListItem } from '../../types';
+import { TeamMember } from '../../types';
 import { exportToShowdown, importFromShowdown } from '../../utils/teamExport';
 import { usePokemon } from '../../context/PokemonContext';
 import { usePokemonStore } from '../../store/usePokemonStore';
@@ -10,7 +10,7 @@ import Modal from '../base/Modal';
 interface TeamExportModalProps {
   isOpen: boolean;
   onClose: () => void;
-  team: PokemonListItem[];
+  team: TeamMember[];
 }
 
 const TeamExportModal: React.FC<TeamExportModalProps> = ({ isOpen, onClose, team }) => {
@@ -19,6 +19,7 @@ const TeamExportModal: React.FC<TeamExportModalProps> = ({ isOpen, onClose, team
   const [activeTab, setActiveTab] = useState<'export' | 'import'>('export');
   const [importText, setImportText] = useState('');
   const [exportText] = useState(exportToShowdown(team));
+  const hasUnavailableMembers = team.some((member) => member.detailsUnavailable);
   const closeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
@@ -89,6 +90,12 @@ const TeamExportModal: React.FC<TeamExportModalProps> = ({ isOpen, onClose, team
           <p id="export-modal-desc" className="text-sm text-slate-400">
             Copy this text to share your team or use it in Pokemon Showdown.
           </p>
+          {hasUnavailableMembers && (
+            <p className="rounded-lg border border-amber-400/30 bg-amber-400/10 p-3 text-xs text-amber-200">
+              Some team details are unavailable. Those members are marked as &ldquo;details
+              unavailable&rdquo; and will not import as a species.
+            </p>
+          )}
           <textarea
             readOnly
             value={exportText}

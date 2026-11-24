@@ -1,9 +1,10 @@
 import React from 'react';
-import { screen, fireEvent, waitFor } from '@testing-library/react';
+import { screen, fireEvent, waitFor, within } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import DataManagement from '../../components/shared/DataManagement';
 import { renderWithProvider } from '../utils';
 import { MAX_INPUT_LENGTH } from '../../utils/securityUtils';
+import { PERSISTENCE_VERSION } from '../../utils/persistenceSchema';
 import * as teamExport from '../../utils/teamExport';
 import { usePokemonStore } from '../../store/usePokemonStore';
 
@@ -18,6 +19,62 @@ vi.mock('../../utils/teamExport', () => ({
   importFromShowdown: vi.fn(),
 }));
 
+const existingSavedTeam = {
+  id: 'existing-team',
+  name: 'Existing Team',
+  team: [],
+  updatedAt: 111,
+};
+
+const makeBackup = (overrides: Record<string, unknown> = {}) => ({
+  version: PERSISTENCE_VERSION,
+  timestamp: '2024-01-01T00:00:00.000Z',
+  theme: 'light',
+  team: [
+    {
+      id: 25,
+      name: 'pikachu',
+      imageUrl: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/25.png',
+      shinyImageUrl:
+        'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/25.png',
+      types: ['electric'],
+      flavorText: 'Mouse Pokemon',
+      isShiny: true,
+    },
+  ],
+  favorites: [25, 133],
+  savedTeams: [
+    {
+      id: 'saved-1',
+      name: 'Kanto Team',
+      team: [],
+      updatedAt: 123456,
+    },
+  ],
+  ...overrides,
+});
+
+const seedCurrentData = () => {
+  usePokemonStore.setState({
+    team: [1],
+    teamCustomizations: {},
+    favorites: new Set([1]),
+    savedTeams: [existingSavedTeam],
+    history: [],
+    future: [],
+    theme: 'dark',
+  });
+};
+
+const openImport = () => {
+  renderWithProvider(<DataManagement onClose={() => {}} />);
+  return screen.getByPlaceholderText('Paste JSON here...');
+};
+
+const getDataManagementDialog = () => screen.getByRole('dialog', { name: 'Data Management' });
+
+const getImportError = () => within(getDataManagementDialog()).getByRole('alert');
+
 describe('DataManagement', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -28,6 +85,11 @@ describe('DataManagement', () => {
       teamCustomizations: {},
       favorites: new Set(),
       masterPokemonList: [],
+      achievements: {},
+      gameStats: {},
+      history: [],
+      future: [],
+      theme: 'dark',
     });
   });
 
@@ -56,85 +118,160 @@ describe('DataManagement', () => {
     expect(global.URL.createObjectURL).toHaveBeenCalled();
   });
 
-  it('imports saved teams and merges them into the store', async () => {
-    renderWithProvider(<DataManagement onClose={() => {}} />);
+  it('shows an inline error and keeps restore disabled for invalid JSON', () => {
+    seedCurrentData();
+    const textarea = openImport();
 
-    const savedTeamsPayload = [
-      {
-        id: 'new-team',
-        name: 'Imported Team',
-        team: [],
-        updatedAt: 123456,
-      },
-    ];
+    fireEvent.change(textarea, { target: { value: '{ not json ' } });
 
-    const importData = JSON.stringify({
-      version: '1.0',
-      timestamp: '2024-01-01',
-      theme: 'light',
-      team: [],
-      favorites: [],
-      savedTeams: savedTeamsPayload,
-    });
+    expect(getImportError()).toHaveTextContent(/invalid json/i);
+    expect(textarea).toHaveAttribute('aria-invalid', 'true');
+    expect(screen.getByRole('button', { name: 'Restore Backup' })).toBeDisabled();
 
-    const textarea = screen.getByPlaceholderText('Paste JSON here...');
-    fireEvent.change(textarea, { target: { value: importData } });
-
-    const importBtn = screen.getByRole('button', { name: 'Restore Backup' });
-    fireEvent.click(importBtn);
-
-    await waitFor(() => {
-      expect(usePokemonStore.getState().savedTeams).toEqual(
-        expect.arrayContaining([expect.objectContaining({ id: 'new-team', name: 'Imported Team' })])
-      );
-    });
+    const state = usePokemonStore.getState();
+    expect(state.team).toEqual([1]);
+    expect(Array.from(state.favorites)).toEqual([1]);
+    expect(state.savedTeams).toEqual([existingSavedTeam]);
+    expect(state.theme).toBe('dark');
   });
 
-  it('handles ID collision by generating new ID', async () => {
-    const existingTeam = { id: 'collision-id', name: 'Existing Team', team: [], updatedAt: 111 };
-    usePokemonStore.setState({ savedTeams: [existingTeam] });
+  it('previews a valid backup without applying it until confirmed', () => {
+    seedCurrentData();
+    const textarea = openImport();
 
-    const newUUID = 'new-unique-id';
-    const originalRandomUUID = crypto.randomUUID;
-    Object.defineProperty(crypto, 'randomUUID', { value: vi.fn(() => newUUID), writable: true });
+    fireEvent.change(textarea, { target: { value: JSON.stringify(makeBackup()) } });
 
-    renderWithProvider(<DataManagement onClose={() => {}} />);
+    expect(within(getDataManagementDialog()).queryByRole('alert')).not.toBeInTheDocument();
+    const restoreButton = screen.getByRole('button', { name: 'Restore Backup' });
+    expect(restoreButton).toBeEnabled();
 
-    const savedTeamsPayload = [
-      {
-        id: 'collision-id',
-        name: 'Imported Collision Team',
-        team: [],
-        updatedAt: 222,
-      },
-    ];
+    fireEvent.click(restoreButton);
 
-    const importData = JSON.stringify({
-      version: '1.0',
-      timestamp: '2024-01-01',
-      theme: 'light',
-      team: [],
-      favorites: [],
-      savedTeams: savedTeamsPayload,
-    });
+    const dialog = screen.getByRole('alertdialog', { name: 'Confirm restore' });
+    expect(dialog).toHaveTextContent(/replaces your current team/i);
+    expect(within(dialog).getByText('Team members').parentElement).toHaveTextContent('1');
+    expect(within(dialog).getByText('Favorites').parentElement).toHaveTextContent('2');
+    expect(within(dialog).getByText('Saved teams').parentElement).toHaveTextContent('1');
+    expect(within(dialog).getByText('Theme').parentElement).toHaveTextContent('light');
 
-    const textarea = screen.getByPlaceholderText('Paste JSON here...');
-    fireEvent.change(textarea, { target: { value: importData } });
+    // Nothing is written until the explicit confirmation.
+    const state = usePokemonStore.getState();
+    expect(state.team).toEqual([1]);
+    expect(Array.from(state.favorites)).toEqual([1]);
+    expect(state.savedTeams).toEqual([existingSavedTeam]);
+    expect(state.theme).toBe('dark');
+  });
 
-    const importBtn = screen.getByRole('button', { name: 'Restore Backup' });
-    fireEvent.click(importBtn);
+  it('leaves current data untouched when the restore is cancelled and restores focus to Restore', async () => {
+    seedCurrentData();
+    const textarea = openImport();
+    const backupJson = JSON.stringify(makeBackup());
+    const restoreButton = screen.getByRole('button', { name: 'Restore Backup' });
+
+    fireEvent.change(textarea, { target: { value: backupJson } });
+    fireEvent.click(restoreButton);
+    fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
+    expect(textarea).toHaveValue(backupJson);
+    await waitFor(() => expect(document.activeElement).toBe(restoreButton));
+
+    const state = usePokemonStore.getState();
+    expect(state.team).toEqual([1]);
+    expect(Array.from(state.favorites)).toEqual([1]);
+    expect(state.savedTeams).toEqual([existingSavedTeam]);
+    expect(state.theme).toBe('dark');
+  });
+
+  it('replaces current data exactly after confirmation and shows success', async () => {
+    seedCurrentData();
+    const textarea = openImport();
+    const backup = makeBackup({ unknownKey: { ignored: true } });
+
+    fireEvent.change(textarea, { target: { value: JSON.stringify(backup) } });
+    fireEvent.click(screen.getByRole('button', { name: 'Restore Backup' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Confirm Restore' }));
 
     await waitFor(() => {
-      expect(usePokemonStore.getState().savedTeams).toEqual(
-        expect.arrayContaining([
-          expect.objectContaining({ id: 'collision-id', name: 'Existing Team' }),
-          expect.objectContaining({ id: newUUID, name: 'Imported Collision Team' }),
-        ])
-      );
+      const state = usePokemonStore.getState();
+      expect(state.team).toEqual([25]);
+      expect(Array.from(state.favorites)).toEqual([25, 133]);
+      expect(state.savedTeams).toEqual(backup.savedTeams);
+      expect(state.theme).toBe('light');
+      expect(state.teamCustomizations[25]?.isShiny).toBe(true);
     });
 
-    if (originalRandomUUID)
-      Object.defineProperty(crypto, 'randomUUID', { value: originalRandomUUID });
+    const persisted = JSON.parse(localStorage.getItem('pokedex-storage') ?? '{}');
+    expect(persisted.state.team).toEqual([25]);
+    expect(persisted.state.favorites).toEqual([25, 133]);
+    expect(persisted.state.savedTeams).toEqual(backup.savedTeams);
+    expect(persisted.state.theme).toBe('light');
+    expect(persisted.state.teamCustomizations[25]?.isShiny).toBe(true);
+
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
+    expect(screen.getByRole('status')).toHaveTextContent(
+      'Restored 1 team member, 2 favorites, and 1 saved team.'
+    );
+    expect(textarea).toHaveValue('');
+  });
+
+  it('rejects an unsupported backup version without writing anything', () => {
+    seedCurrentData();
+    const textarea = openImport();
+
+    fireEvent.change(textarea, {
+      target: { value: JSON.stringify(makeBackup({ version: '2.0' })) },
+    });
+
+    expect(getImportError()).toHaveTextContent(/unsupported backup version "2.0"/i);
+    expect(screen.getByRole('button', { name: 'Restore Backup' })).toBeDisabled();
+
+    const state = usePokemonStore.getState();
+    expect(state.team).toEqual([1]);
+    expect(Array.from(state.favorites)).toEqual([1]);
+    expect(state.savedTeams).toEqual([existingSavedTeam]);
+  });
+
+  it('rejects a malformed backup without partial application', () => {
+    seedCurrentData();
+    const textarea = openImport();
+
+    fireEvent.change(textarea, {
+      target: { value: JSON.stringify(makeBackup({ team: 'not-an-array' })) },
+    });
+
+    expect(getImportError()).toHaveTextContent(/does not match the expected schema/i);
+    expect(screen.getByRole('button', { name: 'Restore Backup' })).toBeDisabled();
+
+    const state = usePokemonStore.getState();
+    expect(state.team).toEqual([1]);
+    expect(Array.from(state.favorites)).toEqual([1]);
+    expect(state.savedTeams).toEqual([existingSavedTeam]);
+    expect(state.theme).toBe('dark');
+  });
+
+  it('keeps Showdown import disabled until the text parses to a valid team', () => {
+    vi.mocked(teamExport.importFromShowdown).mockReturnValue([]);
+    renderWithProvider(<DataManagement onClose={() => {}} />);
+
+    const textarea = screen.getByLabelText('Paste Showdown Text');
+    const saveBtn = screen.getByRole('button', { name: 'Save to My Teams' });
+
+    expect(saveBtn).toBeDisabled();
+
+    fireEvent.change(textarea, { target: { value: 'not a showdown team' } });
+
+    const modal = screen.getByRole('dialog', { name: 'Data Management' });
+    expect(saveBtn).toBeDisabled();
+    expect(within(modal).getByRole('status')).toHaveTextContent(/no valid pokémon found/i);
+
+    vi.mocked(teamExport.importFromShowdown).mockReturnValue([
+      { id: 25, name: 'Pikachu', types: ['electric'], imageUrl: 'url' },
+    ] as any);
+    fireEvent.change(textarea, { target: { value: 'Pikachu @ Light Ball' } });
+
+    expect(saveBtn).toBeEnabled();
+    expect(within(modal).queryByText(/no valid pokémon found/i)).not.toBeInTheDocument();
   });
 
   it('imports Showdown team to saved teams', async () => {
