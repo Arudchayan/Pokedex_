@@ -23,6 +23,8 @@ interface VirtualPokemonListProps {
   isShiny: boolean;
   isCyberpunk?: boolean;
   isPaginationEnabled?: boolean;
+  /** Forces a column count when the list is narrower than the viewport, e.g. beside the filters. */
+  gridColumnsOverride?: number;
 }
 
 const GRID_ROW_HEIGHT = 360;
@@ -67,9 +69,11 @@ const VirtualPokemonList: React.FC<VirtualPokemonListProps> = ({
   isShiny,
   isCyberpunk = false,
   isPaginationEnabled = false,
+  gridColumnsOverride,
 }) => {
   const [currentPage, setCurrentPage] = useState(1);
-  const gridColumns = useGridColumns();
+  const detectedGridColumns = useGridColumns();
+  const gridColumns = gridColumnsOverride ?? detectedGridColumns;
   const columns = viewMode === 'grid' ? gridColumns : 1;
   const isVirtualized = !isPaginationEnabled;
 
@@ -306,7 +310,10 @@ const VirtualPokemonList: React.FC<VirtualPokemonListProps> = ({
               : virtualItems.map((virtualRow) => renderListRow(virtualRow))}
           </div>
         ) : viewMode === 'grid' ? (
-          <div className="grid grid-cols-2 gap-3 sm:gap-6 md:grid-cols-3 xl:grid-cols-4">
+          <div
+            className="grid gap-3 sm:gap-6"
+            style={{ gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))` }}
+          >
             {itemsToRender.map((pokemon) => (
               <div key={pokemon.id} data-poke-id={pokemon.id}>
                 <PokemonGridItem
