@@ -12,7 +12,7 @@ vi.mock('../context/PokemonContext', () => ({
     theme: mockUsePokemon().theme || 'dark',
     accent: 'cyan',
     isShiny: false,
-    isCyberpunk: false,
+    isCyberpunk: mockUsePokemon().isCyberpunk ?? false,
   }),
   usePokemonData: () => mockUsePokemon(),
   usePokemonDispatch: () => ({ reload: vi.fn(), undo: vi.fn(), redo: vi.fn() }),
@@ -113,6 +113,24 @@ describe('App empty/error states', () => {
     // The legacy primary token computes to an invalid colour inside rings.
     expect(link.className).not.toContain('focus:ring-primary-500');
     expect(link.className).not.toContain('focus:bg-primary-600');
+  });
+
+  it('uses a cyan focus ring on the cyberpunk header', () => {
+    mockUsePokemon.mockReturnValue({
+      ...baseState,
+      theme: 'light',
+      isCyberpunk: true,
+    });
+
+    renderWithProvider(<App />);
+
+    const link = screen.getByRole('link', { name: 'Skip to content' });
+    expect(link).toHaveClass(
+      'focus:bg-white',
+      'focus:text-slate-950',
+      'focus-visible:outline-cyan-300'
+    );
+    expect(link.className).not.toContain('focus-visible:outline-slate-900');
   });
 
   it('shows the empty state when not loading and no error', () => {

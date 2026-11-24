@@ -15,6 +15,7 @@ import { usePokemonUI } from '../../context/PokemonContext';
 import { usePokemonStore } from '../../store/usePokemonStore';
 import { useModalStore } from '../../store/useModalStore';
 import { useFilterController } from '../../hooks/useFilterController';
+import { getFocusRingClassName } from '../../utils/focusRing';
 
 interface AppHeaderProps {
   onRandomPokemon: () => void;
@@ -183,12 +184,13 @@ const AppHeader: React.FC<AppHeaderProps> = memo(({ onRandomPokemon }) => {
     unlockAchievement('knowledge_seeker');
   };
 
-  // Theme-aware keyboard focus ring. Uses explicit colours instead of the
-  // legacy `primary` token, whose comma-separated CSS variables make
-  // `rgb(var(--color-primary-500) / <alpha>)` invalid (and therefore invisible).
-  const menuItemClassName = `p-2 text-left rounded-lg font-bold focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 ${
-    theme === 'dark' ? 'focus-visible:outline-white' : 'focus-visible:outline-slate-900'
-  }`;
+  // Theme-aware keyboard focus rings. The menu surface follows the theme,
+  // while the cyberpunk header is always dark even when the theme is light.
+  const headerFocusRingClassName = getFocusRingClassName({
+    theme,
+    onDarkSurface: isCyberpunk,
+  });
+  const menuItemClassName = `p-2 text-left rounded-lg font-bold ${getFocusRingClassName({ theme })}`;
 
   return (
     <header
@@ -241,7 +243,7 @@ const AppHeader: React.FC<AppHeaderProps> = memo(({ onRandomPokemon }) => {
               <button
                 type="button"
                 onClick={() => setMobileDrawerOpen(true)}
-                className={`md:hidden p-2 rounded-lg border transition-all hover:scale-105 focus-visible:ring-2 focus-visible:ring-primary-500 focus:outline-none ${
+                className={`md:hidden p-2 rounded-lg border transition-all hover:scale-105 ${headerFocusRingClassName} ${
                   theme === 'dark'
                     ? 'bg-slate-800 border-slate-700 text-slate-300 hover:text-white'
                     : 'bg-slate-200 border-slate-300 text-slate-600 hover:text-slate-900'
@@ -272,7 +274,7 @@ const AppHeader: React.FC<AppHeaderProps> = memo(({ onRandomPokemon }) => {
                     type="button"
                     onClick={toggleMenu}
                     ref={menuButtonRef}
-                    className={`p-2 rounded-lg border transition-all hover:scale-105 focus-visible:ring-2 focus-visible:ring-primary-500 focus:outline-none ${theme === 'dark' ? 'bg-slate-800 border-slate-700 text-slate-300 hover:text-white' : 'bg-slate-200 border-slate-300 text-slate-600 hover:text-slate-900'}`}
+                    className={`p-2 rounded-lg border transition-all hover:scale-105 ${headerFocusRingClassName} ${theme === 'dark' ? 'bg-slate-800 border-slate-700 text-slate-300 hover:text-white' : 'bg-slate-200 border-slate-300 text-slate-600 hover:text-slate-900'}`}
                     aria-label="Tools"
                     aria-expanded={showMenu}
                     aria-haspopup="menu"
@@ -505,7 +507,7 @@ const AppHeader: React.FC<AppHeaderProps> = memo(({ onRandomPokemon }) => {
                 <button
                   type="button"
                   onClick={handleToggleShiny}
-                  className={`p-2 rounded-lg border transition-all hover:scale-105 focus-visible:ring-2 focus-visible:ring-primary-500 focus:outline-none ${
+                  className={`p-2 rounded-lg border transition-all hover:scale-105 ${headerFocusRingClassName} ${
                     isShiny
                       ? 'bg-pink-500/20 border-pink-400/40 hover:bg-pink-500/30 text-pink-300'
                       : theme === 'dark'
@@ -537,7 +539,7 @@ const AppHeader: React.FC<AppHeaderProps> = memo(({ onRandomPokemon }) => {
                   <button
                     type="button"
                     onClick={openComparison}
-                    className="relative p-2 rounded-lg bg-primary-500/20 border border-primary-400/40 hover:bg-primary-500/30 transition-all hover:scale-105 animate-pulse-glow focus-visible:ring-2 focus-visible:ring-primary-500 focus:outline-none"
+                    className={`relative p-2 rounded-lg bg-primary-500/20 border border-primary-400/40 hover:bg-primary-500/30 transition-all hover:scale-105 animate-pulse-glow ${headerFocusRingClassName}`}
                     title={`Compare ${comparisonListLength} Pokemon`}
                     aria-label={`Compare ${comparisonListLength} Pokemon`}
                   >
@@ -562,7 +564,7 @@ const AppHeader: React.FC<AppHeaderProps> = memo(({ onRandomPokemon }) => {
                 <button
                   type="button"
                   onClick={handleToggleAudio}
-                  className={`p-2 rounded-lg border transition-all focus-visible:ring-2 focus-visible:ring-primary-500 focus:outline-none ${theme === 'dark' ? 'bg-white/5 border-white/10 hover:bg-white/10' : 'bg-slate-100 border-slate-200 hover:bg-slate-200'}`}
+                  className={`p-2 rounded-lg border transition-all ${headerFocusRingClassName} ${theme === 'dark' ? 'bg-white/5 border-white/10 hover:bg-white/10' : 'bg-slate-100 border-slate-200 hover:bg-slate-200'}`}
                   title={audioEnabled ? 'Mute sounds' : 'Enable sounds'}
                   aria-label={audioEnabled ? 'Mute sounds' : 'Enable sounds'}
                 >

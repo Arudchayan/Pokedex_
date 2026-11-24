@@ -193,4 +193,20 @@ describe('AppHeader', () => {
       expect(item.className).not.toContain('focus:ring-primary-500');
     }
   });
+
+  it('gives the Tools trigger and header toggles theme-safe focus rings', () => {
+    renderWithProvider(<AppHeader onRandomPokemon={vi.fn()} />);
+
+    for (const name of ['Tools', /Shiny Mode/i, /sounds/i]) {
+      const control = screen.getByRole('button', { name });
+      expect(control).toHaveClass(
+        'focus-visible:outline',
+        'focus-visible:outline-2',
+        'focus-visible:outline-offset-2'
+      );
+      expect(control.className).toMatch(/focus-visible:outline-(white|slate-900)/);
+      expect(control.className).not.toContain('ring-primary-500');
+      expect(control.className).not.toContain('focus:outline-none');
+    }
+  });
 });

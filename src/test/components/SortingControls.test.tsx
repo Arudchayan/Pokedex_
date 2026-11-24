@@ -48,6 +48,26 @@ describe('SortingControls', () => {
     expect(orderButton).toHaveAttribute('aria-label', 'Switch to descending sort');
   });
 
+  it('gives every sort control a theme-safe keyboard focus ring', () => {
+    const { container } = renderWithProvider(
+      <SortingControls sortBy="id" sortOrder="asc" onSortChange={vi.fn()} onOrderChange={vi.fn()} />
+    );
+
+    const controls = Array.from(container.querySelectorAll<HTMLElement>('button, select'));
+    expect(controls).toHaveLength(7);
+
+    for (const control of controls) {
+      expect(control).toHaveClass(
+        'focus-visible:outline',
+        'focus-visible:outline-2',
+        'focus-visible:outline-offset-2'
+      );
+      expect(control.className).toMatch(/focus-visible:outline-(white|slate-900)/);
+      expect(control.className).not.toContain('ring-primary-500');
+      expect(control.className).not.toContain('focus:outline-none');
+    }
+  });
+
   it('toggles sort options', async () => {
     const onSortChange = vi.fn();
     const onOrderChange = vi.fn();
