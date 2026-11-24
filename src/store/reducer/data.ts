@@ -35,6 +35,9 @@ export function reducePokemonStoreData(
     case 'SET_LOADING':
       return { loading: action.payload };
 
+    case 'SET_RETRYING':
+      return { isRetrying: action.payload };
+
     case 'SET_ERROR':
       return { error: action.payload };
 

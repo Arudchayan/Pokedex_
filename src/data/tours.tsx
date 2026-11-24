@@ -6,6 +6,32 @@ const _openModal = (modalId: string) => {
   window.dispatchEvent(event);
 };
 
+const MOBILE_BREAKPOINT_PX = 768;
+const DRAWER_TRANSITION_MS = 400;
+
+const wait = (ms: number) => new Promise<void>((resolve) => window.setTimeout(resolve, ms));
+
+/**
+ * The mobile theme control lives in the drawer, so the tour has to reveal it
+ * before the spotlight measures the target. Desktop already has the control in
+ * the header.
+ */
+async function openMobileThemeControl() {
+  if (window.innerWidth >= MOBILE_BREAKPOINT_PX) return;
+
+  const drawer = document.querySelector<HTMLElement>(
+    '[role="dialog"][aria-label="Navigation menu"]'
+  );
+
+  if (drawer?.getAttribute('aria-hidden') !== 'false') {
+    document.querySelector<HTMLButtonElement>('[aria-label="Open navigation menu"]')?.click();
+    await wait(DRAWER_TRANSITION_MS);
+  }
+
+  // Recalculate the spotlight/tooltip after the drawer transition.
+  window.dispatchEvent(new Event('resize'));
+}
+
 export const ALL_TOURS: TourDefinition[] = [
   // =============================================================================
   // TOUR 1: Welcome & Navigation
@@ -109,9 +135,10 @@ export const ALL_TOURS: TourDefinition[] = [
       },
       {
         id: 'theme-toggle',
-        target: '[data-tour="theme-toggle"]',
+        target: '[data-tour="theme-toggle"], [data-tour="theme-mobile"]',
         title: 'Personalization',
         position: 'bottom',
+        onBeforeStep: openMobileThemeControl,
         content: (
           <div className="space-y-2">
             <p>Switch between light, dark, and cyberpunk themes.</p>
