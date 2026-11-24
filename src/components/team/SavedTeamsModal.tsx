@@ -27,6 +27,7 @@ const SavedTeamsModal: React.FC<SavedTeamsModalProps> = memo(
     const [error, setError] = useState<string | null>(null);
     const [deleteConfirmationId, setDeleteConfirmationId] = useState<string | null>(null);
     const deleteConfirmTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const hasUnavailableMembers = currentTeam.some((member) => member.detailsUnavailable);
 
     useEffect(() => {
       if (isOpen) {
@@ -57,6 +58,11 @@ const SavedTeamsModal: React.FC<SavedTeamsModalProps> = memo(
 
       if (currentTeam.length === 0) {
         setError('Cannot save an empty team.');
+        return;
+      }
+
+      if (hasUnavailableMembers) {
+        setError('Some team details are unavailable. Reload Pokémon data before saving this team.');
         return;
       }
 
@@ -127,12 +133,17 @@ const SavedTeamsModal: React.FC<SavedTeamsModalProps> = memo(
               <button
                 onClick={handleSaveCurrentTeam}
                 className="rounded-lg bg-primary-500 px-4 py-2 text-sm font-bold text-white transition hover:bg-primary-600 disabled:opacity-50 disabled:cursor-not-allowed"
-                disabled={currentTeam.length === 0}
+                disabled={currentTeam.length === 0 || hasUnavailableMembers}
               >
                 Save
               </button>
             </div>
             {error && <p className="mt-2 text-xs text-red-500">{error}</p>}
+            {hasUnavailableMembers && (
+              <p className="mt-2 text-xs opacity-60">
+                Some team details are unavailable. Reload Pokémon data before saving this team.
+              </p>
+            )}
             {currentTeam.length === 0 && (
               <p className="mt-2 text-xs opacity-60">Add Pokemon to your team to save it.</p>
             )}
@@ -168,15 +179,30 @@ const SavedTeamsModal: React.FC<SavedTeamsModalProps> = memo(
 
                   {/* Team Preview Icons */}
                   <div className="flex gap-1 h-8">
-                    {saved.team.map((member) => (
-                      <img
-                        key={member.id}
-                        src={member.imageUrl}
-                        alt={member.name}
-                        className="h-8 w-8 object-contain pixelated"
-                        loading="lazy"
-                      />
-                    ))}
+                    {saved.team.map((member) =>
+                      member.imageUrl && !member.detailsUnavailable ? (
+                        <img
+                          key={member.id}
+                          src={member.imageUrl}
+                          alt={member.name}
+                          className="h-8 w-8 object-contain pixelated"
+                          loading="lazy"
+                        />
+                      ) : (
+                        <div
+                          key={member.id}
+                          className={`flex h-8 w-8 items-center justify-center rounded-full border text-[9px] font-bold ${
+                            theme === 'dark'
+                              ? 'border-white/10 bg-white/5 text-slate-400'
+                              : 'border-slate-200 bg-slate-50 text-slate-500'
+                          }`}
+                          title={`${member.name} — image unavailable`}
+                          aria-label={`${member.name}, image unavailable`}
+                        >
+                          #{member.id}
+                        </div>
+                      )
+                    )}
                     {Array.from({ length: 6 - saved.team.length }).map((_, i) => (
                       <div
                         key={i}

@@ -14,6 +14,7 @@
 
 // UI State Hooks
 export { useClickOutside } from './useClickOutside';
+export { useFocusTrap, type UseFocusTrapOptions } from './useFocusTrap';
 export { useHover, useHoverRef } from './useHover';
 export {
   useIntersectionObserver,

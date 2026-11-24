@@ -1,89 +1,89 @@
 query getPokemonDetails($id: Int!) {
-  pokemon_v2_pokemonspecies(where: { pokemon_v2_pokemons: { id: { _eq: $id } } }) {
+  pokemonspecies(where: { pokemons: { id: { _eq: $id } } }) {
     id
     name
     capture_rate
     base_happiness
     gender_rate
-    pokemon_v2_pokemoncolor {
+    pokemoncolor {
       name
     }
-    pokemon_v2_pokemonhabitat {
+    pokemonhabitat {
       name
     }
-    pokemon_v2_pokemonspeciesnames(where: { pokemon_v2_language: { name: { _eq: "en" } } }) {
+    pokemonspeciesnames(where: { language: { name: { _eq: "en" } } }) {
       genus
     }
-    pokemon_v2_growthrate {
+    growthrate {
       name
     }
-    pokemon_v2_pokemonshape {
+    pokemonshape {
       name
     }
-    pokemon_v2_pokemonegggroups {
-      pokemon_v2_egggroup {
+    pokemonegggroups {
+      egggroup {
         name
       }
     }
-    pokemon_v2_evolutionchain {
-      pokemon_v2_pokemonspecies(order_by: { order: asc }) {
+    evolutionchain {
+      pokemonspecies(order_by: { order: asc }) {
         id
         name
         evolves_from_species_id
-        pokemon_v2_pokemons(limit: 1, order_by: { id: asc }) {
-          pokemon_v2_pokemonsprites {
+        pokemons(limit: 1, order_by: { id: asc }) {
+          pokemonsprites {
             sprites
           }
         }
-        pokemon_v2_pokemonevolutions {
+        pokemonevolutions {
           min_level
           min_happiness
-          pokemon_v2_evolutiontrigger {
+          evolutiontrigger {
             name
           }
-          pokemon_v2_item {
+          item {
             name
           }
           held_item_id
-          pokemon_v2_move {
+          move {
             name
           }
           time_of_day
-          pokemon_v2_location {
+          location {
             name
           }
         }
       }
     }
-    pokemon_v2_pokemonspeciesflavortexts(
-      where: { pokemon_v2_language: { name: { _eq: "en" } } }
+    pokemonspeciesflavortexts(
+      where: { language: { name: { _eq: "en" } } }
       limit: 1
       order_by: { version_id: desc }
     ) {
       flavor_text
     }
-    pokemon_v2_pokemons(order_by: { id: asc }) {
+    pokemons(order_by: { id: asc }) {
       id
       name
       height
       weight
       is_default
-      pokemon_v2_pokemonsprites {
+      pokemonsprites {
         sprites
       }
-      pokemon_v2_pokemontypes {
-        pokemon_v2_type {
+      pokemontypes(order_by: { slot: asc }) {
+        type {
           name
         }
       }
-      pokemon_v2_pokemonstats {
+      pokemonstats {
         base_stat
-        pokemon_v2_stat {
+        stat {
           name
         }
       }
-      pokemon_v2_pokemonabilities {
-        pokemon_v2_ability {
+      pokemonabilities {
+        ability {
           name
         }
       }

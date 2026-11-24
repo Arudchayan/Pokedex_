@@ -113,34 +113,46 @@ const TrainerCard: React.FC<TrainerCardProps> = ({ onClose }) => {
                 className={`rounded-lg relative overflow-hidden border border-white/10 flex items-center justify-center group ${pokemon ? 'bg-white/5' : 'bg-black/20'}`}
               >
                 {pokemon ? (
-                  <>
-                    <div
-                      className="absolute inset-0 opacity-20 transition-all duration-500 group-hover:opacity-30"
-                      style={{
-                        background: `radial-gradient(circle at center, ${TYPE_COLORS_HEX[pokemon.types[0]]} 0%, transparent 70%)`,
-                      }}
-                    ></div>
-                    <img
-                      src={pokemon.imageUrl}
-                      alt={pokemon.name}
-                      className="w-16 h-16 sm:w-24 sm:h-24 object-contain z-10 drop-shadow-xl"
-                      crossOrigin="anonymous"
-                    />
-                    <div className="absolute bottom-2 left-2 z-20">
-                      <p className="text-xs font-bold capitalize shadow-black drop-shadow-md">
-                        {pokemon.name}
+                  pokemon.detailsUnavailable ? (
+                    <div className="relative z-10 flex flex-col items-center gap-1 px-2 text-center">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-full border border-white/20 bg-white/5 text-sm font-bold text-white/60">
+                        ?
+                      </div>
+                      <p className="text-[10px] font-bold capitalize">{pokemon.name}</p>
+                      <p className="text-[9px] uppercase tracking-wide opacity-50">
+                        Details unavailable
                       </p>
                     </div>
-                    <div className="absolute top-2 right-2 z-20 flex gap-1">
-                      {pokemon.types.map((t) => (
-                        <div
-                          key={t}
-                          className="w-3 h-3 rounded-full shadow-lg"
-                          style={{ backgroundColor: TYPE_COLORS_HEX[t] }}
-                        ></div>
-                      ))}
-                    </div>
-                  </>
+                  ) : (
+                    <>
+                      <div
+                        className="absolute inset-0 opacity-20 transition-all duration-500 group-hover:opacity-30"
+                        style={{
+                          background: `radial-gradient(circle at center, ${TYPE_COLORS_HEX[pokemon.types[0]]} 0%, transparent 70%)`,
+                        }}
+                      ></div>
+                      <img
+                        src={pokemon.imageUrl}
+                        alt={pokemon.name}
+                        className="w-16 h-16 sm:w-24 sm:h-24 object-contain z-10 drop-shadow-xl"
+                        crossOrigin="anonymous"
+                      />
+                      <div className="absolute bottom-2 left-2 z-20">
+                        <p className="text-xs font-bold capitalize shadow-black drop-shadow-md">
+                          {pokemon.name}
+                        </p>
+                      </div>
+                      <div className="absolute top-2 right-2 z-20 flex gap-1">
+                        {pokemon.types.map((t) => (
+                          <div
+                            key={t}
+                            className="w-3 h-3 rounded-full shadow-lg"
+                            style={{ backgroundColor: TYPE_COLORS_HEX[t] }}
+                          ></div>
+                        ))}
+                      </div>
+                    </>
+                  )
                 ) : (
                   <div className="w-8 h-8 rounded-full bg-white/5 border border-white/10 flex items-center justify-center">
                     <div className="w-full h-[1px] bg-white/20 rotate-45 transform"></div>
