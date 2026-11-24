@@ -44,6 +44,11 @@ export interface WalkthroughProgress {
   tourStartedAt: Record<string, number>;
 }
 
+export interface ResumableTour {
+  tour: TourDefinition;
+  stepIndex: number;
+}
+
 interface WalkthroughContextType {
   // State
   isActive: boolean;
@@ -53,9 +58,12 @@ interface WalkthroughContextType {
   totalSteps: number;
   progress: WalkthroughProgress;
   tours: TourDefinition[];
+  /** Saved, unfinished tour that can be picked up where it left off. */
+  resumableTour: ResumableTour | null;
 
   // Actions
   startTour: (tourId: string) => void;
+  resumeTour: () => Promise<boolean>;
   nextStep: () => void;
   prevStep: () => void;
   skipTour: () => void;
@@ -106,6 +114,45 @@ function saveProgress(progress: WalkthroughProgress) {
   }
 }
 
+function isTourUnlocked(
+  tour: Pick<TourDefinition, 'requiredTours'>,
+  completedTours: readonly string[]
+): boolean {
+  return (tour.requiredTours ?? []).every((id) => completedTours.includes(id));
+}
+
+/**
+ * Drops a saved tour position that can no longer be resumed: unknown tour,
+ * already completed, locked, or an index outside the tour's steps. Without
+ * this, stale storage would silently look like paused progress forever.
+ */
+function normalizeProgress(
+  progress: WalkthroughProgress,
+  tours: readonly TourDefinition[]
+): WalkthroughProgress {
+  const cleared: WalkthroughProgress = {
+    ...progress,
+    currentTourId: null,
+    currentStepIndex: 0,
+  };
+
+  if (!progress.currentTourId) {
+    return progress.currentStepIndex === 0 ? progress : cleared;
+  }
+
+  const tour = tours.find((candidate) => candidate.id === progress.currentTourId);
+  if (!tour) return cleared;
+  if (progress.completedTours.includes(tour.id)) return cleared;
+  if (!isTourUnlocked(tour, progress.completedTours)) return cleared;
+
+  const stepIndex = progress.currentStepIndex;
+  if (!Number.isInteger(stepIndex) || stepIndex < 0 || stepIndex >= tour.steps.length) {
+    return cleared;
+  }
+
+  return progress;
+}
+
 const WalkthroughContext = createContext<WalkthroughContextType | undefined>(undefined);
 
 export const WalkthroughProvider: React.FC<{ children: ReactNode; tours: TourDefinition[] }> = ({
@@ -115,7 +162,9 @@ export const WalkthroughProvider: React.FC<{ children: ReactNode; tours: TourDef
   const { addToast } = useToast();
   const { unlockAchievement } = useAchievements();
 
-  const [progress, setProgress] = useState<WalkthroughProgress>(() => loadProgress());
+  const [progress, setProgress] = useState<WalkthroughProgress>(() =>
+    normalizeProgress(loadProgress(), tours)
+  );
   const [isActive, setIsActive] = useState(false);
 
   // Persist progress whenever it changes
@@ -148,12 +197,22 @@ export const WalkthroughProvider: React.FC<{ children: ReactNode; tours: TourDef
   const isTourAvailable = useCallback(
     (tourId: string) => {
       const tour = tours.find((t) => t.id === tourId);
-      if (!tour) return false;
-      if (!tour.requiredTours) return true;
-      return tour.requiredTours.every((req) => progress.completedTours.includes(req));
+      return tour ? isTourUnlocked(tour, progress.completedTours) : false;
     },
     [tours, progress.completedTours]
   );
+
+  const resumableTour = useMemo<ResumableTour | null>(() => {
+    if (isActive || !currentTour) return null;
+    if (isTourCompleted(currentTour.id) || !isTourAvailable(currentTour.id)) return null;
+
+    const stepIndex = progress.currentStepIndex;
+    if (!Number.isInteger(stepIndex) || stepIndex < 0 || stepIndex >= currentTour.steps.length) {
+      return null;
+    }
+
+    return { tour: currentTour, stepIndex };
+  }, [isActive, currentTour, isTourCompleted, isTourAvailable, progress.currentStepIndex]);
 
   const getCompletedStepsCount = useCallback(() => {
     return tours.reduce((count, tour) => {
@@ -200,6 +259,30 @@ export const WalkthroughProvider: React.FC<{ children: ReactNode; tours: TourDef
     },
     [tours, isTourAvailable, addToast]
   );
+
+  const resumeTour = useCallback(async (): Promise<boolean> => {
+    if (!resumableTour) return false;
+
+    const { tour, stepIndex } = resumableTour;
+    setProgress((prev) => ({
+      ...prev,
+      currentTourId: tour.id,
+      currentStepIndex: stepIndex,
+      tourStartedAt: {
+        ...prev.tourStartedAt,
+        [tour.id]: prev.tourStartedAt[tour.id] ?? Date.now(),
+      },
+    }));
+    setIsActive(true);
+
+    // Re-run the saved step's setup so targets like the mobile menu are open.
+    const step = tour.steps[stepIndex];
+    if (step?.onBeforeStep) {
+      await step.onBeforeStep();
+    }
+
+    return true;
+  }, [resumableTour]);
 
   const nextStep = useCallback(async () => {
     if (!currentTour || !currentStep) return;
@@ -251,7 +334,7 @@ export const WalkthroughProvider: React.FC<{ children: ReactNode; tours: TourDef
       currentStepIndex: 0,
       hasSkippedOnboarding: true,
     }));
-    addToast('Tour skipped. You can resume anytime from the menu.', 'info');
+    addToast('Tour skipped. Start it again anytime from the menu.', 'info');
   }, [addToast]);
 
   const completeTour = useCallback(() => {
@@ -324,7 +407,9 @@ export const WalkthroughProvider: React.FC<{ children: ReactNode; tours: TourDef
       totalSteps,
       progress,
       tours,
+      resumableTour,
       startTour,
+      resumeTour,
       nextStep,
       prevStep,
       skipTour,
@@ -346,7 +431,9 @@ export const WalkthroughProvider: React.FC<{ children: ReactNode; tours: TourDef
       progress,
       totalSteps,
       tours,
+      resumableTour,
       startTour,
+      resumeTour,
       nextStep,
       prevStep,
       skipTour,
