@@ -79,6 +79,9 @@ export default function AppMain({ controller }: Props) {
     (selectedGeneration !== 'all' ? 1 : 0) +
     (flavorTextSearch.trim() ? 1 : 0);
   const isDesktop = useMediaQuery('(min-width: 1024px)');
+  // Below xl the results sit beside the filters, so window width overestimates
+  // the available card width (3 columns at 1024 would leave ~100px cards).
+  const isXlViewport = useMediaQuery('(min-width: 1280px)');
 
   useFocusTrap({
     active: mobileFullBuilderOpen,
@@ -397,13 +400,13 @@ export default function AppMain({ controller }: Props) {
           </div>
 
           {/*
-            Below the sidebar breakpoint, filters sit beside the results so
+            Below the desktop filter breakpoint, filters sit beside the results so
             opening them never pushes the first row off screen.
           */}
-          <div className="flex flex-col gap-4 sm:gap-8 md:max-lg:grid md:max-lg:grid-cols-[minmax(0,18rem)_minmax(0,1fr)] md:max-lg:items-start md:max-lg:gap-6">
+          <div className="flex flex-col gap-4 sm:gap-8 md:max-xl:grid md:max-xl:grid-cols-[minmax(0,18rem)_minmax(0,1fr)] md:max-xl:items-start md:max-xl:gap-6 lg:max-xl:grid-cols-[minmax(0,16rem)_minmax(0,1fr)]">
             <div>
-              {/* Filters disclosure below the desktop sidebar breakpoint */}
-              <div className="lg:hidden">
+              {/* Filters disclosure below the desktop filter breakpoint */}
+              <div className="xl:hidden">
                 <button
                   type="button"
                   onClick={() => setMobileFiltersOpen((open) => !open)}
@@ -463,8 +466,8 @@ export default function AppMain({ controller }: Props) {
                   </div>
                 )}
               </div>
-              {/* Desktop filter controls - always visible from the sidebar breakpoint up */}
-              <div className="hidden lg:block">
+              {/* Desktop filter controls - always visible from the wide desktop breakpoint up */}
+              <div className="hidden xl:block">
                 <FilterControls
                   selectedGeneration={selectedGeneration}
                   onGenerationChange={handleGenerationChange}
@@ -516,6 +519,7 @@ export default function AppMain({ controller }: Props) {
                         isShiny={isShiny}
                         isCyberpunk={isCyberpunk}
                         isPaginationEnabled={isPaginationEnabled}
+                        gridColumnsOverride={isXlViewport ? undefined : 2}
                       />
 
                       {filteredPokemon.length === 0 && (

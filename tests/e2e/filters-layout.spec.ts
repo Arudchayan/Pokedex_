@@ -3,6 +3,8 @@ import { skipWalkthroughOnboarding } from './helpers';
 
 const GRAPHQL_URL = 'https://graphql.pokeapi.co/v1beta2';
 const STAT_NAMES = ['hp', 'attack', 'defense', 'special-attack', 'special-defense', 'speed'];
+const MIN_VISIBLE_HEIGHT = 80;
+const MIN_READABLE_CARD_WIDTH = 140;
 
 type MockPokemon = {
   id: number;
@@ -111,12 +113,51 @@ async function expectTopWithinViewport(page: Page, locator: Locator) {
   expect(box.y).toBeLessThan(page.viewportSize()?.height ?? 0);
 }
 
+/** Asserts that at least `minimum` px of the element's top is visible without scrolling. */
+async function expectVisibleHeight(page: Page, locator: Locator, minimum = MIN_VISIBLE_HEIGHT) {
+  const box = await locator.boundingBox();
+  expect(box, 'element should have a layout box').not.toBeNull();
+  if (!box) return;
+  const viewportHeight = page.viewportSize()?.height ?? 0;
+  expect(box.y).toBeGreaterThanOrEqual(0);
+  expect(viewportHeight - box.y).toBeGreaterThanOrEqual(minimum);
+}
+
+async function expectReadableCard(page: Page, card: Locator) {
+  await expectVisibleHeight(page, card);
+  const box = await card.boundingBox();
+  expect(box, 'card should have a layout box').not.toBeNull();
+  if (!box) return;
+  expect(box.width).toBeGreaterThanOrEqual(MIN_READABLE_CARD_WIDTH);
+}
+
+/** The floating team button must never cover the filter controls. */
+async function expectTeamFabClearsFilters(page: Page, filterPanel: Locator) {
+  const fab = page.locator('button[aria-label^="Team:"]:visible').first();
+  if ((await fab.count()) === 0) return;
+
+  const fabBox = await fab.boundingBox();
+  const panelBox = await filterPanel.boundingBox();
+  expect(fabBox).not.toBeNull();
+  expect(panelBox).not.toBeNull();
+  if (!fabBox || !panelBox) return;
+
+  const overlaps =
+    fabBox.x < panelBox.x + panelBox.width &&
+    fabBox.x + fabBox.width > panelBox.x &&
+    fabBox.y < panelBox.y + panelBox.height &&
+    fabBox.y + fabBox.height > panelBox.y;
+  expect(overlaps, 'team FAB should not cover the filter panel').toBe(false);
+}
+
 test.describe('expanded filters keep results visible on tablet widths', () => {
   for (const size of [
     { width: 768, height: 700 },
     { width: 912, height: 700 },
-    { width: 1000, height: 700 },
     { width: 912, height: 626 },
+    { width: 1000, height: 700 },
+    { width: 1024, height: 700 },
+    { width: 1024, height: 626 },
   ]) {
     test(`results stay in the first viewport at ${size.width}x${size.height}`, async ({ page }) => {
       await page.setViewportSize(size);
@@ -128,10 +169,11 @@ test.describe('expanded filters keep results visible on tablet widths', () => {
 
       const filterPanel = page.locator('section[aria-label="Filters"]:visible').first();
       await expect(filterPanel).toBeVisible();
-      await expectTopWithinViewport(page, filterPanel);
+      await expectVisibleHeight(page, filterPanel);
 
-      await expectTopWithinViewport(page, page.getByRole('region', { name: 'Pokemon results' }));
-      await expectTopWithinViewport(page, page.locator('[aria-label^="View details for"]').first());
+      await expectVisibleHeight(page, page.getByRole('region', { name: 'Pokemon results' }));
+      await expectReadableCard(page, page.locator('[aria-label^="View details for"]').first());
+      await expectTeamFabClearsFilters(page, filterPanel);
       await expectNoHorizontalOverflow(page);
       expect(await page.evaluate(() => window.scrollY)).toBe(0);
     });
@@ -141,8 +183,10 @@ test.describe('expanded filters keep results visible on tablet widths', () => {
 test.describe('failed data keeps the error visible on tablet widths', () => {
   for (const size of [
     { width: 912, height: 700 },
-    { width: 1000, height: 700 },
     { width: 912, height: 626 },
+    { width: 1000, height: 700 },
+    { width: 1024, height: 700 },
+    { width: 1024, height: 626 },
   ]) {
     test(`error stays in the first viewport at ${size.width}x${size.height}`, async ({ page }) => {
       await page.setViewportSize(size);
@@ -156,11 +200,65 @@ test.describe('failed data keeps the error visible on tablet widths', () => {
       await expect(errorHeading).toBeVisible({ timeout: 25000 });
       await expect(errorHeading).toHaveCount(1);
       await expect(page.getByRole('alert')).toHaveCount(1);
-      await expectTopWithinViewport(page, errorHeading);
+      await expectVisibleHeight(page, errorHeading);
       await expectNoHorizontalOverflow(page);
       expect(await page.evaluate(() => window.scrollY)).toBe(0);
     });
   }
+});
+
+test('filters stay usable beside the results at 1024', async ({ page }, testInfo) => {
+  await page.setViewportSize({ width: 1024, height: 700 });
+  await mockCatalogQuery(page);
+  await loadHome(page);
+
+  const toggle = page.locator('button[aria-label^="Filters"]:visible').first();
+  await expect(toggle).toHaveCount(1);
+  await expect(toggle).toHaveAttribute('aria-expanded', 'false');
+  const panelId = await toggle.getAttribute('aria-controls');
+  expect(panelId).toBeTruthy();
+
+  await expandFilters(page);
+  await expandAdvanced(page);
+
+  const panel = page.locator(`#${panelId}`);
+  await expect(panel).toBeVisible();
+  await expect(panel).toHaveAttribute('aria-label', 'Filters');
+  await expect(panel.getByLabel('Select generation')).toBeAttached();
+
+  const results = page.getByRole('region', { name: 'Pokemon results' });
+  const panelBox = await panel.boundingBox();
+  const resultsBox = await results.boundingBox();
+  expect(panelBox).not.toBeNull();
+  expect(resultsBox).not.toBeNull();
+  if (!panelBox || !resultsBox) return;
+  expect(panelBox.width).toBeGreaterThanOrEqual(240);
+  expect(panelBox.x + panelBox.width).toBeLessThanOrEqual(resultsBox.x);
+  const panelWidths = await panel.evaluate((element) => ({
+    scrollWidth: element.scrollWidth,
+    clientWidth: element.clientWidth,
+  }));
+  expect(panelWidths.scrollWidth).toBeLessThanOrEqual(panelWidths.clientWidth + 1);
+
+  const fire = panel.getByRole('button', { name: /^fire$/i });
+  await expect(fire).toHaveAttribute('aria-pressed', 'false');
+  // Click without scrolling so the layout assertions remain at scrollY 0.
+  await fire.evaluate((element) => (element as HTMLElement).click());
+  await expect(fire).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.getByLabel(/View details for charmander/i)).toBeVisible();
+  await expect(page.getByLabel(/View details for bulbasaur/i)).toHaveCount(0);
+
+  await expectVisibleHeight(page, results);
+  await expectReadableCard(page, page.locator('[aria-label^="View details for"]').first());
+  await expect(page.locator('button[aria-label^="Team:"]:visible')).toHaveCount(0);
+  await expect(page.locator('aside[aria-label="Team builder"]')).toBeVisible();
+  await expectNoHorizontalOverflow(page);
+  expect(await page.evaluate(() => window.scrollY)).toBe(0);
+
+  await testInfo.attach('filters-layout-1024x700', {
+    body: await page.screenshot(),
+    contentType: 'image/png',
+  });
 });
 
 test('desktop layout at 1440 still stacks filters above results', async ({ page }, testInfo) => {
@@ -194,7 +292,7 @@ test('mobile disclosure at 390 keeps its existing stacked behavior', async ({ pa
   const toggle = page.locator('button[aria-label^="Filters"]:visible').first();
   await expect(toggle).toHaveCount(1);
   await expect(toggle).toHaveAttribute('aria-expanded', 'false');
-  await expectTopWithinViewport(page, page.locator('[aria-label^="View details for"]').first());
+  await expectVisibleHeight(page, page.locator('[aria-label^="View details for"]').first());
 
   await toggle.click();
   await expect(toggle).toHaveAttribute('aria-expanded', 'true');
