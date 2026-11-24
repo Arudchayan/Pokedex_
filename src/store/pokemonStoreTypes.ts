@@ -28,6 +28,8 @@ export interface PokemonState {
   // Data
   masterPokemonList: PokemonListItem[];
   loading: boolean;
+  /** True only while a manual retry cycle is running; the last error stays visible. */
+  isRetrying: boolean;
   error: string | null;
 
   // Filters & Search
@@ -76,6 +78,7 @@ export interface PokemonState {
 export type Action =
   | { type: 'SET_POKEMON_LIST'; payload: PokemonListItem[] }
   | { type: 'SET_LOADING'; payload: boolean }
+  | { type: 'SET_RETRYING'; payload: boolean }
   | { type: 'SET_ERROR'; payload: string | null }
   | { type: 'SET_SEARCH_TERM'; payload: string }
   | { type: 'SET_GENERATION'; payload: string }

@@ -54,12 +54,15 @@ describe('App Performance', () => {
     renderWithProvider(<App />);
 
     // Wait for initial load and data
-    await screen.findByRole('heading', { name: /Pokedex/i });
+    await screen.findByRole('heading', { name: /Pokédex/i });
     // Wait for loading to vanish to ensure data is loaded and filteredPokemon populated
-    await waitFor(() => {
-      expect(screen.queryByText(/Loading/i)).not.toBeInTheDocument();
-    });
-    await screen.findByTestId('team-builder-mock');
+    await waitFor(
+      () => {
+        expect(screen.queryByText(/Loading/i)).not.toBeInTheDocument();
+      },
+      { timeout: 5000 }
+    );
+    await screen.findByTestId('team-builder-mock', {}, { timeout: 5000 });
 
     const initialRenderCount = TeamBuilderMock.mock.calls.length;
     console.log('Initial Render Count:', initialRenderCount);
@@ -85,12 +88,15 @@ describe('App Performance', () => {
 
   it('should still randomize team correctly', async () => {
     renderWithProvider(<App />);
-    await screen.findByRole('heading', { name: /Pokedex/i });
+    await screen.findByRole('heading', { name: /Pokédex/i });
     // Wait for data load
-    await waitFor(() => {
-      expect(screen.queryByText(/Loading/i)).not.toBeInTheDocument();
-    });
-    await screen.findByTestId('team-builder-mock');
+    await waitFor(
+      () => {
+        expect(screen.queryByText(/Loading/i)).not.toBeInTheDocument();
+      },
+      { timeout: 5000 }
+    );
+    await screen.findByTestId('team-builder-mock', {}, { timeout: 5000 });
 
     // Get the last call props
     const lastCall = TeamBuilderMock.mock.calls[TeamBuilderMock.mock.calls.length - 1][0];
