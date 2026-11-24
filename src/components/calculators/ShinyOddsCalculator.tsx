@@ -11,6 +11,7 @@ import {
   resolveShinyMethod,
 } from '../../utils/shinyOddsUtils';
 import Modal from '../base/Modal';
+import { formFieldClasses } from '../shared/formFieldClasses';
 
 interface ShinyOddsCalculatorProps {
   onClose: () => void;
@@ -79,7 +80,7 @@ const ShinyOddsCalculator: React.FC<ShinyOddsCalculatorProps> = ({ onClose }) =>
           <select
             value={generation}
             onChange={(e) => handleGenerationChange(e.target.value as GenerationKey)}
-            className={`w-full p-3 rounded-lg border focus:outline-none focus:ring-2 focus:ring-pink-500 transition-colors appearance-none cursor-pointer ${theme === 'dark' ? 'bg-black/20 border-white/10 text-white' : 'bg-slate-50 border-slate-300 text-slate-900'}`}
+            className={`w-full p-3 rounded-lg border transition-colors appearance-none cursor-pointer ${formFieldClasses(theme)}`}
           >
             {Object.entries(GENERATIONS).map(([key, label]) => (
               <option key={key} value={key}>

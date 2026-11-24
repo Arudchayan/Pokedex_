@@ -11,6 +11,7 @@ import Modal from '../base/Modal';
 import CalculatorActionButton from './CalculatorActionButton';
 import PokemonAutocomplete from '../shared/PokemonAutocomplete';
 import PokemonDatasetStatus from './PokemonDatasetStatus';
+import { formFieldClasses } from '../shared/formFieldClasses';
 
 interface StatCalculatorProps {
   onClose: () => void;
@@ -361,7 +362,7 @@ const StatCalculator: React.FC<StatCalculatorProps> = ({ onClose, initialPokemon
                   max="100"
                   value={level}
                   onChange={(e) => handleLevelChange(e.target.value)}
-                  className={`w-16 p-2 rounded text-center font-bold ${theme === 'dark' ? 'bg-black/30' : 'bg-white border'}`}
+                  className={`w-16 p-2 rounded border text-center font-bold ${formFieldClasses(theme)}`}
                   aria-label="Level value"
                   aria-invalid={validationField === 'level' || undefined}
                   aria-describedby={validationField === 'level' ? 'stat-validation' : undefined}
@@ -379,7 +380,7 @@ const StatCalculator: React.FC<StatCalculatorProps> = ({ onClose, initialPokemon
                 id="nature-select"
                 value={nature}
                 onChange={(e) => setNature(e.target.value)}
-                className={`w-full p-2 rounded font-medium ${theme === 'dark' ? 'bg-black/30 border-white/10' : 'bg-white border-slate-300 border'}`}
+                className={`w-full p-2 rounded border font-medium ${formFieldClasses(theme)}`}
               >
                 {Object.keys(NATURES).map((n) => (
                   <option key={n} value={n}>
@@ -477,7 +478,7 @@ const StatCalculator: React.FC<StatCalculatorProps> = ({ onClose, initialPokemon
                         max="31"
                         value={ivs[stat]}
                         onChange={(e) => handleStatChange('iv', stat, e.target.value)}
-                        className={`w-full text-center p-1 rounded text-sm ${theme === 'dark' ? 'bg-black/20 focus:bg-black/40' : 'bg-slate-100 focus:bg-white border-transparent focus:border-primary-500 border'}`}
+                        className={`w-full text-center p-1 rounded border text-sm ${formFieldClasses(theme)}`}
                         aria-label={`${stat.replace('-', ' ')} IV`}
                         aria-invalid={validationField === `iv-${stat}` || undefined}
                         aria-describedby={
@@ -494,7 +495,7 @@ const StatCalculator: React.FC<StatCalculatorProps> = ({ onClose, initialPokemon
                         step="4"
                         value={evs[stat]}
                         onChange={(e) => handleStatChange('ev', stat, e.target.value)}
-                        className={`w-full text-center p-1 rounded text-sm ${theme === 'dark' ? 'bg-black/20 focus:bg-black/40' : 'bg-slate-100 focus:bg-white border-transparent focus:border-primary-500 border'}`}
+                        className={`w-full text-center p-1 rounded border text-sm ${formFieldClasses(theme)}`}
                         aria-label={`${stat.replace('-', ' ')} EV`}
                         aria-invalid={validationField === `ev-${stat}` || undefined}
                         aria-describedby={

@@ -1,10 +1,11 @@
 import React, { useId, useMemo, useState } from 'react';
 import { PokemonListItem } from '../../types';
 import TypeBadge from '../charts/TypeBadge';
+import { formFieldClasses, type FormFieldTheme } from './formFieldClasses';
 
 export interface PokemonAutocompleteProps {
   pokemonList: PokemonListItem[];
-  theme: string;
+  theme: FormFieldTheme;
   onSelect: (pokemon: PokemonListItem) => void;
   label?: string;
   placeholder?: string;
@@ -103,7 +104,9 @@ const PokemonAutocomplete: React.FC<PokemonAutocompleteProps> = ({
         className={
           hideLabel
             ? 'sr-only'
-            : 'block text-sm font-bold mb-2 uppercase tracking-wider text-slate-500'
+            : `block text-sm font-bold mb-2 uppercase tracking-wider ${
+                theme === 'dark' ? 'text-slate-300' : 'text-slate-600'
+              }`
         }
       >
         {label}
@@ -124,7 +127,7 @@ const PokemonAutocomplete: React.FC<PokemonAutocompleteProps> = ({
         spellCheck={false}
         placeholder={placeholder}
         disabled={disabled}
-        className={`w-full p-3 rounded bg-transparent border focus:outline-none focus:border-primary-500 disabled:cursor-not-allowed disabled:opacity-60 ${theme === 'dark' ? 'border-white/20' : 'border-slate-300'}`}
+        className={`w-full p-3 rounded border ${formFieldClasses(theme)}`}
         value={search}
         onChange={(event) => {
           setSearch(event.target.value);
@@ -143,7 +146,7 @@ const PokemonAutocomplete: React.FC<PokemonAutocompleteProps> = ({
           id={statusId}
           role="status"
           aria-live="polite"
-          className="mt-2 text-sm text-slate-600 dark:text-slate-400"
+          className={`mt-2 text-sm ${theme === 'dark' ? 'text-slate-400' : 'text-slate-600'}`}
         >
           No Pokémon match “{query}”. Try a different name.
         </p>
@@ -154,7 +157,11 @@ const PokemonAutocomplete: React.FC<PokemonAutocompleteProps> = ({
           id={listboxId}
           role="listbox"
           aria-label={`${label} results`}
-          className={`absolute top-full left-0 w-full z-10 rounded-b-xl shadow-xl max-h-60 overflow-y-auto mt-1 border ${theme === 'dark' ? 'bg-slate-800 border-white/10' : 'bg-white border-slate-200'}`}
+          className={`absolute top-full left-0 w-full z-10 rounded-b-xl shadow-xl max-h-60 overflow-y-auto mt-1 border ${
+            theme === 'dark'
+              ? 'bg-slate-800 border-white/10 text-slate-100'
+              : 'bg-white border-slate-200 text-slate-900'
+          }`}
         >
           {filteredList.map((p, index) => (
             <button
@@ -164,7 +171,15 @@ const PokemonAutocomplete: React.FC<PokemonAutocompleteProps> = ({
               role="option"
               aria-selected={activeIndex === index}
               tabIndex={-1}
-              className={`w-full p-3 text-left hover:bg-primary-500/20 flex items-center gap-3 transition-colors ${activeIndex === index ? 'bg-primary-500/20' : ''}`}
+              className={`w-full p-3 text-left flex items-center gap-3 transition-colors ${
+                theme === 'dark'
+                  ? `text-slate-100 hover:bg-slate-700 ${
+                      activeIndex === index ? 'bg-slate-700 ring-1 ring-inset ring-slate-400' : ''
+                    }`
+                  : `text-slate-900 hover:bg-slate-100 ${
+                      activeIndex === index ? 'bg-slate-100 ring-1 ring-inset ring-slate-500' : ''
+                    }`
+              }`}
               onMouseEnter={() => setActiveIndex(index)}
               onClick={() => select(p)}
             >

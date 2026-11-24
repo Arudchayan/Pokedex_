@@ -49,6 +49,12 @@ const PALETTE: Record<string, string> = {
   'lime-500': '#84cc16',
   'stone-500': '#78716c',
   'violet-700': '#6d28d9',
+  // Default accent (`--color-primary-*` in src/constants.ts). Tests render with
+  // the default cyan accent unless a case sets another one.
+  'primary-300': '#67e8f9',
+  'primary-400': '#22d3ee',
+  'primary-500': '#06b6d4',
+  'primary-600': '#0891b2',
 };
 
 const PAGE_BACKGROUND: Record<ContrastTheme, string> = {
@@ -56,10 +62,10 @@ const PAGE_BACKGROUND: Record<ContrastTheme, string> = {
   dark: PALETTE['slate-950'],
 };
 
-const COLOR_TOKEN = /^(text|bg)-([a-z]+-\d{2,3}|white|black)(?:\/(\d{1,3}))?$/;
+const COLOR_TOKEN = /^(text|bg|ring)-([a-z]+-\d{2,3}|white|black)(?:\/(\d{1,3}))?$/;
 
 interface ColorToken {
-  kind: 'text' | 'bg';
+  kind: 'text' | 'bg' | 'ring';
   hex: string;
   alpha: number;
 }
@@ -161,6 +167,39 @@ export function textColorHex(element: Element): string {
 }
 
 /**
+ * Resolve a colour utility behind a state/placeholder variant, e.g.
+ * `placeholder:text-slate-400` or `focus-visible:ring-slate-100`.
+ */
+function variantColorHex(
+  element: Element,
+  prefix: string,
+  kind: ColorToken['kind']
+): string | null {
+  for (const token of classesOf(element)) {
+    if (!token.startsWith(prefix)) continue;
+    const parsed = parseColorToken(token.slice(prefix.length));
+    if (parsed?.kind === kind) return parsed.hex;
+  }
+  return null;
+}
+
+/** Resolve the placeholder colour, falling back to the field's text colour. */
+export function placeholderColorHex(element: Element): string {
+  return variantColorHex(element, 'placeholder:', 'text') ?? textColorHex(element);
+}
+
+/** Resolve the focus ring colour declared on the field. */
+export function focusRingColorHex(element: Element): string {
+  for (const prefix of ['focus-visible:', 'focus:']) {
+    const hex = variantColorHex(element, prefix, 'ring');
+    if (hex) return hex;
+  }
+  throw new Error(
+    `No focus ring colour class on <${element.tagName.toLowerCase()} class="${element.getAttribute('class') ?? ''}">`
+  );
+}
+
+/**
  * Background layers painted on one element, topmost first.
  * An inline background takes precedence over background utilities.
  */
@@ -213,15 +252,28 @@ function elementOpacity(element: Element): number {
   return 1;
 }
 
+/** Resolve the disabled-state opacity (`disabled:opacity-70`). */
+function disabledOpacity(element: Element): number {
+  for (const token of classesOf(element)) {
+    const match = /^disabled:opacity-(\d{1,3})$/.exec(token);
+    if (match) return Math.min(100, Number(match[1])) / 100;
+  }
+  return 1;
+}
+
 export interface ContrastResult {
   ratio: number;
   foreground: string;
   background: string;
 }
 
-export function elementContrast(element: Element, theme: ContrastTheme): ContrastResult {
-  const text = hexToRgba(textColorHex(element));
-  const opacity = elementOpacity(element);
+function computeContrast(
+  element: Element,
+  theme: ContrastTheme,
+  textHex: string,
+  opacity: number
+): ContrastResult {
+  const text = hexToRgba(textHex);
   let foreground: Rgba;
   let background: Rgba;
 
@@ -245,5 +297,37 @@ export function elementContrast(element: Element, theme: ContrastTheme): Contras
     ratio: contrastRatio(foregroundHex, backgroundHex),
     foreground: foregroundHex,
     background: backgroundHex,
+  };
+}
+
+export function elementContrast(element: Element, theme: ContrastTheme): ContrastResult {
+  return computeContrast(element, theme, textColorHex(element), elementOpacity(element));
+}
+
+/** Contrast of the placeholder text against the field surface. */
+export function placeholderContrast(element: Element, theme: ContrastTheme): ContrastResult {
+  return computeContrast(element, theme, placeholderColorHex(element), elementOpacity(element));
+}
+
+/**
+ * Contrast of the field's text while disabled. The disabled utility lowers the
+ * whole element opacity, matching how the browser dims the value.
+ */
+export function disabledContrast(element: Element, theme: ContrastTheme): ContrastResult {
+  return computeContrast(element, theme, textColorHex(element), disabledOpacity(element));
+}
+
+/**
+ * Contrast of the focus ring against the field surface. The ring is drawn
+ * outside the border, but the field's own background is the adjacent colour
+ * that matters for the 3:1 non-text requirement.
+ */
+export function focusRingContrast(element: Element, theme: ContrastTheme): ContrastResult {
+  const ring = focusRingColorHex(element);
+  const background = backgroundColorHex(element, theme);
+  return {
+    ratio: contrastRatio(ring, background),
+    foreground: ring,
+    background,
   };
 }
