@@ -22,6 +22,11 @@ export interface TeamMember extends PokemonListItem {
   evs?: Record<string, number>;
   ivs?: Record<string, number>;
   isShiny?: boolean;
+  /**
+   * True for a presentational placeholder created from a persisted team ID whose
+   * species details are unavailable. The ID is still authoritative for membership.
+   */
+  detailsUnavailable?: boolean;
 }
 
 export interface Item {

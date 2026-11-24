@@ -1,8 +1,8 @@
 import React from 'react';
 import { screen, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import AbilityDex from './AbilityDex';
 import { renderWithProvider, setPokeapiServiceMock } from '../../test/utils';
+import AbilityDex from './AbilityDex';
 
 const mockAbilities = [
   { name: 'stench', effect: 'Helps repel wild Pokemon.' },
