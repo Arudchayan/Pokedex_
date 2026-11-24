@@ -69,7 +69,7 @@ Test your knowledge with "dle" style challenges:
 
 ## Tech Stack
 
-- **Framework**: React 19 with Vite 6
+- **Framework**: React 19 with Vite 8
 - **Language**: TypeScript 5.8
 - **Styling**: Tailwind CSS 3.4
 - **State**: Zustand + React Query
