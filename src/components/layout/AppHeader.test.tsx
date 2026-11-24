@@ -209,4 +209,64 @@ describe('AppHeader', () => {
       expect(control.className).not.toContain('focus:outline-none');
     }
   });
+
+  describe('mobile navigation drawer', () => {
+    const openDrawer = async (user: ReturnType<typeof userEvent.setup>) => {
+      const trigger = screen.getByRole('button', { name: 'Open navigation menu' });
+      await user.click(trigger);
+      const dialog = await screen.findByRole('dialog', { name: 'Navigation menu' });
+      await waitFor(() =>
+        expect(within(dialog).getByRole('button', { name: 'Move Dex' })).toHaveFocus()
+      );
+      return { trigger, dialog };
+    };
+
+    it('moves focus inside and keeps Tab and Shift+Tab within the drawer', async () => {
+      const user = userEvent.setup({ delay: null });
+      renderWithProvider(<AppHeader onRandomPokemon={vi.fn()} />);
+
+      const { dialog } = await openDrawer(user);
+      const first = within(dialog).getByRole('button', { name: 'Close menu' });
+      const last = within(dialog).getByRole('button', { name: 'Data Management' });
+
+      last.focus();
+      await user.tab();
+      expect(first).toHaveFocus();
+
+      await user.tab({ shift: true });
+      expect(last).toHaveFocus();
+
+      for (let i = 0; i < 12; i += 1) {
+        await user.tab();
+        expect(dialog.contains(document.activeElement)).toBe(true);
+      }
+    }, 15000);
+
+    it('restores focus to the trigger after Escape and the Close control', async () => {
+      const user = userEvent.setup({ delay: null });
+      renderWithProvider(<AppHeader onRandomPokemon={vi.fn()} />);
+
+      const firstOpen = await openDrawer(user);
+
+      await user.keyboard('{Escape}');
+      await waitFor(() => expect(firstOpen.trigger).toHaveFocus());
+      expect(firstOpen.dialog).toHaveAttribute('aria-hidden', 'true');
+      expect(screen.getByTestId('mobile-drawer-root')).toHaveAttribute('inert');
+
+      const secondOpen = await openDrawer(user);
+      await user.click(within(secondOpen.dialog).getByRole('button', { name: 'Close menu' }));
+
+      await waitFor(() => expect(secondOpen.trigger).toHaveFocus());
+      expect(secondOpen.dialog).toHaveAttribute('aria-hidden', 'true');
+    });
+
+    it('keeps the closed drawer inert and hidden from assistive technology', () => {
+      renderWithProvider(<AppHeader onRandomPokemon={vi.fn()} />);
+
+      const root = screen.getByTestId('mobile-drawer-root');
+
+      expect(root).toHaveAttribute('inert');
+      expect(within(root).getByLabelText('Navigation menu')).toHaveAttribute('aria-hidden', 'true');
+    });
+  });
 });

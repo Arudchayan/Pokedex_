@@ -14,6 +14,7 @@ export default function WalkthroughModal({ isOpen, onClose }: WalkthroughModalPr
   const {
     progress,
     startTour,
+    resumeTour,
     isTourCompleted: _isTourCompleted,
     isTourAvailable: _isTourAvailable,
     getCompletedToursCount,
@@ -32,6 +33,15 @@ export default function WalkthroughModal({ isOpen, onClose }: WalkthroughModalPr
   const handleStartTour = (tourId: string) => {
     onClose();
     startTour(tourId);
+  };
+
+  const handleResumeTour = () => {
+    onClose();
+    void resumeTour();
+  };
+
+  const handleContinueTour = () => {
+    onClose();
   };
 
   const handleSkip = () => {
@@ -103,7 +113,11 @@ export default function WalkthroughModal({ isOpen, onClose }: WalkthroughModalPr
           </h3>
 
           {/* We'll get tours from context */}
-          <TourList onStartTour={handleStartTour} />
+          <TourList
+            onStartTour={handleStartTour}
+            onResumeTour={handleResumeTour}
+            onContinueTour={handleContinueTour}
+          />
         </div>
 
         {/* Actions */}
@@ -143,7 +157,15 @@ export default function WalkthroughModal({ isOpen, onClose }: WalkthroughModalPr
 }
 
 // Inner component to access tours from context
-function TourList({ onStartTour }: { onStartTour: (tourId: string) => void }) {
+function TourList({
+  onStartTour,
+  onResumeTour,
+  onContinueTour,
+}: {
+  onStartTour: (tourId: string) => void;
+  onResumeTour: () => void;
+  onContinueTour: () => void;
+}) {
   const { tours, progress } = useWalkthrough();
   const theme = usePokemonStore((s) => s.theme);
   const isDark = theme === 'dark';
@@ -158,6 +180,8 @@ function TourList({ onStartTour }: { onStartTour: (tourId: string) => void }) {
           completedTours={progress.completedTours}
           isDark={isDark}
           onStartTour={onStartTour}
+          onResumeTour={onResumeTour}
+          onContinueTour={onContinueTour}
         />
       ))}
     </ul>
@@ -170,16 +194,30 @@ interface TourCardProps {
   completedTours: string[];
   isDark: boolean;
   onStartTour: (tourId: string) => void;
+  onResumeTour: () => void;
+  onContinueTour: () => void;
 }
 
-function TourCard({ tour, tours, completedTours, isDark, onStartTour }: TourCardProps) {
-  const { isTourCompleted } = useWalkthrough();
+function TourCard({
+  tour,
+  tours,
+  completedTours,
+  isDark,
+  onStartTour,
+  onResumeTour,
+  onContinueTour,
+}: TourCardProps) {
+  const { isTourCompleted, resumableTour, isActive, currentTour, currentStepIndex } =
+    useWalkthrough();
   const isCompleted = isTourCompleted(tour.id);
   const unlock = getTourUnlockState(tour, tours, completedTours);
   const isLocked = !isCompleted && unlock.isLocked;
   const lockReason = isLocked
     ? (unlock.reason ?? 'Complete the prerequisite tours to unlock.')
     : null;
+  const isInProgress = isActive && currentTour?.id === tour.id;
+  const resumeStepIndex =
+    !isInProgress && resumableTour?.tour.id === tour.id ? resumableTour.stepIndex : null;
 
   const actionLabel = isCompleted ? 'Replay' : isLocked ? 'Locked' : 'Start';
   const actionName = isCompleted
@@ -190,7 +228,7 @@ function TourCard({ tour, tours, completedTours, isDark, onStartTour }: TourCard
 
   return (
     <li
-      className={`flex items-center gap-3 p-3 rounded-lg border transition-all ${
+      className={`flex flex-wrap items-center gap-3 p-3 rounded-lg border transition-all ${
         isCompleted
           ? isDark
             ? 'bg-green-500/10 border-green-500/20'
@@ -250,17 +288,70 @@ function TourCard({ tour, tours, completedTours, isDark, onStartTour }: TourCard
         <p className={`text-xs mt-1 ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>
           ~{tour.estimatedTimeMinutes} min • {tour.steps.length} steps
         </p>
+        {isInProgress && (
+          <p
+            className={`text-xs mt-1.5 font-medium ${isDark ? 'text-primary-300' : 'text-primary-700'}`}
+          >
+            In progress at step {currentStepIndex + 1} of {tour.steps.length}.
+          </p>
+        )}
+        {resumeStepIndex !== null && (
+          <p
+            className={`text-xs mt-1.5 font-medium ${isDark ? 'text-primary-300' : 'text-primary-700'}`}
+          >
+            Paused at step {resumeStepIndex + 1} of {tour.steps.length}. Pick up where you left off.
+          </p>
+        )}
       </div>
 
-      <Button
-        variant={isCompleted ? 'ghost' : 'primary'}
-        size="sm"
-        onClick={() => onStartTour(tour.id)}
-        disabled={isLocked}
-        aria-label={actionName}
+      <div
+        className={`flex shrink-0 flex-col gap-2 sm:flex-row sm:items-center ${
+          isInProgress || resumeStepIndex !== null ? 'w-full sm:w-auto' : ''
+        }`}
       >
-        {actionLabel}
-      </Button>
+        {isInProgress ? (
+          <Button
+            variant="primary"
+            size="sm"
+            onClick={onContinueTour}
+            aria-label={`Continue ${tour.name} tour at step ${currentStepIndex + 1} of ${tour.steps.length}`}
+            className="w-full sm:w-auto"
+          >
+            Continue
+          </Button>
+        ) : resumeStepIndex !== null ? (
+          <>
+            <Button
+              variant="primary"
+              size="sm"
+              onClick={onResumeTour}
+              aria-label={`Resume ${tour.name} tour at step ${resumeStepIndex + 1} of ${tour.steps.length}`}
+              className="w-full sm:w-auto"
+            >
+              Resume
+            </Button>
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => onStartTour(tour.id)}
+              aria-label={`Restart ${tour.name} tour from step 1`}
+              className="w-full sm:w-auto"
+            >
+              Restart
+            </Button>
+          </>
+        ) : (
+          <Button
+            variant={isCompleted ? 'ghost' : 'primary'}
+            size="sm"
+            onClick={() => onStartTour(tour.id)}
+            disabled={isLocked}
+            aria-label={actionName}
+          >
+            {actionLabel}
+          </Button>
+        )}
+      </div>
     </li>
   );
 }
