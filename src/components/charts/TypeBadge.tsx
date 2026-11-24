@@ -8,6 +8,9 @@ interface TypeBadgeProps {
   className?: string;
 }
 
+/** Canonical type fills that are dark enough for white initials (at least 4.5:1). */
+const WHITE_TEXT_TYPES = new Set(['fighting', 'poison', 'ghost', 'dragon', 'dark']);
+
 const TypeBadge: React.FC<TypeBadgeProps> = ({
   type,
   iconOnly = false,
@@ -16,6 +19,8 @@ const TypeBadge: React.FC<TypeBadgeProps> = ({
 }) => {
   const colorClass = TYPE_COLORS[type] || 'bg-gray-500 text-white';
   const hexColor = TYPE_COLORS_HEX[type] || '#666';
+  const iconTextClass =
+    WHITE_TEXT_TYPES.has(type) || !TYPE_COLORS_HEX[type] ? 'text-white' : 'text-black';
 
   const sizeClasses = {
     sm: 'text-[10px] px-1.5 py-0.5',
@@ -34,7 +39,7 @@ const TypeBadge: React.FC<TypeBadgeProps> = ({
 
     return (
       <div
-        className={`rounded-full flex items-center justify-center font-bold capitalize text-white shadow-sm ${sizeDim[size]} ${className}`}
+        className={`rounded-full flex items-center justify-center font-bold capitalize ${iconTextClass} shadow-sm ${sizeDim[size]} ${className}`}
         style={{ backgroundColor: hexColor }}
         title={type}
       >

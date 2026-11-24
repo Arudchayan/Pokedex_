@@ -18,7 +18,6 @@ describe('TeamBuilder DoS Protection', () => {
   const onUpdateTeamMember = vi.fn();
   const onLoadTeam = vi.fn();
   const onRandomize = vi.fn();
-  const onAddPokemon = vi.fn();
   const onAddToTeam = vi.fn();
   const undo = vi.fn();
   const redo = vi.fn();
@@ -40,7 +39,6 @@ describe('TeamBuilder DoS Protection', () => {
     canUndo: true,
     canRedo: true,
     onReorderTeam,
-    onAddPokemon,
     onAddToTeam,
   };
 

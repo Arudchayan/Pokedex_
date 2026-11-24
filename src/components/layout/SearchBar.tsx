@@ -65,6 +65,9 @@ const SearchBar: React.FC<SearchBarProps> = ({
   const handleClear = () => {
     setLocalValue('');
     onChange('');
+    // The clear button unmounts once the value is empty, so move focus back to the
+    // input to avoid dropping it on <body>.
+    inputRef.current?.focus({ preventScroll: true });
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {

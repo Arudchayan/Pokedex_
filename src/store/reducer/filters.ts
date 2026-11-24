@@ -1,4 +1,5 @@
 import type { Action, PokemonState, ReducerContext } from '../pokemonStoreTypes';
+import { clampStatFilterValue } from '../../utils/statFilters';
 
 export function reducePokemonStoreFilters(
   state: PokemonState,
@@ -21,8 +22,13 @@ export function reducePokemonStoreFilters(
     }
 
     case 'SET_MIN_STAT': {
-      const minStats = { ...state.minStats, [action.payload.stat]: action.payload.value };
-      if (action.payload.value <= 0) delete minStats[action.payload.stat];
+      const value = clampStatFilterValue(action.payload.value);
+      const minStats = { ...state.minStats };
+      if (value > 0) {
+        minStats[action.payload.stat] = value;
+      } else {
+        delete minStats[action.payload.stat];
+      }
       return { minStats };
     }
 

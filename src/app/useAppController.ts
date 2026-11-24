@@ -14,6 +14,7 @@ export type ViewMode = 'grid' | 'list';
 export const useAppController = () => {
   const {
     loading,
+    isRetrying,
     error,
     searchTerm,
     selectedGeneration,
@@ -28,6 +29,7 @@ export const useAppController = () => {
     sortOrder,
     theme,
     isShiny,
+    masterPokemonList,
     filteredPokemon,
     reload,
     isCyberpunk,
@@ -137,12 +139,15 @@ export const useAppController = () => {
   }, [handleSelectPokemon]);
 
   const handleFocusSearch = useCallback(() => {
-    searchInputRef.current?.focus();
+    const input =
+      searchInputRef.current ?? (document.getElementById('main-search') as HTMLInputElement | null);
+    input?.focus();
   }, []);
 
   return {
     // Data + UI
     loading,
+    isRetrying,
     error,
     searchTerm,
     selectedGeneration,
@@ -159,6 +164,7 @@ export const useAppController = () => {
     theme,
     isShiny,
     isCyberpunk,
+    masterPokemonList,
     filteredPokemon,
     virtualList,
 

@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
+import ReactDOM from 'react-dom';
 import { useModalStore } from '../../store/useModalStore';
 import { usePokemonStore } from '../../store/usePokemonStore';
 import { AppController } from '../../app/useAppController';
+import { useFocusTrap } from '../../hooks/useFocusTrap';
 import { twMerge } from 'tailwind-merge';
 
 interface CommandPaletteProps {
@@ -23,8 +25,16 @@ type CommandItem = {
 export default function CommandPalette({ isOpen, onClose, controller }: CommandPaletteProps) {
   const [query, setQuery] = useState('');
   const [selectedIndex, setSelectedIndex] = useState(0);
+  const dialogRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLUListElement>(null);
+
+  useFocusTrap({
+    active: isOpen,
+    containerRef: dialogRef,
+    initialFocusRef: inputRef,
+    onEscape: onClose,
+  });
 
   const {
     theme,
@@ -272,17 +282,16 @@ export default function CommandPalette({ isOpen, onClose, controller }: CommandP
   }, [query, commands, masterPokemonList, handleSelectPokemon, onClose]);
 
   useEffect(() => {
-    if (isOpen) {
-      setQuery('');
-      setSelectedIndex(0);
-      // Wait for mount
-      requestAnimationFrame(() => {
-        inputRef.current?.focus();
-      });
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
-    }
+    if (!isOpen) return;
+
+    setQuery('');
+    setSelectedIndex(0);
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
   }, [isOpen]);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -299,9 +308,6 @@ export default function CommandPalette({ isOpen, onClose, controller }: CommandP
       if (filteredCommands[selectedIndex]) {
         filteredCommands[selectedIndex].action();
       }
-    } else if (e.key === 'Escape') {
-      e.preventDefault();
-      onClose();
     }
   };
 
@@ -312,11 +318,13 @@ export default function CommandPalette({ isOpen, onClose, controller }: CommandP
 
   if (!isOpen) return null;
 
-  return (
+  return ReactDOM.createPortal(
     <div
+      ref={dialogRef}
       className="fixed inset-0 z-[2000] flex items-start justify-center pt-[15vh] px-4"
       onClick={onClose}
       role="presentation"
+      tabIndex={-1}
     >
       <div className="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity" />
 
@@ -476,7 +484,8 @@ export default function CommandPalette({ isOpen, onClose, controller }: CommandP
           )}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
 

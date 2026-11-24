@@ -10,9 +10,10 @@ interface Props {
   onClose: () => void;
   date: string;
   seed: number;
+  onReady?: () => void;
 }
 
-const TrainerGame: React.FC<Props> = ({ onClose, date, seed }) => {
+const TrainerGame: React.FC<Props> = ({ onClose, date, seed, onReady }) => {
   const { theme } = usePokemonUI();
   const queryClient = useQueryClient();
   const { recordResult } = useGameStats();
@@ -49,6 +50,10 @@ const TrainerGame: React.FC<Props> = ({ onClose, date, seed }) => {
     };
     init();
   }, [rng, queryClient]);
+
+  useEffect(() => {
+    if (target && teamDetails.length > 0) onReady?.();
+  }, [target, teamDetails.length, onReady]);
 
   const handleSearch = (term: string) => {
     setCurrentGuess(term);
