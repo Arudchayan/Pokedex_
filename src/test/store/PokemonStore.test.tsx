@@ -20,6 +20,22 @@ describe('PokemonStore', () => {
       masterPokemonList: [],
       loading: false,
       error: null,
+      minStats: {},
+    });
+  });
+
+  describe('setMinStat legal stat bounds', () => {
+    it('clamps values above 255 at the store boundary', () => {
+      usePokemonStore.getState().setMinStat('hp', 9999);
+
+      expect(usePokemonStore.getState().minStats).toEqual({ hp: 255 });
+    });
+
+    it('does not store negative or non-finite values', () => {
+      usePokemonStore.getState().setMinStat('attack', -5);
+      usePokemonStore.getState().setMinStat('speed', Number.NaN);
+
+      expect(usePokemonStore.getState().minStats).toEqual({});
     });
   });
 

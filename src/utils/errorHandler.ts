@@ -70,21 +70,26 @@ export const safeApiCall = async <T>(
  */
 export const retryApiCall = async <T>(
   apiCall: () => Promise<T>,
-  maxRetries = 3,
-  delayMs = 1000
+  maxAttempts = 3,
+  delayMs = 1000,
+  signal?: AbortSignal
 ): Promise<T> => {
   let lastError: Error;
 
-  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
     try {
       return await apiCall();
     } catch (error) {
       lastError = error as Error;
 
-      if (attempt < maxRetries) {
+      // A cancelled request (unmount, newer fetch) must not keep retrying.
+      if (signal?.aborted) throw lastError;
+
+      if (attempt < maxAttempts) {
         // Retries are expected in transient failures; log only in dev.
         logger.debug(`[Retry] Attempt ${attempt} failed, retrying in ${delayMs}ms...`);
         await new Promise((resolve) => setTimeout(resolve, delayMs));
+        if (signal?.aborted) throw lastError;
         delayMs *= 2; // Exponential backoff
       }
     }

@@ -12,7 +12,7 @@ const mockFetchResponse = (data: unknown) => {
 const makePokemon = (overrides: Record<string, unknown>) => ({
   id: 1,
   name: 'bulbasaur',
-  pokemon_v2_pokemonsprites: [
+  pokemonsprites: [
     {
       sprites: JSON.stringify({
         front_default: 'http://example.com/sprite.png',
@@ -22,12 +22,12 @@ const makePokemon = (overrides: Record<string, unknown>) => ({
       }),
     },
   ],
-  pokemon_v2_pokemontypes: [{ pokemon_v2_type: { name: 'grass' } }],
-  pokemon_v2_pokemonspecy: {
-    pokemon_v2_pokemonspeciesflavortexts: [{ flavor_text: 'A seed pokemon.' }],
+  pokemontypes: [{ type: { name: 'grass' } }],
+  pokemonspecy: {
+    pokemonspeciesflavortexts: [{ flavor_text: 'A seed pokemon.' }],
   },
-  pokemon_v2_pokemonstats: [{ base_stat: 45, pokemon_v2_stat: { name: 'hp' } }],
-  pokemon_v2_pokemonabilities: [{ pokemon_v2_ability: { name: 'overgrow' } }],
+  pokemonstats: [{ base_stat: 45, stat: { name: 'hp' } }],
+  pokemonabilities: [{ ability: { name: 'overgrow' } }],
   ...overrides,
 });
 
@@ -47,15 +47,15 @@ describe('fetchAllPokemons Performance', () => {
   it('constructs URLs correctly', async () => {
     const pokemonList = [
       makePokemon({ id: 1, name: 'bulbasaur' }), // Standard
-      makePokemon({ id: 25, name: 'pikachu', pokemon_v2_pokemonsprites: [] }), // No sprites
+      makePokemon({ id: 25, name: 'pikachu', pokemonsprites: [] }), // No sprites
       makePokemon({
         id: 150,
         name: 'mewtwo',
-        pokemon_v2_pokemonsprites: [{ sprites: '{invalid-json}' }],
+        pokemonsprites: [{ sprites: '{invalid-json}' }],
       }), // Invalid JSON
     ];
 
-    mockFetchResponse({ pokemon_v2_pokemon: pokemonList });
+    mockFetchResponse({ pokemon: pokemonList });
 
     const result = await fetchAllPokemons();
 
@@ -86,11 +86,11 @@ describe('fetchAllPokemons Performance', () => {
         makePokemon({
           id: i + 1,
           name: `mon-${i}`,
-          pokemon_v2_pokemonsprites: [{ sprites: spriteJson }],
+          pokemonsprites: [{ sprites: spriteJson }],
         })
       );
 
-    mockFetchResponse({ pokemon_v2_pokemon: pokemonList });
+    mockFetchResponse({ pokemon: pokemonList });
 
     // Reset spy to ignore the setup calls if any (none expected)
     parseSpy.mockClear();

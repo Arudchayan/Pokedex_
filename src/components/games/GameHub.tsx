@@ -1,20 +1,80 @@
-import { lazy, Suspense, useEffect, useId, useRef, useState, type FC } from 'react';
-import { usePokemonUI } from '../../context/PokemonContext';
+import {
+  lazy,
+  Suspense,
+  useCallback,
+  useEffect,
+  useId,
+  useRef,
+  useState,
+  type FC,
+  type LazyExoticComponent,
+} from 'react';
+import { usePokemonData, usePokemonDispatch, usePokemonUI } from '../../context/PokemonContext';
 import { useGameStats } from '../../hooks/useGameStats';
 import { dateToSeed } from '../../utils/seededRandom';
+import ErrorBoundary from '../shared/ErrorBoundary';
+import Loader from '../shared/Loader';
 
-const PokedleGame = lazy(() => import('./PokedleGame'));
-const WhosThatPokemonGame = lazy(() => import('./WhosThatPokemonGame'));
-const FlavorGame = lazy(() => import('./FlavorGame'));
-const CryGame = lazy(() => import('./CryGame'));
-const StatGame = lazy(() => import('./StatGame'));
-const MoveGame = lazy(() => import('./MoveGame'));
-const ItemGame = lazy(() => import('./ItemGame'));
-const TrainerGame = lazy(() => import('./TrainerGame'));
+const GAME_LOAD_TIMEOUT_MS = 12_000;
+const focusableSelectors =
+  'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
-const GameBadge = ({ id }: { id: string }) => {
+interface GameProps {
+  onClose: () => void;
+  date: string;
+  seed: number;
+  onReady?: () => void;
+}
+
+const GAME_IMPORTERS = {
+  pokedle: () => import('./PokedleGame'),
+  whosthat: () => import('./WhosThatPokemonGame'),
+  flavor: () => import('./FlavorGame'),
+  cry: () => import('./CryGame'),
+  stat: () => import('./StatGame'),
+  move: () => import('./MoveGame'),
+  item: () => import('./ItemGame'),
+  trainer: () => import('./TrainerGame'),
+};
+
+const GAME_LABELS = {
+  pokedle: 'Pokédle',
+  whosthat: "Who's That Pokémon?",
+  flavor: 'FlavorDle',
+  cry: 'CryDle',
+  stat: 'StatDle',
+  move: 'MoveDle',
+  item: 'ItemDle',
+  trainer: 'TrainerDle',
+};
+
+type GameType = 'none' | keyof typeof GAME_LABELS;
+type GameKey = keyof typeof GAME_LABELS;
+type GameComponentMap = Record<GameKey, LazyExoticComponent<FC<GameProps>>>;
+
+// Recreate the lazy components on retry so a failed chunk import gets a fresh attempt.
+const createGameComponents = (): GameComponentMap => ({
+  pokedle: lazy(GAME_IMPORTERS.pokedle),
+  whosthat: lazy(GAME_IMPORTERS.whosthat),
+  flavor: lazy(GAME_IMPORTERS.flavor),
+  cry: lazy(GAME_IMPORTERS.cry),
+  stat: lazy(GAME_IMPORTERS.stat),
+  move: lazy(GAME_IMPORTERS.move),
+  item: lazy(GAME_IMPORTERS.item),
+  trainer: lazy(GAME_IMPORTERS.trainer),
+});
+
+const GameBadge = ({ id, unavailable = false }: { id: string; unavailable?: boolean }) => {
   const { getStats, hasPlayedToday } = useGameStats();
   const stats = getStats(id);
+
+  if (unavailable) {
+    return (
+      <span className="absolute top-2 right-2 rounded-md bg-slate-500/20 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-slate-400">
+        Unavailable
+      </span>
+    );
+  }
 
   if (hasPlayedToday(id)) {
     return (
@@ -35,16 +95,82 @@ const GameBadge = ({ id }: { id: string }) => {
   return null;
 };
 
-type GameType =
-  | 'none'
-  | 'pokedle'
-  | 'whosthat'
-  | 'flavor'
-  | 'cry'
-  | 'stat'
-  | 'move'
-  | 'item'
-  | 'trainer';
+const GameLoadingState: FC<{ label: string; onBack: () => void }> = ({ label, onBack }) => {
+  const backRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    backRef.current?.focus();
+  }, []);
+
+  return (
+    <div className="flex h-full flex-col items-center justify-center gap-6 p-8" aria-busy="true">
+      <Loader message={`Loading ${label}…`} />
+      <button
+        ref={backRef}
+        type="button"
+        onClick={onBack}
+        className="text-sm font-bold opacity-70 transition-opacity hover:opacity-100"
+      >
+        ← Back to games
+      </button>
+    </div>
+  );
+};
+
+interface GameLoadErrorStateProps {
+  label: string;
+  theme: 'dark' | 'light';
+  onRetry: () => void;
+  onBack: () => void;
+}
+
+const GameLoadErrorState: FC<GameLoadErrorStateProps> = ({ label, theme, onRetry, onBack }) => {
+  const retryRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    retryRef.current?.focus();
+  }, []);
+
+  return (
+    <div className="flex h-full items-center justify-center p-4">
+      <div
+        role="alert"
+        aria-atomic="true"
+        className={`w-full max-w-md rounded-2xl border p-6 text-center shadow-xl ${
+          theme === 'dark'
+            ? 'border-red-500/30 bg-slate-900 text-slate-100'
+            : 'border-red-200 bg-white text-slate-800'
+        }`}
+      >
+        <h2 className="text-xl font-black">Game data couldn&apos;t load</h2>
+        <p className={`mt-2 text-sm ${theme === 'dark' ? 'text-slate-400' : 'text-slate-600'}`}>
+          We couldn&apos;t load {label}. Check your connection and try again.
+        </p>
+        <div className="mt-6 flex flex-wrap justify-center gap-3">
+          <button
+            ref={retryRef}
+            type="button"
+            onClick={onRetry}
+            className="rounded-full bg-primary-500 px-5 py-2 text-sm font-bold text-white transition-colors hover:bg-primary-600"
+          >
+            Retry
+          </button>
+          <button
+            type="button"
+            onClick={onBack}
+            className={`rounded-full border px-5 py-2 text-sm font-bold transition-colors ${
+              theme === 'dark'
+                ? 'border-white/20 text-slate-200 hover:bg-white/10'
+                : 'border-slate-300 text-slate-700 hover:bg-slate-100'
+            }`}
+          >
+            Back to games
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 const getTodayDateString = () => {
   const d = new Date();
@@ -57,33 +183,100 @@ interface GameHubProps {
 
 const GameHub: FC<GameHubProps> = ({ onClose }) => {
   const { theme } = usePokemonUI();
+  const { masterPokemonList, error } = usePokemonData();
+  const { reload } = usePokemonDispatch();
   const [selectedGame, setSelectedGame] = useState<GameType>('none');
+  const [gameComponents, setGameComponents] = useState(createGameComponents);
+  const [gameReady, setGameReady] = useState(false);
+  const [loadTimedOut, setLoadTimedOut] = useState(false);
+  const [gameFailed, setGameFailed] = useState(false);
+  const [launchAttempt, setLaunchAttempt] = useState(0);
   const titleId = useId();
-  const dialogRef = useRef<HTMLDivElement>(null);
+  const dataWarningId = useId();
+  const viewRef = useRef<HTMLDivElement>(null);
+  const gameContentRef = useRef<HTMLDivElement>(null);
+  const lastGameRef = useRef<GameKey | null>(null);
+  const triggerRef = useRef<HTMLElement | null>(null);
 
   // Date Management
   const [date] = useState(getTodayDateString());
 
+  const gameRequiresPokemon =
+    selectedGame !== 'none' && selectedGame !== 'move' && selectedGame !== 'item';
+  const datasetUnavailable = error !== null && masterPokemonList.length === 0;
+  const datasetBlocksGame = gameRequiresPokemon && datasetUnavailable;
+  const showGameError = loadTimedOut || gameFailed || datasetBlocksGame;
+  const showGameLoading = selectedGame !== 'none' && !showGameError && !gameReady;
+
+  const handleBackToGames = useCallback(() => {
+    setSelectedGame('none');
+    setGameReady(false);
+    setLoadTimedOut(false);
+    setGameFailed(false);
+  }, []);
+
+  const openGame = useCallback((game: GameKey) => {
+    lastGameRef.current = game;
+    setSelectedGame(game);
+    setGameReady(false);
+    setLoadTimedOut(false);
+    setGameFailed(false);
+    setGameComponents(createGameComponents());
+  }, []);
+
+  const handleGameReady = useCallback(() => {
+    setGameReady(true);
+  }, []);
+
+  const handleGameError = useCallback(() => {
+    setGameFailed(true);
+  }, []);
+
+  const handleRetry = useCallback(() => {
+    setGameReady(false);
+    setLoadTimedOut(false);
+    setGameFailed(false);
+    setGameComponents(createGameComponents());
+    setLaunchAttempt((attempt) => attempt + 1);
+    if (gameRequiresPokemon && masterPokemonList.length === 0) {
+      void reload();
+    }
+  }, [gameRequiresPokemon, masterPokemonList.length, reload]);
+
+  // Restore focus to whatever opened the Game Hub when it unmounts.
   useEffect(() => {
-    if (selectedGame !== 'none') return;
+    triggerRef.current =
+      document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    return () => triggerRef.current?.focus();
+  }, []);
 
-    const previous = document.activeElement;
-    const dialog = dialogRef.current;
-    const focusableSelectors =
-      'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])';
+  // Bound the loading state: if the lazy chunk or the game's data never resolves, fail visibly.
+  useEffect(() => {
+    if (selectedGame === 'none' || gameReady || showGameError) return;
 
+    const timer = window.setTimeout(() => setLoadTimedOut(true), GAME_LOAD_TIMEOUT_MS);
+    return () => window.clearTimeout(timer);
+  }, [selectedGame, gameReady, showGameError, launchAttempt]);
+
+  // Keep keyboard users inside the active view and let Escape step back to the hub.
+  useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         e.preventDefault();
-        onClose();
+        if (selectedGame === 'none') onClose();
+        else handleBackToGames();
         return;
       }
-      if (e.key !== 'Tab' || !dialog) return;
+      if (e.key !== 'Tab') return;
 
-      const focusable = dialog.querySelectorAll(focusableSelectors);
+      const container = viewRef.current;
+      if (!container) return;
+      const focusable = Array.from(
+        container.querySelectorAll<HTMLElement>(focusableSelectors)
+      ).filter((el) => !el.closest('[hidden], [inert]'));
       if (focusable.length === 0) return;
-      const first = focusable[0] as HTMLElement;
-      const last = focusable[focusable.length - 1] as HTMLElement;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
       if (e.shiftKey && document.activeElement === first) {
         e.preventDefault();
         last.focus();
@@ -94,61 +287,98 @@ const GameHub: FC<GameHubProps> = ({ onClose }) => {
     };
 
     document.addEventListener('keydown', onKeyDown);
-    const firstFocusable = dialog?.querySelector(focusableSelectors) as HTMLElement | null;
-    firstFocusable?.focus();
+    return () => document.removeEventListener('keydown', onKeyDown);
+  }, [selectedGame, onClose, handleBackToGames]);
 
-    return () => {
-      document.removeEventListener('keydown', onKeyDown);
-      if (previous instanceof HTMLElement) previous.focus();
-    };
-  }, [selectedGame, onClose]);
+  // Focus the first hub control when the hub opens or comes back into view.
+  useEffect(() => {
+    if (selectedGame !== 'none') return;
+    const first = viewRef.current?.querySelector<HTMLElement>(focusableSelectors);
+    first?.focus();
+  }, [selectedGame]);
 
-  // Components Map
-  const renderGame = () => {
-    const props = {
-      onClose: () => setSelectedGame('none'),
-      date,
-      seed: dateToSeed(date + '-' + selectedGame),
-    };
-    switch (selectedGame) {
-      case 'pokedle':
-        return <PokedleGame {...props} />;
-      case 'whosthat':
-        return <WhosThatPokemonGame {...props} />;
-      case 'flavor':
-        return <FlavorGame {...props} />;
-      case 'cry':
-        return <CryGame {...props} />;
-      case 'stat':
-        return <StatGame {...props} />;
-      case 'move':
-        return <MoveGame {...props} />;
-      case 'item':
-        return <ItemGame {...props} />;
-      case 'trainer':
-        return <TrainerGame {...props} />;
-      case 'none':
-        return null;
-      default: {
-        const _exhaustive: never = selectedGame;
-        return _exhaustive;
-      }
-    }
+  // Returning from a game should put focus back on the card that launched it.
+  useEffect(() => {
+    if (selectedGame !== 'none') return;
+    const game = lastGameRef.current;
+    if (!game) return;
+    lastGameRef.current = null;
+    viewRef.current?.querySelector<HTMLElement>(`[data-game="${game}"]`)?.focus();
+  }, [selectedGame]);
+
+  // Once the game is mounted and ready, move focus into it.
+  useEffect(() => {
+    if (selectedGame === 'none' || !gameReady || showGameError) return;
+    const first = gameContentRef.current?.querySelector<HTMLElement>(focusableSelectors);
+    first?.focus();
+  }, [selectedGame, gameReady, showGameError]);
+
+  const renderGame = (game: GameKey) => {
+    const GameComponent = gameComponents[game];
+    return (
+      <GameComponent
+        onClose={handleBackToGames}
+        date={date}
+        seed={dateToSeed(date + '-' + game)}
+        onReady={handleGameReady}
+      />
+    );
   };
 
   if (selectedGame !== 'none') {
+    const label = GAME_LABELS[selectedGame];
+
     return (
       <div
+        ref={viewRef}
+        role="dialog"
+        aria-modal="true"
+        aria-label={`${label} game`}
+        aria-busy={showGameLoading}
         className={`fixed inset-0 z-[1050] flex flex-col ${theme === 'dark' ? 'bg-slate-950' : 'bg-slate-50'}`}
       >
         <div className="flex-1 overflow-hidden p-4">
-          <Suspense fallback={<div className="p-8 text-center">Loading game...</div>}>
-            {renderGame()}
-          </Suspense>
+          {showGameError ? (
+            <GameLoadErrorState
+              label={label}
+              theme={theme}
+              onRetry={handleRetry}
+              onBack={handleBackToGames}
+            />
+          ) : (
+            <>
+              {showGameLoading && <GameLoadingState label={label} onBack={handleBackToGames} />}
+              <ErrorBoundary
+                key={`${selectedGame}-${launchAttempt}`}
+                onError={handleGameError}
+                fallback={null}
+              >
+                <Suspense fallback={null}>
+                  <div
+                    ref={gameContentRef}
+                    className="h-full"
+                    hidden={!gameReady}
+                    aria-hidden={!gameReady}
+                  >
+                    {renderGame(selectedGame)}
+                  </div>
+                </Suspense>
+              </ErrorBoundary>
+            </>
+          )}
         </div>
       </div>
     );
   }
+
+  const gameCardClass = (unavailable: boolean) =>
+    `relative p-4 sm:p-6 rounded-xl shadow-lg transition-all flex flex-col items-center justify-center gap-2 sm:gap-3 ${
+      unavailable ? 'opacity-50 cursor-not-allowed' : 'hover:scale-[1.02]'
+    } ${
+      theme === 'dark'
+        ? `bg-slate-800 ${unavailable ? '' : 'hover:bg-slate-700'}`
+        : `bg-white border border-slate-100 ${unavailable ? '' : 'hover:bg-slate-50'}`
+    }`;
 
   return (
     <div
@@ -157,7 +387,7 @@ const GameHub: FC<GameHubProps> = ({ onClose }) => {
       role="presentation"
     >
       <div
-        ref={dialogRef}
+        ref={viewRef}
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
@@ -193,6 +423,35 @@ const GameHub: FC<GameHubProps> = ({ onClose }) => {
           </button>
         </div>
 
+        {datasetUnavailable && (
+          <div
+            id={dataWarningId}
+            role="alert"
+            className={`mb-4 rounded-xl border p-4 ${
+              theme === 'dark'
+                ? 'border-red-500/30 bg-red-500/10 text-red-100'
+                : 'border-red-200 bg-red-50 text-red-700'
+            }`}
+          >
+            <p className="font-bold">Game data is unavailable</p>
+            <p className={`mt-1 text-sm ${theme === 'dark' ? 'text-red-200/80' : 'text-red-600'}`}>
+              Pokémon data couldn&apos;t load, so those games are paused. MoveDle and ItemDle still
+              work.
+            </p>
+            <button
+              type="button"
+              onClick={() => void reload()}
+              className={`mt-3 rounded-full border px-4 py-1.5 text-sm font-bold transition-colors ${
+                theme === 'dark'
+                  ? 'border-red-200/60 hover:bg-red-500/20'
+                  : 'border-red-300 hover:bg-red-100'
+              }`}
+            >
+              Retry loading data
+            </button>
+          </div>
+        )}
+
         <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
           {/* Battle Button - Featured */}
           <button
@@ -219,10 +478,13 @@ const GameHub: FC<GameHubProps> = ({ onClose }) => {
 
           <button
             type="button"
-            onClick={() => setSelectedGame('pokedle')}
-            className={`relative p-4 sm:p-6 rounded-xl shadow-lg transition-all hover:scale-[1.02] flex flex-col items-center justify-center gap-2 sm:gap-3 ${theme === 'dark' ? 'bg-slate-800 hover:bg-slate-700' : 'bg-white hover:bg-slate-50 border border-slate-100'}`}
+            onClick={() => openGame('pokedle')}
+            disabled={datasetUnavailable}
+            aria-describedby={datasetUnavailable ? dataWarningId : undefined}
+            data-game="pokedle"
+            className={gameCardClass(datasetUnavailable)}
           >
-            <GameBadge id="pokedle" />
+            <GameBadge id="pokedle" unavailable={datasetUnavailable} />
             <span className="text-3xl sm:text-4xl">🦋</span>
             <div className="text-center">
               <h3 className="font-bold text-sm sm:text-lg">Pokédle</h3>
@@ -236,10 +498,13 @@ const GameHub: FC<GameHubProps> = ({ onClose }) => {
 
           <button
             type="button"
-            onClick={() => setSelectedGame('whosthat')}
-            className={`relative p-4 sm:p-6 rounded-xl shadow-lg transition-all hover:scale-[1.02] flex flex-col items-center justify-center gap-2 sm:gap-3 ${theme === 'dark' ? 'bg-slate-800 hover:bg-slate-700' : 'bg-white hover:bg-slate-50 border border-slate-100'}`}
+            onClick={() => openGame('whosthat')}
+            disabled={datasetUnavailable}
+            aria-describedby={datasetUnavailable ? dataWarningId : undefined}
+            data-game="whosthat"
+            className={gameCardClass(datasetUnavailable)}
           >
-            <GameBadge id="whosthat" />
+            <GameBadge id="whosthat" unavailable={datasetUnavailable} />
             <span className="text-4xl">❓</span>
             <div className="text-center">
               <h3 className="font-bold text-lg">Who's That Pokémon?</h3>
@@ -251,10 +516,13 @@ const GameHub: FC<GameHubProps> = ({ onClose }) => {
 
           <button
             type="button"
-            onClick={() => setSelectedGame('flavor')}
-            className={`relative p-4 sm:p-6 rounded-xl shadow-lg transition-all hover:scale-[1.02] flex flex-col items-center justify-center gap-2 sm:gap-3 ${theme === 'dark' ? 'bg-slate-800 hover:bg-slate-700' : 'bg-white hover:bg-slate-50 border border-slate-100'}`}
+            onClick={() => openGame('flavor')}
+            disabled={datasetUnavailable}
+            aria-describedby={datasetUnavailable ? dataWarningId : undefined}
+            data-game="flavor"
+            className={gameCardClass(datasetUnavailable)}
           >
-            <GameBadge id="flavor" />
+            <GameBadge id="flavor" unavailable={datasetUnavailable} />
             <span className="text-4xl">📜</span>
             <div className="text-center">
               <h3 className="font-bold text-lg">FlavorDle</h3>
@@ -266,10 +534,13 @@ const GameHub: FC<GameHubProps> = ({ onClose }) => {
 
           <button
             type="button"
-            onClick={() => setSelectedGame('cry')}
-            className={`relative p-4 sm:p-6 rounded-xl shadow-lg transition-all hover:scale-[1.02] flex flex-col items-center justify-center gap-2 sm:gap-3 ${theme === 'dark' ? 'bg-slate-800 hover:bg-slate-700' : 'bg-white hover:bg-slate-50 border border-slate-100'}`}
+            onClick={() => openGame('cry')}
+            disabled={datasetUnavailable}
+            aria-describedby={datasetUnavailable ? dataWarningId : undefined}
+            data-game="cry"
+            className={gameCardClass(datasetUnavailable)}
           >
-            <GameBadge id="cry" />
+            <GameBadge id="cry" unavailable={datasetUnavailable} />
             <span className="text-4xl">🔊</span>
             <div className="text-center">
               <h3 className="font-bold text-lg">CryDle</h3>
@@ -281,10 +552,13 @@ const GameHub: FC<GameHubProps> = ({ onClose }) => {
 
           <button
             type="button"
-            onClick={() => setSelectedGame('stat')}
-            className={`relative p-4 sm:p-6 rounded-xl shadow-lg transition-all hover:scale-[1.02] flex flex-col items-center justify-center gap-2 sm:gap-3 ${theme === 'dark' ? 'bg-slate-800 hover:bg-slate-700' : 'bg-white hover:bg-slate-50 border border-slate-100'}`}
+            onClick={() => openGame('stat')}
+            disabled={datasetUnavailable}
+            aria-describedby={datasetUnavailable ? dataWarningId : undefined}
+            data-game="stat"
+            className={gameCardClass(datasetUnavailable)}
           >
-            <GameBadge id="stat" />
+            <GameBadge id="stat" unavailable={datasetUnavailable} />
             <span className="text-4xl">📊</span>
             <div className="text-center">
               <h3 className="font-bold text-lg">StatDle</h3>
@@ -296,8 +570,9 @@ const GameHub: FC<GameHubProps> = ({ onClose }) => {
 
           <button
             type="button"
-            onClick={() => setSelectedGame('move')}
-            className={`relative p-4 sm:p-6 rounded-xl shadow-lg transition-all hover:scale-[1.02] flex flex-col items-center justify-center gap-2 sm:gap-3 ${theme === 'dark' ? 'bg-slate-800 hover:bg-slate-700' : 'bg-white hover:bg-slate-50 border border-slate-100'}`}
+            onClick={() => openGame('move')}
+            data-game="move"
+            className={gameCardClass(false)}
           >
             <GameBadge id="move" />
             <span className="text-4xl">⚔️</span>
@@ -311,8 +586,9 @@ const GameHub: FC<GameHubProps> = ({ onClose }) => {
 
           <button
             type="button"
-            onClick={() => setSelectedGame('item')}
-            className={`relative p-4 sm:p-6 rounded-xl shadow-lg transition-all hover:scale-[1.02] flex flex-col items-center justify-center gap-2 sm:gap-3 ${theme === 'dark' ? 'bg-slate-800 hover:bg-slate-700' : 'bg-white hover:bg-slate-50 border border-slate-100'}`}
+            onClick={() => openGame('item')}
+            data-game="item"
+            className={gameCardClass(false)}
           >
             <GameBadge id="item" />
             <span className="text-4xl">🎒</span>
@@ -326,10 +602,13 @@ const GameHub: FC<GameHubProps> = ({ onClose }) => {
 
           <button
             type="button"
-            onClick={() => setSelectedGame('trainer')}
-            className={`relative p-4 sm:p-6 rounded-xl shadow-lg transition-all hover:scale-[1.02] flex flex-col items-center justify-center gap-2 sm:gap-3 ${theme === 'dark' ? 'bg-slate-800 hover:bg-slate-700' : 'bg-white hover:bg-slate-50 border border-slate-100'}`}
+            onClick={() => openGame('trainer')}
+            disabled={datasetUnavailable}
+            aria-describedby={datasetUnavailable ? dataWarningId : undefined}
+            data-game="trainer"
+            className={gameCardClass(datasetUnavailable)}
           >
-            <GameBadge id="trainer" />
+            <GameBadge id="trainer" unavailable={datasetUnavailable} />
             <span className="text-4xl">🧢</span>
             <div className="text-center">
               <h3 className="font-bold text-lg">TrainerDle</h3>

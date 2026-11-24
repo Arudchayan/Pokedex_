@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { usePokemonStore } from '../../store/usePokemonStore';
+import { resolveTourTarget } from '../../utils/tourTarget';
 
 interface SpotlightOverlayProps {
   targetSelector: string;
@@ -31,7 +32,7 @@ export default function SpotlightOverlay({
   const updateRect = useCallback(() => {
     if (!isActive) return;
 
-    const element = document.querySelector(targetSelector);
+    const element = resolveTourTarget(targetSelector);
     if (!element) {
       setTargetRect(null);
       return;

@@ -1,12 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
+import { parsePokemonId } from '../utils/pokemonPath';
 
 export const DEFAULT_DOCUMENT_TITLE = 'Pokedex - Explore All Pokemon with Advanced Features';
-
-function parsePokemonId(raw: string | null): number | null {
-  if (!raw || !/^\d+$/.test(raw)) return null;
-  const id = parseInt(raw, 10);
-  return Number.isFinite(id) && id > 0 ? id : null;
-}
 
 /**
  * Hydrate and sync Pokemon detail selection with `?pokemon=<id>`.

@@ -11,8 +11,7 @@ import { Skeleton } from './Skeleton';
  */
 export const PokemonCardSkeleton: React.FC<{ className?: string }> = ({ className }) => (
   <div
-    role="status"
-    aria-label="Loading..."
+    aria-hidden="true"
     className={`rounded-2xl overflow-hidden border bg-white dark:bg-slate-800/50 border-slate-200 dark:border-white/10 ${className ?? ''}`}
   >
     {/* Image area – 60 % of height */}
@@ -49,8 +48,7 @@ PokemonCardSkeleton.displayName = 'PokemonCardSkeleton';
  */
 export const PokemonDetailSkeleton: React.FC<{ className?: string }> = ({ className }) => (
   <div
-    role="status"
-    aria-label="Loading..."
+    aria-hidden="true"
     className={`rounded-2xl overflow-hidden border bg-white dark:bg-black/40 border-slate-200 dark:border-white/20 p-6 sm:p-8 ${className ?? ''}`}
   >
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -134,8 +132,7 @@ const CalcCardPlaceholder: React.FC = () => (
  */
 export const CalculatorSkeleton: React.FC<{ className?: string }> = ({ className }) => (
   <div
-    role="status"
-    aria-label="Loading..."
+    aria-hidden="true"
     className={`rounded-2xl overflow-hidden border bg-white dark:bg-slate-900/80 border-slate-200 dark:border-white/10 p-6 space-y-6 ${className ?? ''}`}
   >
     {/* Title bar */}
@@ -170,8 +167,7 @@ export interface PokemonGridSkeletonProps {
  */
 export const PokemonGridSkeleton: React.FC<PokemonGridSkeletonProps> = ({ count = 12 }) => (
   <div
-    role="status"
-    aria-label="Loading..."
+    aria-hidden="true"
     className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4"
   >
     {Array.from({ length: count }).map((_, i) => (

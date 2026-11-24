@@ -1,24 +1,21 @@
 query getEncounterLocations($pokemonId: Int!) {
-  pokemon_v2_encounter(
+  encounter(
     where: { pokemon_id: { _eq: $pokemonId } }
-    order_by: {
-      pokemon_v2_version: { name: asc }
-      pokemon_v2_locationarea: { pokemon_v2_location: { name: asc } }
-    }
+    order_by: { version: { name: asc }, locationarea: { location: { name: asc } } }
   ) {
     min_level
     max_level
-    pokemon_v2_encounterslots {
+    encounterslot {
       rarity
-      pokemon_v2_encountermethod {
+      encountermethod {
         name
       }
     }
-    pokemon_v2_version {
+    version {
       name
     }
-    pokemon_v2_locationarea {
-      pokemon_v2_location {
+    locationarea {
+      location {
         name
       }
     }

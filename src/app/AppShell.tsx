@@ -117,7 +117,13 @@ export default function AppShell() {
     >
       <a
         href="#main-content"
-        className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:rounded-md focus:bg-primary-600 focus:px-4 focus:py-2 focus:font-bold focus:text-white focus:shadow-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
+        className={`sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-notification focus:rounded-md focus:px-4 focus:py-2 focus:font-bold focus:shadow-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 ${
+          isCyberpunk
+            ? 'focus:bg-white focus:text-slate-950 focus-visible:outline-cyan-300'
+            : theme === 'dark'
+              ? 'focus:bg-white focus:text-slate-950 focus-visible:outline-white'
+              : 'focus:bg-slate-900 focus:text-white focus-visible:outline-slate-900'
+        }`}
       >
         Skip to content
       </a>
