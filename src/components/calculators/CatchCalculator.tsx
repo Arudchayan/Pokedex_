@@ -13,6 +13,7 @@ import Loader from '../shared/Loader';
 import Modal from '../base/Modal';
 import CalculatorActionButton from './CalculatorActionButton';
 import PokemonAutocomplete from '../shared/PokemonAutocomplete';
+import { formFieldClasses } from '../shared/formFieldClasses';
 import PokemonDatasetStatus from './PokemonDatasetStatus';
 
 interface CatchCalculatorProps {
@@ -239,7 +240,7 @@ const CatchCalculator: React.FC<CatchCalculatorProps> = ({ onClose, initialPokem
                 </label>
                 <select
                   id="catch-ball"
-                  className={`w-full p-3 rounded-lg border focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors appearance-none cursor-pointer ${theme === 'dark' ? 'bg-black/20 border-white/10 text-white' : 'bg-slate-50 border-slate-300 text-slate-900'}`}
+                  className={`w-full p-3 rounded-lg border transition-colors appearance-none cursor-pointer ${formFieldClasses(theme)}`}
                   value={selectedBall}
                   onChange={(e) => setSelectedBall(e.target.value as keyof typeof BALL_TYPES)}
                 >

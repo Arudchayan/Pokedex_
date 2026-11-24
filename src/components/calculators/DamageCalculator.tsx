@@ -11,6 +11,7 @@ import Modal from '../base/Modal';
 import CalculatorActionButton from './CalculatorActionButton';
 import PokemonAutocomplete from '../shared/PokemonAutocomplete';
 import PokemonDatasetStatus from './PokemonDatasetStatus';
+import { formFieldClasses } from '../shared/formFieldClasses';
 
 interface DamageCalculatorProps {
   onClose: () => void;
@@ -229,7 +230,7 @@ const DamageCalculator: React.FC<DamageCalculatorProps> = ({
                   },
                 })
               }
-              className={`w-12 p-1 rounded border text-center ${theme === 'dark' ? 'bg-black/30 border-white/10' : 'bg-white border-slate-300'}`}
+              className={`w-12 p-1 rounded border text-center ${formFieldClasses(theme)}`}
             />
             <span className="text-[10px] w-4 text-center">EV</span>
             <input
@@ -247,7 +248,7 @@ const DamageCalculator: React.FC<DamageCalculatorProps> = ({
                   },
                 })
               }
-              className={`w-12 p-1 rounded border text-center ${theme === 'dark' ? 'bg-black/30 border-white/10' : 'bg-white border-slate-300'}`}
+              className={`w-12 p-1 rounded border text-center ${formFieldClasses(theme)}`}
             />
           </div>
         </div>
@@ -367,7 +368,7 @@ const DamageCalculator: React.FC<DamageCalculatorProps> = ({
                       onChange={(e) =>
                         setAttacker({ ...attacker, level: parseInt(e.target.value, 10) })
                       }
-                      className={`w-full p-2 rounded border mt-1 ${theme === 'dark' ? 'bg-black/20 border-white/10' : 'bg-white border-slate-300'}`}
+                      className={`w-full p-2 rounded border mt-1 ${formFieldClasses(theme)}`}
                     />
                     {attackerLevelError && (
                       <p
@@ -384,7 +385,7 @@ const DamageCalculator: React.FC<DamageCalculatorProps> = ({
                     <select
                       value={attacker.nature}
                       onChange={(e) => setAttacker({ ...attacker, nature: e.target.value })}
-                      className={`w-full p-2 rounded border mt-1 ${theme === 'dark' ? 'bg-black/20 border-white/10' : 'bg-white border-slate-300'}`}
+                      className={`w-full p-2 rounded border mt-1 ${formFieldClasses(theme)}`}
                     >
                       {Object.keys(NATURES).map((n) => (
                         <option key={n} value={n}>
@@ -398,7 +399,7 @@ const DamageCalculator: React.FC<DamageCalculatorProps> = ({
                     <select
                       value={attacker.item}
                       onChange={(e) => setAttacker({ ...attacker, item: e.target.value })}
-                      className={`w-full p-2 rounded border mt-1 ${theme === 'dark' ? 'bg-black/20 border-white/10' : 'bg-white border-slate-300'}`}
+                      className={`w-full p-2 rounded border mt-1 ${formFieldClasses(theme)}`}
                     >
                       {BATTLE_ITEMS.map((i) => (
                         <option key={i.name} value={i.name}>
@@ -414,7 +415,7 @@ const DamageCalculator: React.FC<DamageCalculatorProps> = ({
                       onChange={(e) =>
                         setAttacker({ ...attacker, selectedAbility: e.target.value })
                       }
-                      className={`w-full p-2 rounded border mt-1 ${theme === 'dark' ? 'bg-black/20 border-white/10' : 'bg-white border-slate-300'}`}
+                      className={`w-full p-2 rounded border mt-1 ${formFieldClasses(theme)}`}
                     >
                       {attacker.abilities.map((a) => (
                         <option key={a} value={a}>
@@ -477,7 +478,7 @@ const DamageCalculator: React.FC<DamageCalculatorProps> = ({
                   </label>
                   <select
                     id="damage-move"
-                    className={`w-full p-2 rounded border mt-1 ${theme === 'dark' ? 'bg-black/20 border-white/10' : 'bg-white border-slate-300'}`}
+                    className={`w-full p-2 rounded border mt-1 ${formFieldClasses(theme)}`}
                     onChange={(e) => {
                       const move = attacker.moves.find((m) => m.name === e.target.value) || null;
                       setAttacker({ ...attacker, selectedMove: move });
@@ -604,7 +605,7 @@ const DamageCalculator: React.FC<DamageCalculatorProps> = ({
                       onChange={(e) =>
                         setDefender({ ...defender, level: parseInt(e.target.value, 10) })
                       }
-                      className={`w-full p-2 rounded border mt-1 ${theme === 'dark' ? 'bg-black/20 border-white/10' : 'bg-white border-slate-300'}`}
+                      className={`w-full p-2 rounded border mt-1 ${formFieldClasses(theme)}`}
                     />
                     {defenderLevelError && (
                       <p
@@ -621,7 +622,7 @@ const DamageCalculator: React.FC<DamageCalculatorProps> = ({
                     <select
                       value={defender.nature}
                       onChange={(e) => setDefender({ ...defender, nature: e.target.value })}
-                      className={`w-full p-2 rounded border mt-1 ${theme === 'dark' ? 'bg-black/20 border-white/10' : 'bg-white border-slate-300'}`}
+                      className={`w-full p-2 rounded border mt-1 ${formFieldClasses(theme)}`}
                     >
                       {Object.keys(NATURES).map((n) => (
                         <option key={n} value={n}>
@@ -637,7 +638,7 @@ const DamageCalculator: React.FC<DamageCalculatorProps> = ({
                       onChange={(e) =>
                         setDefender({ ...defender, selectedAbility: e.target.value })
                       }
-                      className={`w-full p-2 rounded border mt-1 ${theme === 'dark' ? 'bg-black/20 border-white/10' : 'bg-white border-slate-300'}`}
+                      className={`w-full p-2 rounded border mt-1 ${formFieldClasses(theme)}`}
                     >
                       {defender.abilities.map((a) => (
                         <option key={a} value={a}>
